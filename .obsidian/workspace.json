@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "ideas/Idee de test.md",
+                "file": "projects/workscript/README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Idee de test"
+              "title": "README"
             }
           }
         ]
@@ -196,20 +196,37 @@
   },
   "active": "33dc1fd3073f5884",
   "lastOpenFiles": [
-    "ideas/Idee de test.md",
-    "docs",
+    "sessions/2026-01-17-session-sync-skill.md",
+    "projects/workscript/decisions.md",
+    "sessions/2026-01-17-brainstorm-strategie.md",
     "owner/Who am i.md",
+    "projects/workscript/README.md",
+    "sessions",
+    "projects/workscript",
+    "concepts/agentic-business-platform.md",
+    "CLAUDE.md",
+    "Home.md",
+    "ideas/Idee de test.md",
+    "docs/obsidian/keyboard-shortcuts.md",
+    "docs/cheatsheets/README.md",
+    "docs/tools/README.md",
+    "docs/tech/README.md",
+    "docs/obsidian/README.md",
+    "docs/README.md",
+    "docs/cheatsheets",
+    "docs/tools",
+    "docs/tech",
+    "docs/obsidian",
+    "docs",
     "owner/My shortcuts.md",
     "owner",
     "journal/2026-01-17.md",
-    "Home.md",
     "templates/idea.md",
     "templates/daily.md",
     "templates",
     "journal",
     "2026-01-17.md",
     "MANIFEST.md",
-    "CLAUDE.md",
     "notes/inbox.md",
     "README.md"
   ]
