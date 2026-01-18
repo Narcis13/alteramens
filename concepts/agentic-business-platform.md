@@ -13,7 +13,10 @@ potential: high
 complexitate: medium-high
 ---
 
-# Agentic Business Platform
+# nbrAIn - Agentic Business Platform
+
+> **Brand:** nbrAIn (se citește "brain", conține AI, nb = Narcis Brindusescu)
+> **Tagline:** "Datele tale, la o întrebare distanță"
 
 ## Descriere scurtă
 
@@ -58,9 +61,13 @@ Platformă colaborativă contabil-antreprenor cu interfață conversațională A
 ## Monetizare
 
 - **Model:** B2B SaaS, subscription lunar
-- **Cine plătește:** Contabilul (include în servicii) SAU antreprenorul direct
-- **Preț estimat:** 99-199 RON/lună per firmă
-- **Potențial:** 20 clienți soție × 99 RON = 1980 RON/lună (aproape de obiectiv)
+- **Cine plătește:** Antreprenorul direct (contabilul poate include în servicii)
+- **Preț:** 50 EUR/lună (~250 RON) per firmă
+- **Potențial:**
+  - 4 clienți × 250 RON = 1.000 RON MRR (obiectiv minim)
+  - 20 clienți × 250 RON = 5.000 RON MRR
+- **Cost API:** ~$1/user/lună → marjă ~98%
+- **Justificare preț:** Acces hands-free 24/7 la datele firmei, conversațional
 
 ## Target Market
 
@@ -120,12 +127,19 @@ Platformă colaborativă contabil-antreprenor cu interfață conversațională A
 
 Întrebări:
 1. Ce faci în fiecare lună pentru TOȚI clienții?
+Operez documenetele primare , facturile le import din sistemul e-factura, operez manual extrasul de cont si alte operatiuni , fac declaratiile fiscale lunare sau trimestriale , inchid luna si verific datele finale.
 2. Ce task durează cel mai mult dar e repetitiv?
+Toate taskurile dureaza aproximativ acelasi numar de minute
 3. Top 3 întrebări când te sună un client?
+Cit am de plata la ANAF? Cit pot sa scot pe dividende?
 4. Cum îți trimit clienții documentele?
+Unii prin email dar majoritatea fizic, uneori daca nu sunt acasa le arunca peste gard!
 5. Ce informație îți lipsește constant de la ei?
+Nimic deosebit , ii sun sa se grabeasca cu datele
 6. Ce ai vrea să poată vedea singuri?
+Cam tot ce am spus ca ii preocupa
 7. Baghetă magică - ce problemă dispare mâine?
+Stresul ca nu imi ajunge timpul sa termin toate firmele
 
 ## Riscuri
 
@@ -153,3 +167,4 @@ Platformă colaborativă contabil-antreprenor cu interfață conversațională A
 | Data | Eveniment |
 |------|-----------|
 | 2026-01-17 | Sesiune brainstorm inițială, decizie focus România, nișă contabili-antreprenori |
+| 2026-01-18 | Validare interviu soție, brand decis (nbrAIn), preț 50 EUR, strategie social media |
