@@ -17,17 +17,18 @@ Overview-ul tuturor proiectelor active din Alteramens.
 | [[forma-mono/forma-mono\|Forma]] | DevTools/Library | Prototype (v0.1) | Bun, TypeScript, Hono | MVP |
 | [[cct2/cct2\|CCT2]] | Digital Product | Prototype | Next.js, Remotion | 2 commits |
 | [[robun/robun\|Robun]] | DevTools/AI Agent | Active (v1.0) | Bun, Hono, grammy, MCP SDK | v1.0.0 |
+| Dualize | DevTools/Library | Planning | Bun, Hono, Zod, citty | Design ready |
 
 ## Clasificare
 
 ### Per Tip
-- **DevTools:** [[bunbase/bunbase|BunBase]], [[forma-mono/forma-mono|Forma]], [[robun/robun|Robun]]
+- **DevTools:** [[bunbase/bunbase|BunBase]], [[forma-mono/forma-mono|Forma]], [[robun/robun|Robun]], Dualize
 - **SaaS:** [[davidup/davidup|DavidUp]], [[contzo/contzo|Contzo]]
 - **Digital Product:** [[cct2/cct2|CCT2]]
 
 ### Per Maturitate
 - **Active development:** BunBase (v0.3), DavidUp (v0.2), Robun (v1.0)
-- **Planning:** Contzo (0% code, 200KB docs)
+- **Planning:** Contzo (0% code, 200KB docs), Dualize (design + implementation plan ready)
 - **Prototype/MVP:** Forma (v0.1, 1 day old), CCT2 (2 commits)
 
 ### Per Revenue Potential
@@ -47,6 +48,7 @@ Toate proiectele folosesc **Bun** ca runtime (excepție: CCT2 pe Next.js/Node). 
 - **Robun** poate folosi **BunBase** ca persistence backend; ambele share Bun + Hono + Zod stack
 - **Robun** poate automatiza workflow-uri Alteramens via Telegram/Discord + MCP tools
 - Experiența din **DavidUp** (Hono + Zod + API design) se aplică direct la **Contzo**
+- **Dualize** va fi folosit în toate proiectele Bun+Hono pentru dual API+CLI interface
 
 ## Legături Rapide
 
