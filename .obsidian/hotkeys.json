@@ -14,5 +14,23 @@
       ],
       "key": "I"
     }
+  ],
+  "quickadd:choice:c544051e-57ef-41e0-9cd3-c4189e4d7eea": [
+    {
+      "modifiers": [
+        "Alt",
+        "Mod"
+      ],
+      "key": "I"
+    }
+  ],
+  "quickadd:choice:8d37e34b-b4a2-42d8-9368-e003b96ead89": [
+    {
+      "modifiers": [
+        "Alt",
+        "Mod"
+      ],
+      "key": "C"
+    }
   ]
 }
