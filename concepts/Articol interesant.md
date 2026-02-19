@@ -1,3 +1,15 @@
+---
+type: foundation
+tags:
+  - fundament
+  - skill-era
+  - ai
+  - strategy
+date: 2026-02-18
+---
+
+# The Skill Era of the Internet
+
 WELCOME TO THE SKILL ERA OF THE INTERNET
 
 for the last 15 years, if you wanted to build a serious software company, you built a product and exposed an api.

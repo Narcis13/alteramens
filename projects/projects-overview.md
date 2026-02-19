@@ -17,18 +17,19 @@ Overview-ul tuturor proiectelor active din Alteramens.
 | [[forma-mono/forma-mono\|Forma]] | DevTools/Library | Prototype (v0.1) | Bun, TypeScript, Hono | MVP |
 | [[cct2/cct2\|CCT2]] | Digital Product | Prototype | Next.js, Remotion | 2 commits |
 | [[robun/robun\|Robun]] | DevTools/AI Agent | Active (v1.0) | Bun, Hono, grammy, MCP SDK | v1.0.0 |
-| Dualize | DevTools/Library | Planning | Bun, Hono, Zod, citty | Design ready |
+| [[dualize/dualize\|Dualize]] | DevTools/Library | Active (v0.1) | Bun, Hono, Zod, citty | Design + Plan ready |
 
 ## Clasificare
 
 ### Per Tip
-- **DevTools:** [[bunbase/bunbase|BunBase]], [[forma-mono/forma-mono|Forma]], [[robun/robun|Robun]], Dualize
+- **DevTools:** [[bunbase/bunbase|BunBase]], [[forma-mono/forma-mono|Forma]], [[robun/robun|Robun]], [[dualize/dualize|Dualize]]
 - **SaaS:** [[davidup/davidup|DavidUp]], [[contzo/contzo|Contzo]]
 - **Digital Product:** [[cct2/cct2|CCT2]]
 
 ### Per Maturitate
 - **Active development:** BunBase (v0.3), DavidUp (v0.2), Robun (v1.0)
-- **Planning:** Contzo (0% code, 200KB docs), Dualize (design + implementation plan ready)
+- **Planning:** Contzo (0% code, 200KB docs)
+- **Ready to build:** [[dualize/dualize|Dualize]] (design + TDD implementation plan, 37 tests planned)
 - **Prototype/MVP:** Forma (v0.1, 1 day old), CCT2 (2 commits)
 
 ### Per Revenue Potential

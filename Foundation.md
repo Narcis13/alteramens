@@ -1,4 +1,15 @@
-https://x.com/stijnnoorman/status/2023766794092044340
+---
+type: foundation
+tags:
+  - fundament
+  - naval
+  - principii
+  - wealth
+date: 2026-02-18
+source: https://x.com/stijnnoorman/status/2023766794092044340
+---
+
+# Productize Yourself - Naval's Framework
 
 Naval taught me more about making money than almost anyone else.
 

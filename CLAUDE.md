@@ -14,6 +14,29 @@ date: 2026-01-17
 
 Vezi [[MANIFEST]] pentru viziune și principii.
 
+## Fundament Filozofic
+
+Două teze fundamentale ghidează toate deciziile din Alteramens:
+
+### Skill Era ([[concepts/Articol interesant|The Skill Era]])
+- LLM-urile comprimă execuția → **judgment-ul devine valoros**
+- De la API-uri (funcționalitate mecanică) la Skills (judgment encodat)
+- Distribuția = a fi parte din workflow-ul agenților, nu dashboard-uri
+- Companii mici (2-5 oameni) cu leverage masiv prin invocări
+- **Cine deține pattern-urile, câștigă**
+
+### Productize Yourself ([[Foundation|Naval's Framework]])
+- **Specific Knowledge** + **Leverage** + **Judgment** + **Accountability**
+- Compounding games: alege un joc pe termen lung și nu întrerupe procesul
+- Code & Content = leverage permissionless (nu ai nevoie de permisiunea nimănui)
+- Munca trebuie să simtă ca joacă → consistență naturală
+- Autenticitatea elimină competiția: nimeni nu poate compete cu tine la a fi tu
+
+### Sinteza aplicată la Alteramens
+- **Ce encodăm:** Specific knowledge din IT/healthcare + development patterns + judgment acumulat
+- **Cum distribuim:** Skills pentru agenți, tools pentru developeri, expertise ca infrastructură
+- **Filtru de evaluare:** Fiecare proiect/idee trece prin: Are leverage? Compound-ează? E autentic? Encodează judgment, nu doar funcționalitate?
+
 ## Despre mine
 Vezi detalii în [[owner/Who am i|Who am i]] pentru context personal.
 - **Narcis Brindusescu** - Administrator IT la un spital din Pitești, România
@@ -43,9 +66,10 @@ Vezi detalii în [[owner/Who am i|Who am i]] pentru context personal.
 - **Engleză** - cod, documentație publică, README-uri
 
 ## Direcții de explorat
-- SaaS (B2B sau B2C)
-- Tools pentru developeri
-- Digital products (cursuri, templates, guides)
+- **Skills & Agent Tools** - Expertise encodată ca skills pentru Claude Code / agenți AI
+- **DevTools cu judgment** - Nu doar funcționalitate, ci opinii/patterns encodate (ex: "cum structurezi X ca un senior")
+- **SaaS mic, leverage mare** - B2B nișat, 2-5 persoane, mii de invocări
+- **Digital products** - Knowledge productizată (cursuri, templates, playbooks)
 
 ## Structura vault-ului
 
@@ -63,6 +87,8 @@ Vezi detalii în [[owner/Who am i|Who am i]] pentru context personal.
 2. Propune structură când lucrurile devin complexe
 3. Adu exemple concrete și date când e posibil
 4. Ține cont de obiectivul de revenue, nu doar de cool factor
+5. **Raportează-te la Fundament** - evaluează ideile prin prisma: Skill Era + Productize Yourself
+6. **Întreabă "unde e judgment-ul?"** - dacă un proiect face doar ce face un API, provoacă-mă să caut mai adânc
 
 ## Linking conventions
 - Folosește `[[nume-idee]]` pentru a lega idei între ele
