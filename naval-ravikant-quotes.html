@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 10 Quotes — Naval Ravikant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           THEME: Dark Botanical
+           Deep forest dark, muted sage greens,
+           elegant serif typography, organic shapes
+           =========================================== */
+        :root {
+            --bg:          #0b0f0e;
+            --bg-alt:      #0f1512;
+            --surface:     #162119;
+            --accent:      #7a9e7a;
+            --accent-dim:  rgba(122, 158, 122, 0.12);
+            --text:        #e4ddd4;
+            --text-muted:  #7a7a72;
+            --text-ghost:  rgba(228, 221, 212, 0.03);
+
+            --font-serif:  'Cormorant Garamond', Georgia, serif;
+            --font-sans:   'DM Sans', system-ui, sans-serif;
+
+            /* All sizes use clamp() for responsive scaling */
+            --title-size:  clamp(3rem, 9vw, 7.5rem);
+            --quote-size:  clamp(1.1rem, 2.6vw, 2rem);
+            --label-size:  clamp(0.65rem, 1vw, 0.85rem);
+            --num-size:    clamp(8rem, 22vw, 18rem);
+
+            --slide-pad:   clamp(2.5rem, 7vw, 7rem);
+            --gap:         clamp(1rem, 2.5vh, 2.5rem);
+
+            --ease:        cubic-bezier(0.16, 1, 0.3, 1);
+            --dur:         0.7s;
+        }
+
+        /* ===========================================
+           RESET & BASE
+           =========================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: 100%;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: width 0.5s var(--ease);
+            z-index: 100;
+            width: 0%;
+        }
+
+        /* ===========================================
+           NAVIGATION DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(1rem, 2.5vw, 2rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            z-index: 100;
+            list-style: none;
+        }
+
+        .nav-dots li {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(228, 221, 212, 0.15);
+            cursor: pointer;
+            transition: background 0.35s, transform 0.35s, height 0.35s;
+        }
+
+        .nav-dots li.active {
+            background: var(--accent);
+            transform: scale(1.4);
+        }
+
+        /* ===========================================
+           SLIDE — CORE RULES (MANDATORY)
+           Every slide = exact viewport height, no overflow
+           =========================================== */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            padding: var(--slide-pad);
+        }
+
+        /* ===========================================
+           BOTANICAL DECORATIONS (SVG, absolutely positioned)
+           =========================================== */
+        .deco {
+            position: absolute;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* ===========================================
+           TITLE SLIDE
+           =========================================== */
+        .title-slide {
+            background: var(--bg);
+            align-items: flex-start;
+        }
+
+        /* Animated entrance: each element fades+slides up */
+        .title-slide .overline,
+        .title-slide h1,
+        .title-slide .divider,
+        .title-slide .byline {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity var(--dur) var(--ease),
+                        transform var(--dur) var(--ease);
+        }
+
+        .title-slide.visible .overline  { opacity: 1; transform: none; transition-delay: 0s; }
+        .title-slide.visible h1         { opacity: 1; transform: none; transition-delay: 0.1s; }
+        .title-slide.visible .divider   { opacity: 1; transform: none; transition-delay: 0.25s; }
+        .title-slide.visible .byline    { opacity: 1; transform: none; transition-delay: 0.35s; }
+
+        .overline {
+            font-family: var(--font-sans);
+            font-size: var(--label-size);
+            font-weight: 300;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: var(--gap);
+        }
+
+        .title-slide h1 {
+            font-family: var(--font-serif);
+            font-size: var(--title-size);
+            font-weight: 300;
+            line-height: 1.05;
+            color: var(--text);
+            max-width: 10ch;
+        }
+
+        .divider {
+            width: clamp(2rem, 5vw, 3.5rem);
+            height: 1px;
+            background: var(--accent);
+            margin: var(--gap) 0;
+            opacity: 0.7;
+        }
+
+        .byline {
+            font-family: var(--font-sans);
+            font-size: var(--label-size);
+            font-weight: 300;
+            letter-spacing: 0.18em;
+            color: var(--text-muted);
+        }
+
+        /* ===========================================
+           QUOTE SLIDES
+           =========================================== */
+        .quote-slide {
+            background: var(--bg);
+            align-items: center;
+            text-align: center;
+        }
+
+        .quote-slide:nth-child(even) {
+            background: var(--bg-alt);
+        }
+
+        /* Large ghost number — decorative background element */
+        .quote-num {
+            position: absolute;
+            font-family: var(--font-serif);
+            font-size: var(--num-size);
+            font-weight: 300;
+            line-height: 1;
+            color: var(--text);
+            opacity: 0.025;
+            right: clamp(0.5rem, 3vw, 3rem);
+            bottom: calc(-1 * clamp(1rem, 3vh, 3rem));
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* Quote content wrapper */
+        .quote-body {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--gap);
+            max-width: min(68ch, 90vw);
+            max-height: 90vh;
+            overflow: hidden;
+        }
+
+        /* Staggered entrance animations for quote elements */
+        .quote-label,
+        blockquote,
+        .quote-rule,
+        .attribution {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity var(--dur) var(--ease),
+                        transform var(--dur) var(--ease);
+        }
+
+        .quote-slide.visible .quote-label  { opacity: 1; transform: none; transition-delay: 0s; }
+        .quote-slide.visible blockquote    { opacity: 1; transform: none; transition-delay: 0.12s; }
+        .quote-slide.visible .quote-rule   { opacity: 0.5; transform: none; transition-delay: 0.28s; }
+        .quote-slide.visible .attribution  { opacity: 1; transform: none; transition-delay: 0.36s; }
+
+        .quote-label {
+            font-family: var(--font-sans);
+            font-size: var(--label-size);
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        blockquote {
+            font-family: var(--font-serif);
+            font-size: var(--quote-size);
+            font-weight: 300;
+            font-style: italic;
+            line-height: 1.65;
+            color: var(--text);
+        }
+
+        .quote-rule {
+            width: clamp(1.5rem, 3vw, 2.5rem);
+            height: 1px;
+            background: var(--accent);
+        }
+
+        .attribution {
+            font-family: var(--font-sans);
+            font-size: var(--label-size);
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+        }
+
+        /* ===========================================
+           RESPONSIVE BREAKPOINTS
+           =========================================== */
+        @media (max-height: 700px) {
+            :root {
+                --slide-pad: clamp(1.5rem, 4vw, 3rem);
+                --quote-size: clamp(1rem, 2.4vw, 1.7rem);
+                --gap: clamp(0.75rem, 1.5vh, 1.5rem);
+            }
+        }
+
+        @media (max-height: 600px) {
+            :root {
+                --slide-pad: clamp(1rem, 3vw, 2rem);
+                --quote-size: clamp(0.9rem, 2vw, 1.4rem);
+                --title-size: clamp(2.5rem, 7vw, 5rem);
+                --gap: clamp(0.5rem, 1.2vh, 1rem);
+            }
+            .nav-dots { display: none; }
+        }
+
+        @media (max-height: 500px) {
+            :root {
+                --slide-pad: clamp(0.75rem, 2.5vw, 1.5rem);
+                --quote-size: clamp(0.8rem, 1.8vw, 1.2rem);
+                --gap: clamp(0.4rem, 1vh, 0.8rem);
+            }
+            .quote-num { display: none; }
+        }
+
+        @media (max-width: 600px) {
+            :root {
+                --quote-size: clamp(1rem, 5.5vw, 1.6rem);
+                --title-size: clamp(3rem, 14vw, 5.5rem);
+            }
+            .nav-dots { display: none; }
+        }
+
+        /* Respect user's motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                transition-duration: 0.2s !important;
+                animation-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <ul class="nav-dots" id="navDots" aria-label="Slide navigation"></ul>
+
+    <!-- =====================
+         SLIDE 0 — Title
+         ===================== -->
+    <section class="slide title-slide" data-slide="0" aria-label="Title slide">
+
+        <!-- Botanical: concentric rings (top-right) -->
+        <svg class="deco" style="top:-12%;right:-8%;width:clamp(220px,48vw,520px);opacity:0.055;" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="250" cy="250" r="230" stroke="#7a9e7a" stroke-width="0.8"/>
+            <circle cx="250" cy="250" r="165" stroke="#7a9e7a" stroke-width="0.5"/>
+            <circle cx="250" cy="250" r="100" stroke="#7a9e7a" stroke-width="0.5"/>
+            <circle cx="250" cy="250" r="42"  stroke="#7a9e7a" stroke-width="0.5"/>
+            <line x1="20"  y1="250" x2="480" y2="250" stroke="#7a9e7a" stroke-width="0.4"/>
+            <line x1="250" y1="20"  x2="250" y2="480" stroke="#7a9e7a" stroke-width="0.4"/>
+            <line x1="87"  y1="87"  x2="413" y2="413" stroke="#7a9e7a" stroke-width="0.3"/>
+            <line x1="413" y1="87"  x2="87"  y2="413" stroke="#7a9e7a" stroke-width="0.3"/>
+        </svg>
+
+        <!-- Botanical: elliptical leaf form (bottom-left) -->
+        <svg class="deco" style="bottom:-18%;left:-10%;width:clamp(160px,38vw,400px);opacity:0.04;" viewBox="0 0 360 360" fill="none" aria-hidden="true">
+            <ellipse cx="180" cy="180" rx="165" ry="110" stroke="#7a9e7a" stroke-width="0.8"/>
+            <ellipse cx="180" cy="180" rx="165" ry="40"  stroke="#7a9e7a" stroke-width="0.4"/>
+            <ellipse cx="180" cy="180" rx="60"  rx="165" stroke="#7a9e7a" stroke-width="0.4"/>
+            <line x1="15"  y1="180" x2="345" y2="180" stroke="#7a9e7a" stroke-width="0.4"/>
+        </svg>
+
+        <p class="overline">Top 10 Quotes</p>
+        <h1>Naval<br>Ravikant</h1>
+        <div class="divider"></div>
+        <p class="byline">On wealth, wisdom &amp; freedom</p>
+    </section>
+
+    <!-- =====================
+         SLIDE 1
+         ===================== -->
+    <section class="slide quote-slide" data-slide="1" aria-label="Quote 1">
+        <span class="quote-num" aria-hidden="true">01</span>
+        <!-- Subtle orb accent -->
+        <svg class="deco" style="top:10%;left:5%;width:clamp(80px,20vw,200px);opacity:0.06;" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+            <circle cx="100" cy="100" r="90" stroke="#7a9e7a" stroke-width="0.6"/>
+            <circle cx="100" cy="100" r="50" stroke="#7a9e7a" stroke-width="0.4"/>
+        </svg>
+        <div class="quote-body">
+            <p class="quote-label">Quote 01</p>
+            <blockquote>"A fit body, a calm mind, a house full of love. These things cannot be bought — they must be earned."</blockquote>
+            <div class="quote-rule"></div>
+            <p class="attribution">— Naval Ravikant</p>
+        </div>
+    </section>
+
+    <!-- =====================
+         SLIDE 2
+         ===================== -->
+    <section class="slide quote-slide" data-slide="2" aria-label="Quote 2">
+        <span class="quote-num" aria-hidden="true">02</span>
+        <svg class="deco" style="bottom:8%;right:6%;width:clamp(100px,22vw,220px);opacity:0.055;" viewBox="0 0 220 220" fill="none" aria-hidden="true">
+            <ellipse cx="110" cy="110" rx="100" ry="70" stroke="#7a9e7a" stroke-width="0.6"/>
+            <ellipse cx="110" cy="110" rx="55"  ry="100" stroke="#7a9e7a" stroke-width="0.4"/>
+        </svg>
+        <div class="quote-body">
+            <p class="quote-label">Quote 02</p>
+            <blockquote>"Desire is a contract that you make with yourself to be unhappy until you get what you want."</blockquote>
+            <div class="quote-rule"></div>
+            <p class="attribution">— Naval Ravikant</p>
+        </div>
+    </section>
+
+    <!-- =====================
+         SLIDE 3
+         ===================== -->
+    <section class="slide quote-slide" data-slide="3" aria-label="Quote 3">
+        <span class="quote-num" aria-hidden="true">03</span>
+        <svg class="deco" style="top:15%;right:8%;width:clamp(90px,18vw,180px);opacity:0.06;" viewBox="0 0 180 180" fill="none" aria-hidden="true">
+            <circle cx="90" cy="90" r="80" stroke="#7a9e7a" stroke-width="0.6"/>
+            <circle cx="90" cy="90" r="45" stroke="#7a9e7a" stroke-width="0.4"/>
+            <circle cx="90" cy="90" r="15" stroke="#7a9e7a" stroke-width="0.4"/>
+        </svg>
+        <div class="quote-body">
+            <p class="quote-label">Quote 03</p>
+            <blockquote>"A rational person can find peace by cultivating indifference to things outside their control."</blockquote>
+            <div class="quote-rule"></div>
+            <p class="attribution">— Naval Ravikant</p>
+        </div>
+    </section>
+
+    <!-- =====================
+         SLIDE 4
+         ===================== -->
+    <section class="slide quote-slide" data-slide="4" aria-label="Quote 4">
+        <span class="quote-num" aria-hidden="true">04</span>
+        <svg class="deco" style="bottom:12%;left:4%;width:clamp(80px,17vw,170px);opacity:0.055;" viewBox="0 0 170 170" fill="none" aria-hidden="true">
+            <ellipse cx="85" cy="85" rx="78" ry="50" stroke="#7a9e7a" stroke-width="0.6"/>
+            <ellipse cx="85" cy="85" rx="40" ry="78" stroke="#7a9e7a" stroke-width="0.4"/>
+        </svg>
+        <div class="quote-body">
+            <p class="quote-label">Quote 04</p>
+            <blockquote>"Forty hour workweeks are a relic of the Industrial Age. Knowledge workers function like athletes — train and sprint, then rest and reassess."</blockquote>
+            <div class="quote-rule"></div>
+            <p class="attribution">— Naval Ravikant</p>
+        </div>
+    </section>
+
+    <!-- =====================
+         SLIDE 5
+         ===================== -->
+    <section class="slide quote-slide" data-slide="5" aria-label="Quote 5">
+        <span class="quote-num" aria-hidden="true">05</span>
+        <svg class="deco" style="top:20%;left:7%;width:clamp(100px,20vw,200px);opacity:0.06;" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+            <circle cx="100" cy="100" r="90" stroke="#7a9e7a" stroke-width="0.6"/>
+            <line x1="10" y1="100" x2="190" y2="100" stroke="#7a9e7a" stroke-width="0.4"/>
+            <line x1="100" y1="10" x2="100" y2="190" stroke="#7a9e7a" stroke-width="0.4"/>
+        </svg>
+        <div class="quote-body">
+            <p class="quote-label">Quote 05</p>
+            <blockquote>"You make your own luck if you stay at it long enough."</blockquote>
+            <div class="quote-rule"></div>
+            <p class="attribution">— Naval Ravikant</p>
+        </div>
+    </section>
+
+    <!-- =====================
+         SLIDE 6
+         ===================== -->
+    <section class="slide quote-slide" data-slide="6" aria-label="Quote 6">
+        <span class="quote-num" aria-hidden="true">06</span>
+        <svg class="deco" style="bottom:10%;right:5%;width:clamp(90px,19vw,190px);opacity:0.055;" viewBox="0 0 190 190" fill="none" aria-hidden="true">
+            <ellipse cx="95" cy="95" rx="86" ry="60" stroke="#7a9e7a" stroke-width="0.6"/>
+            <ellipse cx="95" cy="95" rx="50" ry="86" stroke="#7a9e7a" stroke-width="0.4"/>
+            <circle  cx="95" cy="95" r="20" stroke="#7a9e7a" stroke-width="0.4"/>
+        </svg>
+        <div class="quote-body">
+            <p class="quote-label">Quote 06</p>
+            <blockquote>"Don't take yourself so seriously. You're just a monkey with a plan."</blockquote>
+            <div class="quote-rule"></div>
+            <p class="attribution">— Naval Ravikant</p>
+        </div>
+    </section>
+
+    <!-- =====================
+         SLIDE 7
+         ===================== -->
+    <section class="slide quote-slide" data-slide="7" aria-label="Quote 7">
+        <span class="quote-num" aria-hidden="true">07</span>
+        <svg class="deco" style="top:12%;right:6%;width:clamp(80px,18vw,180px);opacity:0.06;" viewBox="0 0 180 180" fill="none" aria-hidden="true">
+            <circle cx="90" cy="90" r="80" stroke="#7a9e7a" stroke-width="0.7"/>
+            <circle cx="90" cy="90" r="40" stroke="#7a9e7a" stroke-width="0.4"/>
+            <line x1="10" y1="90" x2="170" y2="90" stroke="#7a9e7a" stroke-width="0.3"/>
+        </svg>
+        <div class="quote-body">
+            <p class="quote-label">Quote 07</p>
+            <blockquote>"To the experts, what looks like hard work from the outside, is play from the inside."</blockquote>
+            <div class="quote-rule"></div>
+            <p class="attribution">— Naval Ravikant</p>
+        </div>
+    </section>
+
+    <!-- =====================
+         SLIDE 8
+         ===================== -->
+    <section class="slide quote-slide" data-slide="8" aria-label="Quote 8">
+        <span class="quote-num" aria-hidden="true">08</span>
+        <svg class="deco" style="bottom:8%;left:5%;width:clamp(90px,20vw,200px);opacity:0.055;" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+            <ellipse cx="100" cy="100" rx="90" ry="60" stroke="#7a9e7a" stroke-width="0.6"/>
+            <ellipse cx="100" cy="100" rx="90" ry="30" stroke="#7a9e7a" stroke-width="0.4"/>
+        </svg>
+        <div class="quote-body">
+            <p class="quote-label">Quote 08</p>
+            <blockquote>"The people who have the ability to fail in public under their own name actually gain a lot of power."</blockquote>
+            <div class="quote-rule"></div>
+            <p class="attribution">— Naval Ravikant</p>
+        </div>
+    </section>
+
+    <!-- =====================
+         SLIDE 9
+         ===================== -->
+    <section class="slide quote-slide" data-slide="9" aria-label="Quote 9">
+        <span class="quote-num" aria-hidden="true">09</span>
+        <svg class="deco" style="top:15%;left:6%;width:clamp(80px,17vw,170px);opacity:0.06;" viewBox="0 0 170 170" fill="none" aria-hidden="true">
+            <circle cx="85" cy="85" r="76" stroke="#7a9e7a" stroke-width="0.6"/>
+            <circle cx="85" cy="85" r="42" stroke="#7a9e7a" stroke-width="0.4"/>
+            <circle cx="85" cy="85" r="12" stroke="#7a9e7a" stroke-width="0.4"/>
+            <line x1="9" y1="85" x2="161" y2="85" stroke="#7a9e7a" stroke-width="0.3"/>
+            <line x1="85" y1="9" x2="85" y2="161" stroke="#7a9e7a" stroke-width="0.3"/>
+        </svg>
+        <div class="quote-body">
+            <p class="quote-label">Quote 09</p>
+            <blockquote>"The only true test of intelligence is if you get what you want out of life."</blockquote>
+            <div class="quote-rule"></div>
+            <p class="attribution">— Naval Ravikant</p>
+        </div>
+    </section>
+
+    <!-- =====================
+         SLIDE 10
+         ===================== -->
+    <section class="slide quote-slide" data-slide="10" aria-label="Quote 10">
+        <span class="quote-num" aria-hidden="true">10</span>
+        <svg class="deco" style="bottom:10%;right:6%;width:clamp(100px,22vw,220px);opacity:0.055;" viewBox="0 0 220 220" fill="none" aria-hidden="true">
+            <circle cx="110" cy="110" r="100" stroke="#7a9e7a" stroke-width="0.7"/>
+            <circle cx="110" cy="110" r="60"  stroke="#7a9e7a" stroke-width="0.5"/>
+            <circle cx="110" cy="110" r="22"  stroke="#7a9e7a" stroke-width="0.4"/>
+            <line x1="10"  y1="110" x2="210" y2="110" stroke="#7a9e7a" stroke-width="0.3"/>
+            <line x1="110" y1="10"  x2="110" y2="210" stroke="#7a9e7a" stroke-width="0.3"/>
+            <line x1="39"  y1="39"  x2="181" y2="181" stroke="#7a9e7a" stroke-width="0.3"/>
+            <line x1="181" y1="39"  x2="39"  y2="181" stroke="#7a9e7a" stroke-width="0.3"/>
+        </svg>
+        <div class="quote-body">
+            <p class="quote-label">Quote 10</p>
+            <blockquote>"A taste of freedom can make you unemployable."</blockquote>
+            <div class="quote-rule"></div>
+            <p class="attribution">— Naval Ravikant</p>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           Handles navigation, animations, progress bar,
+           and nav dots. Keyboard + scroll + touch support.
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides       = Array.from(document.querySelectorAll('.slide'));
+                this.total        = this.slides.length;
+                this.current      = 0;
+                this.isScrolling  = false;
+                this.progressBar  = document.getElementById('progressBar');
+                this.dotsEl       = document.getElementById('navDots');
+
+                this.buildDots();
+                this.initObserver();
+                this.initKeyboard();
+                this.initWheel();
+                this.initTouch();
+                this.updateProgress(0);
+            }
+
+            /* Build navigation dots (one per slide) */
+            buildDots() {
+                this.slides.forEach((_, i) => {
+                    const li = document.createElement('li');
+                    li.setAttribute('role', 'button');
+                    li.setAttribute('aria-label', `Go to slide ${i + 1}`);
+                    li.addEventListener('click', () => this.goTo(i));
+                    this.dotsEl.appendChild(li);
+                });
+                this.syncDots(0);
+            }
+
+            /* IntersectionObserver — adds .visible class to trigger CSS animations */
+            initObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = parseInt(entry.target.dataset.slide, 10);
+                            this.current = idx;
+                            this.updateProgress(idx);
+                            this.syncDots(idx);
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(s => observer.observe(s));
+            }
+
+            /* Arrow / Space key navigation */
+            initKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    switch (e.key) {
+                        case 'ArrowDown': case 'ArrowRight': case ' ':
+                            e.preventDefault(); this.goTo(this.current + 1); break;
+                        case 'ArrowUp':   case 'ArrowLeft':
+                            e.preventDefault(); this.goTo(this.current - 1); break;
+                        case 'Home':
+                            this.goTo(0); break;
+                        case 'End':
+                            this.goTo(this.total - 1); break;
+                    }
+                });
+            }
+
+            /* Mouse wheel navigation (debounced) */
+            initWheel() {
+                document.addEventListener('wheel', (e) => {
+                    if (this.isScrolling) return;
+                    this.isScrolling = true;
+                    this.goTo(e.deltaY > 0 ? this.current + 1 : this.current - 1);
+                    setTimeout(() => { this.isScrolling = false; }, 900);
+                }, { passive: true });
+            }
+
+            /* Swipe navigation */
+            initTouch() {
+                let startY = 0;
+                document.addEventListener('touchstart', e => {
+                    startY = e.touches[0].clientY;
+                }, { passive: true });
+                document.addEventListener('touchend', e => {
+                    const delta = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(delta) > 50) {
+                        this.goTo(delta > 0 ? this.current + 1 : this.current - 1);
+                    }
+                }, { passive: true });
+            }
+
+            /* Scroll slide into view (clamped) */
+            goTo(index) {
+                const i = Math.max(0, Math.min(this.total - 1, index));
+                this.slides[i].scrollIntoView({ behavior: 'smooth' });
+            }
+
+            /* Update thin progress bar at top */
+            updateProgress(index) {
+                const pct = index === 0 ? 0 : (index / (this.total - 1)) * 100;
+                this.progressBar.style.width = pct + '%';
+            }
+
+            /* Highlight active nav dot */
+            syncDots(index) {
+                this.dotsEl.querySelectorAll('li').forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            }
+        }
+
+        new SlidePresentation();
+
+        /* ===========================================
+           ANNOTATION OVERLAY (Presenter Toolbox)
+
+           Draws on a transparent canvas overlay during presentations.
+           - Tools: freedraw, line, arrow, square, text, eraser
+           - 7 color presets + custom color picker
+           - S / M / L stroke sizes
+           - Per-slide annotation state (preserved on slide change)
+           - Navigation lockout while drawing (wheel, touch, keyboard)
+           - Press E (or custom key) to toggle; Escape to close
+           =========================================== */
+        class AnnotationOverlay {
+            constructor({
+                accentColor  = '#7a9e7a',
+                defaultColor = '#ef4444',
+                defaultSize  = 4,
+                defaultTool  = 'freedraw',
+                toggleKey    = 'e',
+            } = {}) {
+                this.accentColor = accentColor;
+                this.color       = defaultColor;
+                this.size        = defaultSize;
+                this.tool        = defaultTool;
+                this.toggleKey   = toggleKey.toLowerCase();
+
+                this.isActive  = false;
+                this.isDrawing = false;
+                this.snapshot  = null;
+                this.slideData = new Map();
+                this.currentSlideIdx = 0;
+                this.startX = this.startY = 0;
+                this.textInput = null;
+
+                this._buildCanvas();
+                this._buildUI();
+                this._initSlideWatcher();
+                this._initNavLockout();
+                this._initKeyboard();
+                this._initDrawing();
+                window.addEventListener('resize', () => this._resizeCanvas());
+            }
+
+            _buildCanvas() {
+                this.canvas = document.createElement('canvas');
+                this.canvas.id = 'anno-canvas';
+                this.canvas.style.cssText = `
+                    position: fixed; inset: 0;
+                    width: 100%; height: 100%;
+                    pointer-events: none;
+                    z-index: 998;
+                `;
+                document.body.appendChild(this.canvas);
+                this.ctx = this.canvas.getContext('2d');
+                this._resizeCanvas();
+            }
+
+            _resizeCanvas() {
+                const saved = (this.isActive && this.canvas.width > 0)
+                    ? this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
+                    : null;
+                this.canvas.width  = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                if (saved) this.ctx.putImageData(saved, 0, 0);
+            }
+
+            _buildUI() {
+                this.toggleBtn = document.createElement('button');
+                this.toggleBtn.title = `Toggle annotation (${this.toggleKey.toUpperCase()})`;
+                this.toggleBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                    </svg>
+                    <span style="font-size:8px;font-family:monospace;color:rgba(255,255,255,0.4);display:block;line-height:1">
+                        ${this.toggleKey.toUpperCase()}
+                    </span>
+                `;
+                this.toggleBtn.style.cssText = `
+                    position: fixed; bottom: 1.75rem; left: 1.75rem;
+                    width: 40px; height: 40px; border-radius: 50%;
+                    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+                    color: rgba(255,255,255,0.7); cursor: pointer;
+                    display: flex; align-items: center; justify-content: center; flex-direction: column;
+                    gap: 1px; z-index: 999; padding: 0;
+                    transition: background 0.2s, border-color 0.2s, color 0.2s;
+                `;
+                this.toggleBtn.addEventListener('click', () => this.toggle());
+                document.body.appendChild(this.toggleBtn);
+
+                this.toolbox = document.createElement('div');
+                this.toolbox.style.cssText = `
+                    position: fixed; bottom: 5.5rem; left: 1.75rem;
+                    background: rgba(12,12,12,0.92); backdrop-filter: blur(16px);
+                    border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+                    padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem;
+                    z-index: 999; transform-origin: bottom left;
+                    transform: translateY(8px) scale(0.96); opacity: 0;
+                    pointer-events: none;
+                    transition: opacity 0.18s, transform 0.18s;
+                `;
+
+                const tools = [
+                    { id: 'freedraw', label: 'Draw',  icon: '✏️' },
+                    { id: 'line',     label: 'Line',  icon: '╱'  },
+                    { id: 'arrow',    label: 'Arrow', icon: '→'  },
+                    { id: 'square',   label: 'Rect',  icon: '▭'  },
+                    { id: 'text',     label: 'Text',  icon: 'T'  },
+                    { id: 'eraser',   label: 'Erase', icon: '⌫'  },
+                ];
+                const toolRow = this._row();
+                this.toolBtns = {};
+                tools.forEach(({ id, label, icon }) => {
+                    const btn = document.createElement('button');
+                    btn.title = label;
+                    btn.textContent = icon;
+                    btn.style.cssText = `
+                        width: 32px; height: 32px; border-radius: 7px;
+                        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+                        color: rgba(255,255,255,0.8); cursor: pointer; padding: 0;
+                        font-size: 14px; display: flex; align-items: center; justify-content: center;
+                        transition: border-color 0.15s, background 0.15s;
+                    `;
+                    btn.addEventListener('click', () => this._selectTool(id));
+                    toolRow.appendChild(btn);
+                    this.toolBtns[id] = btn;
+                });
+                this.toolbox.appendChild(toolRow);
+
+                const presetColors = ['#ef4444','#f97316','#facc15','#4ade80','#60a5fa','#ffffff','#1a1a1a'];
+                const colorRow = this._row();
+                this.colorBtns = {};
+                presetColors.forEach(c => {
+                    const btn = document.createElement('button');
+                    btn.title = c;
+                    btn.style.cssText = `
+                        width: 20px; height: 20px; border-radius: 50%;
+                        background: ${c}; border: 2px solid transparent;
+                        cursor: pointer; padding: 0; flex-shrink: 0;
+                        transition: border-color 0.15s, transform 0.15s;
+                    `;
+                    btn.addEventListener('click', () => this._selectColor(c));
+                    colorRow.appendChild(btn);
+                    this.colorBtns[c] = btn;
+                });
+                const colorPicker = document.createElement('input');
+                colorPicker.type = 'color';
+                colorPicker.value = this.color;
+                colorPicker.title = 'Custom color';
+                colorPicker.style.cssText = `
+                    width: 20px; height: 20px; border-radius: 50%;
+                    border: 2px solid rgba(255,255,255,0.2); cursor: pointer;
+                    padding: 0; flex-shrink: 0; background: none; overflow: hidden;
+                `;
+                colorPicker.addEventListener('input', e => this._selectColor(e.target.value));
+                colorRow.appendChild(colorPicker);
+                this.toolbox.appendChild(colorRow);
+
+                const sizeRow = this._row();
+                const sizes = [{ label: 'S', value: 2 }, { label: 'M', value: 4 }, { label: 'L', value: 8 }];
+                this.sizeBtns = {};
+                sizes.forEach(({ label, value }) => {
+                    const btn = document.createElement('button');
+                    btn.textContent = label;
+                    btn.style.cssText = `
+                        min-width: 28px; height: 28px; border-radius: 6px;
+                        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+                        color: rgba(255,255,255,0.8); cursor: pointer; padding: 0 6px;
+                        font-size: 11px; font-family: sans-serif;
+                        transition: border-color 0.15s, background 0.15s;
+                    `;
+                    btn.addEventListener('click', () => this._selectSize(value));
+                    sizeRow.appendChild(btn);
+                    this.sizeBtns[value] = btn;
+                });
+                const spacer = document.createElement('div');
+                spacer.style.flex = '1';
+                sizeRow.appendChild(spacer);
+                const clearBtn = document.createElement('button');
+                clearBtn.title = 'Clear annotations on this slide';
+                clearBtn.textContent = '🗑';
+                clearBtn.style.cssText = `
+                    width: 28px; height: 28px; border-radius: 6px;
+                    background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+                    color: rgba(255,255,255,0.8); cursor: pointer; padding: 0;
+                    font-size: 13px; transition: background 0.15s;
+                `;
+                clearBtn.addEventListener('click', () => {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.slideData.delete(this.currentSlideIdx);
+                });
+                sizeRow.appendChild(clearBtn);
+                this.toolbox.appendChild(sizeRow);
+
+                document.body.appendChild(this.toolbox);
+
+                this._selectTool(this.tool);
+                this._selectColor(this.color);
+                this._selectSize(this.size);
+            }
+
+            _row() {
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex;gap:6px;align-items:center;';
+                return row;
+            }
+
+            _selectTool(id) {
+                this.tool = id;
+                Object.entries(this.toolBtns).forEach(([tid, btn]) => {
+                    const active = tid === id;
+                    btn.style.background  = active ? `${this.accentColor}33` : 'rgba(255,255,255,0.06)';
+                    btn.style.borderColor = active ? this.accentColor         : 'rgba(255,255,255,0.1)';
+                    btn.style.color       = active ? this.accentColor         : 'rgba(255,255,255,0.8)';
+                });
+                this.canvas.style.cursor = id === 'eraser' ? 'cell' : id === 'text' ? 'text' : 'crosshair';
+            }
+
+            _selectColor(c) {
+                this.color = c;
+                Object.entries(this.colorBtns).forEach(([col, btn]) => {
+                    btn.style.borderColor = col === c ? 'rgba(255,255,255,0.9)' : 'transparent';
+                    btn.style.transform   = col === c ? 'scale(1.2)'            : 'none';
+                });
+            }
+
+            _selectSize(v) {
+                this.size = v;
+                Object.entries(this.sizeBtns).forEach(([val, btn]) => {
+                    const active = parseInt(val) === v;
+                    btn.style.borderColor = active ? this.accentColor        : 'rgba(255,255,255,0.1)';
+                    btn.style.background  = active ? `${this.accentColor}22` : 'rgba(255,255,255,0.06)';
+                });
+            }
+
+            _initSlideWatcher() {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach(m => {
+                        if (m.type === 'attributes' && m.attributeName === 'class') {
+                            const slide = m.target;
+                            if (slide.classList.contains('visible')) {
+                                const newIdx = parseInt(slide.dataset.slide, 10);
+                                if (!isNaN(newIdx) && newIdx !== this.currentSlideIdx) {
+                                    this._saveCurrentSlide();
+                                    this.currentSlideIdx = newIdx;
+                                    this._loadSlide(newIdx);
+                                }
+                            }
+                        }
+                    });
+                });
+                document.querySelectorAll('.slide').forEach(s => observer.observe(s, { attributes: true }));
+            }
+
+            _saveCurrentSlide() {
+                const data = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                this.slideData.set(this.currentSlideIdx, data);
+            }
+
+            _loadSlide(idx) {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const data = this.slideData.get(idx);
+                if (data) this.ctx.putImageData(data, 0, 0);
+            }
+
+            _initNavLockout() {
+                const capture = { capture: true, passive: false };
+                window.addEventListener('wheel', (e) => {
+                    if (this.isActive) e.stopPropagation();
+                }, capture);
+                window.addEventListener('touchstart', (e) => {
+                    if (this.isActive) e.stopPropagation();
+                }, capture);
+                window.addEventListener('touchend', (e) => {
+                    if (this.isActive) e.stopPropagation();
+                }, capture);
+                window.addEventListener('keydown', (e) => {
+                    if (this.isActive && this.isDrawing) {
+                        if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) {
+                            e.stopPropagation();
+                        }
+                    }
+                }, capture);
+            }
+
+            _initKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                    if (e.key.toLowerCase() === this.toggleKey) {
+                        this.toggle();
+                    } else if (e.key === 'Escape' && this.isActive) {
+                        this.toggle();
+                    }
+                });
+            }
+
+            toggle() {
+                this.isActive = !this.isActive;
+                this.canvas.style.pointerEvents = this.isActive ? 'all' : 'none';
+                if (this.isActive) {
+                    this.toolbox.style.opacity       = '1';
+                    this.toolbox.style.transform     = 'none';
+                    this.toolbox.style.pointerEvents = 'all';
+                    this.toggleBtn.style.background  = this.accentColor;
+                    this.toggleBtn.style.borderColor = this.accentColor;
+                    this.toggleBtn.style.color       = '#fff';
+                } else {
+                    this.toolbox.style.opacity       = '0';
+                    this.toolbox.style.transform     = 'translateY(8px) scale(0.96)';
+                    this.toolbox.style.pointerEvents = 'none';
+                    this.toggleBtn.style.background  = 'rgba(255,255,255,0.08)';
+                    this.toggleBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+                    this.toggleBtn.style.color       = 'rgba(255,255,255,0.7)';
+                }
+            }
+
+            _initDrawing() {
+                this.canvas.addEventListener('mousedown',  e => this._onDown(e.offsetX, e.offsetY));
+                this.canvas.addEventListener('mousemove',  e => this._onMove(e.offsetX, e.offsetY));
+                this.canvas.addEventListener('mouseup',    e => this._onUp(e.offsetX, e.offsetY));
+                this.canvas.addEventListener('mouseleave', () => { if (this.isDrawing) this._onUp(0, 0); });
+
+                this.canvas.addEventListener('touchstart', e => {
+                    e.preventDefault();
+                    const t = e.touches[0], r = this.canvas.getBoundingClientRect();
+                    this._onDown(t.clientX - r.left, t.clientY - r.top);
+                }, { passive: false });
+                this.canvas.addEventListener('touchmove', e => {
+                    e.preventDefault();
+                    const t = e.touches[0], r = this.canvas.getBoundingClientRect();
+                    this._onMove(t.clientX - r.left, t.clientY - r.top);
+                }, { passive: false });
+                this.canvas.addEventListener('touchend', e => {
+                    e.preventDefault();
+                    const t = e.changedTouches[0], r = this.canvas.getBoundingClientRect();
+                    this._onUp(t.clientX - r.left, t.clientY - r.top);
+                }, { passive: false });
+            }
+
+            _onDown(x, y) {
+                if (!this.isActive) return;
+                if (this.tool === 'text') { this._startText(x, y); return; }
+
+                this.isDrawing = true;
+                this.startX = x; this.startY = y;
+                this._applyCtxStyle();
+
+                if (this.tool === 'freedraw') {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, y);
+                } else if (this.tool !== 'eraser') {
+                    this.snapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                }
+            }
+
+            _onMove(x, y) {
+                if (!this.isDrawing || !this.isActive) return;
+
+                if (this.tool === 'freedraw') {
+                    this._applyCtxStyle();
+                    this.ctx.lineTo(x, y);
+                    this.ctx.stroke();
+                    return;
+                }
+                if (this.tool === 'eraser') {
+                    this._erase(x, y);
+                    return;
+                }
+                this.ctx.putImageData(this.snapshot, 0, 0);
+                this._applyCtxStyle();
+                this._drawShape(this.tool, this.startX, this.startY, x, y);
+            }
+
+            _onUp(x, y) {
+                if (!this.isDrawing || !this.isActive) return;
+                this.isDrawing = false;
+
+                if (this.tool !== 'freedraw' && this.tool !== 'eraser' && this.snapshot) {
+                    this.ctx.putImageData(this.snapshot, 0, 0);
+                    this._applyCtxStyle();
+                    this._drawShape(this.tool, this.startX, this.startY, x, y);
+                }
+                this.snapshot = null;
+                this.ctx.globalCompositeOperation = 'source-over';
+            }
+
+            _applyCtxStyle() {
+                this.ctx.strokeStyle = this.color;
+                this.ctx.fillStyle   = this.color;
+                this.ctx.lineWidth   = this.size;
+                this.ctx.lineCap     = 'round';
+                this.ctx.lineJoin    = 'round';
+                this.ctx.globalCompositeOperation = 'source-over';
+            }
+
+            _drawShape(tool, x1, y1, x2, y2) {
+                this.ctx.beginPath();
+                if (tool === 'line') {
+                    this.ctx.moveTo(x1, y1);
+                    this.ctx.lineTo(x2, y2);
+                    this.ctx.stroke();
+                } else if (tool === 'arrow') {
+                    const headLen = Math.max(15, this.size * 4);
+                    const angle   = Math.atan2(y2 - y1, x2 - x1);
+                    this.ctx.moveTo(x1, y1);
+                    this.ctx.lineTo(x2, y2);
+                    this.ctx.stroke();
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x2, y2);
+                    this.ctx.lineTo(
+                        x2 - headLen * Math.cos(angle - Math.PI / 6),
+                        y2 - headLen * Math.sin(angle - Math.PI / 6)
+                    );
+                    this.ctx.moveTo(x2, y2);
+                    this.ctx.lineTo(
+                        x2 - headLen * Math.cos(angle + Math.PI / 6),
+                        y2 - headLen * Math.sin(angle + Math.PI / 6)
+                    );
+                    this.ctx.stroke();
+                } else if (tool === 'square') {
+                    this.ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+                }
+            }
+
+            _erase(x, y) {
+                const r = this.size * 4;
+                this.ctx.globalCompositeOperation = 'destination-out';
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, r, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            _startText(x, y) {
+                if (this.textInput) this.textInput.remove();
+                const fontSize = Math.max(14, this.size * 4);
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.style.cssText = `
+                    position: fixed; left: ${x}px; top: ${y}px;
+                    background: transparent; border: none;
+                    outline: 1px dashed rgba(255,255,255,0.4);
+                    color: ${this.color}; font-size: ${fontSize}px;
+                    font-family: sans-serif; min-width: 120px;
+                    z-index: 1000; padding: 2px 4px;
+                `;
+                document.body.appendChild(input);
+                input.focus();
+                this.textInput = input;
+
+                const commit = () => {
+                    const val = input.value.trim();
+                    if (val) {
+                        this.ctx.font      = `${fontSize}px sans-serif`;
+                        this.ctx.fillStyle = this.color;
+                        this.ctx.globalCompositeOperation = 'source-over';
+                        this.ctx.fillText(val, x, y + fontSize);
+                    }
+                    input.remove();
+                    this.textInput = null;
+                };
+                input.addEventListener('keydown', e => {
+                    if (e.key === 'Enter')  { e.preventDefault(); commit(); }
+                    if (e.key === 'Escape') { input.remove(); this.textInput = null; }
+                });
+                input.addEventListener('blur', commit);
+            }
+        }
+
+        new AnnotationOverlay({ accentColor: '#7a9e7a' });
+    </script>
+</body>
+</html>

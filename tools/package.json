@@ -1,0 +1,8 @@
+{
+  "name": "slides-to-mp4",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "dependencies": {
+    "playwright": "^1.44.0"
+  }
+}

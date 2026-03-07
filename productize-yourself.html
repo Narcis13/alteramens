@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productize Yourself — Naval's Framework</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           THEME — NEON CYBER
+           Deep navy/black + cyan + magenta
+           Space Mono headers, DM Sans body
+           =========================================== */
+        :root {
+            --bg-primary:     #06090f;
+            --bg-secondary:   #0d1322;
+            --text-primary:   #d4eeff;
+            --text-secondary: #6a8caf;
+            --text-muted:     #2e4460;
+            --cyan:           #00e5ff;
+            --magenta:        #ff0090;
+            --cyan-glow:      rgba(0, 229, 255, 0.18);
+            --magenta-glow:   rgba(255, 0, 144, 0.15);
+            --cyan-dim:       rgba(0, 229, 255, 0.5);
+
+            --font-mono: 'Space Mono', monospace;
+            --font-body: 'DM Sans', sans-serif;
+
+            /* All sizes use clamp() for viewport-safe scaling */
+            --title-size:   clamp(2.2rem, 7vw, 5.5rem);
+            --h2-size:      clamp(1.4rem, 3.5vw, 2.8rem);
+            --h3-size:      clamp(1rem, 2.2vw, 1.6rem);
+            --number-size:  clamp(4rem, 10vw, 8rem);
+            --body-size:    clamp(0.8rem, 1.3vw, 1rem);
+            --small-size:   clamp(0.62rem, 0.9vw, 0.78rem);
+            --quote-size:   clamp(0.82rem, 1.4vw, 1.05rem);
+
+            --slide-padding: clamp(2rem, 5vw, 5rem);
+            --content-gap:   clamp(0.8rem, 1.8vw, 1.8rem);
+            --el-gap:        clamp(0.35rem, 0.8vw, 0.75rem);
+
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* === RESET === */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* === BASE === */
+        html {
+            height: 100%;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100%;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* === GLOBAL BACKGROUND GRID === */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 229, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 229, 255, 0.025) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* === CUSTOM CURSOR === */
+        #cursor {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            box-shadow: 0 0 8px var(--cyan), 0 0 16px var(--cyan-glow);
+            transition: transform 0.08s;
+            transform: translate(-50%, -50%);
+        }
+
+        #cursor-ring {
+            position: fixed;
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--cyan-dim);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+        }
+
+        /* === PROGRESS BAR === */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--cyan), var(--magenta));
+            z-index: 100;
+            transition: width 0.35s var(--ease-out);
+            box-shadow: 0 0 8px var(--cyan);
+        }
+
+        /* === NAV DOTS === */
+        #nav-dots {
+            position: fixed;
+            right: clamp(0.8rem, 2.5vw, 1.8rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            z-index: 50;
+            list-style: none;
+        }
+
+        .nav-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.25s;
+            border: none;
+            padding: 0;
+        }
+
+        .nav-dot.active {
+            background: var(--cyan);
+            box-shadow: 0 0 6px var(--cyan);
+            transform: scale(1.8);
+        }
+
+        /* === KEYBOARD HINT === */
+        #kb-hint {
+            position: fixed;
+            bottom: clamp(0.8rem, 2.5vw, 1.5rem);
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+            letter-spacing: 0.1em;
+            z-index: 50;
+            white-space: nowrap;
+        }
+
+        .key {
+            border: 1px solid var(--text-muted);
+            padding: 0.1rem 0.3rem;
+            border-radius: 2px;
+        }
+
+        /* ===========================================
+           SLIDE BASE
+           CRITICAL: height 100vh, overflow hidden
+           =========================================== */
+        .slide {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            padding: var(--slide-padding);
+            z-index: 1;
+        }
+
+        /* Subtle CRT scan-line overlay on every slide */
+        .slide::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 3px,
+                rgba(0,0,0,0.06) 3px,
+                rgba(0,0,0,0.06) 4px
+            );
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Content wrapper — prevents overflow */
+        .slide-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            gap: var(--content-gap);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ===========================================
+           REVEAL ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-24px);
+            transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+        }
+
+        .slide.visible .reveal,
+        .slide.visible .reveal-left {
+            opacity: 1;
+            transform: none;
+        }
+
+        /* Stagger delays */
+        .slide.visible .reveal:nth-child(1)  { transition-delay: 0.05s; }
+        .slide.visible .reveal:nth-child(2)  { transition-delay: 0.12s; }
+        .slide.visible .reveal:nth-child(3)  { transition-delay: 0.20s; }
+        .slide.visible .reveal:nth-child(4)  { transition-delay: 0.28s; }
+        .slide.visible .reveal:nth-child(5)  { transition-delay: 0.36s; }
+        .slide.visible .reveal:nth-child(6)  { transition-delay: 0.44s; }
+        .slide.visible .reveal-left:nth-child(1) { transition-delay: 0.05s; }
+        .slide.visible .reveal-left:nth-child(2) { transition-delay: 0.12s; }
+        .slide.visible .reveal-left:nth-child(3) { transition-delay: 0.20s; }
+        .slide.visible .reveal-left:nth-child(4) { transition-delay: 0.28s; }
+        .slide.visible .reveal-left:nth-child(5) { transition-delay: 0.36s; }
+
+        /* === GLITCH ANIMATION === */
+        @keyframes glitch-a {
+            0%, 85%, 100% { clip-path: none; transform: none; }
+            87%  { clip-path: polygon(0 10%, 100% 10%, 100% 35%, 0 35%); transform: translateX(-5px); }
+            89%  { clip-path: polygon(0 60%, 100% 60%, 100% 85%, 0 85%); transform: translateX(5px); }
+            91%  { clip-path: none; transform: none; }
+        }
+
+        @keyframes glitch-b {
+            0%, 85%, 100% { clip-path: none; transform: none; }
+            88%  { clip-path: polygon(0 45%, 100% 45%, 100% 70%, 0 70%); transform: translateX(4px); }
+            90%  { clip-path: none; transform: none; }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 8px var(--cyan-glow); }
+            50%       { box-shadow: 0 0 18px var(--cyan-glow), 0 0 35px rgba(0,229,255,0.06); }
+        }
+
+        /* ===========================================
+           SHARED TYPOGRAPHY UTILITIES
+           =========================================== */
+        .eyebrow {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow.cyan    { color: var(--cyan); }
+        .eyebrow.magenta { color: var(--magenta); }
+
+        .naval-quote {
+            border-left: 2px solid var(--cyan);
+            padding-left: clamp(0.7rem, 1.5vw, 1.2rem);
+        }
+
+        .naval-quote.alt { border-left-color: var(--magenta); }
+
+        .naval-quote p {
+            font-size: var(--quote-size);
+            font-style: italic;
+            color: var(--text-primary);
+            line-height: 1.55;
+        }
+
+        .naval-quote cite {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--cyan);
+            font-style: normal;
+            display: block;
+            margin-top: 0.3rem;
+        }
+
+        .naval-quote.alt cite { color: var(--magenta); }
+
+        .point-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--el-gap);
+        }
+
+        .point-list li {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            padding-left: clamp(0.8rem, 1.5vw, 1.1rem);
+            position: relative;
+            line-height: 1.55;
+        }
+
+        .point-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--cyan);
+            font-size: 0.8em;
+            top: 0.1em;
+        }
+
+        .point-list.alt li::before { color: var(--magenta); }
+
+        /* Limit width of text content on wide screens */
+        .text-col { max-width: min(68vw, 720px); }
+
+        /* ===========================================
+           SLIDE 1 — TITLE
+           =========================================== */
+        .slide-title {
+            justify-content: flex-start;
+            padding-top: clamp(3rem, 8vh, 7rem);
+        }
+
+        .title-word {
+            font-family: var(--font-mono);
+            font-size: var(--title-size);
+            font-weight: 700;
+            line-height: 1.05;
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Glitch layers */
+        .title-word::before,
+        .title-word::after {
+            content: attr(data-text);
+            position: absolute;
+            inset: 0;
+            font-family: var(--font-mono);
+            font-size: inherit;
+            font-weight: inherit;
+            line-height: inherit;
+        }
+
+        .title-word::before {
+            color: var(--magenta);
+            animation: glitch-a 5s 1s infinite;
+            opacity: 0.55;
+        }
+
+        .title-word::after {
+            color: var(--cyan);
+            animation: glitch-b 5s 1.2s infinite;
+            opacity: 0.4;
+        }
+
+        .title-word.cyan-word  { color: var(--cyan);  text-shadow: 0 0 24px var(--cyan-glow); }
+        .title-word.white-word { color: var(--text-primary); }
+
+        .title-meta {
+            display: flex;
+            gap: clamp(1.5rem, 4vw, 3rem);
+            margin-top: clamp(1.2rem, 3vw, 2.5rem);
+        }
+
+        .meta-block { display: flex; flex-direction: column; gap: 3px; }
+
+        .meta-block .label {
+            font-family: var(--font-mono);
+            font-size: 0.58rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+        }
+
+        .meta-block .value {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--cyan);
+        }
+
+        /* Large decorative bg text */
+        .bg-deco {
+            position: absolute;
+            right: calc(-1 * clamp(1rem, 2vw, 3rem));
+            bottom: calc(-1 * clamp(2rem, 5vh, 6rem));
+            font-family: var(--font-mono);
+            font-size: clamp(6rem, 22vw, 20rem);
+            font-weight: 700;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(0, 229, 255, 0.04);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+
+        /* ===========================================
+           SLIDE 2 — INTRO / FORMULA
+           =========================================== */
+        .formula-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: clamp(0.4rem, 1.2vw, 1rem);
+        }
+
+        .formula-tag {
+            font-family: var(--font-mono);
+            font-size: var(--body-size);
+            padding: clamp(0.3rem, 0.8vw, 0.55rem) clamp(0.7rem, 1.5vw, 1.1rem);
+            border: 1px solid rgba(0, 229, 255, 0.35);
+            color: var(--cyan);
+            background: rgba(0, 229, 255, 0.04);
+        }
+
+        .formula-op {
+            font-family: var(--font-mono);
+            font-size: var(--body-size);
+            color: var(--text-muted);
+        }
+
+        .intro-lead {
+            font-size: var(--h3-size);
+            line-height: 1.5;
+            color: var(--text-primary);
+            font-weight: 300;
+        }
+
+        .intro-lead strong { color: var(--cyan); font-weight: 600; }
+
+        /* ===========================================
+           CONCEPT SLIDES (3–12)
+           =========================================== */
+        .slide-concept { justify-content: flex-start; padding-top: clamp(2rem, 5vh, 4rem); }
+
+        /* Large ghost number in corner */
+        .ghost-num {
+            position: absolute;
+            right: var(--slide-padding);
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: var(--font-mono);
+            font-size: var(--number-size);
+            font-weight: 700;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(0, 229, 255, 0.12);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+
+        .ghost-num.alt { -webkit-text-stroke-color: rgba(255, 0, 144, 0.12); }
+
+        .concept-title {
+            font-family: var(--font-mono);
+            font-size: var(--h2-size);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .concept-title .hl      { color: var(--cyan); }
+        .concept-title .hl-alt  { color: var(--magenta); }
+
+        /* ===========================================
+           SLIDE 5 — LEVERAGE GRID
+           =========================================== */
+        .leverage-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.4rem, 1vw, 0.7rem);
+            max-width: min(58vw, 580px);
+        }
+
+        .lev-card {
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            padding: clamp(0.5rem, 1.2vw, 0.9rem);
+            background: rgba(0, 229, 255, 0.02);
+        }
+
+        .lev-card.star {
+            border-color: rgba(0, 229, 255, 0.4);
+            background: rgba(0, 229, 255, 0.05);
+        }
+
+        .lev-card .lc-tag {
+            font-family: var(--font-mono);
+            font-size: 0.58rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.2rem;
+        }
+
+        .lev-card.star .lc-tag { color: var(--magenta); }
+
+        .lev-card .lc-name {
+            font-size: var(--body-size);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .lev-card .lc-desc {
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            margin-top: 0.15rem;
+        }
+
+        /* ===========================================
+           SLIDE 9 — SKILLSET SPECIAL LIST
+           =========================================== */
+        .skill-row {
+            display: flex;
+            align-items: baseline;
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+
+        .skill-name {
+            font-family: var(--font-mono);
+            font-size: var(--body-size);
+            font-weight: 700;
+            min-width: clamp(80px, 12vw, 140px);
+        }
+
+        .skill-name.cyan { color: var(--cyan); }
+        .skill-name.white { color: var(--text-primary); }
+
+        .skill-desc {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+        }
+
+        /* ===========================================
+           SLIDE 13 — SUMMARY FORMULA
+           =========================================== */
+        .big-formula {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+        }
+
+        .bf-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+        }
+
+        .bf-tag {
+            font-family: var(--font-mono);
+            font-size: clamp(0.75rem, 1.4vw, 1rem);
+            padding: clamp(0.35rem, 0.8vw, 0.6rem) clamp(0.7rem, 1.5vw, 1.2rem);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            background: rgba(0, 229, 255, 0.04);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        .bf-tag.m {
+            border-color: var(--magenta);
+            color: var(--magenta);
+            background: rgba(255, 0, 144, 0.04);
+            animation: none;
+        }
+
+        .bf-op  { font-family: var(--font-mono); font-size: var(--h3-size); color: var(--text-muted); }
+
+        .bf-result {
+            font-family: var(--font-mono);
+            font-size: var(--h2-size);
+            font-weight: 700;
+            color: var(--cyan);
+            text-shadow: 0 0 20px var(--cyan-glow);
+        }
+
+        /* ===========================================
+           SLIDE 14 — FINAL / RECAP
+           =========================================== */
+        .recap-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.2rem, 0.6vw, 0.4rem) clamp(1rem, 3vw, 2rem);
+            max-width: min(75vw, 760px);
+        }
+
+        .recap-item {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            padding: clamp(0.2rem, 0.5vw, 0.35rem) 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .recap-item::before {
+            content: '→';
+            color: var(--cyan);
+            flex-shrink: 0;
+        }
+
+        /* ===========================================
+           RESPONSIVE BREAKPOINTS
+           =========================================== */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(1.2rem, 3vw, 2.5rem);
+                --content-gap:   clamp(0.5rem, 1.3vw, 1rem);
+                --h2-size:       clamp(1.2rem, 3vw, 2rem);
+                --number-size:   clamp(3rem, 7vw, 5rem);
+            }
+        }
+
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.8rem, 2.5vw, 1.8rem);
+                --content-gap:   clamp(0.4rem, 1vw, 0.8rem);
+                --h2-size:       clamp(1rem, 2.5vw, 1.6rem);
+            }
+            #kb-hint { display: none; }
+            .naval-quote { display: none; }
+        }
+
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2vw, 1.2rem);
+                --number-size:   clamp(2rem, 5vw, 3.5rem);
+            }
+            #nav-dots { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .text-col        { max-width: 100%; }
+            .leverage-grid   { max-width: 100%; grid-template-columns: 1fr 1fr; }
+            .recap-grid      { grid-template-columns: 1fr; max-width: 100%; }
+            .ghost-num       { opacity: 0.5; font-size: clamp(3rem, 12vw, 6rem); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal, .reveal-left { transition: opacity 0.3s ease; transform: none !important; }
+            .title-word::before, .title-word::after { animation: none; }
+            @keyframes pulse-glow { 0%, 100% {} }
+        }
+
+        /* ===========================================
+           ANNOTATION LAYER
+           =========================================== */
+        #annotation-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            pointer-events: none; /* disabled until draw mode active */
+        }
+
+        #annotation-canvas.draw-active {
+            pointer-events: all;
+            cursor: crosshair;
+        }
+
+        /* Toolbar */
+        #anno-toolbar {
+            position: fixed;
+            bottom: clamp(0.8rem, 2.5vw, 1.5rem);
+            left: clamp(0.8rem, 2.5vw, 1.5rem);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(6, 9, 15, 0.88);
+            border: 1px solid rgba(0, 229, 255, 0.18);
+            padding: 5px 8px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .anno-btn {
+            font-family: var(--font-mono);
+            font-size: 0.58rem;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 3px 6px;
+            cursor: pointer;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: color 0.15s, border-color 0.15s, box-shadow 0.15s;
+            white-space: nowrap;
+            line-height: 1.4;
+        }
+
+        .anno-btn:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.12); }
+
+        .anno-btn.active {
+            color: var(--cyan);
+            border-color: var(--cyan);
+            box-shadow: 0 0 6px var(--cyan-glow);
+        }
+
+        .anno-btn.active.eraser {
+            color: var(--magenta);
+            border-color: var(--magenta);
+            box-shadow: 0 0 6px var(--magenta-glow);
+        }
+
+        .anno-sep {
+            width: 1px;
+            height: 14px;
+            background: rgba(255,255,255,0.07);
+            flex-shrink: 0;
+        }
+
+        .color-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: transform 0.12s, border-color 0.12s;
+            flex-shrink: 0;
+        }
+
+        .color-dot:hover  { transform: scale(1.3); }
+        .color-dot.active { border-color: rgba(255,255,255,0.7); transform: scale(1.25); }
+
+        .size-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            border-radius: 2px;
+            transition: border-color 0.12s;
+        }
+
+        .size-btn:hover   { border-color: rgba(255,255,255,0.12); }
+        .size-btn.active  { border-color: rgba(0,229,255,0.4); }
+        .size-btn circle  { fill: var(--text-muted); transition: fill 0.12s; }
+        .size-btn.active circle { fill: var(--cyan); }
+
+        .anno-hint {
+            font-family: var(--font-mono);
+            font-size: 0.52rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        @media (max-height: 500px) { #anno-toolbar { display: none; } }
+    </style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Progress bar -->
+<div id="progress-bar"></div>
+
+<!-- Nav dots -->
+<nav id="nav-dots" role="navigation" aria-label="Slide navigation"></nav>
+
+<!-- Keyboard hint -->
+<div id="kb-hint" aria-hidden="true">
+    <span class="key">↑</span><span class="key">↓</span>
+    <span style="margin-left:3px">navigate</span>
+    <span style="margin: 0 8px; color: var(--text-muted)">·</span>
+    <span class="key">SPACE</span>
+    <span style="margin-left:3px">advance</span>
+    <span style="margin: 0 8px; color: var(--text-muted)">·</span>
+    <span class="key">D</span>
+    <span style="margin-left:3px">draw</span>
+</div>
+
+<!-- Annotation canvas (sits above slides, pointer-events off by default) -->
+<canvas id="annotation-canvas" aria-hidden="true"></canvas>
+
+<!-- Annotation toolbar -->
+<div id="anno-toolbar" aria-label="Annotation tools">
+    <button class="anno-btn" id="draw-btn" title="Toggle draw mode (D)">PEN</button>
+    <div class="anno-sep"></div>
+    <!-- Color swatches -->
+    <div class="color-dot active" data-color="#00e5ff" style="background:#00e5ff" title="Cyan" role="button" tabindex="0" aria-label="Cyan"></div>
+    <div class="color-dot" data-color="#ff0090" style="background:#ff0090" title="Magenta" role="button" tabindex="0" aria-label="Magenta"></div>
+    <div class="color-dot" data-color="#ffffff" style="background:#ffffff" title="White" role="button" tabindex="0" aria-label="White"></div>
+    <div class="color-dot" data-color="#ffd600" style="background:#ffd600" title="Yellow" role="button" tabindex="0" aria-label="Yellow"></div>
+    <div class="anno-sep"></div>
+    <!-- Stroke sizes -->
+    <button class="size-btn active" data-size="3" title="Thin stroke">
+        <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="2"/></svg>
+    </button>
+    <button class="size-btn" data-size="6" title="Medium stroke">
+        <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="3.5"/></svg>
+    </button>
+    <button class="size-btn" data-size="12" title="Thick stroke">
+        <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5"/></svg>
+    </button>
+    <div class="anno-sep"></div>
+    <button class="anno-btn eraser" id="eraser-btn" title="Eraser (E)">ERASE</button>
+    <button class="anno-btn" id="clear-btn" title="Clear this slide (C)">CLEAR</button>
+    <div class="anno-sep"></div>
+    <span class="anno-hint">D · E · C</span>
+</div>
+
+<!-- ============================================================
+     SLIDE 1 — TITLE
+     ============================================================ -->
+<section class="slide slide-title" id="slide-0" aria-label="Title slide">
+    <div class="slide-inner">
+        <span class="eyebrow cyan reveal">Naval Ravikant's Framework</span>
+
+        <div style="display:flex; flex-direction:column; line-height:1; gap:0.05em; margin-top: clamp(0.4rem, 1vw, 0.8rem);">
+            <h1 class="title-word white-word reveal" data-text="Productize">Productize</h1>
+            <h1 class="title-word cyan-word reveal" data-text="Yourself">Yourself</h1>
+        </div>
+
+        <p class="reveal" style="font-size: var(--h3-size); color: var(--text-secondary); font-weight: 300; max-width: 520px; line-height: 1.4;">
+            10 ideas on getting rich — without getting lucky
+        </p>
+
+        <div class="title-meta reveal">
+            <div class="meta-block">
+                <span class="label">Concepts</span>
+                <span class="value">10</span>
+            </div>
+            <div class="meta-block">
+                <span class="label">Source</span>
+                <span class="value">Naval Ravikant</span>
+            </div>
+            <div class="meta-block">
+                <span class="label">Via</span>
+                <span class="value">Stijn Noorman</span>
+            </div>
+        </div>
+    </div>
+    <div class="bg-deco" aria-hidden="true">PY</div>
+</section>
+
+<!-- ============================================================
+     SLIDE 2 — THE FORMULA
+     ============================================================ -->
+<section class="slide" id="slide-1" aria-label="The core formula">
+    <div class="slide-inner">
+        <span class="eyebrow cyan reveal">The Core Formula</span>
+
+        <p class="intro-lead text-col reveal">
+            "Productize" = <strong>specific knowledge</strong> + <strong>leverage</strong><br>
+            "Yourself" = <strong>uniqueness</strong> + <strong>accountability</strong>
+        </p>
+
+        <div class="formula-row reveal">
+            <span class="formula-tag">Specific Knowledge</span>
+            <span class="formula-op">+</span>
+            <span class="formula-tag">Leverage</span>
+            <span class="formula-op">+</span>
+            <span class="formula-tag">Accountability</span>
+            <span class="formula-op">+</span>
+            <span class="formula-tag">Judgment</span>
+        </div>
+
+        <p class="reveal" style="font-family: var(--font-mono); font-size: var(--small-size); color: var(--text-muted);">
+            ↓ 10 ideas that encode this framework
+        </p>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 3 — #01 COMPOUNDING GAMES
+     ============================================================ -->
+<section class="slide slide-concept" id="slide-2" aria-label="Idea 1: Compounding Games">
+    <div class="ghost-num" aria-hidden="true">01</div>
+    <div class="slide-inner">
+        <span class="eyebrow magenta reveal">Idea #01</span>
+        <h2 class="concept-title reveal">Play <span class="hl">Compounding</span> Games</h2>
+
+        <ul class="point-list text-col">
+            <li class="reveal">All returns — wealth, relationships, knowledge — come from compound interest</li>
+            <li class="reveal">Pick a game worth playing long-term. Every direction change interrupts the compounding.</li>
+            <li class="reveal">Choose an industry you love, a craft to master, and people to grow with</li>
+        </ul>
+
+        <blockquote class="naval-quote text-col reveal">
+            <p>"Pick an industry where you can play long-term games with long-term people."</p>
+            <cite>— Naval</cite>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 4 — #02 SPECIFIC KNOWLEDGE
+     ============================================================ -->
+<section class="slide slide-concept" id="slide-3" aria-label="Idea 2: Specific Knowledge">
+    <div class="ghost-num alt" aria-hidden="true">02</div>
+    <div class="slide-inner">
+        <span class="eyebrow cyan reveal">Idea #02</span>
+        <h2 class="concept-title reveal"><span class="hl">Specific</span> Knowledge</h2>
+
+        <ul class="point-list alt text-col">
+            <li class="reveal">Society wants it but can't train for it yet — if they could train you, they could replace you</li>
+            <li class="reveal">Found by pursuing genuine talent, passion, and curiosity — not whatever is hot right now</li>
+            <li class="reveal">Feels effortless to you; looks effortful to others</li>
+        </ul>
+
+        <blockquote class="naval-quote alt text-col reveal">
+            <p>"Building specific knowledge will feel like play to you but will look like work to others."</p>
+            <cite>— Naval</cite>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 5 — #03 LEVERAGE
+     ============================================================ -->
+<section class="slide slide-concept" id="slide-4" aria-label="Idea 3: Build Leverage">
+    <div class="ghost-num" aria-hidden="true">03</div>
+    <div class="slide-inner">
+        <span class="eyebrow magenta reveal">Idea #03</span>
+        <h2 class="concept-title reveal">Build <span class="hl">Leverage</span></h2>
+
+        <div class="leverage-grid">
+            <div class="lev-card reveal">
+                <div class="lc-tag">People</div>
+                <div class="lc-name">Labor</div>
+                <div class="lc-desc">People who work for you</div>
+            </div>
+            <div class="lev-card reveal">
+                <div class="lc-tag">Money</div>
+                <div class="lc-name">Capital</div>
+                <div class="lc-desc">Money that works for you</div>
+            </div>
+            <div class="lev-card star reveal">
+                <div class="lc-tag">★ permissionless</div>
+                <div class="lc-name">Code</div>
+                <div class="lc-desc">Scales infinitely. No permission needed.</div>
+            </div>
+            <div class="lev-card star reveal">
+                <div class="lc-tag">★ permissionless</div>
+                <div class="lc-name">Content</div>
+                <div class="lc-desc">Works while you sleep.</div>
+            </div>
+        </div>
+
+        <blockquote class="naval-quote text-col reveal">
+            <p>"If you can't code, write books and blogs, record videos and podcasts."</p>
+            <cite>— Naval</cite>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 6 — #04 JUDGMENT
+     ============================================================ -->
+<section class="slide slide-concept" id="slide-5" aria-label="Idea 4: Judgment">
+    <div class="ghost-num alt" aria-hidden="true">04</div>
+    <div class="slide-inner">
+        <span class="eyebrow cyan reveal">Idea #04</span>
+        <h2 class="concept-title reveal">Develop <span class="hl-alt">Judgment</span></h2>
+
+        <ul class="point-list alt text-col">
+            <li class="reveal">Wisdom applied to external problems — knowing long-term consequences of your actions</li>
+            <li class="reveal">Direction matters more than speed. Judgment gets the direction right.</li>
+            <li class="reveal">Leverage magnifies the consequences of every decision you make</li>
+        </ul>
+
+        <blockquote class="naval-quote alt text-col reveal">
+            <p>"In an age of infinite leverage, judgment becomes the most important skill."</p>
+            <cite>— Naval</cite>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 7 — #05 ACCOUNTABILITY
+     ============================================================ -->
+<section class="slide slide-concept" id="slide-6" aria-label="Idea 5: Accountability">
+    <div class="ghost-num" aria-hidden="true">05</div>
+    <div class="slide-inner">
+        <span class="eyebrow magenta reveal">Idea #05</span>
+        <h2 class="concept-title reveal">Take <span class="hl">Accountability</span></h2>
+
+        <ul class="point-list text-col">
+            <li class="reveal">Take risks under your own name — this gives you skin in the game</li>
+            <li class="reveal">Fail publicly → take the critique. Win publicly → take the credit.</li>
+            <li class="reveal">Act with high integrity. People forgive failures; they don't forgive dishonesty.</li>
+        </ul>
+
+        <blockquote class="naval-quote text-col reveal">
+            <p>"Embrace accountability, and take business risks under your own name. Society will reward you with responsibility, equity, and leverage."</p>
+            <cite>— Naval</cite>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 8 — #06 WORK = PLAY
+     ============================================================ -->
+<section class="slide slide-concept" id="slide-7" aria-label="Idea 6: Work That Feels Like Play">
+    <div class="ghost-num alt" aria-hidden="true">06</div>
+    <div class="slide-inner">
+        <span class="eyebrow cyan reveal">Idea #06</span>
+        <h2 class="concept-title reveal">Work That Feels Like <span class="hl-alt">Play</span></h2>
+
+        <ul class="point-list alt text-col">
+            <li class="reveal">The secret to consistency is alignment — when you love the work, you never stop</li>
+            <li class="reveal">You don't need a vacation from it. You could do it forever.</li>
+            <li class="reveal">Best creators chase alignment, not motivation</li>
+        </ul>
+
+        <blockquote class="naval-quote alt text-col reveal">
+            <p>"The goal is not to retire. It's to find work that feels like play to you but looks like work to others."</p>
+            <cite>— Naval</cite>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 9 — #07 AUTHENTIC CREATION
+     ============================================================ -->
+<section class="slide slide-concept" id="slide-8" aria-label="Idea 7: Authentic Creation">
+    <div class="ghost-num" aria-hidden="true">07</div>
+    <div class="slide-inner">
+        <span class="eyebrow magenta reveal">Idea #07</span>
+        <h2 class="concept-title reveal"><span class="hl">Authentic</span> Creation</h2>
+
+        <ul class="point-list text-col">
+            <li class="reveal">Competition is an illusion. The only fair comparison is with your past self.</li>
+            <li class="reveal">Nobody can compete with you at being you — especially in an AI world</li>
+            <li class="reveal">Authenticity eliminates jealousy: when you do what you're meant to do, you want nothing else</li>
+        </ul>
+
+        <blockquote class="naval-quote text-col reveal">
+            <p>"Escape competition through authenticity."</p>
+            <cite>— Naval</cite>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 10 — #08 RIGHT SKILLSET
+     ============================================================ -->
+<section class="slide slide-concept" id="slide-9" aria-label="Idea 8: The Right Skillset">
+    <div class="ghost-num alt" aria-hidden="true">08</div>
+    <div class="slide-inner">
+        <span class="eyebrow cyan reveal">Idea #08</span>
+        <h2 class="concept-title reveal">The Right <span class="hl-alt">Skillset</span></h2>
+
+        <div style="display: flex; flex-direction: column; gap: var(--el-gap);">
+            <div class="skill-row reveal">
+                <span class="skill-name white">Reading</span>
+                <span class="skill-desc">Foundation of all learning</span>
+            </div>
+            <div class="skill-row reveal">
+                <span class="skill-name white">Writing</span>
+                <span class="skill-desc">Foundation of all content</span>
+            </div>
+            <div class="skill-row reveal">
+                <span class="skill-name white">Arithmetic</span>
+                <span class="skill-desc">Foundation of reasoning</span>
+            </div>
+            <div class="skill-row reveal">
+                <span class="skill-name white">Persuasion</span>
+                <span class="skill-desc">The multiplier — talking and selling</span>
+            </div>
+            <div class="skill-row reveal">
+                <span class="skill-name cyan">Code ★</span>
+                <span class="skill-desc">"The closest thing we have to magic" — Naval</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 11 — #09 RIGHT PARTNERS
+     ============================================================ -->
+<section class="slide slide-concept" id="slide-10" aria-label="Idea 9: Right Partners">
+    <div class="ghost-num" aria-hidden="true">09</div>
+    <div class="slide-inner">
+        <span class="eyebrow magenta reveal">Idea #09</span>
+        <h2 class="concept-title reveal">Pick the Right <span class="hl">Partners</span></h2>
+
+        <ul class="point-list text-col">
+            <li class="reveal"><strong style="color:var(--text-primary)">Intelligence</strong> — prevents incompetence</li>
+            <li class="reveal"><strong style="color:var(--text-primary)">Energy</strong> — prevents laziness</li>
+            <li class="reveal"><strong style="color:var(--text-primary)">Integrity</strong> — prevents betrayal</li>
+        </ul>
+
+        <p class="reveal" style="font-size: var(--small-size); font-family: var(--font-mono); color: var(--text-muted); padding-top: var(--el-gap);">
+            If any one is missing → it won't work.
+        </p>
+
+        <blockquote class="naval-quote text-col reveal">
+            <p>"Pick business partners with high intelligence, energy, and, above all, integrity."</p>
+            <cite>— Naval</cite>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 12 — #10 HEDONIC TREADMILL
+     ============================================================ -->
+<section class="slide slide-concept" id="slide-11" aria-label="Idea 10: Hedonic Treadmill">
+    <div class="ghost-num alt" aria-hidden="true">10</div>
+    <div class="slide-inner">
+        <span class="eyebrow cyan reveal">Idea #10</span>
+        <h2 class="concept-title reveal">Stay Off the <span class="hl-alt">Hedonic Treadmill</span></h2>
+
+        <ul class="point-list alt text-col">
+            <li class="reveal">Most people upgrade lifestyle as income grows — they never feel free</li>
+            <li class="reveal">Money's real goal: not buying stuff, but buying time. Don't let people buy yours.</li>
+            <li class="reveal">Freedom first: time, work, location, schedule — then the nice stuff</li>
+        </ul>
+
+        <blockquote class="naval-quote alt text-col reveal">
+            <p>"People who live far below their means enjoy a freedom that people busy upgrading their lifestyles can't fathom."</p>
+            <cite>— Naval</cite>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 13 — SYNTHESIS
+     ============================================================ -->
+<section class="slide" id="slide-12" aria-label="Synthesis: Productize Yourself">
+    <div class="slide-inner">
+        <span class="eyebrow magenta reveal">The Synthesis</span>
+        <h2 class="reveal" style="font-family: var(--font-mono); font-size: var(--h2-size); font-weight: 700;">How to Get Rich</h2>
+
+        <div class="big-formula reveal">
+            <div class="bf-row">
+                <span class="bf-tag">Specific Knowledge</span>
+                <span class="bf-op">×</span>
+                <span class="bf-tag m">Leverage</span>
+            </div>
+            <div class="bf-row">
+                <span class="bf-tag m">Accountability</span>
+                <span class="bf-op">×</span>
+                <span class="bf-tag">Judgment</span>
+            </div>
+            <div class="bf-row" style="margin-top: clamp(0.3rem, 0.8vw, 0.6rem);">
+                <span class="bf-op">=</span>
+                <span class="bf-result">Productize Yourself</span>
+            </div>
+        </div>
+
+        <p class="reveal" style="font-family: var(--font-mono); font-size: var(--small-size); color: var(--text-muted);">— Naval Ravikant</p>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 14 — FINAL RECAP
+     ============================================================ -->
+<section class="slide" id="slide-13" aria-label="Final recap">
+    <div class="slide-inner">
+        <span class="eyebrow cyan reveal">In Short</span>
+        <h2 class="reveal" style="font-family: var(--font-mono); font-size: var(--h2-size); font-weight: 700;">Without Getting Lucky</h2>
+
+        <div class="recap-grid">
+            <div class="recap-item reveal">Play compounding games</div>
+            <div class="recap-item reveal">Attain specific knowledge</div>
+            <div class="recap-item reveal">Build leverage</div>
+            <div class="recap-item reveal">Improve your judgment</div>
+            <div class="recap-item reveal">Take risks under your name</div>
+            <div class="recap-item reveal">Find work that feels like play</div>
+            <div class="recap-item reveal">Escape through authenticity</div>
+            <div class="recap-item reveal">Develop the right skillset</div>
+            <div class="recap-item reveal">Pick the right partners</div>
+            <div class="recap-item reveal">Stay off the hedonic treadmill</div>
+        </div>
+
+        <blockquote class="naval-quote reveal" style="max-width: min(65vw, 600px); margin-top: var(--el-gap);">
+            <p>"Learn to sell. Learn to build. If you can do both, you will be unstoppable."</p>
+            <cite>— Naval</cite>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ============================================================
+     JAVASCRIPT — PRESENTATION CONTROLLER
+     ============================================================ -->
+<script>
+/* ===========================================
+   SlidePresentation
+   Handles: keyboard nav, wheel, touch,
+   intersection observer for animations,
+   progress bar, nav dots, custom cursor.
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides      = Array.from(document.querySelectorAll('.slide'));
+        this.total       = this.slides.length;
+        this.current     = 0;
+        this.cooldown    = 650; // ms between scroll navigations
+        this.lastScroll  = 0;
+
+        this.$progress   = document.getElementById('progress-bar');
+        this.$dots       = document.getElementById('nav-dots');
+
+        this.initDots();
+        this.initObserver();
+        this.initKeyboard();
+        this.initWheel();
+        this.initTouch();
+        this.initCursor();
+
+        // Mark first slide visible immediately
+        this.slides[0].classList.add('visible');
+        this.updateProgress();
+    }
+
+    /* --- NAV DOTS --- */
+    initDots() {
+        this.slides.forEach((_, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'nav-dot' + (i === 0 ? ' active' : '');
+            btn.setAttribute('aria-label', `Go to slide ${i + 1}`);
+            btn.addEventListener('click', () => this.goTo(i));
+            this.$dots.appendChild(btn);
+        });
+    }
+
+    updateDots() {
+        this.$dots.querySelectorAll('.nav-dot').forEach((d, i) => {
+            d.classList.toggle('active', i === this.current);
+        });
+    }
+
+    /* --- INTERSECTION OBSERVER (triggers .visible) --- */
+    initObserver() {
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    const idx = this.slides.indexOf(e.target);
+                    if (idx !== -1) {
+                        this.current = idx;
+                        this.updateDots();
+                        this.updateProgress();
+                        if (window.annotationLayer) window.annotationLayer.onSlideChange(idx);
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+
+        this.slides.forEach(s => io.observe(s));
+    }
+
+    /* --- NAVIGATION --- */
+    goTo(index) {
+        if (index < 0 || index >= this.total) return;
+        this.slides[index].scrollIntoView({ behavior: 'smooth' });
+        this.current = index;
+        this.updateDots();
+        this.updateProgress();
+    }
+
+    step(dir) {
+        this.goTo(this.current + dir);
+    }
+
+    updateProgress() {
+        const pct = ((this.current + 1) / this.total) * 100;
+        this.$progress.style.width = pct + '%';
+    }
+
+    /* --- KEYBOARD --- */
+    initKeyboard() {
+        document.addEventListener('keydown', e => {
+            switch (e.key) {
+                case 'ArrowDown':
+                case 'ArrowRight':
+                case ' ':
+                case 'PageDown':
+                    e.preventDefault();
+                    this.step(1);
+                    break;
+                case 'ArrowUp':
+                case 'ArrowLeft':
+                case 'PageUp':
+                    e.preventDefault();
+                    this.step(-1);
+                    break;
+                case 'Home': e.preventDefault(); this.goTo(0); break;
+                case 'End':  e.preventDefault(); this.goTo(this.total - 1); break;
+            }
+        });
+    }
+
+    /* --- MOUSE WHEEL --- */
+    initWheel() {
+        document.addEventListener('wheel', e => {
+            e.preventDefault();
+            const now = Date.now();
+            if (now - this.lastScroll < this.cooldown) return;
+            this.lastScroll = now;
+            this.step(e.deltaY > 0 ? 1 : -1);
+        }, { passive: false });
+    }
+
+    /* --- TOUCH --- */
+    initTouch() {
+        let startY = 0;
+        document.addEventListener('touchstart', e => {
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+        document.addEventListener('touchend', e => {
+            const dy = startY - e.changedTouches[0].clientY;
+            if (Math.abs(dy) > 48) this.step(dy > 0 ? 1 : -1);
+        }, { passive: true });
+    }
+
+    /* --- CUSTOM CURSOR (lerp smooth ring follow) --- */
+    initCursor() {
+        const dot  = document.getElementById('cursor');
+        const ring = document.getElementById('cursor-ring');
+        let mx = 0, my = 0, rx = 0, ry = 0;
+
+        document.addEventListener('mousemove', e => {
+            mx = e.clientX;
+            my = e.clientY;
+            dot.style.left = mx + 'px';
+            dot.style.top  = my + 'px';
+        });
+
+        const tick = () => {
+            rx += (mx - rx) * 0.14;
+            ry += (my - ry) * 0.14;
+            ring.style.left = rx + 'px';
+            ring.style.top  = ry + 'px';
+            requestAnimationFrame(tick);
+        };
+        tick();
+
+        // Cursor enlarges on interactive elements
+        document.querySelectorAll('a, button, .nav-dot').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                dot.style.transform  = 'translate(-50%,-50%) scale(2.2)';
+                ring.style.transform = 'translate(-50%,-50%) scale(1.6)';
+            });
+            el.addEventListener('mouseleave', () => {
+                dot.style.transform  = 'translate(-50%,-50%) scale(1)';
+                ring.style.transform = 'translate(-50%,-50%) scale(1)';
+            });
+        });
+    }
+}
+
+/* ===========================================
+   AnnotationLayer
+   Per-slide drawing canvas. Stores ImageData
+   per slide so annotations persist across navigation.
+   Keyboard shortcuts: D = draw, E = eraser, C = clear
+   =========================================== */
+class AnnotationLayer {
+    constructor(slideCount) {
+        this.canvas    = document.getElementById('annotation-canvas');
+        this.ctx       = this.canvas.getContext('2d');
+        this.active    = false;  // draw mode on/off
+        this.drawing   = false;  // mid-stroke
+        this.erasing   = false;
+        this.color     = '#00e5ff';
+        this.lineWidth = 3;
+        this.drawings  = new Array(slideCount).fill(null); // ImageData per slide
+        this.slideIdx  = 0;
+
+        this.resize();
+        this.bindToolbar();
+        this.bindCanvas();
+        this.bindKeys();
+        window.addEventListener('resize', () => this.onResize());
+    }
+
+    /* --- sizing --- */
+    resize() {
+        this.canvas.width  = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+    }
+
+    onResize() {
+        // Resizing a canvas clears it and invalidates stored ImageData dimensions.
+        // Simplest correct behaviour: clear all annotations on resize.
+        this.resize();
+        this.drawings.fill(null);
+    }
+
+    /* --- slide transitions --- */
+    onSlideChange(newIdx) {
+        // Save current slide's drawing
+        this.drawings[this.slideIdx] = this.ctx.getImageData(
+            0, 0, this.canvas.width, this.canvas.height
+        );
+        this.slideIdx = newIdx;
+        // Restore new slide's drawing (or clear if none)
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (this.drawings[newIdx]) {
+            this.ctx.putImageData(this.drawings[newIdx], 0, 0);
+        }
+    }
+
+    /* --- draw mode toggle --- */
+    toggleDraw() {
+        this.active  = !this.active;
+        this.erasing = false;
+        this.canvas.classList.toggle('draw-active', this.active);
+        document.getElementById('draw-btn').classList.toggle('active', this.active);
+        document.getElementById('eraser-btn').classList.remove('active');
+        // Hide the custom cursor dot while drawing (crosshair takes over)
+        const opacity = this.active ? '0' : '1';
+        document.getElementById('cursor').style.opacity      = opacity;
+        document.getElementById('cursor-ring').style.opacity = opacity;
+    }
+
+    toggleEraser() {
+        if (!this.active) this.toggleDraw(); // auto-enable draw mode
+        this.erasing = !this.erasing;
+        document.getElementById('eraser-btn').classList.toggle('active', this.erasing);
+        document.getElementById('draw-btn').classList.toggle('active', this.active && !this.erasing);
+    }
+
+    clearSlide() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawings[this.slideIdx] = null;
+    }
+
+    /* --- stroke rendering --- */
+    startStroke(x, y) {
+        if (!this.active) return;
+        this.drawing = true;
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, y);
+    }
+
+    continueStroke(x, y) {
+        if (!this.drawing || !this.active) return;
+
+        if (this.erasing) {
+            this.ctx.globalCompositeOperation = 'destination-out';
+            this.ctx.lineWidth   = this.lineWidth * 4;
+            this.ctx.strokeStyle = 'rgba(0,0,0,1)';
+        } else {
+            this.ctx.globalCompositeOperation = 'source-over';
+            this.ctx.lineWidth   = this.lineWidth;
+            this.ctx.strokeStyle = this.color;
+        }
+
+        this.ctx.lineCap  = 'round';
+        this.ctx.lineJoin = 'round';
+        this.ctx.lineTo(x, y);
+        this.ctx.stroke();
+        // Begin new sub-path from current point for smooth continuous lines
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, y);
+    }
+
+    endStroke() {
+        this.drawing = false;
+        this.ctx.globalCompositeOperation = 'source-over';
+    }
+
+    /* --- event binding --- */
+    bindCanvas() {
+        const c = this.canvas;
+        c.addEventListener('mousedown',  e => this.startStroke(e.clientX, e.clientY));
+        c.addEventListener('mousemove',  e => this.continueStroke(e.clientX, e.clientY));
+        c.addEventListener('mouseup',    () => this.endStroke());
+        c.addEventListener('mouseleave', () => this.endStroke());
+
+        c.addEventListener('touchstart', e => {
+            e.preventDefault();
+            this.startStroke(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+        c.addEventListener('touchmove', e => {
+            e.preventDefault();
+            this.continueStroke(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+        c.addEventListener('touchend', () => this.endStroke());
+    }
+
+    bindToolbar() {
+        // Color swatches
+        document.querySelectorAll('.color-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+                dot.classList.add('active');
+                this.color   = dot.dataset.color;
+                this.erasing = false;
+                document.getElementById('eraser-btn').classList.remove('active');
+                if (!this.active) this.toggleDraw();
+            });
+            // Keyboard accessible
+            dot.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') dot.click(); });
+        });
+
+        // Stroke sizes
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.size-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                btn.classList.add('active');
+                this.lineWidth = parseInt(btn.dataset.size, 10);
+            });
+        });
+
+        document.getElementById('draw-btn').addEventListener('click',   () => this.toggleDraw());
+        document.getElementById('eraser-btn').addEventListener('click', () => this.toggleEraser());
+        document.getElementById('clear-btn').addEventListener('click',  () => this.clearSlide());
+    }
+
+    bindKeys() {
+        document.addEventListener('keydown', e => {
+            // Don't steal keys when SlidePresentation uses them for navigation
+            if (e.key === 'd' || e.key === 'D') { e.preventDefault(); this.toggleDraw(); }
+            if (e.key === 'e' || e.key === 'E') { e.preventDefault(); this.toggleEraser(); }
+            // C only clears when draw mode is active (so it doesn't conflict)
+            if ((e.key === 'c' || e.key === 'C') && this.active) { e.preventDefault(); this.clearSlide(); }
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    new SlidePresentation();
+    const slideCount = document.querySelectorAll('.slide').length;
+    window.annotationLayer = new AnnotationLayer(slideCount);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productize Yourself — Naval's Framework</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           THEME — VINTAGE EDITORIAL
+           Warm cream · Fraunces serif · Work Sans
+           Geometric accents · confident & inspired
+           =========================================== */
+        :root {
+            --bg-cream:    #f5f3ee;
+            --bg-darker:   #ede9e2;
+            --bg-dark:     #1a1a1a;
+            --text-primary:   #1a1a1a;
+            --text-secondary: #555;
+            --accent-warm:    #e8d4c0;
+            --accent-deep:    #8B5E3C;
+            --accent-line:    #c5b8a8;
+
+            --font-display: 'Fraunces', serif;
+            --font-body:    'Work Sans', sans-serif;
+
+            /* Typography — all clamp() for responsive scaling */
+            --title-size:  clamp(2.5rem, 7vw, 6rem);
+            --h2-size:     clamp(1.4rem, 3.5vw, 2.6rem);
+            --h3-size:     clamp(1rem, 2.5vw, 1.75rem);
+            --body-size:   clamp(0.8rem, 1.4vw, 1.05rem);
+            --small-size:  clamp(0.65rem, 1vw, 0.85rem);
+            --number-size: clamp(5rem, 12vw, 10rem);
+
+            /* Spacing — all clamp() */
+            --slide-padding:  clamp(1.5rem, 5vw, 5rem);
+            --content-gap:    clamp(0.6rem, 2vw, 1.75rem);
+            --element-gap:    clamp(0.3rem, 0.8vw, 0.6rem);
+        }
+
+        /* ===========================================
+           RESET & BASE
+           =========================================== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            height: 100%;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-cream);
+            color: var(--text-primary);
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 2px;
+            background: var(--text-primary);
+            transition: width 0.4s ease;
+            z-index: 100;
+            width: 0%;
+        }
+
+        /* ===========================================
+           NAV DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(0.75rem, 2vw, 1.5rem);
+            top: 50%;
+            transform: translateY(-50%);
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .nav-dots li {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--accent-line);
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .nav-dots li.active {
+            background: var(--text-primary);
+            transform: scale(1.5);
+        }
+
+        /* ===========================================
+           KEYBOARD HINT
+           =========================================== */
+        .keyboard-hint {
+            position: fixed;
+            bottom: clamp(0.75rem, 2vw, 1.25rem);
+            right: clamp(0.75rem, 2vw, 1.25rem);
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            color: var(--accent-line);
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .key {
+            border: 1px solid var(--accent-line);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: calc(var(--small-size) * 0.9);
+        }
+
+        /* ===========================================
+           VIEWPORT FITTING — MANDATORY
+           Each slide = exact viewport height, no overflow
+           =========================================== */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-cream);
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===========================================
+           ENTRANCE ANIMATIONS
+           Triggered when slide gets .visible class
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(22px);
+            transition:
+                opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            transition:
+                opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide.visible .reveal,
+        .slide.visible .reveal-left {
+            opacity: 1;
+            transform: none;
+        }
+
+        /* Stagger children */
+        .slide.visible .reveal:nth-child(1) { transition-delay: 0.05s; }
+        .slide.visible .reveal:nth-child(2) { transition-delay: 0.15s; }
+        .slide.visible .reveal:nth-child(3) { transition-delay: 0.25s; }
+        .slide.visible .reveal:nth-child(4) { transition-delay: 0.35s; }
+        .slide.visible .reveal:nth-child(5) { transition-delay: 0.45s; }
+        .slide.visible .reveal:nth-child(6) { transition-delay: 0.55s; }
+
+        /* ===========================================
+           VINTAGE EDITORIAL — SIGNATURE ELEMENTS
+           =========================================== */
+
+        /* Geometric decoration  ◯──—• */
+        .geo-deco {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--content-gap);
+        }
+
+        .geo-circle {
+            width: clamp(14px, 2vw, 22px);
+            height: clamp(14px, 2vw, 22px);
+            border-radius: 50%;
+            border: 1.5px solid currentColor;
+            flex-shrink: 0;
+        }
+
+        .geo-line {
+            height: 1.5px;
+            width: clamp(24px, 5vw, 60px);
+            background: currentColor;
+        }
+
+        .geo-dash {
+            height: 1.5px;
+            width: clamp(10px, 2vw, 20px);
+            background: currentColor;
+            margin: 0 2px;
+        }
+
+        .geo-dot {
+            width: clamp(5px, 0.8vw, 8px);
+            height: clamp(5px, 0.8vw, 8px);
+            border-radius: 50%;
+            background: currentColor;
+            flex-shrink: 0;
+        }
+
+        /* Large ghost section numbers */
+        .section-number {
+            font-family: var(--font-display);
+            font-size: var(--number-size);
+            font-weight: 900;
+            color: var(--accent-warm);
+            line-height: 1;
+            user-select: none;
+            letter-spacing: -0.02em;
+        }
+
+        /* Horizontal rule */
+        .rule {
+            width: clamp(40px, 7vw, 90px);
+            height: 2px;
+            background: currentColor;
+            margin: var(--element-gap) 0;
+        }
+
+        /* Quote block */
+        .quote-block {
+            border-left: 2.5px solid currentColor;
+            padding-left: clamp(0.75rem, 2vw, 1.5rem);
+            margin: var(--element-gap) 0;
+        }
+
+        .quote-text {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: clamp(0.85rem, 1.8vw, 1.25rem);
+            line-height: 1.55;
+        }
+
+        .quote-attribution {
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            margin-top: 0.4rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* Principle tag */
+        .principle-tag {
+            font-size: var(--small-size);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+        }
+
+        /* Bordered box for key quotes */
+        .bordered-box {
+            border: 2px solid var(--text-primary);
+            padding: clamp(0.75rem, 1.5vw, 1.25rem) clamp(1rem, 2vw, 1.75rem);
+        }
+
+        /* Bullet list */
+        .bullet-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--element-gap);
+        }
+
+        .bullet-list li {
+            font-size: var(--body-size);
+            line-height: 1.45;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .bullet-list li::before {
+            content: '—';
+            color: var(--accent-line);
+            flex-shrink: 0;
+        }
+
+        /* Two-column grid */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+
+        /* Three-column grid */
+        .three-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+
+        /* Card item */
+        .card-item {
+            background: var(--bg-darker);
+            padding: clamp(0.6rem, 1.2vw, 1rem) clamp(0.75rem, 1.5vw, 1.25rem);
+        }
+
+        .card-item.featured {
+            border: 2px solid var(--text-primary);
+            background: var(--bg-cream);
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(0.8rem, 1.3vw, 1rem);
+            margin-bottom: 0.2rem;
+        }
+
+        .card-body {
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ===========================================
+           TYPOGRAPHY
+           =========================================== */
+        h1 {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 900;
+            line-height: 1.02;
+            color: var(--text-primary);
+        }
+
+        h2 {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            font-weight: 700;
+            line-height: 1.12;
+        }
+
+        h3 {
+            font-family: var(--font-display);
+            font-size: var(--h3-size);
+            font-weight: 700;
+        }
+
+        p {
+            font-size: var(--body-size);
+            line-height: 1.65;
+            color: var(--text-secondary);
+        }
+
+        /* ===========================================
+           INVERTED (DARK) SLIDE VARIANT
+           =========================================== */
+        .slide-dark {
+            background: var(--bg-dark);
+            color: var(--bg-cream);
+        }
+
+        .slide-dark h1,
+        .slide-dark h2,
+        .slide-dark h3 {
+            color: var(--bg-cream);
+        }
+
+        .slide-dark p {
+            color: rgba(245, 243, 238, 0.65);
+        }
+
+        .slide-dark .geo-circle,
+        .slide-dark .geo-line,
+        .slide-dark .geo-dash,
+        .slide-dark .geo-dot,
+        .slide-dark .rule {
+            background-color: rgba(245, 243, 238, 0.5);
+            border-color: rgba(245, 243, 238, 0.6);
+        }
+
+        .slide-dark .quote-block {
+            border-left-color: rgba(245, 243, 238, 0.35);
+        }
+
+        .slide-dark .quote-text {
+            color: var(--bg-cream);
+        }
+
+        .slide-dark .quote-attribution {
+            color: rgba(245, 243, 238, 0.5);
+        }
+
+        .slide-dark .principle-tag {
+            color: rgba(245, 243, 238, 0.45);
+        }
+
+        /* ===========================================
+           PRINCIPLE SLIDE LAYOUT
+           Large ghost number left, content right
+           =========================================== */
+        .principle-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: clamp(1.5rem, 4vw, 4rem);
+            align-items: center;
+            height: 100%;
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        .principle-num-col {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+
+        .principle-content {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: var(--element-gap);
+            max-height: calc(100vh - 2 * var(--slide-padding));
+        }
+
+        /* ===========================================
+           FORMULA GRID (slide 2)
+           =========================================== */
+        .formula-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+            margin-top: var(--content-gap);
+        }
+
+        .formula-item {
+            border: 1.5px solid var(--text-primary);
+            padding: clamp(0.7rem, 1.5vw, 1.2rem);
+        }
+
+        .fi-label {
+            font-size: var(--small-size);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .fi-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(0.9rem, 1.8vw, 1.35rem);
+            margin-top: 0.2rem;
+        }
+
+        /* ===========================================
+           RESPONSIVE BREAKPOINTS
+           Height-based aggressive scaling
+           =========================================== */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding:  clamp(1rem, 3vw, 2.5rem);
+                --content-gap:    clamp(0.4rem, 1.5vw, 1rem);
+                --title-size:     clamp(1.75rem, 5vw, 3.5rem);
+                --h2-size:        clamp(1.1rem, 3vw, 2rem);
+                --number-size:    clamp(3.5rem, 9vw, 7rem);
+            }
+        }
+
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding:  clamp(0.75rem, 2.5vw, 1.5rem);
+                --content-gap:    clamp(0.3rem, 1vw, 0.75rem);
+                --title-size:     clamp(1.5rem, 4.5vw, 2.5rem);
+                --body-size:      clamp(0.7rem, 1.2vw, 0.9rem);
+                --number-size:    clamp(2.5rem, 7vw, 5rem);
+            }
+
+            .nav-dots, .keyboard-hint { display: none; }
+            .quote-text { font-size: clamp(0.75rem, 1.4vw, 0.95rem); }
+            .three-col { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2vw, 1rem);
+                --title-size:    clamp(1.1rem, 4vw, 2rem);
+                --number-size:   clamp(2rem, 6vw, 3.5rem);
+            }
+
+            .geo-deco { margin-bottom: 0.3rem; }
+            .rule { margin: 0.25rem 0; }
+        }
+
+        @media (max-width: 600px) {
+            .two-col, .three-col, .formula-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .principle-layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+                gap: var(--content-gap);
+            }
+
+            .principle-num-col {
+                justify-content: flex-start;
+            }
+
+            .section-number {
+                font-size: clamp(3rem, 15vw, 5rem);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Nav dots -->
+<ul class="nav-dots" id="navDots" aria-label="Slide navigation"></ul>
+
+<!-- Keyboard hint -->
+<div class="keyboard-hint">
+    <span><span class="key">↑↓</span> navigate</span>
+    <span><span class="key">E</span> annotate</span>
+</div>
+
+<!-- =============================================
+     SLIDE 0 — TITLE
+     Dark inverted — strong opening
+     ============================================= -->
+<section class="slide slide-dark" id="slide-0" data-slide="0">
+    <div class="slide-content">
+        <div class="geo-deco reveal">
+            <div class="geo-circle" style="border-color: rgba(245,243,238,0.5);"></div>
+            <div class="geo-line" style="background: rgba(245,243,238,0.5); width: clamp(24px,5vw,60px); height:1.5px;"></div>
+            <div class="geo-dash" style="background: rgba(245,243,238,0.5); width: clamp(10px,2vw,20px); height:1.5px;"></div>
+            <div class="geo-dot" style="background: rgba(245,243,238,0.5);"></div>
+        </div>
+        <p class="reveal" style="font-size: var(--small-size); font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(245,243,238,0.45); margin-bottom: 0.4rem;">Naval Ravikant</p>
+        <h1 class="reveal">Productize<br><em style="font-weight: 400; font-style: italic;">Yourself</em></h1>
+        <div class="rule reveal" style="background: rgba(245,243,238,0.3);"></div>
+        <p class="reveal" style="max-width: 44ch; color: rgba(245,243,238,0.6);">10 principles for getting rich without getting lucky</p>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 1 — THE KEY QUOTE
+     ============================================= -->
+<section class="slide" id="slide-1" data-slide="1">
+    <div class="slide-content" style="max-width: min(90vw, 820px);">
+        <div class="principle-tag reveal">The Framework</div>
+        <div class="quote-block reveal" style="border-left-color: var(--text-primary);">
+            <p class="quote-text">
+                "Productize has specific knowledge and leverage. Yourself has uniqueness and accountability. So you can combine all of these pieces into these two words."
+            </p>
+            <p class="quote-attribution">— Naval Ravikant</p>
+        </div>
+        <div class="rule reveal"></div>
+        <p class="reveal">4 core components. 10 principles. One path to wealth.</p>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 2 — THE FORMULA
+     ============================================= -->
+<section class="slide" id="slide-2" data-slide="2">
+    <div class="slide-content">
+        <div class="geo-deco reveal">
+            <div class="geo-circle"></div>
+            <div class="geo-line"></div>
+            <div class="geo-dash"></div>
+            <div class="geo-dot"></div>
+        </div>
+        <h2 class="reveal">The Formula</h2>
+        <div class="formula-grid reveal">
+            <div class="formula-item">
+                <div class="fi-label">Component 1</div>
+                <div class="fi-title">Specific Knowledge</div>
+            </div>
+            <div class="formula-item">
+                <div class="fi-label">Component 2</div>
+                <div class="fi-title">Leverage</div>
+            </div>
+            <div class="formula-item">
+                <div class="fi-label">Component 3</div>
+                <div class="fi-title">Accountability</div>
+            </div>
+            <div class="formula-item">
+                <div class="fi-label">Component 4</div>
+                <div class="fi-title">Judgment</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 3 — PRINCIPLE 01: COMPOUNDING GAMES
+     ============================================= -->
+<section class="slide" id="slide-3" data-slide="3">
+    <div class="slide-content">
+        <div class="principle-layout">
+            <div class="principle-num-col">
+                <div class="section-number reveal-left">01</div>
+            </div>
+            <div class="principle-content">
+                <div class="principle-tag reveal">Principle</div>
+                <h2 class="reveal">Play Compounding Games</h2>
+                <div class="rule reveal"></div>
+                <div class="quote-block reveal" style="border-left-color: var(--text-primary);">
+                    <p class="quote-text">"All the returns in life come from compound interest."</p>
+                    <p class="quote-attribution">— Naval</p>
+                </div>
+                <ul class="bullet-list reveal">
+                    <li>Pick a game worth playing long-term</li>
+                    <li>Choose an industry you love, people you want to grow with</li>
+                    <li>Every direction change interrupts compounding</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 4 — PRINCIPLE 02: SPECIFIC KNOWLEDGE
+     ============================================= -->
+<section class="slide" id="slide-4" data-slide="4">
+    <div class="slide-content">
+        <div class="principle-layout">
+            <div class="principle-num-col">
+                <div class="section-number reveal-left">02</div>
+            </div>
+            <div class="principle-content">
+                <div class="principle-tag reveal">Principle</div>
+                <h2 class="reveal">Specific Knowledge</h2>
+                <div class="rule reveal"></div>
+                <div class="quote-block reveal" style="border-left-color: var(--text-primary);">
+                    <p class="quote-text">"Knowledge society can train you for can train someone else — and replace you."</p>
+                    <p class="quote-attribution">— Naval</p>
+                </div>
+                <ul class="bullet-list reveal">
+                    <li>Found by pursuing your genuine curiosity and passion</li>
+                    <li>Feels like play to you, looks like work to others</li>
+                    <li>Cannot be outsourced or automated</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 5 — PRINCIPLE 03: BUILD LEVERAGE
+     ============================================= -->
+<section class="slide" id="slide-5" data-slide="5">
+    <div class="slide-content">
+        <div class="principle-layout">
+            <div class="principle-num-col">
+                <div class="section-number reveal-left">03</div>
+            </div>
+            <div class="principle-content">
+                <div class="principle-tag reveal">Principle</div>
+                <h2 class="reveal">Build Leverage</h2>
+                <div class="rule reveal"></div>
+                <div class="two-col reveal">
+                    <div class="card-item">
+                        <div class="card-title">People</div>
+                        <div class="card-body">Team working for you</div>
+                    </div>
+                    <div class="card-item">
+                        <div class="card-title">Money</div>
+                        <div class="card-body">Capital working for you</div>
+                    </div>
+                    <div class="card-item">
+                        <div class="card-title">Content</div>
+                        <div class="card-body">Media working for you</div>
+                    </div>
+                    <div class="card-item featured">
+                        <div class="card-title">Code</div>
+                        <div class="card-body">Software working for you</div>
+                    </div>
+                </div>
+                <p class="reveal" style="font-size: var(--small-size); font-style: italic; color: var(--text-secondary);">Code &amp; content are best — permissionless leverage.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 6 — PRINCIPLE 04: JUDGMENT
+     ============================================= -->
+<section class="slide" id="slide-6" data-slide="6">
+    <div class="slide-content">
+        <div class="principle-layout">
+            <div class="principle-num-col">
+                <div class="section-number reveal-left">04</div>
+            </div>
+            <div class="principle-content">
+                <div class="principle-tag reveal">Principle</div>
+                <h2 class="reveal">Judgment</h2>
+                <div class="rule reveal"></div>
+                <div class="quote-block reveal" style="border-left-color: var(--text-primary);">
+                    <p class="quote-text">"In an age of infinite leverage, judgment becomes the most important skill."</p>
+                    <p class="quote-attribution">— Naval</p>
+                </div>
+                <ul class="bullet-list reveal">
+                    <li>Direction matters more than speed</li>
+                    <li>Wisdom applied to external problems</li>
+                    <li>A calm mind makes better decisions</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 7 — PRINCIPLE 05: ACCOUNTABILITY
+     ============================================= -->
+<section class="slide" id="slide-7" data-slide="7">
+    <div class="slide-content">
+        <div class="principle-layout">
+            <div class="principle-num-col">
+                <div class="section-number reveal-left">05</div>
+            </div>
+            <div class="principle-content">
+                <div class="principle-tag reveal">Principle</div>
+                <h2 class="reveal">Take Accountability</h2>
+                <div class="rule reveal"></div>
+                <div class="quote-block reveal" style="border-left-color: var(--text-primary);">
+                    <p class="quote-text">"Embrace accountability, and take business risks under your own name."</p>
+                    <p class="quote-attribution">— Naval</p>
+                </div>
+                <ul class="bullet-list reveal">
+                    <li>Skin in the game builds reputation</li>
+                    <li>Fail under your name → you get the critique</li>
+                    <li>Win under your name → you get the credits</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 8 — PRINCIPLE 06: WORK = PLAY
+     ============================================= -->
+<section class="slide" id="slide-8" data-slide="8">
+    <div class="slide-content">
+        <div class="principle-layout">
+            <div class="principle-num-col">
+                <div class="section-number reveal-left">06</div>
+            </div>
+            <div class="principle-content">
+                <div class="principle-tag reveal">Principle</div>
+                <h2 class="reveal">Work That Feels Like Play</h2>
+                <div class="rule reveal"></div>
+                <div class="quote-block reveal" style="border-left-color: var(--text-primary);">
+                    <p class="quote-text">"The goal is not to retire. It's to find work that feels like play to you but looks like work to others."</p>
+                    <p class="quote-attribution">— Naval</p>
+                </div>
+                <p class="reveal">When you're aligned, the barrier between work and play fades. This is the ultimate unfair advantage.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 9 — PRINCIPLE 07: AUTHENTIC CREATION
+     ============================================= -->
+<section class="slide" id="slide-9" data-slide="9">
+    <div class="slide-content">
+        <div class="principle-layout">
+            <div class="principle-num-col">
+                <div class="section-number reveal-left">07</div>
+            </div>
+            <div class="principle-content">
+                <div class="principle-tag reveal">Principle</div>
+                <h2 class="reveal">Authentic Creation</h2>
+                <div class="rule reveal"></div>
+                <div class="bordered-box reveal">
+                    <p style="font-family: var(--font-display); font-size: clamp(0.95rem, 2vw, 1.4rem); font-weight: 700; line-height: 1.3;">"Escape competition through authenticity."</p>
+                </div>
+                <ul class="bullet-list reveal">
+                    <li>The only fair comparison is with yourself</li>
+                    <li>Nobody can compete with you at being you</li>
+                    <li>Authenticity is the only way to win — especially with AI</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 10 — PRINCIPLE 08: RIGHT SKILLSET
+     ============================================= -->
+<section class="slide" id="slide-10" data-slide="10">
+    <div class="slide-content">
+        <div class="principle-layout">
+            <div class="principle-num-col">
+                <div class="section-number reveal-left">08</div>
+            </div>
+            <div class="principle-content">
+                <div class="principle-tag reveal">Principle</div>
+                <h2 class="reveal">The Right Skillset</h2>
+                <div class="rule reveal"></div>
+                <p class="reveal" style="margin-bottom: var(--element-gap);">Five high-leverage skills that compound across every field:</p>
+                <ul class="bullet-list reveal">
+                    <li>Writing</li>
+                    <li>Reading</li>
+                    <li>Arithmetic</li>
+                    <li>Persuasion (talking)</li>
+                    <li>Computer programming — "the closest thing to magic"</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 11 — PRINCIPLE 09: BUSINESS PARTNERS
+     ============================================= -->
+<section class="slide" id="slide-11" data-slide="11">
+    <div class="slide-content">
+        <div class="principle-layout">
+            <div class="principle-num-col">
+                <div class="section-number reveal-left">09</div>
+            </div>
+            <div class="principle-content">
+                <div class="principle-tag reveal">Principle</div>
+                <h2 class="reveal">Pick The Right Partners</h2>
+                <div class="rule reveal"></div>
+                <div class="quote-block reveal" style="border-left-color: var(--text-primary);">
+                    <p class="quote-text">"Pick business partners with high intelligence, energy, and, above all, integrity."</p>
+                    <p class="quote-attribution">— Naval</p>
+                </div>
+                <div class="three-col reveal">
+                    <div class="card-item">
+                        <div class="card-title">Intelligence</div>
+                        <div class="card-body">Low → incompetence</div>
+                    </div>
+                    <div class="card-item">
+                        <div class="card-title">Energy</div>
+                        <div class="card-body">Low → laziness</div>
+                    </div>
+                    <div class="card-item featured">
+                        <div class="card-title">Integrity</div>
+                        <div class="card-body">Low → betrayal</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 12 — PRINCIPLE 10: HEDONIC TREADMILL
+     ============================================= -->
+<section class="slide" id="slide-12" data-slide="12">
+    <div class="slide-content">
+        <div class="principle-layout">
+            <div class="principle-num-col">
+                <div class="section-number reveal-left">10</div>
+            </div>
+            <div class="principle-content">
+                <div class="principle-tag reveal">Principle</div>
+                <h2 class="reveal">Stay Off The Hedonic Treadmill</h2>
+                <div class="rule reveal"></div>
+                <div class="quote-block reveal" style="border-left-color: var(--text-primary);">
+                    <p class="quote-text">"People who live far below their means enjoy a freedom that people busy upgrading their lifestyles can't fathom."</p>
+                    <p class="quote-attribution">— Naval</p>
+                </div>
+                <p class="reveal">The goal of money isn't to buy stuff. It's to not have people buy your time.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =============================================
+     SLIDE 13 — SUMMARY
+     Dark inverted — strong close
+     ============================================= -->
+<section class="slide slide-dark" id="slide-13" data-slide="13">
+    <div class="slide-content" style="max-width: min(90vw, 840px);">
+        <div class="geo-deco reveal">
+            <div class="geo-circle" style="border-color: rgba(245,243,238,0.45);"></div>
+            <div class="geo-line" style="background: rgba(245,243,238,0.45); width: clamp(24px,5vw,60px); height:1.5px;"></div>
+            <div class="geo-dash" style="background: rgba(245,243,238,0.45); width: clamp(10px,2vw,20px); height:1.5px;"></div>
+            <div class="geo-dot" style="background: rgba(245,243,238,0.45);"></div>
+        </div>
+        <h2 class="reveal" style="color: var(--bg-cream); margin-bottom: var(--content-gap);">In Short</h2>
+        <div class="bordered-box reveal" style="border-color: rgba(245,243,238,0.35); margin-bottom: var(--content-gap);">
+            <p style="font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.5rem); font-weight: 700; font-style: italic; line-height: 1.35; color: var(--bg-cream);">
+                "Learn to sell. Learn to build. If you can do both, you will be unstoppable."
+            </p>
+            <p style="font-size: var(--small-size); color: rgba(245,243,238,0.45); margin-top: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">— Naval Ravikant</p>
+        </div>
+        <div class="rule reveal" style="background: rgba(245,243,238,0.25);"></div>
+        <p class="reveal" style="color: rgba(245,243,238,0.5); font-size: var(--small-size); letter-spacing: 0.05em;">Specific Knowledge &nbsp;·&nbsp; Leverage &nbsp;·&nbsp; Accountability &nbsp;·&nbsp; Judgment</p>
+    </div>
+</section>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+
+   Handles:
+   - Keyboard navigation (arrows, space, home/end)
+   - Mouse wheel navigation (debounced)
+   - Touch/swipe navigation
+   - Progress bar updates
+   - Navigation dots sync
+   - .visible class for CSS entrance animations
+   =========================================== */
+class SlidePresentation {
+    constructor({
+        slideSelector     = '.slide',
+        progressBarId     = 'progressBar',
+        navDotsId         = 'navDots',
+        scrollCooldown    = 900,
+        swipeThreshold    = 50,
+        observerThreshold = 0.5,
+    } = {}) {
+        this.slides      = Array.from(document.querySelectorAll(slideSelector));
+        this.total       = this.slides.length;
+        this.current     = 0;
+        this.isScrolling = false;
+
+        this.progressBar = document.getElementById(progressBarId);
+        this.dotsEl      = document.getElementById(navDotsId);
+
+        this.scrollCooldown      = scrollCooldown;
+        this.swipeThreshold      = swipeThreshold;
+        this.observerThreshold   = observerThreshold;
+
+        this._buildDots();
+        this._initObserver();
+        this._initKeyboard();
+        this._initWheel();
+        this._initTouch();
+        this._updateProgress(0);
+    }
+
+    _buildDots() {
+        if (!this.dotsEl) return;
+        this.slides.forEach((_, i) => {
+            const li = document.createElement('li');
+            li.setAttribute('role', 'button');
+            li.setAttribute('aria-label', `Go to slide ${i + 1}`);
+            li.addEventListener('click', () => this.goTo(i));
+            this.dotsEl.appendChild(li);
+        });
+        this._syncDots(0);
+    }
+
+    _initObserver() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    const idx = parseInt(entry.target.dataset.slide, 10);
+                    if (!isNaN(idx)) {
+                        this.current = idx;
+                        this._updateProgress(idx);
+                        this._syncDots(idx);
+                    }
+                }
+            });
+        }, { threshold: this.observerThreshold });
+
+        this.slides.forEach(s => observer.observe(s));
+    }
+
+    _initKeyboard() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            switch (e.key) {
+                case 'ArrowDown': case 'ArrowRight': case ' ':
+                    e.preventDefault(); this.goTo(this.current + 1); break;
+                case 'ArrowUp': case 'ArrowLeft':
+                    e.preventDefault(); this.goTo(this.current - 1); break;
+                case 'Home': this.goTo(0); break;
+                case 'End':  this.goTo(this.total - 1); break;
+            }
+        });
+    }
+
+    _initWheel() {
+        document.addEventListener('wheel', (e) => {
+            if (this.isScrolling) return;
+            this.isScrolling = true;
+            this.goTo(e.deltaY > 0 ? this.current + 1 : this.current - 1);
+            setTimeout(() => { this.isScrolling = false; }, this.scrollCooldown);
+        }, { passive: true });
+    }
+
+    _initTouch() {
+        let startY = 0;
+        document.addEventListener('touchstart', e => {
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+        document.addEventListener('touchend', e => {
+            const delta = startY - e.changedTouches[0].clientY;
+            if (Math.abs(delta) > this.swipeThreshold) {
+                this.goTo(delta > 0 ? this.current + 1 : this.current - 1);
+            }
+        }, { passive: true });
+    }
+
+    goTo(index) {
+        const i = Math.max(0, Math.min(this.total - 1, index));
+        this.slides[i].scrollIntoView({ behavior: 'smooth' });
+    }
+
+    _updateProgress(index) {
+        if (!this.progressBar) return;
+        const pct = this.total <= 1 ? 100 : (index / (this.total - 1)) * 100;
+        this.progressBar.style.width = pct + '%';
+    }
+
+    _syncDots(index) {
+        if (!this.dotsEl) return;
+        this.dotsEl.querySelectorAll('li').forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+    }
+}
+
+/* ===========================================
+   ANNOTATION OVERLAY (Presenter Toolbox)
+
+   Draw on a transparent canvas overlay during presentations.
+   - Tools: freedraw, line, arrow, square, text, eraser
+   - 7 color presets + custom color picker
+   - S / M / L stroke sizes
+   - Per-slide annotation state preserved on slide change
+   - Navigation lockout while drawing
+   - Press E to toggle; Escape to close
+   =========================================== */
+class AnnotationOverlay {
+    constructor({
+        accentColor  = '#8B5E3C',
+        defaultColor = '#ef4444',
+        defaultSize  = 4,
+        defaultTool  = 'freedraw',
+        toggleKey    = 'e',
+    } = {}) {
+        this.accentColor = accentColor;
+        this.color       = defaultColor;
+        this.size        = defaultSize;
+        this.tool        = defaultTool;
+        this.toggleKey   = toggleKey.toLowerCase();
+
+        this.isActive  = false;
+        this.isDrawing = false;
+        this.snapshot  = null;
+        this.slideData = new Map();
+        this.currentSlideIdx = 0;
+        this.startX = this.startY = 0;
+        this.textInput = null;
+
+        this._buildCanvas();
+        this._buildUI();
+        this._initSlideWatcher();
+        this._initNavLockout();
+        this._initKeyboard();
+        this._initDrawing();
+        window.addEventListener('resize', () => this._resizeCanvas());
+    }
+
+    _buildCanvas() {
+        this.canvas = document.createElement('canvas');
+        this.canvas.id = 'anno-canvas';
+        this.canvas.style.cssText = `
+            position: fixed; inset: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 998;
+        `;
+        document.body.appendChild(this.canvas);
+        this.ctx = this.canvas.getContext('2d');
+        this._resizeCanvas();
+    }
+
+    _resizeCanvas() {
+        const saved = (this.isActive && this.canvas.width > 0)
+            ? this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
+            : null;
+        this.canvas.width  = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        if (saved) this.ctx.putImageData(saved, 0, 0);
+    }
+
+    _buildUI() {
+        // Toggle button
+        this.toggleBtn = document.createElement('button');
+        this.toggleBtn.className = 'anno-toggle';
+        this.toggleBtn.title = `Toggle annotation (${this.toggleKey.toUpperCase()})`;
+        this.toggleBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+            </svg>
+            <span style="font-size:8px;font-family:monospace;color:rgba(26,26,26,0.4);display:block;line-height:1">
+                ${this.toggleKey.toUpperCase()}
+            </span>
+        `;
+        this.toggleBtn.style.cssText = `
+            position: fixed; bottom: 1.75rem; left: 1.75rem;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(26,26,26,0.07); border: 1px solid rgba(26,26,26,0.18);
+            color: rgba(26,26,26,0.6); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            gap: 1px; z-index: 999; padding: 0;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+        `;
+        this.toggleBtn.addEventListener('click', () => this.toggle());
+        document.body.appendChild(this.toggleBtn);
+
+        // Toolbox panel
+        this.toolbox = document.createElement('div');
+        this.toolbox.className = 'anno-toolbox';
+        this.toolbox.style.cssText = `
+            position: fixed; bottom: 5.5rem; left: 1.75rem;
+            background: rgba(245,243,238,0.96); backdrop-filter: blur(16px);
+            border: 1px solid rgba(26,26,26,0.12); border-radius: 12px;
+            padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem;
+            z-index: 999; transform-origin: bottom left;
+            transform: translateY(8px) scale(0.96); opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s, transform 0.18s;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        `;
+
+        // Tools row
+        const tools = [
+            { id: 'freedraw', label: 'Draw',  icon: '✏️' },
+            { id: 'line',     label: 'Line',  icon: '╱'  },
+            { id: 'arrow',    label: 'Arrow', icon: '→'  },
+            { id: 'square',   label: 'Rect',  icon: '▭'  },
+            { id: 'text',     label: 'Text',  icon: 'T'  },
+            { id: 'eraser',   label: 'Erase', icon: '⌫'  },
+        ];
+        const toolRow = this._row();
+        this.toolBtns = {};
+        tools.forEach(({ id, label, icon }) => {
+            const btn = document.createElement('button');
+            btn.title = label;
+            btn.textContent = icon;
+            btn.style.cssText = `
+                width: 32px; height: 32px; border-radius: 7px;
+                background: rgba(26,26,26,0.05); border: 1px solid rgba(26,26,26,0.12);
+                color: rgba(26,26,26,0.75); cursor: pointer; padding: 0;
+                font-size: 14px; display: flex; align-items: center; justify-content: center;
+                transition: border-color 0.15s, background 0.15s;
+            `;
+            btn.addEventListener('click', () => this._selectTool(id));
+            toolRow.appendChild(btn);
+            this.toolBtns[id] = btn;
+        });
+        this.toolbox.appendChild(toolRow);
+
+        // Colors row
+        const presetColors = ['#ef4444','#f97316','#facc15','#4ade80','#60a5fa','#1a1a1a','#ffffff'];
+        const colorRow = this._row();
+        this.colorBtns = {};
+        presetColors.forEach(c => {
+            const btn = document.createElement('button');
+            btn.title = c;
+            btn.style.cssText = `
+                width: 20px; height: 20px; border-radius: 50%;
+                background: ${c}; border: 2px solid transparent;
+                cursor: pointer; padding: 0; flex-shrink: 0;
+                outline: 1px solid rgba(26,26,26,0.15);
+                transition: border-color 0.15s, transform 0.15s;
+            `;
+            btn.addEventListener('click', () => this._selectColor(c));
+            colorRow.appendChild(btn);
+            this.colorBtns[c] = btn;
+        });
+        const colorPicker = document.createElement('input');
+        colorPicker.type = 'color';
+        colorPicker.value = this.color;
+        colorPicker.title = 'Custom color';
+        colorPicker.style.cssText = `
+            width: 20px; height: 20px; border-radius: 50%;
+            border: 2px solid rgba(26,26,26,0.15); cursor: pointer;
+            padding: 0; flex-shrink: 0; background: none; overflow: hidden;
+        `;
+        colorPicker.addEventListener('input', e => this._selectColor(e.target.value));
+        colorRow.appendChild(colorPicker);
+        this.toolbox.appendChild(colorRow);
+
+        // Sizes + clear row
+        const sizeRow = this._row();
+        const sizes = [{ label: 'S', value: 2 }, { label: 'M', value: 4 }, { label: 'L', value: 8 }];
+        this.sizeBtns = {};
+        sizes.forEach(({ label, value }) => {
+            const btn = document.createElement('button');
+            btn.textContent = label;
+            btn.style.cssText = `
+                min-width: 28px; height: 28px; border-radius: 6px;
+                background: rgba(26,26,26,0.05); border: 1px solid rgba(26,26,26,0.12);
+                color: rgba(26,26,26,0.75); cursor: pointer; padding: 0 6px;
+                font-size: 11px; font-family: sans-serif;
+                transition: border-color 0.15s, background 0.15s;
+            `;
+            btn.addEventListener('click', () => this._selectSize(value));
+            sizeRow.appendChild(btn);
+            this.sizeBtns[value] = btn;
+        });
+        const spacer = document.createElement('div');
+        spacer.style.flex = '1';
+        sizeRow.appendChild(spacer);
+        const clearBtn = document.createElement('button');
+        clearBtn.title = 'Clear annotations on this slide';
+        clearBtn.textContent = '🗑';
+        clearBtn.style.cssText = `
+            width: 28px; height: 28px; border-radius: 6px;
+            background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);
+            color: rgba(26,26,26,0.75); cursor: pointer; padding: 0;
+            font-size: 13px; transition: background 0.15s;
+        `;
+        clearBtn.addEventListener('click', () => {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.slideData.delete(this.currentSlideIdx);
+        });
+        sizeRow.appendChild(clearBtn);
+        this.toolbox.appendChild(sizeRow);
+
+        document.body.appendChild(this.toolbox);
+
+        this._selectTool(this.tool);
+        this._selectColor(this.color);
+        this._selectSize(this.size);
+    }
+
+    _row() {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:6px;align-items:center;';
+        return row;
+    }
+
+    _selectTool(id) {
+        this.tool = id;
+        Object.entries(this.toolBtns).forEach(([tid, btn]) => {
+            const active = tid === id;
+            btn.style.background  = active ? `${this.accentColor}22` : 'rgba(26,26,26,0.05)';
+            btn.style.borderColor = active ? this.accentColor         : 'rgba(26,26,26,0.12)';
+            btn.style.color       = active ? this.accentColor         : 'rgba(26,26,26,0.75)';
+        });
+        this.canvas.style.cursor = id === 'eraser' ? 'cell' : id === 'text' ? 'text' : 'crosshair';
+    }
+
+    _selectColor(c) {
+        this.color = c;
+        Object.entries(this.colorBtns).forEach(([col, btn]) => {
+            btn.style.borderColor = col === c ? 'rgba(26,26,26,0.8)' : 'transparent';
+            btn.style.transform   = col === c ? 'scale(1.2)'          : 'none';
+        });
+    }
+
+    _selectSize(v) {
+        this.size = v;
+        Object.entries(this.sizeBtns).forEach(([val, btn]) => {
+            const active = parseInt(val) === v;
+            btn.style.borderColor = active ? this.accentColor         : 'rgba(26,26,26,0.12)';
+            btn.style.background  = active ? `${this.accentColor}18`  : 'rgba(26,26,26,0.05)';
+        });
+    }
+
+    _initSlideWatcher() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(m => {
+                if (m.type === 'attributes' && m.attributeName === 'class') {
+                    const slide = m.target;
+                    if (slide.classList.contains('visible')) {
+                        const newIdx = parseInt(slide.dataset.slide, 10);
+                        if (!isNaN(newIdx) && newIdx !== this.currentSlideIdx) {
+                            this._saveCurrentSlide();
+                            this.currentSlideIdx = newIdx;
+                            this._loadSlide(newIdx);
+                        }
+                    }
+                }
+            });
+        });
+        document.querySelectorAll('.slide').forEach(s => observer.observe(s, { attributes: true }));
+    }
+
+    _saveCurrentSlide() {
+        const data = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        this.slideData.set(this.currentSlideIdx, data);
+    }
+
+    _loadSlide(idx) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const data = this.slideData.get(idx);
+        if (data) this.ctx.putImageData(data, 0, 0);
+    }
+
+    _initNavLockout() {
+        const capture = { capture: true, passive: false };
+        window.addEventListener('wheel', (e) => {
+            if (this.isActive) e.stopPropagation();
+        }, capture);
+        window.addEventListener('touchstart', (e) => {
+            if (this.isActive) e.stopPropagation();
+        }, capture);
+        window.addEventListener('touchend', (e) => {
+            if (this.isActive) e.stopPropagation();
+        }, capture);
+        window.addEventListener('keydown', (e) => {
+            if (this.isActive && this.isDrawing) {
+                if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) {
+                    e.stopPropagation();
+                }
+            }
+        }, capture);
+    }
+
+    _initKeyboard() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key.toLowerCase() === this.toggleKey) {
+                this.toggle();
+            } else if (e.key === 'Escape' && this.isActive) {
+                this.toggle();
+            }
+        });
+    }
+
+    toggle() {
+        this.isActive = !this.isActive;
+        this.canvas.style.pointerEvents = this.isActive ? 'all' : 'none';
+        if (this.isActive) {
+            this.toolbox.style.opacity       = '1';
+            this.toolbox.style.transform     = 'none';
+            this.toolbox.style.pointerEvents = 'all';
+            this.toggleBtn.style.background  = this.accentColor;
+            this.toggleBtn.style.borderColor = this.accentColor;
+            this.toggleBtn.style.color       = '#fff';
+        } else {
+            this.toolbox.style.opacity       = '0';
+            this.toolbox.style.transform     = 'translateY(8px) scale(0.96)';
+            this.toolbox.style.pointerEvents = 'none';
+            this.toggleBtn.style.background  = 'rgba(26,26,26,0.07)';
+            this.toggleBtn.style.borderColor = 'rgba(26,26,26,0.18)';
+            this.toggleBtn.style.color       = 'rgba(26,26,26,0.6)';
+        }
+    }
+
+    _initDrawing() {
+        this.canvas.addEventListener('mousedown',  e => this._onDown(e.offsetX, e.offsetY));
+        this.canvas.addEventListener('mousemove',  e => this._onMove(e.offsetX, e.offsetY));
+        this.canvas.addEventListener('mouseup',    e => this._onUp(e.offsetX, e.offsetY));
+        this.canvas.addEventListener('mouseleave', () => { if (this.isDrawing) this._onUp(0, 0); });
+
+        this.canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            const t = e.touches[0], r = this.canvas.getBoundingClientRect();
+            this._onDown(t.clientX - r.left, t.clientY - r.top);
+        }, { passive: false });
+        this.canvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            const t = e.touches[0], r = this.canvas.getBoundingClientRect();
+            this._onMove(t.clientX - r.left, t.clientY - r.top);
+        }, { passive: false });
+        this.canvas.addEventListener('touchend', e => {
+            e.preventDefault();
+            const t = e.changedTouches[0], r = this.canvas.getBoundingClientRect();
+            this._onUp(t.clientX - r.left, t.clientY - r.top);
+        }, { passive: false });
+    }
+
+    _onDown(x, y) {
+        if (!this.isActive) return;
+        if (this.tool === 'text') { this._startText(x, y); return; }
+        this.isDrawing = true;
+        this.startX = x; this.startY = y;
+        this._applyCtxStyle();
+        if (this.tool === 'freedraw') {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, y);
+        } else if (this.tool !== 'eraser') {
+            this.snapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        }
+    }
+
+    _onMove(x, y) {
+        if (!this.isDrawing || !this.isActive) return;
+        if (this.tool === 'freedraw') {
+            this._applyCtxStyle();
+            this.ctx.lineTo(x, y);
+            this.ctx.stroke();
+            return;
+        }
+        if (this.tool === 'eraser') { this._erase(x, y); return; }
+        this.ctx.putImageData(this.snapshot, 0, 0);
+        this._applyCtxStyle();
+        this._drawShape(this.tool, this.startX, this.startY, x, y);
+    }
+
+    _onUp(x, y) {
+        if (!this.isDrawing || !this.isActive) return;
+        this.isDrawing = false;
+        if (this.tool !== 'freedraw' && this.tool !== 'eraser' && this.snapshot) {
+            this.ctx.putImageData(this.snapshot, 0, 0);
+            this._applyCtxStyle();
+            this._drawShape(this.tool, this.startX, this.startY, x, y);
+        }
+        this.snapshot = null;
+        this.ctx.globalCompositeOperation = 'source-over';
+    }
+
+    _applyCtxStyle() {
+        this.ctx.strokeStyle = this.color;
+        this.ctx.fillStyle   = this.color;
+        this.ctx.lineWidth   = this.size;
+        this.ctx.lineCap     = 'round';
+        this.ctx.lineJoin    = 'round';
+        this.ctx.globalCompositeOperation = 'source-over';
+    }
+
+    _drawShape(tool, x1, y1, x2, y2) {
+        this.ctx.beginPath();
+        if (tool === 'line') {
+            this.ctx.moveTo(x1, y1); this.ctx.lineTo(x2, y2); this.ctx.stroke();
+        } else if (tool === 'arrow') {
+            const headLen = Math.max(15, this.size * 4);
+            const angle   = Math.atan2(y2 - y1, x2 - x1);
+            this.ctx.moveTo(x1, y1); this.ctx.lineTo(x2, y2); this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(x2, y2);
+            this.ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
+            this.ctx.moveTo(x2, y2);
+            this.ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
+            this.ctx.stroke();
+        } else if (tool === 'square') {
+            this.ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+        }
+    }
+
+    _erase(x, y) {
+        const r = this.size * 4;
+        this.ctx.globalCompositeOperation = 'destination-out';
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, r, 0, Math.PI * 2);
+        this.ctx.fill();
+    }
+
+    _startText(x, y) {
+        if (this.textInput) this.textInput.remove();
+        const fontSize = Math.max(14, this.size * 4);
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.style.cssText = `
+            position: fixed; left: ${x}px; top: ${y}px;
+            background: transparent; border: none;
+            outline: 1px dashed rgba(26,26,26,0.4);
+            color: ${this.color}; font-size: ${fontSize}px;
+            font-family: sans-serif; min-width: 120px;
+            z-index: 1000; padding: 2px 4px;
+        `;
+        document.body.appendChild(input);
+        this.textInput = input;
+        requestAnimationFrame(() => input.focus());
+        const commit = () => {
+            if (!input.isConnected) return;
+            const val = input.value.trim();
+            if (val) {
+                this.ctx.font      = `${fontSize}px sans-serif`;
+                this.ctx.fillStyle = this.color;
+                this.ctx.globalCompositeOperation = 'source-over';
+                this.ctx.fillText(val, x, y + fontSize);
+            }
+            input.remove();
+            if (this.textInput === input) this.textInput = null;
+        };
+        input.addEventListener('keydown', e => {
+            e.stopPropagation();
+            if (e.key === 'Enter')  { e.preventDefault(); commit(); }
+            if (e.key === 'Escape') { e.preventDefault(); input.remove(); if (this.textInput === input) this.textInput = null; }
+        });
+        setTimeout(() => { input.addEventListener('blur', commit); }, 300);
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    new SlidePresentation();
+    new AnnotationOverlay({
+        accentColor:  '#8B5E3C',
+        defaultColor: '#ef4444',
+    });
+});
+</script>
+</body>
+</html>
