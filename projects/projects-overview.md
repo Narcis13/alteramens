@@ -1,6 +1,6 @@
 ---
 type: index
-updated: 2026-02-18
+updated: 2026-03-17
 ---
 
 # Portofoliu Proiecte
@@ -18,19 +18,21 @@ Overview-ul tuturor proiectelor active din Alteramens.
 | [[cct2/cct2\|CCT2]] | Digital Product | Prototype | Next.js, Remotion | 2 commits |
 | [[robun/robun\|Robun]] | DevTools/AI Agent | Active (v1.0) | Bun, Hono, grammy, MCP SDK | v1.0.0 |
 | [[dualize/dualize\|Dualize]] | DevTools/Library | Active (v0.1) | Bun, Hono, Zod, citty | Design + Plan ready |
+| [[glyphrail/glyphrail\|Glyphrail]] | DevTools/Workflow | Active (v0.1) | Bun, TypeScript | MVP Slice 6 |
+| [[loom-ui/loom-ui\|Loom UI]] | DevTools/UI Framework | Active (v0.1) | Bun, TypeScript, HTML/CSS | Spec + partial impl |
 
 ## Clasificare
 
 ### Per Tip
-- **DevTools:** [[bunbase/bunbase|BunBase]], [[forma-mono/forma-mono|Forma]], [[robun/robun|Robun]], [[dualize/dualize|Dualize]]
+- **DevTools:** [[bunbase/bunbase|BunBase]], [[forma-mono/forma-mono|Forma]], [[robun/robun|Robun]], [[dualize/dualize|Dualize]], [[glyphrail/glyphrail|Glyphrail]], [[loom-ui/loom-ui|Loom UI]]
 - **SaaS:** [[davidup/davidup|DavidUp]], [[contzo/contzo|Contzo]]
 - **Digital Product:** [[cct2/cct2|CCT2]]
 
 ### Per Maturitate
-- **Active development:** BunBase (v0.3), DavidUp (v0.2), Robun (v1.0)
+- **Active development:** BunBase (v0.3), DavidUp (v0.2), Robun (v1.0), Glyphrail (v0.1 MVP Slice 6)
 - **Planning:** Contzo (0% code, 200KB docs)
 - **Ready to build:** [[dualize/dualize|Dualize]] (design + TDD implementation plan, 37 tests planned)
-- **Prototype/MVP:** Forma (v0.1, 1 day old), CCT2 (2 commits)
+- **Prototype/MVP:** Forma (v0.1), CCT2 (2 commits), Loom UI (spec complet + partial impl)
 
 ### Per Revenue Potential
 - **High (B2B SaaS):** Contzo - contabili romani, pain real, piata definita
@@ -50,6 +52,9 @@ Toate proiectele folosesc **Bun** ca runtime (excepție: CCT2 pe Next.js/Node). 
 - **Robun** poate automatiza workflow-uri Alteramens via Telegram/Discord + MCP tools
 - Experiența din **DavidUp** (Hono + Zod + API design) se aplică direct la **Contzo**
 - **Dualize** va fi folosit în toate proiectele Bun+Hono pentru dual API+CLI interface
+- **Glyphrail** poate fi folosit de **Robun** pentru workflow orchestration cu bounded agent steps
+- **Loom UI** va fi folosit în proiectele cu UI (DavidUp, Contzo, BunBase) pentru componente agent-generabile
+- **Glyphrail** și **Loom UI** au ambele "agent-native CLI" ca design constraint — pattern comun cu restul Alteramens
 
 ## Legături Rapide
 
