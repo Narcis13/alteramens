@@ -1,0 +1,48 @@
+---
+title: "Validate Before Build"
+type: concept
+category: decision-framework
+sources: [alteramens-manifest, workscript-decisions, nbrain-concept]
+entities: [alteramens, nbrain, workscript]
+related: [kill-fast, judgment, productize-yourself]
+maturity: mature
+confidence: high
+contradictions: []
+applications: ["MANIFEST.md", "projects/workscript/decisions.md"]
+---
+
+# Validate Before Build
+
+Before writing code, validate that the problem exists and someone would pay to solve it. This is the most important operational principle in Alteramens.
+
+## The Anti-Pattern
+
+Building in a vacuum. Zero conversations with potential clients. Technical migrations as "comfortable code" avoiding "uncomfortable selling." Polishing tools nobody asked for.
+
+> "Migrations are comfortable code vs uncomfortable selling." — WorkScript decisions
+
+## The Principle
+
+1. Talk to real people who have the problem
+2. Confirm they'd pay to solve it
+3. Build the minimum thing that tests the hypothesis
+4. Only then invest in technical infrastructure
+
+## Applied to nbrAIn
+
+The correct sequence:
+1. Interview wife (done — confirmed pain)
+2. Talk to 2-3 of her clients (next)
+3. Build Wizard of Oz demo with existing engine
+4. Get first payment
+5. THEN migrate to PostgreSQL, NextJS, etc.
+
+## The Manifest's Version
+
+- "Before code, validate the problem. Talk to people, look for signs someone would pay."
+- "MVP must be embarrassingly simple"
+- "If no signs of life after 2-3 weeks → archive and next" (see [[kill-fast]])
+
+## Why It's Hard
+
+Building feels productive. Selling feels vulnerable. The temptation to hide in code is strong, especially for developers. This principle forces confrontation with the market.

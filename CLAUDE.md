@@ -81,6 +81,29 @@ Vezi detalii în [[owner/Who am i|Who am i]] pentru context personal.
 | `projects/` | Proiecte active, în dezvoltare | |
 | `notes/` | Note rapide, inbox | [[inbox]] |
 | `archive/` | Idei parcate sau finalizate | |
+| `wiki/` | Faber — Builder's Codex (LLM-maintained knowledge base) | [[wiki/FABER\|Schema]] |
+
+## Faber — The Builder's Codex
+
+A persistent, compounding wiki maintained by Claude Code. Based on Karpathy's LLM Wiki pattern.
+
+**How it works:** Instead of re-deriving knowledge from scratch every session, Claude incrementally builds a structured wiki. Sources are ingested once, cross-referenced, and synthesized. Knowledge compounds.
+
+**Schema:** `wiki/FABER.md` defines all conventions, page types, and workflows.
+
+**Skills:**
+| Skill | Purpose |
+|-------|---------|
+| `/faber-ingest` | Guided ingestion of a source into the wiki |
+| `/faber-query` | Search & synthesize from accumulated knowledge |
+| `/faber-lint` | Health-check: contradictions, orphans, gaps |
+| `/faber-status` | Dashboard: page counts, recent activity, stats |
+| `/faber-seed` | Autonomous processing of vault content into wiki |
+| `/faber-link` | Cross-link vault documents with wiki pages |
+
+**Page types:** Sources (summaries), Entities (people/tools/companies), Concepts (patterns/frameworks), Syntheses (cross-cutting analyses).
+
+**Cross-linking:** Wiki pages link to vault docs and vice versa. Use `[[wiki/concepts/concept-name]]` from vault, `[[projects/name/decisions|Display]]` from wiki.
 
 ## Cum să mă ajuți
 1. Provocă-mă cu întrebări când ideile sunt vagi
@@ -113,6 +136,7 @@ Moduri distincte de interacțiune - o conversație = un mod de lucru (focusat).
 | `#strategy` | GTM, pricing, positioning | Doc strategy |
 | `#marketing` | Copy, landing pages | Assets marketing |
 | `#retrospective` | Ce am învățat | Update în vault |
+| `#wiki` | Faber wiki: ingest, query, lint | Pages în `wiki/` |
 
 ## Context Loop
 
