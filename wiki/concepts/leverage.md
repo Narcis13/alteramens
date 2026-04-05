@@ -2,9 +2,9 @@
 title: "Leverage — Force Multipliers"
 type: concept
 category: mental-model
-sources: [naval-framework, skill-era-article]
-entities: [naval-ravikant]
-related: [productize-yourself, specific-knowledge, skill-era, encoded-judgment]
+sources: [naval-framework, skill-era-article, eric-siu-world-intelligence]
+entities: [naval-ravikant, single-grain, eric-siu]
+related: [productize-yourself, specific-knowledge, skill-era, encoded-judgment, ai-native-org-design, agent-fleet-architecture, world-model]
 maturity: mature
 confidence: high
 contradictions: []
@@ -46,3 +46,11 @@ The interface shrinks, the leverage expands. A handful of skill files can shape 
 ## Decision Implication
 
 Every project should maximize leverage: prefer code over manual services, prefer platforms over one-off deliverables, prefer skills over dashboards.
+
+## Agent Leverage (New Form)
+
+[[eric-siu]] at [[single-grain]] demonstrates a fifth type of leverage: **AI agents operating on proprietary context**. A fleet of specialized agents running 50+ daily workflows is leverage that compounds — each day the [[world-model]] gets richer, making every agent more effective.
+
+Local hardware (Mac Mini + DGX Spark) cuts cloud costs ~70%, making this leverage increasingly permissionless. You don't need API budgets — you run inference locally.
+
+This extends Naval's framework: code and content are permissionless leverage for creation. AI agents are permissionless leverage for operations.

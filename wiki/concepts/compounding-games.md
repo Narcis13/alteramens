@@ -2,9 +2,9 @@
 title: "Compounding Games — Play Long-Term"
 type: concept
 category: mental-model
-sources: [naval-framework, alteramens-manifest]
-entities: [naval-ravikant, alteramens]
-related: [productize-yourself, specific-knowledge, work-as-play]
+sources: [naval-framework, alteramens-manifest, eric-siu-world-intelligence]
+entities: [naval-ravikant, alteramens, single-grain, eric-siu]
+related: [productize-yourself, specific-knowledge, work-as-play, data-compounding-moat, world-model]
 maturity: mature
 confidence: high
 contradictions: []
@@ -36,7 +36,20 @@ Every project, every source ingested, every decision documented compounds. The w
 
 Each abandoned project resets the clock. The Manifest is explicit: [[kill-fast]] applies to ideas without signs of life, but the overall GAME (building profitable software) shouldn't change.
 
+## Data Compounding: The AI-Native Instance
+
+[[eric-siu]] documents the compounding curve for AI-native operations:
+- **Month 1:** Terrible. Agents hallucinate. More time fixing than saving.
+- **Month 2:** First useful patterns. AutoResearch surfaces insights no human noticed.
+- **Month 3:** Flywheel starts. Three months of data makes everything better.
+- **Month 4+:** Different company. System catches things humans miss.
+
+This is compounding games in practice. The pain of months 1-2 is the price of entry. Quitting resets the clock. The companies that push through get a [[data-compounding-moat]] — proprietary context that can't be fast-forwarded by competitors.
+
+The same applies to Faber: every source ingested makes the wiki more valuable. The compound interest is in the cross-references and accumulated context.
+
 ## See Also
 
 - [[work-as-play]] — Consistency requires alignment
 - [[specific-knowledge]] — Develops through compounding
+- [[data-compounding-moat]] — Applied to proprietary data accumulation

@@ -3,9 +3,9 @@ title: "The Alteramens Thesis — Why This Works"
 type: synthesis
 trigger: insight
 question: "How do the philosophical foundations (Productize Yourself + Skill Era) connect to form the Alteramens strategy?"
-sources_consulted: [naval-framework, skill-era-article, alteramens-manifest, nbrain-concept]
-concepts_involved: [productize-yourself, skill-era, specific-knowledge, leverage, judgment, encoded-judgment, validate-before-build]
-entities_involved: [alteramens, nbrain, naval-ravikant]
+sources_consulted: [naval-framework, skill-era-article, alteramens-manifest, nbrain-concept, eric-siu-world-intelligence]
+concepts_involved: [productize-yourself, skill-era, specific-knowledge, leverage, judgment, encoded-judgment, validate-before-build, ai-native-org-design, world-model, data-compounding-moat, internal-to-product]
+entities_involved: [alteramens, nbrain, naval-ravikant, single-grain, eric-siu]
 created: 2026-04-05
 updated: 2026-04-05
 maturity: developing
@@ -67,3 +67,13 @@ Everything compounds:
 - Each day of disciplined execution moves closer to 1K MRR
 
 The game is worth playing long-term. The specific knowledge is real. The leverage is permissionless. The question is: will the market respond?
+
+## External Validation: Eric Siu's Single Grain
+
+[[eric-siu]]'s implementation of [[ai-native-org-design]] at [[single-grain]] validates the Alteramens thesis from the practitioner side:
+
+- **Compounding is real but painful:** Month 1-2 felt like going backwards. Month 3+ the flywheel started. This confirms [[compounding-games]] — the early pain is the price of entry, not a signal to quit.
+- **[[internal-to-product]] works:** Single Grain's internal AI system became Single Brain, a product for clients. The same path applies to Alteramens — anything built internally that proves its value can be productized.
+- **The moat is data, not tech:** [[data-compounding-moat]] — competitors can copy tech but not months of proprietary context. For Alteramens, specific knowledge about Romanian accounting/healthcare compounding in Faber creates the same defensibility.
+- **Small teams win:** Single Grain moved faster than Block (6,000 people). Size is a disadvantage when the leverage comes from AI agents + proprietary context. This is the Skill Era thesis in practice.
+- **The gap between theory and implementation is the opportunity:** Most companies will read Dorsey's essay and do nothing. The companies that actually implement — whether Single Grain at agency scale or Alteramens at builder scale — capture the value.

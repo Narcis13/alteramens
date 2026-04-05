@@ -2,9 +2,9 @@
 title: "The Skill Era — From Pipes to Patterns"
 type: concept
 category: mental-model
-sources: [skill-era-article, naval-framework]
-entities: [alteramens]
-related: [encoded-judgment, leverage, productize-yourself]
+sources: [skill-era-article, naval-framework, eric-siu-world-intelligence]
+entities: [alteramens, single-grain, eric-siu, block-inc]
+related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product]
 maturity: mature
 confidence: high
 contradictions: []
@@ -52,3 +52,13 @@ Alteramens projects are designed for this era:
 - [[encoded-judgment]] in every product
 - Claude Code skills as distribution mechanism
 - Faber wiki itself as compounding knowledge infrastructure
+
+## Real-World Validation: Single Grain
+
+[[eric-siu]] at [[single-grain]] provides a concrete case study: a marketing agency rebuilt as an AI-native company with specialized agents, a unified [[world-model]], and 50+ daily automated workflows. The transformation follows the Skill Era thesis precisely — small team, massive leverage through agent invocations, expertise encoded as infrastructure.
+
+Key validation points:
+- [[agent-fleet-architecture]] maps to "skills for agent workflows" — each agent encodes domain judgment
+- [[internal-to-product]] shows the path: build internally, prove it works, sell the system
+- [[data-compounding-moat]] confirms that proprietary context accumulation is the real defensibility
+- The org chart shift (hierarchy → intelligence layer) is the Skill Era applied to organizational design
