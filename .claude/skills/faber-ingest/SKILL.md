@@ -19,6 +19,19 @@ Parse `$ARGUMENTS` for the source:
 - **No arguments** — Ask the user what source to ingest
 - **Text in conversation** — User may paste text directly after invoking
 
+## Pre-check: Duplicate Detection
+
+Before ingesting, check if the source already exists:
+```bash
+sqlite3 wiki/faber.db "SELECT slug, title FROM pages WHERE type='source' AND (source_ref LIKE '%keyword%' OR title LIKE '%keyword%');"
+```
+Also check entity aliases to avoid duplicates:
+```bash
+sqlite3 wiki/faber.db "SELECT entity_slug, alias FROM aliases WHERE alias LIKE '%name%';"
+```
+
+If `faber.db` doesn't exist, run `python3 wiki/faber_sync.py` first.
+
 ## Workflow
 
 ### Phase 1: Read & Discuss
@@ -33,7 +46,32 @@ Based on the discussion:
 1. **Entities** — People, companies, tools, frameworks mentioned. For each, determine: name, category, aliases
 2. **Concepts** — Patterns, models, principles, frameworks. For each, determine: name, category, related concepts
 3. **Key claims** — Notable assertions, with confidence assessment
-4. Note any contradictions with existing wiki content (read relevant existing pages first)
+4. Note any contradictions with existing wiki content (query faber.db for related pages first)
+
+### Phase 2b: Image Evaluation (strict — read wiki/FABER.md "Image Policy" section)
+
+**Default: zero images.** Only proceed if the source contains diagrams/charts/visualizations.
+
+For each candidate image, apply the 4-gate test:
+1. **Information density:** Can a 2-sentence description convey the same info? If yes → REJECT.
+2. **Novelty:** Is this info already in the text you ingested? If yes → REJECT.
+3. **Reference value:** Would someone need this image 6 months later? If no → REJECT.
+4. **Type:** Is it an architecture diagram, flowchart, data visualization, or org chart? If no → REJECT.
+
+**Hard cap: maximum 2 images per ingest. Zero is the norm.**
+
+If any images pass all 4 gates:
+1. Present them to Narcis with pass/fail reasoning per gate
+2. Wait for explicit approval before saving
+3. If approved: save to `wiki/assets/{source-slug}/` with descriptive kebab-case filename
+4. Add `images:` field to source frontmatter
+5. Reference in prose: `![description](assets/{source-slug}/filename.png)`
+
+To save images from web sources (Chrome):
+```
+Use mcp__claude-in-chrome__computer to screenshot specific diagrams, or
+download images directly if available.
+```
 
 ### Phase 3: Write Wiki Pages
 1. **Source page** — Create `wiki/sources/{slug}.md` with full frontmatter and prose summary
@@ -47,14 +85,21 @@ Based on the discussion:
 5. **Synthesis** — If the source creates a significant new connection or insight, create a synthesis page
 
 ### Phase 4: Update Meta
-1. Update `wiki/index.md` — Add entries for all new pages under their type section
-2. Append to `wiki/log.md`:
+1. Append to `wiki/log.md`:
    ```
    ## [YYYY-MM-DD] ingest | {Source Title}
    - Source: {path/URL}
    - Entities created: {list} | updated: {list}
    - Concepts created: {list} | updated: {list}
    - Synthesis: {if created}
+   ```
+2. **Run faber-sync** to rebuild the database and regenerate index.md:
+   ```bash
+   python3 wiki/faber_sync.py
+   ```
+3. **Verify** — Run a quick lint check for broken references:
+   ```bash
+   sqlite3 wiki/faber.db "SELECT * FROM v_phantoms;"
    ```
 
 ### Phase 5: Report
@@ -72,3 +117,4 @@ Show a summary:
 - All wiki pages must have valid YAML frontmatter matching the schema in FABER.md
 - Cross-link to vault documents where the entity/concept is relevant using `[[vault-path|Display Name]]`
 - When in doubt about maturity/confidence, start conservative (seed/medium)
+- **Always run faber-sync as the last step** — never skip this

@@ -53,8 +53,8 @@ After processing all files:
 3. These are the "big picture" insights from the vault
 
 ### Phase 4: Build Index
-1. Generate complete `wiki/index.md` with all pages cataloged
-2. Write comprehensive seeding entry in `wiki/log.md`
+1. Write comprehensive seeding entry in `wiki/log.md`
+2. Run `python3 wiki/faber_sync.py` to rebuild faber.db and regenerate index.md
 
 ### Phase 5: Report
 Present to user:

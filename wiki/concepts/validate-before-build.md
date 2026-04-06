@@ -2,9 +2,9 @@
 title: "Validate Before Build"
 type: concept
 category: decision-framework
-sources: [alteramens-manifest, workscript-decisions, nbrain-concept]
+sources: [alteramens-manifest, workscript-decisions, nbrain-concept, ai-marketing-distribution]
 entities: [alteramens, nbrain, workscript]
-related: [kill-fast, judgment, productize-yourself]
+related: [kill-fast, judgment, productize-yourself, distribution-over-product]
 maturity: mature
 confidence: high
 contradictions: []
@@ -46,3 +46,7 @@ The correct sequence:
 ## Why It's Hard
 
 Building feels productive. Selling feels vulnerable. The temptation to hide in code is strong, especially for developers. This principle forces confrontation with the market.
+
+## The Distribution Angle
+
+The [[ai-marketing-distribution]] source reinforces this from the distribution side: with 200K+ projects launching daily, building is no longer the hard part. [[distribution-over-product]] is the current reality. Validate Before Build now means: validate that you have a distribution strategy, not just a product idea.

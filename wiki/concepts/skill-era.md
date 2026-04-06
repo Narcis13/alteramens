@@ -2,9 +2,9 @@
 title: "The Skill Era — From Pipes to Patterns"
 type: concept
 category: mental-model
-sources: [skill-era-article, naval-framework, eric-siu-world-intelligence]
+sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution]
 entities: [alteramens, single-grain, eric-siu, block-inc]
-related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product]
+related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product]
 maturity: mature
 confidence: high
 contradictions: []
@@ -62,3 +62,11 @@ Key validation points:
 - [[internal-to-product]] shows the path: build internally, prove it works, sell the system
 - [[data-compounding-moat]] confirms that proprietary context accumulation is the real defensibility
 - The org chart shift (hierarchy → intelligence layer) is the Skill Era applied to organizational design
+
+## Distribution in the Skill Era
+
+The [[ai-marketing-distribution]] source articulates a practical consequence: in the Skill Era, [[distribution-over-product]] becomes the dominant dynamic. When vibe coding makes building trivial, distribution is the bottleneck.
+
+[[mcp-as-distribution]] is the Skill Era's native distribution channel — MCP servers and AI plugins as zero-cost customer acquisition. Instead of marketing to humans, you embed your tool directly into agent workflows. This is the "distribution: agent workflows" row of the paradigm table made concrete.
+
+Complementary strategies like [[answer-engine-optimization]] and [[programmatic-seo]] extend this: be what AI cites (content distribution) and generate pages at scale (search distribution). All three are permissionless [[leverage]] plays.

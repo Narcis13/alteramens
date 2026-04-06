@@ -1,2 +1,5 @@
 .obsidian/workspace.json
 tools/node_modules/
+wiki/faber.db
+wiki/faber.db-shm
+wiki/faber.db-wal

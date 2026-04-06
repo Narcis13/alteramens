@@ -32,3 +32,25 @@ Chronological record of wiki operations. Append-only.
 - Synthesis updated: alteramens-thesis (added external validation section)
 - **Totals: 1 source, 5 entities, 6 concepts = 12 new pages + 5 pages updated**
 - Guided ingest: discussed takeaways with Narcis before proceeding
+
+## [2026-04-06] ingest | Making $$ with AI Marketing — 7 Distribution Strategies
+- Source: https://x.com/startupideaspod/status/2038697353855787133
+- Entities created: (none — skipped per user direction)
+- Concepts created: distribution-over-product, programmatic-seo, answer-engine-optimization, mcp-as-distribution, viral-artifacts
+- Concepts updated: skill-era (added distribution section + new source), leverage (added distribution-as-leverage section + new source), validate-before-build (added distribution angle + new source)
+- Synthesis: none
+- **Totals: 1 source, 5 concepts = 6 new pages + 3 pages updated**
+- Guided ingest: discussed takeaways with Narcis, emphasis on Programmatic SEO
+
+## [2026-04-06] build | Faber SQLite Index Layer
+- Created: `wiki/faber_sync.py` — Python script to parse all .md files → populate faber.db
+- Created: `/faber-sync` skill — rebuild DB on demand or after ingest/seed
+- Updated: `/faber-ingest` — duplicate detection via SQL, auto-sync at end
+- Updated: `/faber-lint` — SQL views replace file reads for structural checks
+- Updated: `/faber-query` — FTS5 full-text search + relation traversal
+- Updated: `/faber-status` — dashboard queries via SQL views
+- Updated: `/faber-seed` — auto-sync at end instead of manual index generation
+- Updated: `wiki/FABER.md` — documented SQLite layer, directory structure, agent consumption
+- Refactored: `wiki/index.md` — now auto-generated compact dashboard (not manual catalog)
+- Added: `wiki/faber.db` to `.gitignore`
+- **DB stats:** 40 pages, 318 relations, 127 wikilinks, 30ms sync time

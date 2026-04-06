@@ -22,22 +22,29 @@ Faber is a persistent, compounding knowledge base maintained by Claude Code. It 
 ```
 SCHEMA (this file)  →  Conventions, formats, workflows
 WIKI (wiki/)        →  LLM-written pages: sources, entities, concepts, syntheses
+SQLITE (faber.db)   →  Derived index for agent-optimized querying (rebuild anytime)
 RAW SOURCES         →  Clippings/, vault docs, URLs, pasted text (immutable)
 ```
 
 Claude reads raw sources but never modifies them. Claude owns the wiki layer entirely.
+
+**Key rule:** `.md` files are ALWAYS the source of truth. `faber.db` is derived — delete it, run `python3 wiki/faber_sync.py`, same result. The DB goes in `.gitignore`.
 
 ## Directory Structure
 
 ```
 wiki/
 ├── FABER.md          # This file — schema & conventions
-├── index.md          # Content catalog by type
-├── log.md            # Chronological operations log
+├── faber_sync.py     # Python script to rebuild faber.db from .md files
+├── faber.db          # SQLite index (derived, .gitignored)
+├── index.md          # Auto-generated dashboard (by faber_sync.py)
+├── log.md            # Chronological operations log (append-only)
 ├── sources/          # Summaries of ingested material
 ├── entities/         # People, companies, tools, frameworks
 ├── concepts/         # Patterns, models, mental frameworks
-└── syntheses/        # Cross-cutting analyses & filed queries
+├── syntheses/        # Cross-cutting analyses & filed queries
+└── assets/           # Images organized by source slug
+    └── {source-slug}/
 ```
 
 ## Page Types
@@ -59,6 +66,9 @@ entities: []  # slugs of entity pages
 concepts: []  # slugs of concept pages
 key_claims: []  # string list of notable claims
 confidence: high  # low | medium | high
+images: []  # optional — only if images pass the 4-gate test (see Image Policy)
+  # - path: assets/source-slug/name.png
+  #   description: "one-line description"
 ---
 ```
 
@@ -198,13 +208,76 @@ See [[wiki/concepts/permissionless-leverage]]
 
 Parseable with `grep "^## \[" wiki/log.md | tail -5`.
 
+## Image Policy — Strict Rules
+
+Images are allowed in source pages ONLY under these conditions. When in doubt, do NOT save the image.
+
+### Hard Limits
+- **Maximum 2 images per ingest.** No exceptions. If a source has 5 great diagrams, pick the 2 most irreplaceable.
+- **Zero images is the default.** Most ingests should have zero images. Images are the exception, not the norm.
+
+### The Irreplaceability Test (ALL must pass)
+An image is saved ONLY if it passes every single gate:
+
+1. **Information density gate:** The image contains structured information (diagram, flowchart, architecture, data visualization) that cannot be fully captured in text. If a 2-sentence description conveys the same information → skip.
+2. **Novelty gate:** The information in the image is NOT already present in the ingested text. If the article describes the same diagram in prose → skip, the text is enough.
+3. **Reference value gate:** Someone revisiting this source 6 months later would specifically need to see this image to understand a key claim or architecture. If it's illustrative but not essential → skip.
+4. **Type gate — ONLY these types qualify:**
+   - Architecture diagrams / system diagrams
+   - Flowcharts / decision trees
+   - Data visualizations with specific numbers not in the text
+   - Org charts showing structural relationships
+   - **Everything else is automatically rejected:** screenshots of text, profile photos, logos, decorative images, stock photos, code screenshots (transcribe as code blocks instead), memes, banners.
+
+### Storage Convention
+```
+wiki/assets/{source-slug}/
+    {descriptive-name}.png
+```
+- Filenames: kebab-case, descriptive (e.g., `org-chart-before-after.png`, not `image1.png`)
+- Format: PNG preferred, JPEG acceptable
+- Reference from source page: `![Short description](assets/{source-slug}/filename.png)`
+
+### Frontmatter
+Source pages with images add an `images` field:
+```yaml
+images:
+  - path: assets/source-slug/diagram-name.png
+    description: "One-line description of what this image shows"
+```
+
+### During Guided Ingest
+When processing a source with images, Claude must:
+1. List candidate images with one-line descriptions
+2. Apply the 4-gate test to each, showing pass/fail reasoning
+3. Recommend 0-2 images maximum
+4. Ask Narcis for confirmation before saving any image
+5. If Narcis says skip → skip. No arguments.
+
+## SQLite Index Layer
+
+`faber.db` is a derived SQLite database that mirrors all frontmatter and relationships for fast querying. Rebuilt from scratch by `python3 wiki/faber_sync.py` (idempotent, ~30ms).
+
+**Tables:** `pages`, `key_claims`, `aliases`, `vault_refs`, `page_relations`, `prose_wikilinks`, `sync_log`
+**Views:** `v_dashboard`, `v_maturity`, `v_entity_connectivity`, `v_orphans`, `v_phantoms`, `v_thin_pages`, `v_confidence`
+**FTS5:** Full-text search across all prose content via `fts_content` table
+
+**When to sync:** After every ingest, seed, or manual page edit. Run `python3 wiki/faber_sync.py`.
+
+**How skills use it:**
+- `/faber-lint` — SQL views replace 30+ file reads
+- `/faber-query` — FTS5 search + relation traversal instead of index.md scanning
+- `/faber-status` — Dashboard queries in one Bash call
+- `/faber-ingest` — Duplicate detection via aliases table, auto-sync at end
+
 ## Agent Consumption
 
-Wiki pages are dual-layer: YAML frontmatter for machine parsing, prose for human reading.
+Wiki pages are dual-layer: YAML frontmatter for machine parsing, prose for human reading. The SQLite index adds a third layer for efficient structured queries.
 
-**Index scan:** Read `wiki/index.md` → select pages by title/summary → read them.
-**Frontmatter query:** Grep for `type:`, `category:`, `maturity:` etc. in frontmatter.
-**Entity lookup:** Read entity page → follow related_concepts and sources links.
+**SQL query:** `sqlite3 wiki/faber.db "SELECT ..."` — for finding pages, checking relations, running diagnostics.
+**FTS search:** `sqlite3 wiki/faber.db "SELECT slug, title FROM fts_content WHERE fts_content MATCH 'keyword'"` — full-text search.
+**Prose reading:** Read specific `.md` files when you need the full narrative content.
+**Entity lookup:** `sqlite3 wiki/faber.db "SELECT * FROM pages p LEFT JOIN aliases a ON a.entity_slug = p.slug WHERE ..."` — includes aliases.
 
 ## Dataview Queries
 

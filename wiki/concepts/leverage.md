@@ -2,9 +2,9 @@
 title: "Leverage — Force Multipliers"
 type: concept
 category: mental-model
-sources: [naval-framework, skill-era-article, eric-siu-world-intelligence]
+sources: [naval-framework, skill-era-article, eric-siu-world-intelligence, ai-marketing-distribution]
 entities: [naval-ravikant, single-grain, eric-siu]
-related: [productize-yourself, specific-knowledge, skill-era, encoded-judgment, ai-native-org-design, agent-fleet-architecture, world-model]
+related: [productize-yourself, specific-knowledge, skill-era, encoded-judgment, ai-native-org-design, agent-fleet-architecture, world-model, distribution-over-product, programmatic-seo, answer-engine-optimization, mcp-as-distribution, viral-artifacts]
 maturity: mature
 confidence: high
 contradictions: []
@@ -54,3 +54,16 @@ Every project should maximize leverage: prefer code over manual services, prefer
 Local hardware (Mac Mini + DGX Spark) cuts cloud costs ~70%, making this leverage increasingly permissionless. You don't need API budgets — you run inference locally.
 
 This extends Naval's framework: code and content are permissionless leverage for creation. AI agents are permissionless leverage for operations.
+
+## Distribution as Leverage
+
+The [[ai-marketing-distribution]] source catalogues seven distribution strategies — all of them leverage plays:
+
+- **[[programmatic-seo]]** — code generates 10K+ pages (code leverage applied to content)
+- **[[answer-engine-optimization]]** — publish once, AI cites you across millions of queries (content leverage)
+- **[[mcp-as-distribution]]** — MCP servers as zero-cost sales channel (code leverage applied to distribution)
+- **[[viral-artifacts]]** — users distribute your brand for you (content leverage via user behavior)
+- **Newsletter acquisition** — capital leverage ($5K-$20K buys an existing audience)
+- **AI content repurposing** — one piece → many formats (content leverage through multiplication)
+
+Key insight: in the [[distribution-over-product]] era, distribution strategies ARE leverage strategies. The builder who automates distribution has double leverage — code that builds AND code that distributes.
