@@ -2,9 +2,9 @@
 title: "Leverage — Force Multipliers"
 type: concept
 category: mental-model
-sources: [naval-framework, skill-era-article, eric-siu-world-intelligence, ai-marketing-distribution]
+sources: [naval-framework, skill-era-article, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system]
 entities: [naval-ravikant, single-grain, eric-siu]
-related: [productize-yourself, specific-knowledge, skill-era, encoded-judgment, ai-native-org-design, agent-fleet-architecture, world-model, distribution-over-product, programmatic-seo, answer-engine-optimization, mcp-as-distribution, viral-artifacts]
+related: [productize-yourself, specific-knowledge, skill-era, encoded-judgment, ai-native-org-design, agent-fleet-architecture, world-model, distribution-over-product, programmatic-seo, answer-engine-optimization, mcp-as-distribution, viral-artifacts, ai-collaborator-army, deliver-dont-promise]
 maturity: mature
 confidence: high
 contradictions: []
@@ -67,3 +67,11 @@ The [[ai-marketing-distribution]] source catalogues seven distribution strategie
 - **AI content repurposing** — one piece → many formats (content leverage through multiplication)
 
 Key insight: in the [[distribution-over-product]] era, distribution strategies ARE leverage strategies. The builder who automates distribution has double leverage — code that builds AND code that distributes.
+
+## The Collaborator Army (Operational Leverage)
+
+[[simon-severino]] demonstrates agent leverage applied to operations at an accessible scale: 5 humans + 45 Claude Code collaborators. No custom AI infra required — just Claude Code + SaaS tools (Obsidian, Notion, [[hunter-io|Hunter.io]]).
+
+The 9:1 agent-to-human ratio turns a small advisory firm into a machine: automated prospecting, A/B testing, CRM maintenance, meeting prep, daily briefings. See [[ai-collaborator-army]].
+
+This is the most permissionless form of agent leverage yet documented — no local hardware (unlike [[eric-siu]]'s DGX Spark setup), no enterprise budgets. A solo builder could replicate the pattern today.

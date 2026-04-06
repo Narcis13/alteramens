@@ -2,9 +2,9 @@
 title: "Distribution Over Product — Access Beats Quality"
 type: concept
 category: mental-model
-sources: [ai-marketing-distribution]
+sources: [ai-marketing-distribution, severino-claude-sales-system]
 entities: []
-related: [validate-before-build, leverage, skill-era, programmatic-seo, answer-engine-optimization, mcp-as-distribution, viral-artifacts]
+related: [validate-before-build, leverage, skill-era, programmatic-seo, answer-engine-optimization, mcp-as-distribution, viral-artifacts, deliver-dont-promise]
 maturity: seed
 confidence: medium
 contradictions: []

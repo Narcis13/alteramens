@@ -2,9 +2,9 @@
 title: "The Skill Era — From Pipes to Patterns"
 type: concept
 category: mental-model
-sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution]
+sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system]
 entities: [alteramens, single-grain, eric-siu, block-inc]
-related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product]
+related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army]
 maturity: mature
 confidence: high
 contradictions: []

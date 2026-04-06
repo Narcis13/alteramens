@@ -42,6 +42,15 @@ Chronological record of wiki operations. Append-only.
 - **Totals: 1 source, 5 concepts = 6 new pages + 3 pages updated**
 - Guided ingest: discussed takeaways with Narcis, emphasis on Programmatic SEO
 
+## [2026-04-06] ingest | Claude Code as Sales & Marketing Engine — Simon Severino Interview
+- Source: Clippings/saas marketing (video transcript)
+- Entities created: simon-severino, hunter-io
+- Concepts created: ai-collaborator-army, deliver-dont-promise, seven-critics-loop
+- Concepts updated: leverage (added collaborator army section + new source), skill-era (added new source + related), distribution-over-product (added new source + related)
+- Synthesis: none
+- **Totals: 1 source, 2 entities, 3 concepts = 6 new pages + 3 pages updated**
+- Guided ingest: focused on actionable patterns, skipped promotional content
+
 ## [2026-04-06] build | Faber SQLite Index Layer
 - Created: `wiki/faber_sync.py` — Python script to parse all .md files → populate faber.db
 - Created: `/faber-sync` skill — rebuild DB on demand or after ingest/seed
@@ -54,3 +63,10 @@ Chronological record of wiki operations. Append-only.
 - Refactored: `wiki/index.md` — now auto-generated compact dashboard (not manual catalog)
 - Added: `wiki/faber.db` to `.gitignore`
 - **DB stats:** 40 pages, 318 relations, 127 wikilinks, 30ms sync time
+
+## [2026-04-06] query → synthesis | SaaS Launch Manifest
+- Query: "Generează un manifest și plan de acțiune pentru a începe corect un proiect SaaS"
+- Synthesis created: saas-launch-manifest
+- Sources consulted: 7 (alteramens-manifest, naval-framework, skill-era-article, ai-marketing-distribution, severino-claude-sales-system, eric-siu-world-intelligence, nbrain-concept)
+- Concepts involved: 14 (validate-before-build, kill-fast, encoded-judgment, skill-era, distribution-over-product, mcp-as-distribution, deliver-dont-promise, viral-artifacts, leverage, productize-yourself, compounding-games, internal-to-product, data-compounding-moat, programmatic-seo)
+- **Cross-wiki synthesis:** combines operational principles (manifest), philosophical foundations (Naval + Skill Era), distribution tactics (marketing sources), and practical patterns (Severino) into actionable weekly sequence

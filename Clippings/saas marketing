@@ -1,0 +1,175 @@
+If you're a software engineer or SAS founder who loves writing code but dreads the marketing and sales grind, this video is for you. Simon Severino, the CEO of Strategy Sprints, will show you how he practically automates his entire sales pipeline using artificial intelligence. Simon breaks down his exact system for using Claude, Obsidian, and Notion to create a virtual team of 45 collaborators that handles tedious admin tasks, lead generation, and cold outreach. You'll get a step-by-step demo on how to efficiently define your ideal client profile, seamlessly generate targeted lead list using tools like Hunter, and craft AB tested cold emails that actually convert. This video is an interview format also featuring hater Malik.
+>> Hello. Hello. I'm excited to be here.
+Bring the good news to people. How to make marketing and sales a little bit more fun.
+>> Yeah. This channel is all about software engineers. Most of the time software engineers learn code. Some of them are entrepreneurs in technical side. Some of them has SAS products like they have their own products but they are looking for strategies to grow their client base and they want to get more revenue in recurring format. Could you introduce yourself to this audience? Who are you?
+What you have done for just couple summary?
+>> Sure. So I'm Simon Severino and I'm a marketing guy right? I'm the CEO of an a an advisory called Strategy Sprints and we help people with sales and marketing.
+So I'm the opposite of somebody who builds products and is technical.
+But 2026 has been the year where cloth code became so popular and so wild so easily available that even people like me can use it for distribution for marketing and for sales.
+>> So I jumped onto that train and I
+TranscriptAPI creative
+DIY Scraping vs YouTube Transcript API
+47 lines of Puppeteer code that breaks every week... or one GET request with 49ms response, 99%+ uptime, $5/month. Stop fighting YouTube blocks.
+
+Get 100 Free Credits →
+started using it cloud code specifically in terminal >> to basically run my whole marketing and sales processes. So it took a ton of work from me. What used to take me 8 hours takes now 10 minutes and now I have more free time to put it on the things that I actually prefer which is creating value for my clients and I don't have to do so many things that take a lot of time and a lot of cognitive load. So what I can share today is how to use cloud code for marketing processes, sales processes.
+>> Perfect. Like if anyone wants to as a software engineer, I can use cloud code for writing source code. I know how to write prompt, how to use terminal based cloud to generate source code for my projects. But when I get stuck on marketing side, how to write like sales page, how to write cold email, let's say I want to send message to any specific prospect. Most of the time we get stuck on finding leads. How to use cloud code to actually give me the lead based on my ideal client.
+>> Yeah, let's start there. So if we go to prospecting, uh we have to fill the pipeline, right?
+So we have to find the right people.
+Step one is to tell cloud code what the right people are. So what I do, I call it an ICP, an ideal client profile, and I tell him, I use Whisperflow to to dictate and I hit dictation and I tell him a lot of tokens about who my ideal client is >> and also the opposite, who doesn't make the cut to be my ideal client.
+And then I say cloud where save it wherever you need to save it so that you remember it for every single step for the coming weeks. And then it goes to notion creates a cloudmd and saves it there.
+So we use notion for all our processes and I will show you all the processes step by step. But the full-fledged thing is there is 45 collaborators that do everything where I am either mediocre at or I'm good at it but I cannot do it at volume at scale. So I want them to do it cuz I want to do other stuff with my time. Um so this is the example the 45 collaborators uh a dozen of them is in marketing uh another 20 is in sales and a dozen of them is in operations or client work client delivery and some leadership work. The first thing is to give it everything that's boring to you. So for example for me I don't want to do manual data entry. I don't want to manage the CRM curate the CRM. I don't want to, you know, manually improve the website. I want to tell it how the website should like and I want to see it built.
+Um, it's not the best use of my time to crunch the website. I say make the website like this.
+And so what I find an important task is I like to think about strategic things like partnerships like how to improve the community, how to improve the use, the experience of our services instead of crunching or saving things in folder and uh organizing folders. All these things are delegated. That's an ops uh colleague. So I call them collaborators. It's like humans. I have 45 collaborators.
+It's much more than our human team is.
+Our human team is just five people, but it's 45 collaborators.
+And the the basic behind that. So what you need behind is really uh this is a unique combination, but you need it to for it to work. The brain is cloud code. I open three terminals at once. I always have three terminals running also right now always.
+And then they use as the knowledge pool Obsidian and Granola. Granola transcribes meetings because most of your tacid knowledge is in meetings.
+Even if you have just few meetings, but you talk stuff through that markdown note goes into Obsidian. The cool thing about Obsidian is it's not really a software. It's files. And so if you move to something else, you move your files with it. It's not like Salesforce where your knowledge is stuck into their software. You just move it. And the cool thing about granola is it's markdown. So it's visual enough for humans and it's structured enough for robots.
+From there, notion for all processes. So who is our ideal client? There is a notion page. How do how do we onboard a client? There is a notion page. What is our pricing table? There is a notion page. Uh our CRM is in notion. Who are our current clients? Almost clients, past clients. For each of those, there is an a notion page. And I have not touched a single one of them. They get updated automatically every 10 minutes by those collaborators.
+And then we use Hunter for prospecting, building lists. You could use also Apollo or Instantly. Um, I like Hunter because Claude can write directly in Hunter and I can say build a campaign made of five emails. That's what should be in the email. Use our style of writing.
+These are the people that you need to find. Send it to 200 of them. It does it >> perfect.
+So that's in a nutshell and before this system which is mainly cloth code and obsidian granola notion before this system I would wake up in the morning and have a ton of work which I would call cognitive load.
+Opening calendar, opening Gmail, opening CRM. Now you have to find out oh that person is waiting for that. Did I send it already? Did somebody from my team send it already? I don't know. So, you would spend 10 minutes, 30 minutes already working hard with your brain, but on very low I would say on admin tasks because finding that information is not a high leverage task. It's admin.
+Let's divide our task in admin or strategy.
+Right? I want to spend zero minutes in admin. I want to build stuff and I want to move things forward. So I want to think through problems. I want to create um a vision and a plan and then executing admin should not be what I do. So now with this system and I can show you right I don't we don't have to uh doesn't need to be theory let's make it practice right >> so let me share a screen this is how I start the day now I I open a terminal one of them is already running of course they're always running and I say basically I say brief me right I say slash today that's one of safety skills that we're using and I'm happy to share our GitHub repo with you guys. Uh it's public so today let me gather from all three systems in parallel. It starts gathering this information. Now before that I would go manually to calendar to Gmail to Slack to find out okay >> who expects who expects what from me what is completed what is in progress what is stuck is there a bug to fix now I don't do that anymore so it collected all of that and it's proposing already what I should do in which order three things for today update the speaking page uh write the beehive article, send this tax info, what's in your dashboard. So we have a canban board as a team >> with in progress, done and backlog. Uh it looked at that based on your backlog, Simon. This is what you should do. You have 45 minutes before the god mode recording. Uh best use of your time is this, this, this.
+So, it knows that I have 45 minutes because it has access to my calendar.
+>> Mhm.
+>> And it it it knows this real-time information because of obsidian granola.
+This is where it pulls the the most recent information from and Gmail.
+So, if you connect cloud code with the connectors to those places, I would go to cloud code, click connectors and connect it to your emails, your calendar, your what else? mother's obsidian granola then you are already one step ahead of most of your competitors >> I saw you connected like Slack Google calendar >> yes >> Jira GitHub like >> yes >> first of all we have to set all of the connectors like Gmail calendar you have mentioned this is the first step because everybody has a cloud, a software engineer has a cloud. So this could be the first step, right?
+>> Yes. Bit by so the the first step bit by bit you will connect it to everything.
+You will love it.
+>> Uh cuz it's doing your work, right? Uh >> you can delegate more and more but in the beginning I would start with clo code connected to obsidian to granola to your emails to your calendar to notion and if you're doing prospecting to Hunter.
+M >> this is where I would start.
+>> So what would be the next step? Let's say I want to increase the number of clients. I'm currently getting five 50 clients per month. I want to increase that number to 60 to 75 in the next 6 to 12 months.
+>> Yeah.
+>> How can I do that? Step one, open clo terminal and say, "Hey, get me in front of 200 people that fit my ideal client profile." So either it you did it already, then it knows who your ICP is. If it doesn't know, say interview me until you have absolute clarity about who is my ICP. So it will it will start asking you questions and then when it has clarity it writes it down. So let you be very precise 15 levels deep. For example, I work with the business owner.
+So who do you not work with? The HR department, the legal department, etc.
+All other roles are excluded. For each role that you include, I want you to have at least three roles that you exclude.
+For example, I work with the CEO. Then you exclude HR, legal, IT.
+>> Can you share exactly which prompt do we have to run for clarifying our ideal client profile ICP?
+>> Claude, interview me about who is my ICP and auntie ICP until you have full clarity and can write a 15 levels deep page about it.
+>> Perfect.
+And remember to add also the exclusions.
+For every inclusion, ask me about three exclusions because now you have the positive and the negative. You are already sharper than most of your competitors with this list. Step two. So now you have your ICP.
+>> Mhm.
+>> Step two, connect to Hunter.
+create a list of those people and let's start sending them the first three campaigns.
+So it goes to Hunter creates a list.
+Second step you say okay enrich that list. So double check that the emails are current emails no duplicates no old emails.
+It does that cleaning up. Now it has a cleaned up list. It's a bit shorter.
+And now you have 175 and say, "Okay, let's write three emails." What would Simon Severino from Strategy Sprints write? Or what would Alex Hormosi write? or what would David Ogilvy write them >> to start a conversation that's valuable, not salesy, catches their interest, is relevant to them and makes them want to spend 15 minutes on my website or on the phone with me.
+>> Can you share a demo for one to two minute because software engineers love demos.
+>> Sure. Sure. So let's share screen.
+>> Let's say I have connected Hunter. I have connect I have got my ICP.
+>> Yeah, you have connected all of that.
+Now >> Mhm.
+>> Let's close this one and say >> now I want leads so I can get clients.
+>> Yeah. So what you do is this is my dictation.
+Write two Hunter email campaigns to 50 people that fit my ICP criteria.
+And this in this case we have already campaigns. So it will quickly ask me if if it should use existing campaigns or not. If I had zero existing campaigns, I would say let's start building two campaigns.
+In each campaign, make sure there are AB tests. So, same email but two different subject lines that we test against each other or same subject lines but two different call to actions at the end.
+You always want to have something that you are AB testing.
+And in for a proper AB test, you only change one variable. So, either you change the subject line or the call to action. You don't change both cuz then you don't know which one made the difference.
+>> Mhm.
+>> So, one element you change it, you have an AB test. Each week you want to have at least one AB test running and every Friday you look at them. So traditionally Michelle and I every Friday we look at all AB tests manually.
+But now this is what you can do. Spin up another terminal.
+You wanted the demo. Now you you have a demo. You see Simon's madness live.
+Uh, in the second one, you can say, uh, I don't want to do this manually anymore every Friday. I want you to report every Wednesday in the Slack channel, monitor all campaigns, and report the results of those campaigns.
+So, part one, report the results. Part two, what should we improve? Part three, actual copy that you say we should test and send this every Wednesday to our Slack channel.
+>> Which tool are you using for actually sending emails?
+>> Look at this. We are in max code max plan and we have hit the limit. This is how much I love cloud code.
+>> Will Claude send the email to?
+>> And it's Tuesday, guys. It's Tuesday.
+It's not even Thursday, right?
+So, which one can send sending emails?
+You can have it send from Gmail.
+>> What I usually do is I say save the email in Gmail draft for me to send.
+>> Perfect.
+>> So, for example, today I woke up in the morning. It has the job, one of these 45 has the job to research three people very deeply.
+Then analyze their positioning.
+Create like actually create a little positioning improvement for them. So, hey, I was on your website. I saw this is your headline. I would improve it to this headline. The button, I would improve the button to that and that. I imagine you have this conversion rate, but you can increase it if you try this on your button. So I it already does some work for them.
+>> Mhm.
+>> And then it sends them an email. That email is in Gmail draft. I see it. I approve it. I send it.
+I do three of these in the morning.
+And why three? Because this is what we use with our clients. Uh and in the sprint club. This is it's March 24th.
+I did my four tasks of the day already and some of the four tasks are about prospecting. So start conversations with new people, right?
+And because it sucks to do all that research. It would take me an hour to research all of these things. And so there is one agent that does it already.
+When I come to my desk 8 a.m., they are already in my draft in Gmail. I read them. If I like them, I send them. If I don't like them, I tell him what to improve and to save it in CloudMD and to save it in memory and to save it in lessons. It's 3M MD files and it will save that there.
+This is amazing because as a software engineer, we are using plot in the open terminal. Let's say please create that web page, please create at this button.
+Let's say for Instagram, please create a user profile, user interface and do that component. What you just did, find 50 people for me on or you just gave the command to Claude and Claude found the 50 people using Hunter io and it has automatically generated perfect message for each profile actually increase the positioning. This is amazing like amazing. We can do this prompt in two to three minutes. And Claude is working on the back end.
+>> Yes. And I'll give you one more advanced thing cuz this >> this audience here is very advanced.
+>> So let me give you an advanced thing.
+>> I said Claude, I have a big problem.
+Let's work now in plan plan mode. So don't build anything. Discuss with plan mode.
+>> Let me give you enough context. So this is the problem in prospecting. We're sending a message to CEOs, founders. We are asking something from them, asking for book a call or asking for an extraction. They are getting asked all the time by all kinds of people.
+So I want to reverse it. I want a message to them that doesn't ask anything from them. Let's find seven different ways to do that.
+And I have no idea how to get there.
+That is the strategic task of this morning and that was four hours ago. We go back and forth. I have another coffee. I go for a walk. I did some push-ups. I come back. So, we were thinking hard. No idea.
+And then after half an hour, we had seven ideas.
+Seven on how to send a message to a stranger that does not ask anything from them but still gets them to want to talk to you.
+>> Wow.
+>> One was hey what if you you don't everybody promises them something. If you hit reply I will send you this.
+>> If you work with me I promise you this result. If you use my software, I promise you this result. So, we try it.
+In marketing, you always have to try to do what nobody does, right? To be fresh, to be interesting. Otherwise, it's just another slop that's coming to you. So, we had seven ideas. One was instead of promising something, deliver something.
+deliver it immediately and then if they want more they have they will ask you for more.
+So I said okay what's a small thing that we could deliver for them.
+>> So we analyze their positioning and we we give them already three improvements copy improvement button improvement and the third one we don't give it but they can ask for it.
+>> This is extraordinarily amazing strategy. Let's say I have a 50 users. I want to target to cold people. Like these days software engineers do cold email. Hey, buy my software. These my software has these features. Don't do that guys. Use cloud and use this delivery strategy. Cloud will help you to add value to your prospect profile even in a cold way. First it will automatically analyze the profile and give the value to the prospect. So we can build trust. This is amazing strategy in marketing and sales.
+>> Awesome.
+>> And I can show you this is it's it's in our repo. So I can >> you you guys can can use our so this is our repo.
+>> This repo I think have everything for ICP for LinkedIn messages. Yeah. Please share >> so much stuff. So it's github.com/simonthesales booster is the URL. Let me So this is the URL slashsimon the sales booster and there are 20 20 repositories with 63 commits in there and each one of those is one collaborator basically.
+uh you you saw the last version a few days ago and there is already three news things in here. For example, prospecting work is what we just discussed. Instead of promising them work and asking something, you deliver already a little piece of work and make them want to want more from you. So now you are not asking anything. They are asking, hey, what's the third idea?
+>> And now you have a conversation. That's the conversation that you want. You are the expert and they want something from you. So it's kind of an inbound marketing.
+>> Yeah. Before before this strategy before Claude uh everybody use this strategy in this way. Let's say I have prospect in front of me. This strategy I learned from JM Abraham like finding the gaps in the prospect business. Where is the gap where are the gaps? where I as a business owner can add value to his business where I can help them to build trust to initiate the transaction. I found Claude is doing automatically for us.
+>> Let's build Yeah. If I wasn't hitting the limit, I would start building a skill right now on what you just said.
+Gap filler. Let's build a skill gap filler. Whoever I meet 10 minutes before I meet them brief me on what's the gap >> and so in these doing manually let's say I found LinkedIn profile I'll I give to claude hey god how jra will send the message or how successful executive will send the message to build trust how can I find gaps >> yeah yeah even more precise so for example since since Jay and I we we are collaborating on this program and on the new book I have his last 17 manuscripts of his last 17 books I gave them to Claude and now it's it can be very precise right uh also the book that Jay and I wrote together time freedom uh it has the manuscript and so I can say build a skill based on that and make sure that everybody on our team 10 minutes before they meet somebody they get a briefing based on chapter 6 based on chapter do based on the gap filling technique.
+So when you meet somebody, you are already very prepared.
+>> Mhm. Let's say I am currently selling my software product on $29 per month. I want to increase the size of my transaction. How would you do it? How would you use clot to implement that?
+Yes. Let's I How can I increase my pricing power? Yes.
+>> Uh let's research. What are ways to increase pricing power?
+>> Mhm.
+>> It it will start researching. It will find tools. Then you say, "Yeah, but my context is different. This is my context." Next round, then you say, "Ah, let's criticize this from the perspective of our ICP. How does this land for my ICP next round? Then I would do the seven critics. You see these seven critics here? This is seven hostile reader personas. So before you send copy, which has 21 ways to fail, you run it through the seven readers. I made this an automatic quality control loop. So whatever we send out before it goes out, it runs through the seven critics. One of them has been burned by all all sorts of gurus and is very skeptic. Oh, another one who wants to sell me leads.
+Uh the other one is AI allergic. The other one is the lurker. They always watch but they never buy. And so one of them needs it visually.
+It's not visual enough for them. The one is in a time crunch. I don't have time for this. Can you say it faster?
+And so they will criticize it and in the end it will make also improvement ideas. That's the uh the skill called seven critics.
+So this is how you use those skills. You run your business, you hit walls, you have to break through some walls and you start working with it and say, "Come on, help me. Let's build a skill that helps me break through this wall." And it's important because this is powerful. And so when it's when you find something so powerful, it's like an extra drug that you just have and you feel unstoppable.
+For the first 10 nights, I was not sleeping. I was building because I felt like unstoppable and I said I have to use this superpower. Right? But then after the 11th night, I calmed down and say, "Wait, wait, wait. Okay. Now we have created the infrastructure. We know a little bit about it. Let's focus again on our top four. And that's why I have it always in front of me. Focus on these top four. I have to make introductions.
+I have to do prospecting and we have to to write the next book.
+And so now I point it onto these things.
+And I say, "Help me do this. Which part can you do? How can you simplify it for me? when tomorrow when I wake up, can you have these five things prepared so that I can be fully present for the mo most important part of that task?
+Uh I found one more thing you are very very good at. Let's say I got strategy from increasing the frequency of the transaction using clot. Let's say clot gave me five to seven suggestions, five to seven strategy in front of me.
+Sometimes as a software engineer you are good at execution. If I pick this strategy what are your execution strategies?
+The question is what should claude be doing and what we should we be doing? I think we should be doing strategy. We are the better strategists >> and claude is just a workhorse. Give it everything that needs just row compute.
+for example, writing 2,000 lines of code, just give it to Claude.
+>> It's it's good enough, especially if if you build in quality control loops and enough if your Claude MD is solid, it will build good enough code. But what it cannot do is come up with a way of prospecting that's completely different from everybody else.
+It cannot do that because it takes knowledge from the internet. So it only knows what somebody already did.
+>> That's not strategy.
+>> Strategy is breaking through the wall and doing something forward that nobody yet did.
+It's a new combination of existing things that has never been done.
+That is strategy. And so I think the humans we we need thinking time. We should walk, think, read, think, decide, think, work out, think, play with our friends, think, barbecue, think, go with a bike, think. That should be our job.
+And in the background, we should have 45 robots doing everything else. preparing the next meeting, uh, nurturing leads, finding leads, nurturing leads, educating leads, that should be done by robots. As soon as they want to talk to you now, that's when you show up.
+Perfect. Like think this cold email also schedule the appointment with you.
+>> Uh, which one? that like you send the sent the campaign before in the beginning like find 50 people send email >> do you schedule appointment with them?
+>> No they pick from a calendarly link. So the first one doesn't have any any calendarly link.
+>> Mhm.
+>> The second one says okay now you know what we can do for you if you want to get more. Here is how you can get more.
+It either goes to a free trial or to a 30 minutes call with us. If it's with a 30 minutes call with us, there is a calendar link. They book it.
+So my first task will be they booked themselves on my calendar. I wake up, I do slash today, then I do slash brief me and it briefs me about the next 15 hours and it says you're meeting John Doe uh and and Mike Mo. Okay. Who are they? Why are they on your calendar? What are they expecting? Oh, they read your true your three emails and they are expecting ideas on how to accelerate sales. They're making so many dollars per month. They have so many people on their team. They're probably the bottleneck. They're very technical but not saving sales. They probably want sales tips from you. Okay, I'm briefed with that. And this other one, John Doe, oh, he already read your book and he he watched uh 15 of your YouTube videos, so he's already quite savvy. You don't have to tell him anything.
+Just ask him what he needs.
+>> Oh. Oh.
+So, do you want to share anything more or should we wrap up?
+>> I think we shared a lot. And if people want to implement this right, they can they can go to strategiesprints.com.
+They can go to our GitHub repo. The GitHub repo, github.com/simonthe the salesbooster.
+And our community is at strategiesprints.com.
+So they can this is where they find us and they can try everything for free for seven days.
+That's the the risk-free way of start working with us. You just hit try free for 7 days. You can start working with us right now. You can join uh for free and start your free trial.
+>> Like if I want to learn how to use cloud code to accelerate my sales and marketing, I should go there, right?
+>> Yes. Join us for 7 days in the sprint club. Uh let me show you around. So if you join the sprint club in the sprint club you will see all of these things happening live. So there is an onboarding sequence that is already a ton of bang for your buck. Let me share screen. So this is how it looks like in the sprint club. There is an onboarding sequence that's already a ton of bang for your buck. Uh that creates already a better positioning and messaging. Then there is uh live discussions here like here the newest GitHub guys I added a new skills to the repo guys here is a tip on cold calls 1 hour ago and then we discuss these things and we share what's working not working uh some some breakthroughs uh some blockages hey Simon I'm stuck I send this email but it has only 12% like Robert uh hey positioning my question uh my where I'm stuck where I need help what can I do and this is how we we help each other >> could you also talk about your upcoming workshop on AI >> yes there is the jetpack workshop that will be two hours exactly this we will implement all these things into your business in two hours. So if you join the jetpack workshop, you will have a preparation package where we already install some things and set up yourself technically and then in the two hours themselves we are going to implement all these 45 collaborators into your business. It's the jetpack workshop.
+Thanks, Simon.
+>> And probably the best way to keep uh in to be informed about all these things is to go to strategiesprints.com free trial, hang out 7 days with us, then you will get all this info.
+>> Yeah. So software engineers can try for 7 days. If you feel like it's going worth it, you can continue. Otherwise, you can change your mind. You can do something else. But you would you would you would get more value from this strategy sprint, right?
+>> All right. Thank you everybody. Hope this uh helped a little and if not, join Haidider and me in the sprint club. It's strategyp.com.
+Have a great day. Bye-bye.
+>> Bye.
