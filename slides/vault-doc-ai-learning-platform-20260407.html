@@ -1,0 +1,2025 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Learning Platform — Concept Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   VIEWPORT FITTING: MANDATORY BASE STYLES
+   =========================================== */
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+}
+html {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+}
+.slide {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.slide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 100%;
+    overflow: hidden;
+    padding: var(--slide-padding);
+}
+:root {
+    --title-size: clamp(1.5rem, 5vw, 4rem);
+    --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+    --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+    --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+    --small-size: clamp(0.65rem, 1vw, 0.875rem);
+    --slide-padding: clamp(1rem, 4vw, 4rem);
+    --content-gap: clamp(0.5rem, 2vw, 2rem);
+    --element-gap: clamp(0.25rem, 1vw, 1rem);
+
+    /* Pastel Geometry palette */
+    --bg-primary: #c8d9e6;
+    --card-bg: #faf9f7;
+    --pill-pink: #f0b4d4;
+    --pill-mint: #a8d4c4;
+    --pill-sage: #5a7c6a;
+    --pill-lavender: #9b8dc4;
+    --pill-violet: #7c6aad;
+    --text-dark: #1a1a1a;
+    --text-mid: #4a4a4a;
+    --text-soft: #6b6b6b;
+    --hairline: #e6e3dd;
+}
+.card, .container, .content-box {
+    max-width: min(94vw, 1180px);
+    max-height: min(86vh, 760px);
+}
+.feature-list, .bullet-list {
+    gap: clamp(0.4rem, 1vh, 1rem);
+}
+.feature-list li, .bullet-list li {
+    font-size: var(--body-size);
+    line-height: 1.45;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: clamp(0.5rem, 1.5vw, 1rem);
+}
+
+@media (max-height: 700px) {
+    :root {
+        --slide-padding: clamp(0.75rem, 3vw, 2rem);
+        --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+        --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+        --h2-size: clamp(1rem, 3vw, 1.75rem);
+    }
+}
+@media (max-height: 600px) {
+    :root {
+        --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+        --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+        --title-size: clamp(1.1rem, 4vw, 2rem);
+        --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+    }
+    .nav-dots, .keyboard-hint, .decorative, .pill-rail { display: none; }
+}
+@media (max-height: 500px) {
+    :root {
+        --slide-padding: clamp(0.4rem, 2vw, 1rem);
+        --title-size: clamp(1rem, 3.5vw, 1.5rem);
+        --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+        --body-size: clamp(0.65rem, 1vw, 0.85rem);
+    }
+}
+@media (max-width: 600px) {
+    :root {
+        --title-size: clamp(1.25rem, 7vw, 2.5rem);
+    }
+    .grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+    html { scroll-behavior: auto; }
+}
+
+/* ===========================================
+   PASTEL GEOMETRY THEME
+   =========================================== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-dark);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+.slide {
+    background: var(--bg-primary);
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+/* Card frame — the signature white card */
+.frame {
+    position: relative;
+    width: min(96%, 1240px);
+    height: min(94%, 780px);
+    background: var(--card-bg);
+    border-radius: clamp(18px, 2vw, 28px);
+    box-shadow:
+        0 1px 0 rgba(255,255,255,0.6) inset,
+        0 30px 80px -20px rgba(60, 80, 100, 0.25),
+        0 6px 24px -8px rgba(60, 80, 100, 0.15);
+    padding: clamp(1.25rem, 3.5vw, 3.25rem) clamp(1.5rem, 4vw, 4rem);
+    padding-right: clamp(2.5rem, 5vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Vertical pills on right edge */
+.pill-rail {
+    position: absolute;
+    top: 50%;
+    right: clamp(10px, 1.4vw, 18px);
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(6px, 0.8vw, 10px);
+    align-items: center;
+    z-index: 2;
+}
+.pill {
+    width: clamp(8px, 0.85vw, 11px);
+    border-radius: 999px;
+    background: var(--pill-pink);
+    transition: transform 0.6s ease, opacity 0.6s ease;
+    transform: scaleY(0);
+    transform-origin: top;
+    opacity: 0;
+}
+.visible .pill { transform: scaleY(1); opacity: 1; }
+.visible .pill:nth-child(1) { transition-delay: 0.05s; }
+.visible .pill:nth-child(2) { transition-delay: 0.12s; }
+.visible .pill:nth-child(3) { transition-delay: 0.19s; }
+.visible .pill:nth-child(4) { transition-delay: 0.26s; }
+.visible .pill:nth-child(5) { transition-delay: 0.33s; }
+
+.pill.s1 { height: clamp(28px, 4vh, 44px); background: var(--pill-pink); }
+.pill.s2 { height: clamp(50px, 7vh, 76px); background: var(--pill-mint); }
+.pill.s3 { height: clamp(80px, 11vh, 120px); background: var(--pill-violet); }
+.pill.s4 { height: clamp(50px, 7vh, 76px); background: var(--pill-lavender); }
+.pill.s5 { height: clamp(28px, 4vh, 44px); background: var(--pill-sage); }
+
+/* Tag chip in corner */
+.tag-chip {
+    position: absolute;
+    top: clamp(1rem, 2.5vw, 1.75rem);
+    left: clamp(1.25rem, 3vw, 2.25rem);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: clamp(5px, 0.7vw, 8px) clamp(10px, 1.2vw, 14px);
+    border-radius: 999px;
+    background: rgba(123, 106, 173, 0.12);
+    color: var(--pill-violet);
+    font-size: clamp(0.6rem, 0.85vw, 0.78rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.tag-chip .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--pill-violet);
+}
+
+/* Slide number in bottom-right of card */
+.slide-num {
+    position: absolute;
+    bottom: clamp(0.9rem, 1.8vw, 1.5rem);
+    right: clamp(2.4rem, 3.4vw, 3.6rem);
+    font-size: clamp(0.65rem, 0.9vw, 0.8rem);
+    color: var(--text-soft);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+}
+
+/* Eyebrow label */
+.eyebrow {
+    font-size: clamp(0.7rem, 0.95vw, 0.85rem);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--pill-violet);
+    margin-bottom: clamp(0.6rem, 1.2vw, 1rem);
+}
+
+/* Headings */
+h1.deck-title {
+    font-size: clamp(2rem, 6.5vw, 5.2rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    color: var(--text-dark);
+    margin-bottom: clamp(0.8rem, 1.6vw, 1.4rem);
+}
+h2.slide-title {
+    font-size: clamp(1.5rem, 3.6vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    color: var(--text-dark);
+    margin-bottom: clamp(0.8rem, 1.6vw, 1.4rem);
+    max-width: 88%;
+}
+h3 {
+    font-size: clamp(1rem, 1.8vw, 1.35rem);
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.4rem;
+}
+
+p, li, td, th {
+    font-size: var(--body-size);
+    line-height: 1.55;
+    color: var(--text-mid);
+}
+p.lead {
+    font-size: clamp(1rem, 1.8vw, 1.4rem);
+    line-height: 1.5;
+    color: var(--text-mid);
+    max-width: 60ch;
+}
+
+strong { color: var(--text-dark); font-weight: 700; }
+
+/* Reveal animations */
+.reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.visible .reveal { opacity: 1; transform: none; }
+.visible .r1 { transition-delay: 0.05s; }
+.visible .r2 { transition-delay: 0.15s; }
+.visible .r3 { transition-delay: 0.25s; }
+.visible .r4 { transition-delay: 0.35s; }
+.visible .r5 { transition-delay: 0.45s; }
+.visible .r6 { transition-delay: 0.55s; }
+.visible .r7 { transition-delay: 0.65s; }
+
+/* Bullet list */
+.feature-list, .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+}
+.bullet-list li {
+    padding-left: 1.6rem;
+    position: relative;
+    color: var(--text-mid);
+}
+.bullet-list li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0.55em;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--pill-violet);
+}
+.bullet-list li strong { color: var(--text-dark); }
+
+/* Cards grid */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+    gap: clamp(0.6rem, 1.4vw, 1.1rem);
+}
+.mini-card {
+    background: #fff;
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: clamp(0.8rem, 1.6vw, 1.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.mini-card .num {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: rgba(123, 106, 173, 0.14);
+    color: var(--pill-violet);
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 0.2rem;
+}
+.mini-card h3 { color: var(--text-dark); font-size: clamp(0.92rem, 1.4vw, 1.1rem); }
+.mini-card p { font-size: clamp(0.72rem, 1.05vw, 0.92rem); color: var(--text-soft); line-height: 1.45; }
+
+/* Hypothesis cards */
+.hypo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: clamp(0.7rem, 1.5vw, 1.2rem);
+}
+.hypo {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--hairline);
+    padding: clamp(0.9rem, 1.7vw, 1.4rem);
+    position: relative;
+    overflow: hidden;
+}
+.hypo::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+}
+.hypo.h1::before { background: var(--pill-pink); }
+.hypo.h2::before { background: var(--pill-mint); }
+.hypo.h3::before { background: var(--pill-violet); }
+.hypo .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    color: var(--pill-violet);
+}
+.hypo h3 {
+    font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+    margin: 0.2rem 0 0.6rem 0;
+    line-height: 1.25;
+}
+.hypo ul { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; }
+.hypo li {
+    font-size: clamp(0.72rem, 1.05vw, 0.88rem);
+    color: var(--text-soft);
+    padding-left: 1.1rem;
+    position: relative;
+    line-height: 1.4;
+}
+.hypo li::before {
+    content: '☐';
+    position: absolute;
+    left: 0; top: 0;
+    color: var(--pill-violet);
+    font-weight: 700;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    font-size: clamp(0.7rem, 1.05vw, 0.92rem);
+}
+th, td {
+    text-align: left;
+    padding: clamp(0.6rem, 1vw, 0.95rem) clamp(0.7rem, 1.2vw, 1.1rem);
+    border-bottom: 1px solid var(--hairline);
+    vertical-align: top;
+    line-height: 1.4;
+}
+tr:last-child td { border-bottom: none; }
+th {
+    background: rgba(123, 106, 173, 0.07);
+    color: var(--pill-violet);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(0.62rem, 0.85vw, 0.74rem);
+    letter-spacing: 0.06em;
+}
+td strong { color: var(--text-dark); }
+.wtp-high { color: var(--pill-sage); font-weight: 700; }
+.wtp-mid { color: var(--pill-violet); font-weight: 600; }
+.wtp-low { color: var(--text-soft); }
+tr.highlight td {
+    background: rgba(168, 212, 196, 0.18);
+}
+
+/* Stat / focus block */
+.focus-card {
+    background: linear-gradient(135deg, rgba(155, 141, 196, 0.18), rgba(168, 212, 196, 0.18));
+    border: 1px solid rgba(123, 106, 173, 0.25);
+    border-radius: 18px;
+    padding: clamp(1.1rem, 2vw, 1.8rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+.focus-card .big {
+    font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+    font-weight: 800;
+    color: var(--text-dark);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+}
+.focus-card .reasons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.reason-chip {
+    background: #fff;
+    border: 1px solid var(--hairline);
+    color: var(--text-dark);
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    font-size: clamp(0.7rem, 1vw, 0.86rem);
+    font-weight: 600;
+}
+.reason-chip span { color: var(--pill-violet); margin-right: 0.35rem; }
+
+/* Two-column layout */
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(0.8rem, 2vw, 1.6rem);
+    align-items: start;
+}
+@media (max-width: 800px) {
+    .two-col { grid-template-columns: 1fr; }
+}
+.col h3 {
+    font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--pill-violet);
+    margin-bottom: 0.6rem;
+}
+
+/* Question list (open questions slide) */
+.q-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: clamp(0.6rem, 1.3vw, 1rem);
+}
+.q-item {
+    background: #fff;
+    border-left: 3px solid var(--pill-violet);
+    border-radius: 10px;
+    padding: clamp(0.7rem, 1.3vw, 1.05rem) clamp(0.85rem, 1.5vw, 1.2rem);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+.q-item .q-num {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--pill-violet);
+    margin-bottom: 0.2rem;
+}
+.q-item p {
+    font-size: clamp(0.78rem, 1.15vw, 0.98rem);
+    color: var(--text-dark);
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* Status badges */
+.status-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: clamp(1rem, 2vw, 1.5rem);
+}
+.badge {
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    font-size: clamp(0.7rem, 0.95vw, 0.85rem);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    background: #fff;
+    border: 1px solid var(--hairline);
+    color: var(--text-mid);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+.badge .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--pill-violet);
+}
+.badge.researching .dot { background: var(--pill-pink); }
+.badge.high .dot { background: var(--pill-sage); }
+
+/* CTA / End slide */
+.end-card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.6rem, 1.2vw, 1rem);
+}
+.end-card .big-q {
+    font-size: clamp(1.8rem, 4.2vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text-dark);
+    max-width: 18ch;
+}
+.end-card .meta {
+    color: var(--text-soft);
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
+    margin-top: 0.4rem;
+}
+.cta-pills {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: clamp(0.5rem, 1vw, 0.9rem);
+}
+.cta-pill {
+    background: var(--pill-violet);
+    color: #fff;
+    padding: 0.7rem 1.4rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: clamp(0.78rem, 1.1vw, 0.95rem);
+    letter-spacing: 0.02em;
+}
+.cta-pill.alt {
+    background: #fff;
+    color: var(--pill-violet);
+    border: 1.5px solid var(--pill-violet);
+}
+
+/* Decisions row */
+.decision-row {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+    background: #fff;
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: clamp(0.8rem, 1.5vw, 1.2rem);
+}
+.decision-row .date {
+    font-weight: 800;
+    color: var(--pill-violet);
+    font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+    min-width: 92px;
+    border-right: 1px solid var(--hairline);
+    padding-right: 1rem;
+    display: flex;
+    align-items: center;
+}
+.decision-row .body { padding-left: 0; }
+.decision-row .body strong {
+    display: block;
+    font-size: clamp(0.85rem, 1.2vw, 1.02rem);
+    margin-bottom: 0.2rem;
+}
+.decision-row .body p {
+    font-size: clamp(0.74rem, 1.05vw, 0.9rem);
+    color: var(--text-soft);
+}
+
+/* Faber wiki refs */
+.wiki-refs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: clamp(0.6rem, 1.2vw, 1rem);
+}
+.wiki-link {
+    background: rgba(168, 212, 196, 0.25);
+    color: var(--pill-sage);
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    font-size: clamp(0.7rem, 0.95vw, 0.82rem);
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', monospace;
+}
+.wiki-link::before { content: '⟶ '; opacity: 0.6; }
+
+/* Progress bar + nav dots */
+.progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--pill-violet);
+    z-index: 100;
+    transition: width 0.4s ease;
+}
+.nav-dots {
+    position: fixed;
+    right: clamp(1rem, 2vw, 1.5rem);
+    top: 50%;
+    transform: translateY(-50%);
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 50;
+}
+.nav-dots li {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(26, 26, 26, 0.18);
+    cursor: pointer;
+    transition: background 0.25s, transform 0.25s;
+}
+.nav-dots li.active {
+    background: var(--pill-violet);
+    transform: scale(1.4);
+}
+@media (max-width: 900px) { .nav-dots { display: none; } }
+
+.keyboard-hint {
+    position: fixed;
+    bottom: clamp(0.8rem, 1.5vw, 1.2rem);
+    right: clamp(1rem, 2vw, 1.5rem);
+    font-size: clamp(0.65rem, 0.85vw, 0.78rem);
+    color: var(--text-soft);
+    z-index: 50;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(6px);
+    padding: 0.5rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid var(--hairline);
+}
+.keyboard-hint .key {
+    background: #fff;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: var(--text-dark);
+    margin: 0 2px;
+}
+@media (max-width: 600px) { .keyboard-hint { display: none; } }
+
+/* Title slide specific */
+.title-slide .frame {
+    justify-content: center;
+}
+.title-slide .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-soft);
+    font-size: clamp(0.78rem, 1.1vw, 0.95rem);
+    margin-bottom: 1.2rem;
+}
+.title-slide .meta-row .sep {
+    width: 4px; height: 4px; border-radius: 50%; background: var(--text-soft);
+}
+.title-slide p.lead {
+    font-size: clamp(1.05rem, 2vw, 1.55rem);
+    color: var(--text-mid);
+    line-height: 1.5;
+    max-width: 30ch;
+    font-weight: 500;
+    margin-top: clamp(0.6rem, 1.2vw, 1rem);
+}
+
+/* Section header eyebrow above title */
+.section-head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: clamp(0.5rem, 1vw, 0.85rem);
+}
+.section-head .num-pill {
+    background: var(--pill-violet);
+    color: #fff;
+    width: clamp(28px, 3vw, 36px);
+    height: clamp(28px, 3vw, 36px);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: clamp(0.78rem, 1.2vw, 1rem);
+}
+.section-head .label {
+    font-size: clamp(0.7rem, 0.95vw, 0.82rem);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    color: var(--pill-violet);
+}
+
+.notes {
+    color: var(--text-soft);
+    font-size: clamp(0.7rem, 1vw, 0.85rem);
+    font-style: italic;
+    margin-top: 0.6rem;
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<ul class="nav-dots" id="navDots" aria-label="Slide navigation"></ul>
+<div class="keyboard-hint">
+    <span class="key">←</span><span class="key">→</span> nav ·
+    <span class="key">scroll</span> ·
+    <span class="key">E</span><span style="margin-left:3px">annotate</span>
+</div>
+
+<!-- ============================================================
+     SLIDE 0 — TITLE
+============================================================ -->
+<section class="slide title-slide" data-slide="0">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Concept · idee</div>
+
+        <div class="reveal r1 meta-row">
+            <span>Alteramens</span>
+            <span class="sep"></span>
+            <span>concepts/</span>
+            <span class="sep"></span>
+            <span>2025-01-25</span>
+        </div>
+
+        <h1 class="deck-title reveal r2">AI Learning<br>Platform.</h1>
+
+        <p class="lead reveal r3">
+            Platformă de învățare AI-first care adaptează conținutul,
+            ritmul și metodele pentru fiecare cursant.
+        </p>
+
+        <div class="status-row reveal r4">
+            <span class="badge researching"><span class="dot"></span>status: researching</span>
+            <span class="badge high"><span class="dot"></span>revenue potential: high</span>
+            <span class="badge"><span class="dot"></span>effort: high</span>
+        </div>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">01 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 1 — ONE-LINER
+============================================================ -->
+<section class="slide" data-slide="1">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Big idea</div>
+
+        <div class="section-head reveal r1">
+            <div class="num-pill">01</div>
+            <div class="label">One-liner</div>
+        </div>
+
+        <h2 class="slide-title reveal r2">
+            Învățare AI-first, adaptată per cursant.
+        </h2>
+
+        <p class="lead reveal r3" style="margin-top: clamp(0.4rem, 1vw, 0.8rem);">
+            Conținut, ritm și metode care se reașează în jurul fiecărui om —
+            nu un curriculum rigid în care omul trebuie să încapă.
+        </p>
+
+        <div class="cards reveal r4" style="margin-top: clamp(1rem, 2vw, 1.5rem);">
+            <div class="mini-card">
+                <div class="num">A</div>
+                <h3>Conținut adaptiv</h3>
+                <p>Materialul se schimbă în funcție de progres și obiective.</p>
+            </div>
+            <div class="mini-card">
+                <div class="num">B</div>
+                <h3>Ritm individual</h3>
+                <p>Fără cohorts forțate. Avansezi când ești gata.</p>
+            </div>
+            <div class="mini-card">
+                <div class="num">C</div>
+                <h3>Metodă personalizată</h3>
+                <p>Tutor AI care explică la nivelul tău, nu la cel mediu.</p>
+            </div>
+        </div>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">02 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 2 — PROBLEMA OBSERVATĂ (CONTEXT RO)
+============================================================ -->
+<section class="slide" data-slide="2">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Context</div>
+
+        <div class="section-head reveal r1">
+            <div class="num-pill">02</div>
+            <div class="label">Problema observată</div>
+        </div>
+
+        <h2 class="slide-title reveal r2">
+            Educația din România nu mai ține pasul.
+        </h2>
+
+        <ul class="bullet-list reveal r3" style="margin-top: clamp(0.6rem, 1.4vw, 1rem); max-width: 70ch;">
+            <li><strong>Sistem rigid, one-size-fits-all</strong> — un curriculum, milioane de profile diferite.</li>
+            <li><strong>Profesorii nu au timp/resurse pentru personalizare</strong> — supraîncărcați și lipsiți de unelte.</li>
+            <li><strong>AI nu e integrat în educație</strong> — nici măcar menționat în programa oficială.</li>
+            <li><strong>Gap mare între ce se învață și ce cere piața</strong> — diplome fără traction la angajare.</li>
+        </ul>
+
+        <p class="notes reveal r4">
+            Punctul de plecare: România 2026, dar problema apare în orice sistem mass-market care nu poate personaliza.
+        </p>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">03 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 3 — FRUSTRĂRI DE VALIDAT
+============================================================ -->
+<section class="slide" data-slide="3">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>De validat</div>
+
+        <div class="section-head reveal r1">
+            <div class="num-pill">03</div>
+            <div class="label">Frustrări potențiale</div>
+        </div>
+
+        <h2 class="slide-title reveal r2">
+            Patru dureri pe care credem că le simt cursanții.
+        </h2>
+
+        <div class="cards reveal r3" style="margin-top: clamp(0.6rem, 1.4vw, 1rem);">
+            <div class="mini-card">
+                <div class="num">1</div>
+                <h3>Plictiseală sau pierdere</h3>
+                <p>Cursanții se plictisesc, sau dimpotrivă, rămân în urmă fără să aibă cum să recupereze.</p>
+            </div>
+            <div class="mini-card">
+                <div class="num">2</div>
+                <h3>Direcție neclară</h3>
+                <p>Nu știu ce să învețe pentru cariera lor — alegerile par random, fără hartă.</p>
+            </div>
+            <div class="mini-card">
+                <div class="num">3</div>
+                <h3>Dropout 90%</h3>
+                <p>Cursurile online au rate de abandon catastrofale. Conținutul există; contextul lipsește.</p>
+            </div>
+            <div class="mini-card">
+                <div class="num">4</div>
+                <h3>Zero feedback</h3>
+                <p>Nu există adaptare în timp real. Înveți în gol și speri că ai înțeles.</p>
+            </div>
+        </div>
+
+        <p class="notes reveal r4">
+            Toate sunt ipoteze până vorbim cu 5 oameni reali (vezi slide 12).
+        </p>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">04 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 4 — IPOTEZE DE VALIDAT
+============================================================ -->
+<section class="slide" data-slide="4">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Validate Before Build</div>
+
+        <div class="section-head reveal r1">
+            <div class="num-pill">04</div>
+            <div class="label">Ipoteze de validat</div>
+        </div>
+
+        <h2 class="slide-title reveal r2">
+            Trei pariuri. Niciunul confirmat încă.
+        </h2>
+
+        <div class="hypo-grid reveal r3" style="margin-top: clamp(0.6rem, 1.4vw, 1rem);">
+            <div class="hypo h1">
+                <div class="label">Ipoteză 1</div>
+                <h3>Problema există și e dureroasă</h3>
+                <ul>
+                    <li>Oamenii simt că educația actuală nu li se potrivește</li>
+                    <li>Sunt dispuși să caute alternative</li>
+                    <li>Au încercat deja soluții (și nu au funcționat)</li>
+                </ul>
+            </div>
+            <div class="hypo h2">
+                <div class="label">Ipoteză 2</div>
+                <h3>Există willingness to pay</h3>
+                <ul>
+                    <li>Părinții ar plăti pentru copii</li>
+                    <li>Adulții ar plăti pentru upskilling</li>
+                    <li>Companiile ar plăti pentru angajați</li>
+                </ul>
+            </div>
+            <div class="hypo h3">
+                <div class="label">Ipoteză 3</div>
+                <h3>AI personalization e diferențiatorul</h3>
+                <ul>
+                    <li>Oamenii vor personalizare, nu doar content</li>
+                    <li>Adaptarea e percepută ca valoroasă</li>
+                    <li>Gamification crește engagement-ul</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="wiki-refs reveal r4">
+            <span class="wiki-link">wiki/concepts/validate-before-build</span>
+        </div>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">05 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 5 — SEGMENTE DE PIAȚĂ
+============================================================ -->
+<section class="slide" data-slide="5">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Market segments</div>
+
+        <div class="section-head reveal r1">
+            <div class="num-pill">05</div>
+            <div class="label">Segmente de piață</div>
+        </div>
+
+        <h2 class="slide-title reveal r2">
+            Patru segmente, durere și buget diferit.
+        </h2>
+
+        <div class="reveal r3" style="margin-top: clamp(0.5rem, 1vw, 0.9rem);">
+        <table>
+            <thead>
+                <tr>
+                    <th>Segment</th>
+                    <th>Problemă</th>
+                    <th>WTP</th>
+                    <th>Notă</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Părinți (copii 10–18)</strong></td>
+                    <td>Copilul nu performează la școală, viitor incert</td>
+                    <td><span class="wtp-mid">Medie–înaltă</span></td>
+                    <td>Competiție: meditații</td>
+                </tr>
+                <tr>
+                    <td><strong>Studenți / tineri (18–25)</strong></td>
+                    <td>Nu știu ce skills să dezvolte</td>
+                    <td><span class="wtp-low">Mică</span></td>
+                    <td>Buget limitat — freemium?</td>
+                </tr>
+                <tr class="highlight">
+                    <td><strong>Adulți career-switch (25–45)</strong></td>
+                    <td>Vor să se reconvertească în tech / AI</td>
+                    <td><span class="wtp-high">Înaltă</span></td>
+                    <td>Urgent, dispuși să plătească</td>
+                </tr>
+                <tr>
+                    <td><strong>Companii (L&amp;D)</strong></td>
+                    <td>Angajații nu au skills necesare</td>
+                    <td><span class="wtp-high">Foarte înaltă</span></td>
+                    <td>B2B, sales cycle lung</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <p class="notes reveal r4">Linia evidențiată = ipoteza inițială. Vezi slide-ul următor.</p>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">06 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 6 — IPOTEZA INIȚIALĂ DE FOCUS
+============================================================ -->
+<section class="slide" data-slide="6">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Beachhead</div>
+
+        <div class="section-head reveal r1">
+            <div class="num-pill">06</div>
+            <div class="label">Ipoteza inițială de focus</div>
+        </div>
+
+        <h2 class="slide-title reveal r2">
+            Adulți 25–45 care vor reconversie profesională.
+        </h2>
+
+        <div class="focus-card reveal r3" style="margin-top: clamp(0.6rem, 1.3vw, 1rem); max-width: 70ch;">
+            <div class="big">Cel mai bun segment de start.</div>
+            <p>De ce ei, înainte de orice altcineva:</p>
+            <div class="reasons">
+                <span class="reason-chip"><span>1.</span>Durere acută — job nesatisfăcător sau amenințat de AI</span>
+                <span class="reason-chip"><span>2.</span>Au bani</span>
+                <span class="reason-chip"><span>3.</span>Pot decide singuri (fără părinți, HR, decani)</span>
+            </div>
+        </div>
+
+        <p class="notes reveal r4" style="margin-top: clamp(0.8rem, 1.5vw, 1.2rem);">
+            Ceilalți trei nu sunt morți — sunt parcați până când acest segment e validat.
+        </p>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">07 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 7 — DIFERENȚIATORI
+============================================================ -->
+<section class="slide" data-slide="7">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Encoded judgment</div>
+
+        <div class="section-head reveal r1">
+            <div class="num-pill">07</div>
+            <div class="label">Diferențiatori propuși</div>
+        </div>
+
+        <h2 class="slide-title reveal r2">
+            Cinci lucruri pe care le-am face altfel.
+        </h2>
+
+        <div class="cards reveal r3" style="margin-top: clamp(0.6rem, 1.4vw, 1rem);">
+            <div class="mini-card">
+                <div class="num">1</div>
+                <h3>AI Tutor personal</h3>
+                <p>Răspunde la întrebări, adaptează explicațiile la nivelul tău.</p>
+            </div>
+            <div class="mini-card">
+                <div class="num">2</div>
+                <h3>Learning path dinamic</h3>
+                <p>Se ajustează după progres și obiective, nu rămâne fix pe șine.</p>
+            </div>
+            <div class="mini-card">
+                <div class="num">3</div>
+                <h3>Gamification serioasă</h3>
+                <p>Nu doar badges — mecanici care chiar cresc retenția.</p>
+            </div>
+            <div class="mini-card">
+                <div class="num">4</div>
+                <h3>Skill assessment continuu</h3>
+                <p>Știi mereu unde ești și cât mai ai. Fără teste-surpriză.</p>
+            </div>
+            <div class="mini-card">
+                <div class="num">5</div>
+                <h3>Conexiune cu jobul</h3>
+                <p>Înveți ce contează acum pentru angajatori, nu lucruri din 2014.</p>
+            </div>
+        </div>
+
+        <div class="wiki-refs reveal r4">
+            <span class="wiki-link">wiki/concepts/encoded-judgment</span>
+        </div>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">08 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 8 — COMPETIȚIA
+============================================================ -->
+<section class="slide" data-slide="8">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Competitive landscape</div>
+
+        <div class="section-head reveal r1">
+            <div class="num-pill">08</div>
+            <div class="label">Competiție</div>
+        </div>
+
+        <h2 class="slide-title reveal r2">
+            Mulți o fac aproape. Nimeni nu o face complet.
+        </h2>
+
+        <div class="reveal r3" style="margin-top: clamp(0.5rem, 1vw, 0.9rem);">
+        <table>
+            <thead>
+                <tr>
+                    <th>Competitor</th>
+                    <th>Ce face bine</th>
+                    <th>Ce-i lipsește</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Coursera / Udemy</strong></td>
+                    <td>Catalog mare, brand recunoscut</td>
+                    <td>Zero personalizare, dropout mare</td>
+                </tr>
+                <tr>
+                    <td><strong>Duolingo</strong></td>
+                    <td>Gamification, engagement remarcabil</td>
+                    <td>Doar limbi străine</td>
+                </tr>
+                <tr>
+                    <td><strong>Khan Academy</strong></td>
+                    <td>Gratuit, calitate solidă</td>
+                    <td>UI vechi, fără AI</td>
+                </tr>
+                <tr>
+                    <td><strong>Brilliant</strong></td>
+                    <td>Interactive, foarte bun la STEM</td>
+                    <td>Nișă limitată</td>
+                </tr>
+                <tr>
+                    <td><strong>Platforme RO</strong></td>
+                    <td>Context local, limbă</td>
+                    <td>Calitate variabilă, fără AI</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <p class="notes reveal r4">
+            <strong>Oportunitate:</strong> nimeni nu face <em>AI-first + personalizare + gamification</em> în RO.
+        </p>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">09 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 9 — MVP V0
+============================================================ -->
+<section class="slide" data-slide="9">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Post-validare</div>
+
+        <div class="section-head reveal r1">
+            <div class="num-pill">09</div>
+            <div class="label">MVP posibil — versiunea 0</div>
+        </div>
+
+        <h2 class="slide-title reveal r2">
+            No-code. Două săptămâni. Patru piese.
+        </h2>
+
+        <div class="two-col reveal r3" style="margin-top: clamp(0.6rem, 1.3vw, 1rem);">
+            <div class="col">
+                <h3>Build</h3>
+                <ul class="bullet-list">
+                    <li><strong>Landing page</strong> cu waitlist</li>
+                    <li><strong>Curs pilot</strong> pe un subiect — ex: <em>"Intro în AI pentru non-tehnici"</em></li>
+                    <li><strong>AI tutor</strong> = ChatGPT wrapper cu context specific</li>
+                    <li><strong>Feedback loop manual</strong> — vorbești cu fiecare cursant</li>
+                </ul>
+            </div>
+            <div class="col">
+                <h3>Metrici de succes</h3>
+                <div class="cards" style="grid-template-columns: 1fr;">
+                    <div class="mini-card">
+                        <h3 style="color: var(--pill-violet); font-size: clamp(1.2rem, 2vw, 1.6rem);">100</h3>
+                        <p>signups pe waitlist</p>
+                    </div>
+                    <div class="mini-card">
+                        <h3 style="color: var(--pill-violet); font-size: clamp(1.2rem, 2vw, 1.6rem);">10</h3>
+                        <p>plătitori pentru cursul pilot</p>
+                    </div>
+                    <div class="mini-card">
+                        <h3 style="color: var(--pill-violet); font-size: clamp(1.2rem, 2vw, 1.6rem);">NPS &gt; 40</h3>
+                        <p>scor de satisfacție</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">10 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 10 — ÎNTREBĂRI DESCHISE
+============================================================ -->
+<section class="slide" data-slide="10">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Open questions</div>
+
+        <div class="section-head reveal r1">
+            <div class="num-pill">10</div>
+            <div class="label">Întrebări deschise</div>
+        </div>
+
+        <h2 class="slide-title reveal r2">
+            Cinci lucruri pe care nu le știm încă.
+        </h2>
+
+        <div class="q-list reveal r3" style="margin-top: clamp(0.6rem, 1.3vw, 1rem);">
+            <div class="q-item">
+                <div class="q-num">Q1</div>
+                <p>Ce subiect / skill are cea mai mare cerere?</p>
+            </div>
+            <div class="q-item">
+                <div class="q-num">Q2</div>
+                <p>Preț: one-time, subscription sau per-course?</p>
+            </div>
+            <div class="q-item">
+                <div class="q-num">Q3</div>
+                <p>Cum scalezi crearea de conținut?</p>
+            </div>
+            <div class="q-item">
+                <div class="q-num">Q4</div>
+                <p>Certificări — contează cu adevărat sau e zgomot?</p>
+            </div>
+            <div class="q-item">
+                <div class="q-num">Q5</div>
+                <p>Mobile-first sau web?</p>
+            </div>
+        </div>
+
+        <p class="notes reveal r4">
+            Răspunsurile vin din interviuri, nu din brainstorm.
+        </p>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">11 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 11 — NEXT STEPS
+============================================================ -->
+<section class="slide" data-slide="11">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Next 2 weeks</div>
+
+        <div class="section-head reveal r1">
+            <div class="num-pill">11</div>
+            <div class="label">Next steps</div>
+        </div>
+
+        <h2 class="slide-title reveal r2">
+            Două săptămâni până la decizie: continue / pivot / kill.
+        </h2>
+
+        <div class="two-col reveal r3" style="margin-top: clamp(0.6rem, 1.3vw, 1rem);">
+            <div class="col">
+                <h3>Săptămâna 1 — Validare</h3>
+                <ul class="bullet-list">
+                    <li><strong>5 interviuri</strong> cu adulți 25–45 interesați de reconversie</li>
+                    <li>Folosește <strong>Customer Interview Script</strong> din templates</li>
+                    <li>Recrutează din <strong>Reddit + Facebook groups</strong> relevante</li>
+                </ul>
+            </div>
+            <div class="col">
+                <h3>Săptămâna 2 — Sinteză</h3>
+                <ul class="bullet-list">
+                    <li>Analizează <strong>pattern-uri</strong> din interviuri</li>
+                    <li>Decide: <strong>continue / pivot / kill</strong></li>
+                    <li>Dacă continue: definește <strong>MVP și pricing</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="wiki-refs reveal r4">
+            <span class="wiki-link">wiki/concepts/validate-before-build</span>
+            <span class="wiki-link">wiki/concepts/kill-fast</span>
+            <span class="wiki-link">templates/customer-interview</span>
+        </div>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">12 / 13</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 12 — END / DECIZIE + CTA
+============================================================ -->
+<section class="slide" data-slide="12">
+    <div class="frame">
+        <div class="tag-chip"><span class="dot"></span>Decision log</div>
+
+        <div class="section-head reveal r1" style="justify-content: center; margin-bottom: clamp(1rem, 2vw, 1.5rem);">
+            <div class="num-pill">12</div>
+            <div class="label">Următorul pas</div>
+        </div>
+
+        <div class="end-card reveal r2">
+            <div class="big-q">5 interviuri.<br>Apoi decidem.</div>
+            <p class="meta">Continue · Pivot · Kill — fără emoții, doar date.</p>
+        </div>
+
+        <div class="reveal r3" style="margin-top: clamp(1.2rem, 2.4vw, 1.8rem); max-width: 70ch; margin-left: auto; margin-right: auto; width: 100%;">
+            <div class="decision-row">
+                <div class="date">2025-01-25</div>
+                <div class="body">
+                    <strong>Focus pe segment adulți 25–45</strong>
+                    <p>Reasoning: durere acută + willingness to pay + putere de decizie individuală.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-pills reveal r4">
+            <div class="cta-pill">→ Programează interviurile</div>
+            <div class="cta-pill alt">concepts/ai-learning-platform.md</div>
+        </div>
+
+        <div class="pill-rail">
+            <div class="pill s1"></div>
+            <div class="pill s2"></div>
+            <div class="pill s3"></div>
+            <div class="pill s4"></div>
+            <div class="pill s5"></div>
+        </div>
+        <div class="slide-num">13 / 13</div>
+    </div>
+</section>
+
+<script>
+/* ===========================================
+   CORE: SlidePresentation (verbatim from JS_PRESETS)
+   =========================================== */
+class SlidePresentation {
+    constructor({
+        slideSelector   = '.slide',
+        progressBarId   = 'progressBar',
+        navDotsId       = 'navDots',
+        scrollCooldown  = 900,
+        swipeThreshold  = 50,
+        observerThreshold = 0.5,
+    } = {}) {
+        this.slides     = Array.from(document.querySelectorAll(slideSelector));
+        this.total      = this.slides.length;
+        this.current    = 0;
+        this.isScrolling = false;
+
+        this.progressBar = document.getElementById(progressBarId);
+        this.dotsEl      = document.getElementById(navDotsId);
+
+        this.scrollCooldown      = scrollCooldown;
+        this.swipeThreshold      = swipeThreshold;
+        this.observerThreshold   = observerThreshold;
+
+        this._buildDots();
+        this._initObserver();
+        this._initKeyboard();
+        this._initWheel();
+        this._initTouch();
+        this._updateProgress(0);
+    }
+
+    _buildDots() {
+        if (!this.dotsEl) return;
+        this.slides.forEach((_, i) => {
+            const li = document.createElement('li');
+            li.setAttribute('role', 'button');
+            li.setAttribute('aria-label', `Go to slide ${i + 1}`);
+            li.addEventListener('click', () => this.goTo(i));
+            this.dotsEl.appendChild(li);
+        });
+        this._syncDots(0);
+    }
+
+    _initObserver() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    const idx = parseInt(entry.target.dataset.slide, 10);
+                    if (!isNaN(idx)) {
+                        this.current = idx;
+                        this._updateProgress(idx);
+                        this._syncDots(idx);
+                    }
+                }
+            });
+        }, { threshold: this.observerThreshold });
+
+        this.slides.forEach(s => observer.observe(s));
+    }
+
+    _initKeyboard() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            switch (e.key) {
+                case 'ArrowDown': case 'ArrowRight': case ' ':
+                    e.preventDefault(); this.goTo(this.current + 1); break;
+                case 'ArrowUp': case 'ArrowLeft':
+                    e.preventDefault(); this.goTo(this.current - 1); break;
+                case 'Home': this.goTo(0); break;
+                case 'End':  this.goTo(this.total - 1); break;
+            }
+        });
+    }
+
+    _initWheel() {
+        document.addEventListener('wheel', (e) => {
+            if (this.isScrolling) return;
+            this.isScrolling = true;
+            this.goTo(e.deltaY > 0 ? this.current + 1 : this.current - 1);
+            setTimeout(() => { this.isScrolling = false; }, this.scrollCooldown);
+        }, { passive: true });
+    }
+
+    _initTouch() {
+        let startY = 0;
+        document.addEventListener('touchstart', e => {
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+        document.addEventListener('touchend', e => {
+            const delta = startY - e.changedTouches[0].clientY;
+            if (Math.abs(delta) > this.swipeThreshold) {
+                this.goTo(delta > 0 ? this.current + 1 : this.current - 1);
+            }
+        }, { passive: true });
+    }
+
+    goTo(index) {
+        const i = Math.max(0, Math.min(this.total - 1, index));
+        this.slides[i].scrollIntoView({ behavior: 'smooth' });
+    }
+
+    _updateProgress(index) {
+        if (!this.progressBar) return;
+        const pct = this.total <= 1 ? 100 : (index / (this.total - 1)) * 100;
+        this.progressBar.style.width = pct + '%';
+    }
+
+    _syncDots(index) {
+        if (!this.dotsEl) return;
+        this.dotsEl.querySelectorAll('li').forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+    }
+}
+
+/* ===========================================
+   ANNOTATION OVERLAY (verbatim, MANDATORY)
+   =========================================== */
+class AnnotationOverlay {
+    constructor({
+        accentColor  = '#7a9e7a',
+        defaultColor = '#ef4444',
+        defaultSize  = 4,
+        defaultTool  = 'freedraw',
+        toggleKey    = 'e',
+    } = {}) {
+        this.accentColor = accentColor;
+        this.color       = defaultColor;
+        this.size        = defaultSize;
+        this.tool        = defaultTool;
+        this.toggleKey   = toggleKey.toLowerCase();
+
+        this.isActive  = false;
+        this.isDrawing = false;
+        this.snapshot  = null;
+        this.slideData = new Map();
+        this.currentSlideIdx = 0;
+        this.startX = this.startY = 0;
+        this.textInput = null;
+
+        this._buildCanvas();
+        this._buildUI();
+        this._initSlideWatcher();
+        this._initNavLockout();
+        this._initKeyboard();
+        this._initDrawing();
+        window.addEventListener('resize', () => this._resizeCanvas());
+    }
+
+    _buildCanvas() {
+        this.canvas = document.createElement('canvas');
+        this.canvas.id = 'anno-canvas';
+        this.canvas.style.cssText = `
+            position: fixed; inset: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 998;
+        `;
+        document.body.appendChild(this.canvas);
+        this.ctx = this.canvas.getContext('2d');
+        this._resizeCanvas();
+    }
+
+    _resizeCanvas() {
+        const saved = (this.isActive && this.canvas.width > 0)
+            ? this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
+            : null;
+        this.canvas.width  = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        if (saved) this.ctx.putImageData(saved, 0, 0);
+    }
+
+    _buildUI() {
+        this.toggleBtn = document.createElement('button');
+        this.toggleBtn.className = 'anno-toggle';
+        this.toggleBtn.title = `Toggle annotation (${this.toggleKey.toUpperCase()})`;
+        this.toggleBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+            </svg>
+            <span style="font-size:8px;font-family:monospace;color:rgba(255,255,255,0.4);display:block;line-height:1">
+                ${this.toggleKey.toUpperCase()}
+            </span>
+        `;
+        this.toggleBtn.style.cssText = `
+            position: fixed; bottom: 1.75rem; left: 1.75rem;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.7); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            gap: 1px; z-index: 999; padding: 0;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+        `;
+        this.toggleBtn.addEventListener('click', () => this.toggle());
+        document.body.appendChild(this.toggleBtn);
+
+        this.toolbox = document.createElement('div');
+        this.toolbox.className = 'anno-toolbox';
+        this.toolbox.style.cssText = `
+            position: fixed; bottom: 5.5rem; left: 1.75rem;
+            background: rgba(12,12,12,0.92); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem;
+            z-index: 999; transform-origin: bottom left;
+            transform: translateY(8px) scale(0.96); opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s, transform 0.18s;
+        `;
+
+        const tools = [
+            { id: 'freedraw', label: 'Draw',  icon: '\u270f\ufe0f' },
+            { id: 'line',     label: 'Line',  icon: '\u2571'        },
+            { id: 'arrow',    label: 'Arrow', icon: '\u2192'        },
+            { id: 'square',   label: 'Rect',  icon: '\u25ad'        },
+            { id: 'text',     label: 'Text',  icon: 'T'             },
+            { id: 'eraser',   label: 'Erase', icon: '\u232b'        },
+        ];
+        const toolRow = this._row();
+        this.toolBtns = {};
+        tools.forEach(({ id, label, icon }) => {
+            const btn = document.createElement('button');
+            btn.title = label;
+            btn.textContent = icon;
+            btn.style.cssText = `
+                width: 32px; height: 32px; border-radius: 7px;
+                background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+                color: rgba(255,255,255,0.8); cursor: pointer; padding: 0;
+                font-size: 14px; display: flex; align-items: center; justify-content: center;
+                transition: border-color 0.15s, background 0.15s;
+            `;
+            btn.addEventListener('click', () => this._selectTool(id));
+            toolRow.appendChild(btn);
+            this.toolBtns[id] = btn;
+        });
+        this.toolbox.appendChild(toolRow);
+
+        const presetColors = ['#ef4444','#f97316','#facc15','#4ade80','#60a5fa','#ffffff','#1a1a1a'];
+        const colorRow = this._row();
+        this.colorBtns = {};
+        presetColors.forEach(c => {
+            const btn = document.createElement('button');
+            btn.title = c;
+            btn.style.cssText = `
+                width: 20px; height: 20px; border-radius: 50%;
+                background: ${c}; border: 2px solid transparent;
+                cursor: pointer; padding: 0; flex-shrink: 0;
+                transition: border-color 0.15s, transform 0.15s;
+            `;
+            btn.addEventListener('click', () => this._selectColor(c));
+            colorRow.appendChild(btn);
+            this.colorBtns[c] = btn;
+        });
+        const colorPicker = document.createElement('input');
+        colorPicker.type = 'color';
+        colorPicker.value = this.color;
+        colorPicker.title = 'Custom color';
+        colorPicker.style.cssText = `
+            width: 20px; height: 20px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2); cursor: pointer;
+            padding: 0; flex-shrink: 0; background: none; overflow: hidden;
+        `;
+        colorPicker.addEventListener('input', e => this._selectColor(e.target.value));
+        colorRow.appendChild(colorPicker);
+        this.toolbox.appendChild(colorRow);
+
+        const sizeRow = this._row();
+        const sizes = [{ label: 'S', value: 2 }, { label: 'M', value: 4 }, { label: 'L', value: 8 }];
+        this.sizeBtns = {};
+        sizes.forEach(({ label, value }) => {
+            const btn = document.createElement('button');
+            btn.textContent = label;
+            btn.style.cssText = `
+                min-width: 28px; height: 28px; border-radius: 6px;
+                background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+                color: rgba(255,255,255,0.8); cursor: pointer; padding: 0 6px;
+                font-size: 11px; font-family: sans-serif;
+                transition: border-color 0.15s, background 0.15s;
+            `;
+            btn.addEventListener('click', () => this._selectSize(value));
+            sizeRow.appendChild(btn);
+            this.sizeBtns[value] = btn;
+        });
+        const spacer = document.createElement('div');
+        spacer.style.flex = '1';
+        sizeRow.appendChild(spacer);
+        const clearBtn = document.createElement('button');
+        clearBtn.title = 'Clear annotations on this slide';
+        clearBtn.textContent = '\ud83d\uddd1';
+        clearBtn.style.cssText = `
+            width: 28px; height: 28px; border-radius: 6px;
+            background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+            color: rgba(255,255,255,0.8); cursor: pointer; padding: 0;
+            font-size: 13px; transition: background 0.15s;
+        `;
+        clearBtn.addEventListener('click', () => {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.slideData.delete(this.currentSlideIdx);
+        });
+        sizeRow.appendChild(clearBtn);
+        this.toolbox.appendChild(sizeRow);
+
+        document.body.appendChild(this.toolbox);
+
+        this._selectTool(this.tool);
+        this._selectColor(this.color);
+        this._selectSize(this.size);
+    }
+
+    _row() {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:6px;align-items:center;';
+        return row;
+    }
+
+    _selectTool(id) {
+        this.tool = id;
+        Object.entries(this.toolBtns).forEach(([tid, btn]) => {
+            const active = tid === id;
+            btn.style.background  = active ? `${this.accentColor}33` : 'rgba(255,255,255,0.06)';
+            btn.style.borderColor = active ? this.accentColor         : 'rgba(255,255,255,0.1)';
+            btn.style.color       = active ? this.accentColor         : 'rgba(255,255,255,0.8)';
+        });
+        this.canvas.style.cursor = id === 'eraser' ? 'cell' : id === 'text' ? 'text' : 'crosshair';
+    }
+
+    _selectColor(c) {
+        this.color = c;
+        Object.entries(this.colorBtns).forEach(([col, btn]) => {
+            btn.style.borderColor = col === c ? 'rgba(255,255,255,0.9)' : 'transparent';
+            btn.style.transform   = col === c ? 'scale(1.2)'            : 'none';
+        });
+    }
+
+    _selectSize(v) {
+        this.size = v;
+        Object.entries(this.sizeBtns).forEach(([val, btn]) => {
+            const active = parseInt(val) === v;
+            btn.style.borderColor = active ? this.accentColor         : 'rgba(255,255,255,0.1)';
+            btn.style.background  = active ? `${this.accentColor}22`  : 'rgba(255,255,255,0.06)';
+        });
+    }
+
+    _initSlideWatcher() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(m => {
+                if (m.type === 'attributes' && m.attributeName === 'class') {
+                    const slide = m.target;
+                    if (slide.classList.contains('visible')) {
+                        const newIdx = parseInt(slide.dataset.slide, 10);
+                        if (!isNaN(newIdx) && newIdx !== this.currentSlideIdx) {
+                            this._saveCurrentSlide();
+                            this.currentSlideIdx = newIdx;
+                            this._loadSlide(newIdx);
+                        }
+                    }
+                }
+            });
+        });
+        document.querySelectorAll('.slide').forEach(s => observer.observe(s, { attributes: true }));
+    }
+
+    _saveCurrentSlide() {
+        const data = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        this.slideData.set(this.currentSlideIdx, data);
+    }
+
+    _loadSlide(idx) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const data = this.slideData.get(idx);
+        if (data) this.ctx.putImageData(data, 0, 0);
+    }
+
+    _initNavLockout() {
+        const capture = { capture: true, passive: false };
+        window.addEventListener('wheel', (e) => {
+            if (this.isActive) e.stopPropagation();
+        }, capture);
+        window.addEventListener('touchstart', (e) => {
+            if (this.isActive) e.stopPropagation();
+        }, capture);
+        window.addEventListener('touchend', (e) => {
+            if (this.isActive) e.stopPropagation();
+        }, capture);
+        window.addEventListener('keydown', (e) => {
+            if (this.isActive && this.isDrawing) {
+                if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) {
+                    e.stopPropagation();
+                }
+            }
+        }, capture);
+    }
+
+    _initKeyboard() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key.toLowerCase() === this.toggleKey) {
+                this.toggle();
+            } else if (e.key === 'Escape' && this.isActive) {
+                this.toggle();
+            }
+        });
+    }
+
+    toggle() {
+        this.isActive = !this.isActive;
+        this.canvas.style.pointerEvents = this.isActive ? 'all' : 'none';
+        if (this.isActive) {
+            this.toolbox.style.opacity        = '1';
+            this.toolbox.style.transform      = 'none';
+            this.toolbox.style.pointerEvents  = 'all';
+            this.toggleBtn.style.background   = this.accentColor;
+            this.toggleBtn.style.borderColor  = this.accentColor;
+            this.toggleBtn.style.color        = '#fff';
+        } else {
+            this.toolbox.style.opacity        = '0';
+            this.toolbox.style.transform      = 'translateY(8px) scale(0.96)';
+            this.toolbox.style.pointerEvents  = 'none';
+            this.toggleBtn.style.background   = 'rgba(255,255,255,0.08)';
+            this.toggleBtn.style.borderColor  = 'rgba(255,255,255,0.15)';
+            this.toggleBtn.style.color        = 'rgba(255,255,255,0.7)';
+        }
+    }
+
+    _initDrawing() {
+        this.canvas.addEventListener('mousedown',  e => this._onDown(e.offsetX, e.offsetY));
+        this.canvas.addEventListener('mousemove',  e => this._onMove(e.offsetX, e.offsetY));
+        this.canvas.addEventListener('mouseup',    e => this._onUp(e.offsetX, e.offsetY));
+        this.canvas.addEventListener('mouseleave', () => { if (this.isDrawing) this._onUp(0, 0); });
+
+        this.canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            const t = e.touches[0], r = this.canvas.getBoundingClientRect();
+            this._onDown(t.clientX - r.left, t.clientY - r.top);
+        }, { passive: false });
+        this.canvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            const t = e.touches[0], r = this.canvas.getBoundingClientRect();
+            this._onMove(t.clientX - r.left, t.clientY - r.top);
+        }, { passive: false });
+        this.canvas.addEventListener('touchend', e => {
+            e.preventDefault();
+            const t = e.changedTouches[0], r = this.canvas.getBoundingClientRect();
+            this._onUp(t.clientX - r.left, t.clientY - r.top);
+        }, { passive: false });
+    }
+
+    _onDown(x, y) {
+        if (!this.isActive) return;
+        if (this.tool === 'text') { this._startText(x, y); return; }
+
+        this.isDrawing = true;
+        this.startX = x; this.startY = y;
+        this._applyCtxStyle();
+
+        if (this.tool === 'freedraw') {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, y);
+        } else if (this.tool !== 'eraser') {
+            this.snapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        }
+    }
+
+    _onMove(x, y) {
+        if (!this.isDrawing || !this.isActive) return;
+
+        if (this.tool === 'freedraw') {
+            this._applyCtxStyle();
+            this.ctx.lineTo(x, y);
+            this.ctx.stroke();
+            return;
+        }
+        if (this.tool === 'eraser') {
+            this._erase(x, y);
+            return;
+        }
+        this.ctx.putImageData(this.snapshot, 0, 0);
+        this._applyCtxStyle();
+        this._drawShape(this.tool, this.startX, this.startY, x, y);
+    }
+
+    _onUp(x, y) {
+        if (!this.isDrawing || !this.isActive) return;
+        this.isDrawing = false;
+
+        if (this.tool !== 'freedraw' && this.tool !== 'eraser' && this.snapshot) {
+            this.ctx.putImageData(this.snapshot, 0, 0);
+            this._applyCtxStyle();
+            this._drawShape(this.tool, this.startX, this.startY, x, y);
+        }
+        this.snapshot = null;
+        this.ctx.globalCompositeOperation = 'source-over';
+    }
+
+    _applyCtxStyle() {
+        this.ctx.strokeStyle = this.color;
+        this.ctx.fillStyle   = this.color;
+        this.ctx.lineWidth   = this.size;
+        this.ctx.lineCap     = 'round';
+        this.ctx.lineJoin    = 'round';
+        this.ctx.globalCompositeOperation = 'source-over';
+    }
+
+    _drawShape(tool, x1, y1, x2, y2) {
+        this.ctx.beginPath();
+        if (tool === 'line') {
+            this.ctx.moveTo(x1, y1);
+            this.ctx.lineTo(x2, y2);
+            this.ctx.stroke();
+        } else if (tool === 'arrow') {
+            const headLen = Math.max(15, this.size * 4);
+            const angle   = Math.atan2(y2 - y1, x2 - x1);
+            this.ctx.moveTo(x1, y1);
+            this.ctx.lineTo(x2, y2);
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(x2, y2);
+            this.ctx.lineTo(
+                x2 - headLen * Math.cos(angle - Math.PI / 6),
+                y2 - headLen * Math.sin(angle - Math.PI / 6)
+            );
+            this.ctx.moveTo(x2, y2);
+            this.ctx.lineTo(
+                x2 - headLen * Math.cos(angle + Math.PI / 6),
+                y2 - headLen * Math.sin(angle + Math.PI / 6)
+            );
+            this.ctx.stroke();
+        } else if (tool === 'square') {
+            this.ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+        }
+    }
+
+    _erase(x, y) {
+        const r = this.size * 4;
+        this.ctx.globalCompositeOperation = 'destination-out';
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, r, 0, Math.PI * 2);
+        this.ctx.fill();
+    }
+
+    _startText(x, y) {
+        if (this.textInput) this.textInput.remove();
+        const fontSize = Math.max(14, this.size * 4);
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.style.cssText = `
+            position: fixed; left: ${x}px; top: ${y}px;
+            background: transparent; border: none;
+            outline: 1px dashed rgba(255,255,255,0.4);
+            color: ${this.color}; font-size: ${fontSize}px;
+            font-family: sans-serif; min-width: 120px;
+            z-index: 1000; padding: 2px 4px;
+        `;
+        document.body.appendChild(input);
+        this.textInput = input;
+        requestAnimationFrame(() => input.focus());
+
+        const commit = () => {
+            if (!input.isConnected) return;
+            const val = input.value.trim();
+            if (val) {
+                this.ctx.font      = `${fontSize}px sans-serif`;
+                this.ctx.fillStyle = this.color;
+                this.ctx.globalCompositeOperation = 'source-over';
+                this.ctx.fillText(val, x, y + fontSize);
+            }
+            input.remove();
+            if (this.textInput === input) this.textInput = null;
+        };
+        input.addEventListener('keydown', e => {
+            e.stopPropagation();
+            if (e.key === 'Enter')  { e.preventDefault(); commit(); }
+            if (e.key === 'Escape') { e.preventDefault(); input.remove(); if (this.textInput === input) this.textInput = null; }
+        });
+        setTimeout(() => { input.addEventListener('blur', commit); }, 300);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    new SlidePresentation();
+    new AnnotationOverlay({
+        accentColor:  '#7c6aad',
+        defaultColor: '#7c6aad',
+    });
+});
+</script>
+
+</body>
+</html>
