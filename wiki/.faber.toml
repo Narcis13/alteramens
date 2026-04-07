@@ -1,0 +1,70 @@
+# Faber Library — Marker & Configuration
+#
+# This file marks `wiki/` as a self-contained Faber knowledge library.
+# Skills auto-discover the wiki by walking up from `cwd` until they find
+# a directory containing `.faber.toml`.
+#
+# Source of truth: `wiki/**/*.md` files. `faber.db` is a derived index.
+# This config tells skills WHERE to look for vault material that surrounds
+# the library, but the library itself is self-contained and portable.
+
+[faber]
+version       = "1.0"
+name          = "alteramens"
+title         = "Alteramens — The Builder's Codex"
+created       = "2026-04-04"
+schema_file   = "FABER.md"
+sync_script   = "faber_sync.py"
+db_file       = "faber.db"
+
+# ──────────────────────────────────────────────────────────────────────
+# Paths — all relative to the directory containing this file (i.e. wiki/)
+# ──────────────────────────────────────────────────────────────────────
+[paths]
+
+# The vault root that surrounds this wiki. `vault_refs` and `applications`
+# in wiki frontmatter resolve relative to this directory.
+vault_root      = ".."
+
+# Where /faber-slides writes generated HTML decks.
+slides_output   = "../slides"
+
+# ──────────────────────────────────────────────────────────────────────
+# Vault role conventions (Stage A — informational only)
+#
+# These describe the CONCEPTUAL roles within the vault, not enforced
+# directories. Today the vault uses free-form folders; the role mapping
+# below is documented in CLAUDE.md and lives as a mental model only.
+#
+# Stage B (see docs/faber-model-b-migration.md) will physically separate
+# these roles into dedicated top-level folders. When that happens, the
+# `inbox`, `workshop`, `projects` keys below get uncommented.
+# ──────────────────────────────────────────────────────────────────────
+[paths.roles]
+# inbox    = "../inbox"      # raw material waiting for /faber-ingest
+# workshop = "../workshop"   # drafty exploration: ideas, drafts, experiments
+# projects = "../projects"   # application context: code, decisions, learnings
+# archive  = "../archive"    # parked or finalized work
+
+# ──────────────────────────────────────────────────────────────────────
+# Skill defaults
+# ──────────────────────────────────────────────────────────────────────
+
+[ingest]
+default_format  = "article"   # article | book | paper | transcript | thread | regulation
+auto_sync       = true        # run faber-sync after every successful ingest
+default_origin  = "vault"     # vault | web | conversation | pdf
+
+[query]
+prefer_fts      = true        # use FTS5 over filesystem walking when possible
+file_synthesis  = "ask"       # always | never | ask — file good answers as syntheses
+
+[slides]
+default_lang    = "auto"      # auto | en | ro — auto-detect from source content
+output_dir      = "../slides" # mirrors paths.slides_output
+file_pattern    = "{type}-{slug}-{date}.html"
+
+[link]
+# faber-link uses the wiki's faber.db (FTS5 + aliases) for discovery
+# instead of walking the filesystem. See `.claude/skills/faber-link/SKILL.md`.
+prefer_db_discovery = true

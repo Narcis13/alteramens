@@ -70,3 +70,8 @@ Chronological record of wiki operations. Append-only.
 - Sources consulted: 7 (alteramens-manifest, naval-framework, skill-era-article, ai-marketing-distribution, severino-claude-sales-system, eric-siu-world-intelligence, nbrain-concept)
 - Concepts involved: 14 (validate-before-build, kill-fast, encoded-judgment, skill-era, distribution-over-product, mcp-as-distribution, deliver-dont-promise, viral-artifacts, leverage, productize-yourself, compounding-games, internal-to-product, data-compounding-moat, programmatic-seo)
 - **Cross-wiki synthesis:** combines operational principles (manifest), philosophical foundations (Naval + Skill Era), distribution tactics (marketing sources), and practical patterns (Severino) into actionable weekly sequence
+
+## [2026-04-07] link | concepts/ai-learning-platform.md
+- Added 4 vault→wiki links: validate-before-build, encoded-judgment, kill-fast, skill-era
+- Added 3 wiki→vault references: validate-before-build.applications, kill-fast.applications, encoded-judgment.applications
+- Document promoted from "skipped — low overlap" (2026-04-05 seed) to actively linked

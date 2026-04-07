@@ -8,7 +8,7 @@ related: [validate-before-build, judgment, compounding-games]
 maturity: developing
 confidence: high
 contradictions: []
-applications: ["MANIFEST.md"]
+applications: ["MANIFEST.md", "concepts/ai-learning-platform.md"]
 ---
 
 # Kill Fast — Archive Without Attachment

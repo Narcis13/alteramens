@@ -73,15 +73,19 @@ Vezi detalii în [[owner/Who am i|Who am i]] pentru context personal.
 
 ## Structura vault-ului
 
-| Folder | Scop | Link |
-|--------|------|------|
-| `ideas/` | Idei brute, nevalidate | [[ideas/_template\|Template idee]] |
-| `concepts/` | Idei dezvoltate cu research | |
-| `experiments/` | Prototipuri și teste rapide | |
-| `projects/` | Proiecte active, în dezvoltare | |
-| `notes/` | Note rapide, inbox | [[inbox]] |
-| `archive/` | Idei parcate sau finalizate | |
-| `wiki/` | Faber — Builder's Codex (LLM-maintained knowledge base) | [[wiki/FABER\|Schema]] |
+| Folder | Rol conceptual | Scop | Link |
+|--------|---------------|------|------|
+| `Clippings/` | **inbox** | Material brut, articole salvate, paste-uri pentru ingest | |
+| `ideas/` | **workshop** | Idei brute, nevalidate | [[ideas/_template\|Template idee]] |
+| `concepts/` | **workshop** | Idei dezvoltate cu research (drafturi pre-wiki) | |
+| `experiments/` | **workshop** | Prototipuri și teste rapide | |
+| `notes/` | **workshop** | Note rapide | [[inbox]] |
+| `projects/` | **application** | Proiecte active care folosesc cunoașterea wiki | |
+| `archive/` | **archive** | Idei parcate sau finalizate | |
+| `slides/` | **output** | HTML decks generate de `/faber-slides` | |
+| `wiki/` | **library** | Faber — Builder's Codex (LLM-maintained knowledge base) | [[wiki/FABER\|Schema]] |
+
+> **Notă (Stage A → Stage B):** Rolurile *inbox / workshop / projects / library* sunt convenții mentale azi, nu separare fizică. Următorul pas formalizează rolurile în foldere dedicate. Vezi [[docs/faber-model-b-migration|docs/faber-model-b-migration.md]] pentru migration path.
 
 ## Faber — The Builder's Codex
 
@@ -92,18 +96,73 @@ A persistent, compounding wiki maintained by Claude Code. Based on Karpathy's LL
 **Schema:** `wiki/FABER.md` defines all conventions, page types, and workflows.
 
 **Skills:**
-| Skill | Purpose |
-|-------|---------|
-| `/faber-ingest` | Guided ingestion of a source into the wiki |
-| `/faber-query` | Search & synthesize from accumulated knowledge |
-| `/faber-lint` | Health-check: contradictions, orphans, gaps |
-| `/faber-status` | Dashboard: page counts, recent activity, stats |
-| `/faber-seed` | Autonomous processing of vault content into wiki |
-| `/faber-link` | Cross-link vault documents with wiki pages |
+| Skill | Cuplaj cu vault | Purpose |
+|-------|-----------------|---------|
+| `/faber-ingest` | soft | Guided ingestion of a source into the wiki |
+| `/faber-query` | none | Search & synthesize from accumulated knowledge |
+| `/faber-lint` | soft | Health-check: contradictions, orphans, gaps |
+| `/faber-status` | none | Dashboard: page counts, recent activity, stats |
+| `/faber-sync` | none | Rebuild `faber.db` from `wiki/**/*.md` |
+| `/faber-seed` | strong | Autonomous processing of vault content into wiki |
+| `/faber-link` | strong | Cross-link vault documents with wiki pages |
+| `/faber-slides` | soft | Autonomous HTML deck from wiki page or vault doc |
 
 **Page types:** Sources (summaries), Entities (people/tools/companies), Concepts (patterns/frameworks), Syntheses (cross-cutting analyses).
 
 **Cross-linking:** Wiki pages link to vault docs and vice versa. Use `[[wiki/concepts/concept-name]]` from vault, `[[projects/name/decisions|Display]]` from wiki.
+
+**Marker file:** `wiki/.faber.toml` declares this directory as a Faber library and configures paths (vault root, slides output, etc.). Skills will eventually auto-discover the wiki via this marker — see [[docs/faber-model-b-migration|migration doc]].
+
+---
+
+## Vault ↔ Wiki: roluri și promotion path
+
+Wiki-ul Faber și vault-ul Alteramens sunt **două primitive complementare**, nu redundante:
+
+| | **Vault** (workspace) | **Wiki** (library) |
+|---|---|---|
+| Optimizat pentru | Gândire umană, captură rapidă | Compounding, querying agentic |
+| Schema | Free-form | Strictă (sources/entities/concepts/syntheses) |
+| Frontmatter | Opțional | Mandatory, typed |
+| Cross-refs | Wikilinks libere | Tipate + indexate în SQLite |
+| Permanență | Drafturi, ștergibile | Append-only, evolves via maturity |
+| Audiență | Tu | Tu + agenți + future-you care interoghează |
+| Wiki-ul cere existența vault-ului? | — | **NU** — vezi `wiki/.faber.toml` |
+
+### Cele 4 roluri ale vault-ului
+
+| Rol | Ce conține | Ce devine |
+|---|---|---|
+| **inbox** | Material brut: clippings, paste-uri, transcript-uri | Sources în wiki (via `/faber-ingest`) |
+| **workshop** | Drafturi, idei, experimente, brainstorms | Concepts/entities în wiki (după distilare) |
+| **library** (`wiki/`) | Cunoaștere structurată, citabilă, queryable | Sursa de adevăr pentru `/faber-query`, `/faber-slides` |
+| **application** (`projects/`) | Cod, decizii, learnings | Aplică cunoașterea din wiki via backlinks |
+
+### Promotion path
+
+```
+inbox/article.md          (raw — captured)
+       ↓ /faber-ingest
+wiki/sources/foo.md       (structured — entities + concepts extracted)
+       ↓ /faber-link (optional)
+workshop/idea.md          (cross-referenced both ways)
+       ↓ becomes load-bearing
+projects/X/decisions.md   (applied — references [[wiki/concepts/...]])
+```
+
+### Decision rule — "vault sau wiki?"
+
+Pune-ți întrebările astea în ordine:
+
+1. **Are sursă citabilă?** (articol, video, transcript, persoană) → **wiki/sources/**
+2. **E un pattern reutilizabil pe care vrei să-l interoghezi mai târziu?** → **wiki/concepts/**
+3. **E o persoană / companie / unealtă recurentă?** → **wiki/entities/**
+4. **E o sinteză cross-cutting peste mai multe surse?** → **wiki/syntheses/**
+5. **E exploration brută, draft, "may be deleted next week"?** → **vault (workshop)**
+6. **E material brut neprocesat încă?** → **vault (inbox)**
+7. **E despre un proiect specific (decizii, cod, learnings)?** → **vault/projects/**
+
+**Regula de aur:** când scrii ceva în vault și simți că vrei să-l interoghezi peste 3 luni, e candidat pentru promotion la wiki via `/faber-ingest`.
 
 ## Cum să mă ajuți
 1. Provocă-mă cu întrebări când ideile sunt vagi

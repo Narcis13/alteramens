@@ -8,7 +8,7 @@ related: [kill-fast, judgment, productize-yourself, distribution-over-product]
 maturity: mature
 confidence: high
 contradictions: []
-applications: ["MANIFEST.md", "projects/workscript/decisions.md"]
+applications: ["MANIFEST.md", "projects/workscript/decisions.md", "concepts/ai-learning-platform.md"]
 ---
 
 # Validate Before Build

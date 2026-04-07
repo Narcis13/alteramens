@@ -31,6 +31,8 @@ Platformă de învățare AI-first care adaptează conținutul, ritmul și metod
 
 ## Ipoteze de validat
 
+> Aplicare: [[wiki/concepts/validate-before-build|Validate Before Build]] — talk to people înainte de a scrie cod.
+
 ### Ipoteză 1: Problema există și e dureroasă
 - [ ] Oamenii simt că educația actuală nu li se potrivește
 - [ ] Sunt dispuși să caute alternative
@@ -65,6 +67,8 @@ Platformă de învățare AI-first care adaptează conținutul, ritmul și metod
 ---
 
 ## Diferențiatori propuși (de validat)
+
+> Filtru de evaluare: [[wiki/concepts/encoded-judgment|Encoded Judgment]] — unde e judgment-ul față de un curs Udemy generic?
 
 1. **AI Tutor personal** - Răspunde la întrebări, adaptează explicațiile
 2. **Learning path dinamic** - Se ajustează în funcție de progres și obiective
@@ -122,7 +126,7 @@ Platformă de învățare AI-first care adaptează conținutul, ritmul și metod
 
 ### Săptămâna 2 (sinteză)
 - [ ] Analizează pattern-uri din interviuri
-- [ ] Decide: continue / pivot / kill
+- [ ] Decide: continue / pivot / [[wiki/concepts/kill-fast|kill]]
 - [ ] Dacă continue: definește MVP și pricing
 
 ---
@@ -154,3 +158,9 @@ Platformă de învățare AI-first care adaptează conținutul, ritmul și metod
 ## Links
 - [[templates/customer-interview|Interview Script]]
 - [[projects/bunbase|bunbase]] - potential backend
+
+### Faber wiki
+- [[wiki/concepts/validate-before-build|Validate Before Build]] — principiu operațional
+- [[wiki/concepts/kill-fast|Kill Fast]] — regula 2-3 săptămâni
+- [[wiki/concepts/encoded-judgment|Encoded Judgment]] — filtru "unde e judgment-ul?"
+- [[wiki/concepts/skill-era|Skill Era]] — context: AI personalization ca skill, nu funcție
