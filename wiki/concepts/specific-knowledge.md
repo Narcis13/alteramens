@@ -2,13 +2,13 @@
 title: "Specific Knowledge"
 type: concept
 category: mental-model
-sources: [naval-framework]
+sources: [naval-framework, brainstorm-ai-tutor-medicina]
 entities: [naval-ravikant]
-related: [productize-yourself, leverage, authentic-creation]
+related: [productize-yourself, leverage, authentic-creation, bounded-problem-wedge]
 maturity: mature
 confidence: high
 contradictions: []
-applications: ["concepts/agentic-business-platform.md"]
+applications: ["concepts/agentic-business-platform.md", "projects/ai-tutor-admitere/decisions.md"]
 ---
 
 # Specific Knowledge
@@ -44,7 +44,19 @@ This combination is hard to replicate. Nobody else has this exact intersection.
 
 In the Skill Era, specific knowledge is what you encode into skills. The scarcity isn't execution (LLMs handle that) — it's the judgment that comes from deep domain expertise.
 
+## Second Intersection: Healthcare IT × AI × Pedagogy
+
+The brainstorm on 2026-04-07 (see [[brainstorm-ai-tutor-medicina]]) surfaced a second specific-knowledge intersection alongside the accounting one:
+
+- **Healthcare IT** (10+ years administering systems in a Romanian hospital) → understanding of medical training, exam culture, and the institutional weight of the medicine admission
+- **AI-augmented development** → ability to encode complex pedagogical judgment as agent behavior
+- **Romanian education context** → insider knowledge of meditation market, parent expectations, admission norms
+- **Personal stake** → his son [[mihai-brindusescu]] is a 2027 candidate, providing live feedback no focus group can match
+
+This intersection is rare. It enables the AI tutor for Carol Davila admission product as a [[bounded-problem-wedge]] no foreign competitor can casually enter. Same Naval principle as the accounting case: specific knowledge IS the moat.
+
 ## See Also
 
 - [[leverage]] — How to scale specific knowledge
 - [[authentic-creation]] — Authenticity makes your specific knowledge inimitable
+- [[bounded-problem-wedge]] — Specific knowledge often points to the right wedge

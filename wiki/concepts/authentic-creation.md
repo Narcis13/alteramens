@@ -2,13 +2,13 @@
 title: "Authentic Creation — Escape Competition"
 type: concept
 category: mental-model
-sources: [naval-framework]
-entities: [naval-ravikant]
-related: [productize-yourself, specific-knowledge, accountability]
+sources: [naval-framework, brainstorm-ai-tutor-medicina]
+entities: [naval-ravikant, mihai-brindusescu]
+related: [productize-yourself, specific-knowledge, accountability, building-in-public]
 maturity: mature
 confidence: high
 contradictions: []
-applications: ["CLAUDE.md"]
+applications: ["CLAUDE.md", "projects/ai-tutor-admitere/decisions.md"]
 ---
 
 # Authentic Creation — Escape Competition
@@ -40,3 +40,9 @@ Narcis's authentic intersection:
 ## Anti-Pattern
 
 Trying to become a "SaaS founder" by following generic playbooks. The power is in the unique combination, not in copying patterns.
+
+## Maximum-Stake Application: AI Tutor for Medical Admission
+
+The AI tutor for Carol Davila admission project (see [[brainstorm-ai-tutor-medicina]]) is authentic creation at the highest stake Narcis can play: building publicly the instrument his own son [[mihai-brindusescu]] uses to prepare for a binary, irreversible admission outcome. No competitor can replicate "the founder's actual child uses this for the actual exam." The authenticity is structural, the skin in the game is biological, and the eventual outcome is publicly verifiable.
+
+This is the cleanest possible expression of "nobody can compete with you at being you" — combined with [[accountability]] at maximum and [[building-in-public]] as the natural distribution channel.

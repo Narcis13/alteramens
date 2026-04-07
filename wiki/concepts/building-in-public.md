@@ -2,13 +2,13 @@
 title: "Building in Public"
 type: concept
 category: pattern
-sources: [nbrain-social-strategy, alteramens-manifest]
-entities: [nbrain, alteramens]
+sources: [nbrain-social-strategy, alteramens-manifest, brainstorm-ai-tutor-medicina]
+entities: [nbrain, alteramens, mihai-brindusescu]
 related: [accountability, authentic-creation, leverage]
 maturity: seed
 confidence: medium
 contradictions: []
-applications: ["strategies/social-media-plan.md"]
+applications: ["strategies/social-media-plan.md", "projects/ai-tutor-admitere/decisions.md"]
 ---
 
 # Building in Public
@@ -37,3 +37,15 @@ Currently at `seed` maturity — the social media plan exists but execution hasn
 ## Risk
 
 Building in public about building (meta-building) instead of actually building the product. The content must serve the product, not replace it.
+
+## Maximum-Stake Variant: Founder Building For Their Own Family
+
+In the AI tutor for Carol Davila admission product (see [[brainstorm-ai-tutor-medicina]]), build-in-public operates at maximum possible stake: Narcis is constructing the instrument his own son [[mihai-brindusescu]] uses to prepare for an irreversible high-stakes admission. The public narrative culminates in the actual exam outcome.
+
+This variant has properties no other build-in-public play matches:
+- **Skin in the game is structural, not rhetorical** — the founder cannot exit before the user (his child) finishes the run
+- **The eventual outcome is binary and public** — admitted vs not admitted, with no spin available
+- **Trust signal is at ceiling** — competitors cannot replicate "I built this for my own kid"
+- **Content cadence is automatic** — daily reality of a child's exam prep generates the narrative without extra effort
+
+The risk profile is also unique: privacy must be explicit and revocable, the public narrative cannot become surveillance, and an honest reckoning is required if the outcome is not what was promised. This is [[accountability]] at maximum, not as marketing.

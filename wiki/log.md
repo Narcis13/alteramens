@@ -75,3 +75,15 @@ Chronological record of wiki operations. Append-only.
 - Added 4 vault→wiki links: validate-before-build, encoded-judgment, kill-fast, skill-era
 - Added 3 wiki→vault references: validate-before-build.applications, kill-fast.applications, encoded-judgment.applications
 - Document promoted from "skipped — low overlap" (2026-04-05 seed) to actively linked
+
+## [2026-04-07] ingest | Brainstorm — AI Tutor pentru Admitere Carol Davila
+- Source: conversation:2026-04-07 (Narcis ↔ Claude brainstorm)
+- Source page created: brainstorm-ai-tutor-medicina
+- Entities created: carol-davila-umf, mihai-brindusescu
+- Concepts created: bounded-problem-wedge, longitudinal-user-model, calibration-over-content, agentic-curriculum, bootcamp-pricing, reverse-time-planning
+- Concepts updated: data-compounding-moat (added per-user variant + new source), building-in-public (added maximum-stake variant + entities), authentic-creation (added max-stake application + entities), specific-knowledge (added healthcare/AI/pedagogy intersection)
+- Synthesis created: ai-tutor-admitere-strategic-frame (5-layer stack: wedge → mechanism → pricing → authenticity → compounding)
+- Vault project doc created: projects/ai-tutor-admitere/decisions.md (4 decisions logged + open questions)
+- **Totals: 1 source, 2 entities, 6 concepts, 1 synthesis = 10 new wiki pages + 4 concepts updated + 1 vault doc**
+- Pivot: this brainstorm reframes the earlier vault concept [[concepts/ai-learning-platform]] from generic ed-tech to bounded "AI tutor for Carol Davila admission, biology, 2027 cohort"
+- Guided ingest: extraction plan confirmed by Narcis before writing

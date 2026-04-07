@@ -2,9 +2,9 @@
 title: "Data Compounding Moat — Proprietary Context as Defensibility"
 type: concept
 category: competitive-intel
-sources: [eric-siu-world-intelligence]
+sources: [eric-siu-world-intelligence, brainstorm-ai-tutor-medicina]
 entities: [single-grain, single-brain]
-related: [compounding-games, world-model, ai-native-org-design, skill-era]
+related: [compounding-games, world-model, ai-native-org-design, skill-era, longitudinal-user-model]
 maturity: developing
 confidence: high
 contradictions: []
@@ -51,3 +51,11 @@ Most readers of Dorsey's essay will miss this because it sounds boring compared 
 Faber wiki is Alteramens' version of this moat. Every source ingested, every concept cross-referenced, every synthesis created — it compounds. A competitor starting today would need months to replicate what's already here. The bet is the same: push through the early awkwardness, trust the compounding.
 
 The same principle applies to any product Alteramens builds. If it has a [[world-model]] that accumulates proprietary context, the moat grows automatically with usage.
+
+## Per-User Variant: Longitudinal User Model
+
+The data compounding moat does not have to operate at the company level. It can also operate **per individual user**. See [[longitudinal-user-model]] for the variant where the moat is built from one user's accumulated behavior, calibration, and cognitive signature over months.
+
+In the AI tutor for Carol Davila admission product (see [[brainstorm-ai-tutor-medicina]]), this is the central moat. After 4-6 months a student's longitudinal model contains things the student does not know about themselves. Migrating to a competitor means losing that calibration — switching cost is structural, not contractual.
+
+The mechanism is identical to the company-level version: months of accumulated context cannot be fast-forwarded. The difference is the unit (one user instead of one company) and the consequence (per-user switching cost instead of per-company defensibility).
