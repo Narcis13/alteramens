@@ -73,19 +73,23 @@ Vezi detalii în [[owner/Who am i|Who am i]] pentru context personal.
 
 ## Structura vault-ului
 
-| Folder | Rol conceptual | Scop | Link |
-|--------|---------------|------|------|
-| `Clippings/` | **inbox** | Material brut, articole salvate, paste-uri pentru ingest | |
-| `ideas/` | **workshop** | Idei brute, nevalidate | [[ideas/_template\|Template idee]] |
-| `concepts/` | **workshop** | Idei dezvoltate cu research (drafturi pre-wiki) | |
-| `experiments/` | **workshop** | Prototipuri și teste rapide | |
-| `notes/` | **workshop** | Note rapide | [[inbox]] |
-| `projects/` | **application** | Proiecte active care folosesc cunoașterea wiki | |
-| `archive/` | **archive** | Idei parcate sau finalizate | |
-| `slides/` | **output** | HTML decks generate de `/faber-slides` | |
-| `wiki/` | **library** | Faber — Builder's Codex (LLM-maintained knowledge base) | [[wiki/FABER\|Schema]] |
+Rolurile sunt **foldere fizice**, nu mai sunt convenții mentale. Fiecare top-level îndeplinește un singur rol:
 
-> **Notă (Stage A → Stage B):** Rolurile *inbox / workshop / projects / library* sunt convenții mentale azi, nu separare fizică. Următorul pas formalizează rolurile în foldere dedicate. Vezi [[docs/faber-model-b-migration|docs/faber-model-b-migration.md]] pentru migration path.
+| Folder | Rol | Scop | Link |
+|--------|-----|------|------|
+| `inbox/` | **inbox** | Material brut, neprocesat (clippings, paste-uri) — așteaptă `/faber-ingest` | |
+| `inbox/clippings/` | inbox | Articole salvate, transcript-uri, pdf-uri | |
+| `workshop/` | **workshop** | Explorare brută: idei, drafturi, experimente, note | |
+| `workshop/ideas/` | workshop | Idei brute, nevalidate | [[workshop/ideas/_template\|Template idee]] |
+| `workshop/drafts/` | workshop | Concepte cu research — drafturi pre-promovare în wiki | |
+| `workshop/experiments/` | workshop | Prototipuri și teste rapide | |
+| `workshop/notes/` | workshop | Note rapide, inbox zilnic | [[workshop/notes/inbox\|Inbox]] |
+| `projects/` | **application** | Proiecte active care aplică cunoașterea din wiki | |
+| `archive/` | **archive** | Idei parcate sau finalizate | |
+| `wiki/` | **library** | Faber — Builder's Codex (LLM-maintained knowledge base, self-contained) | [[wiki/FABER\|Schema]] |
+| `slides/` | **output** | HTML decks generate de `/faber-slides` | |
+
+> **Stage B reached (2026-04-08):** Rolurile sunt acum separate fizic. Wiki-ul este self-contained (declarat prin `wiki/.faber.toml`), skills auto-discover prin walk-up. Vezi [[docs/faber-model-b-migration|migration history]].
 
 ## Faber — The Builder's Codex
 

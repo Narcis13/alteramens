@@ -7,7 +7,7 @@ created: 2026-04-04
 
 # Faber — The Builder's Codex
 
-Faber is a persistent, compounding knowledge base maintained by Claude Code. It sits inside the Alteramens Obsidian vault and accumulates a builder's knowledge: decision frameworks, competitive intelligence, and technical playbooks.
+Faber is a self-contained, portable knowledge library maintained by Claude Code. It can live next to a workspace vault (the current Alteramens setup) or stand alone. The library is declared by `wiki/.faber.toml`, which tells skills where to find surrounding vault roles — but the library itself owns no content outside `wiki/`.
 
 **Faber** = Latin for "craftsman, builder, maker." Homo faber — man the maker.
 
@@ -20,31 +20,44 @@ Faber is a persistent, compounding knowledge base maintained by Claude Code. It 
 ## Architecture
 
 ```
-SCHEMA (this file)  →  Conventions, formats, workflows
-WIKI (wiki/)        →  LLM-written pages: sources, entities, concepts, syntheses
-SQLITE (faber.db)   →  Derived index for agent-optimized querying (rebuild anytime)
-RAW SOURCES         →  Clippings/, vault docs, URLs, pasted text (immutable)
+SCHEMA (this file)       →  Conventions, formats, workflows
+MARKER (.faber.toml)     →  Declares this directory as a Faber library, configures paths
+WIKI (wiki/)             →  LLM-written pages: sources, entities, concepts, syntheses
+SQLITE (faber.db)        →  Derived index for agent-optimized querying (rebuild anytime)
+SURROUNDING VAULT        →  inbox/, workshop/, projects/, archive/ (resolved via .faber.toml)
 ```
 
-Claude reads raw sources but never modifies them. Claude owns the wiki layer entirely.
+Claude reads surrounding vault content but never modifies the raw `inbox/`. Claude owns the wiki layer entirely. Skills auto-discover the wiki by walking up from `cwd` until they find a `.faber.toml`.
 
 **Key rule:** `.md` files are ALWAYS the source of truth. `faber.db` is derived — delete it, run `python3 wiki/faber_sync.py`, same result. The DB goes in `.gitignore`.
 
 ## Directory Structure
 
 ```
-wiki/
-├── FABER.md          # This file — schema & conventions
-├── faber_sync.py     # Python script to rebuild faber.db from .md files
-├── faber.db          # SQLite index (derived, .gitignored)
-├── index.md          # Auto-generated dashboard (by faber_sync.py)
-├── log.md            # Chronological operations log (append-only)
-├── sources/          # Summaries of ingested material
-├── entities/         # People, companies, tools, frameworks
-├── concepts/         # Patterns, models, mental frameworks
-├── syntheses/        # Cross-cutting analyses & filed queries
-└── assets/           # Images organized by source slug
-    └── {source-slug}/
+alteramens/                  # workspace root (one possible host for Faber)
+├── inbox/                   # surrounding vault — raw material
+│   └── clippings/
+├── workshop/                # surrounding vault — drafts, ideas, experiments
+│   ├── drafts/
+│   ├── ideas/
+│   ├── experiments/
+│   └── notes/
+├── projects/                # surrounding vault — applied work
+├── archive/                 # surrounding vault — parked work
+├── slides/                  # surrounding vault — generated HTML decks
+└── wiki/                    # ← The Faber library (self-contained)
+    ├── .faber.toml          # Marker + config (vault_root, slides_output, ...)
+    ├── FABER.md             # This file — schema & conventions
+    ├── faber_sync.py        # Python script to rebuild faber.db from .md files
+    ├── faber.db             # SQLite index (derived, .gitignored)
+    ├── index.md             # Auto-generated dashboard (by faber_sync.py)
+    ├── log.md               # Chronological operations log (append-only)
+    ├── sources/             # Summaries of ingested material
+    ├── entities/            # People, companies, tools, frameworks
+    ├── concepts/            # Patterns, models, mental frameworks
+    ├── syntheses/           # Cross-cutting analyses & filed queries
+    └── assets/              # Images organized by source slug
+        └── {source-slug}/
 ```
 
 ## Page Types
