@@ -9,7 +9,24 @@ description: |
 
 # Faber Ingest — Guided Source Ingestion
 
-You are maintaining the Faber wiki at `wiki/`. Read `wiki/FABER.md` for full conventions.
+You are maintaining the Faber wiki located via `.faber.toml` auto-discovery. Read `$WIKI_ROOT/FABER.md` for full conventions.
+
+## Wiki Discovery
+
+Resolve the wiki path at the start of every bash block:
+
+```bash
+WIKI_ROOT=$(d="$PWD"; while [ "$d" != "/" ]; do
+  [ -f "$d/wiki/.faber.toml" ] && { echo "$d/wiki"; break; }
+  [ -f "$d/.faber.toml" ] && { echo "$d"; break; }
+  d=$(dirname "$d")
+done)
+[ -z "$WIKI_ROOT" ] && { echo "Error: no .faber.toml found from $PWD" >&2; exit 1; }
+VAULT_ROOT=$(dirname "$WIKI_ROOT")   # parent directory hosts inbox/, workshop/, projects/
+```
+
+Use `"$WIKI_ROOT/faber.db"` for SQL, `python3 "$WIKI_ROOT/faber_sync.py"` for sync, and
+`"$VAULT_ROOT"` as the base for vault paths when reading `inbox/`, `workshop/`, `projects/`, etc.
 
 ## Input
 
@@ -23,14 +40,14 @@ Parse `$ARGUMENTS` for the source:
 
 Before ingesting, check if the source already exists:
 ```bash
-sqlite3 wiki/faber.db "SELECT slug, title FROM pages WHERE type='source' AND (source_ref LIKE '%keyword%' OR title LIKE '%keyword%');"
+sqlite3 $WIKI_ROOT/faber.db "SELECT slug, title FROM pages WHERE type='source' AND (source_ref LIKE '%keyword%' OR title LIKE '%keyword%');"
 ```
 Also check entity aliases to avoid duplicates:
 ```bash
-sqlite3 wiki/faber.db "SELECT entity_slug, alias FROM aliases WHERE alias LIKE '%name%';"
+sqlite3 $WIKI_ROOT/faber.db "SELECT entity_slug, alias FROM aliases WHERE alias LIKE '%name%';"
 ```
 
-If `faber.db` doesn't exist, run `python3 wiki/faber_sync.py` first.
+If `faber.db` doesn't exist, run `python3 "$WIKI_ROOT/faber_sync.py"` first.
 
 ## Workflow
 
@@ -95,11 +112,11 @@ download images directly if available.
    ```
 2. **Run faber-sync** to rebuild the database and regenerate index.md:
    ```bash
-   python3 wiki/faber_sync.py
+   python3 "$WIKI_ROOT/faber_sync.py"
    ```
 3. **Verify** — Run a quick lint check for broken references:
    ```bash
-   sqlite3 wiki/faber.db "SELECT * FROM v_phantoms;"
+   sqlite3 $WIKI_ROOT/faber.db "SELECT * FROM v_phantoms;"
    ```
 
 ### Phase 5: Report

@@ -10,8 +10,23 @@ description: |
 # Faber Brief — Session Wake-Up
 
 You are giving Narcis (or a fresh Claude session) a fast situational briefing on the Faber wiki
-at `wiki/`. The goal: in under 30 seconds of reading, the user/agent should know the current
-state of the wiki and what's been happening recently.
+(located via `.faber.toml` auto-discovery). The goal: in under 30 seconds of reading, the
+user/agent should know the current state of the wiki and what's been happening recently.
+
+## Wiki Discovery
+
+Resolve the wiki path before any bash block:
+
+```bash
+WIKI_ROOT=$(d="$PWD"; while [ "$d" != "/" ]; do
+  [ -f "$d/wiki/.faber.toml" ] && { echo "$d/wiki"; break; }
+  [ -f "$d/.faber.toml" ] && { echo "$d"; break; }
+  d=$(dirname "$d")
+done)
+[ -z "$WIKI_ROOT" ] && { echo "Error: no .faber.toml found from $PWD" >&2; exit 1; }
+```
+
+All SQL below uses `"$WIKI_ROOT/faber.db"`.
 
 This is the **antidote to "starting cold"**. Instead of reading 5 files to figure out where
 things stand, one query gives instant context.
@@ -19,7 +34,7 @@ things stand, one query gives instant context.
 ## Pre-check
 
 ```bash
-test -f wiki/faber.db || python3 wiki/faber_sync.py
+test -f $WIKI_ROOT/faber.db || python3 "$WIKI_ROOT/faber_sync.py"
 ```
 
 ## Workflow
@@ -28,14 +43,14 @@ Run all briefing queries in a single Bash call:
 
 ```bash
 echo "=== LAST 10 EVENTS ===" && \
-sqlite3 -header -column wiki/faber.db "
+sqlite3 -header -column $WIKI_ROOT/faber.db "
   SELECT event_date, operation, substr(title,1,55) AS title,
          pages_created AS '+', pages_updated AS '~'
   FROM v_recent_activity LIMIT 10;
 " && \
 echo "" && \
 echo "=== HOT PAGES (last 14d, by touch frequency) ===" && \
-sqlite3 -header -column wiki/faber.db "
+sqlite3 -header -column $WIKI_ROOT/faber.db "
   SELECT slug, type, times_touched AS hits, last_touched
   FROM v_recently_touched_pages
   WHERE julianday('now') - julianday(last_touched) <= 14
@@ -44,7 +59,7 @@ sqlite3 -header -column wiki/faber.db "
 " && \
 echo "" && \
 echo "=== RECENT SYNTHESES (last 30d) ===" && \
-sqlite3 -header -column wiki/faber.db "
+sqlite3 -header -column $WIKI_ROOT/faber.db "
   SELECT slug, title, COALESCE(updated, created) AS dt
   FROM pages
   WHERE type = 'synthesis'
@@ -52,7 +67,7 @@ sqlite3 -header -column wiki/faber.db "
 " && \
 echo "" && \
 echo "=== OPEN THREADS (events with question, no follow-up synthesis) ===" && \
-sqlite3 -header -column wiki/faber.db "
+sqlite3 -header -column $WIKI_ROOT/faber.db "
   SELECT le.event_date, le.operation, substr(le.title,1,50) AS title
   FROM log_events le
   WHERE le.body LIKE '%open question%'
@@ -63,7 +78,7 @@ sqlite3 -header -column wiki/faber.db "
 " && \
 echo "" && \
 echo "=== HEALTH SNAPSHOT ===" && \
-sqlite3 wiki/faber.db "
+sqlite3 $WIKI_ROOT/faber.db "
   SELECT 'Total pages: ' || COUNT(*) FROM pages WHERE type != 'meta';
   SELECT 'Total log events: ' || COUNT(*) FROM log_events;
   SELECT 'Days since last activity: ' || CAST(julianday('now') - julianday(MAX(event_date)) AS INTEGER) FROM log_events;
@@ -74,12 +89,12 @@ sqlite3 wiki/faber.db "
 " && \
 echo "" && \
 echo "=== TOP CONNECTED ENTITIES ===" && \
-sqlite3 -header -column wiki/faber.db "
+sqlite3 -header -column $WIKI_ROOT/faber.db "
   SELECT slug, title, connections FROM v_entity_connectivity LIMIT 5;
 " && \
 echo "" && \
 echo "=== INGEST VELOCITY (last 4 weeks) ===" && \
-sqlite3 -header -column wiki/faber.db "
+sqlite3 -header -column $WIKI_ROOT/faber.db "
   SELECT week, SUM(event_count) AS events, SUM(pages_created_total) AS created
   FROM v_ingest_velocity
   GROUP BY week

@@ -9,7 +9,23 @@ description: |
 
 # Faber Query — Search & Synthesize
 
-You are querying the Faber wiki at `wiki/`. Read `wiki/FABER.md` for conventions.
+You are querying the Faber wiki located via `.faber.toml` auto-discovery. Read `$WIKI_ROOT/FABER.md` for conventions.
+
+## Wiki Discovery
+
+Before any bash block, resolve `$WIKI_ROOT` via walk-up:
+
+```bash
+WIKI_ROOT=$(d="$PWD"; while [ "$d" != "/" ]; do
+  [ -f "$d/wiki/.faber.toml" ] && { echo "$d/wiki"; break; }
+  [ -f "$d/.faber.toml" ] && { echo "$d"; break; }
+  d=$(dirname "$d")
+done)
+[ -z "$WIKI_ROOT" ] && { echo "Error: no .faber.toml found from $PWD" >&2; exit 1; }
+```
+
+Use `"$WIKI_ROOT/faber.db"` for SQL and `python3 "$WIKI_ROOT/faber_sync.py"` for sync. Each
+Bash subshell is fresh — resolve once and substitute the absolute path in subsequent calls.
 
 The Faber DB has TWO query surfaces:
 1. **Knowledge layer** (`fts_content`, `pages`, `page_relations`) — what is known
@@ -29,7 +45,7 @@ If no arguments, ask the user what they want to know.
 ## Pre-check: Ensure DB Exists
 
 ```bash
-test -f wiki/faber.db || python3 wiki/faber_sync.py
+test -f $WIKI_ROOT/faber.db || python3 "$WIKI_ROOT/faber_sync.py"
 ```
 
 ## Workflow
@@ -38,7 +54,7 @@ test -f wiki/faber.db || python3 wiki/faber_sync.py
 
 #### A. Topic queries (FTS on pages)
 ```bash
-sqlite3 wiki/faber.db "
+sqlite3 $WIKI_ROOT/faber.db "
   SELECT slug, title, snippet(fts_content, 4, '»', '«', '...', 40)
   FROM fts_content
   WHERE fts_content MATCH 'keyword1 OR keyword2'
@@ -49,7 +65,7 @@ sqlite3 wiki/faber.db "
 
 Expand via relations:
 ```bash
-sqlite3 wiki/faber.db "
+sqlite3 $WIKI_ROOT/faber.db "
   SELECT DISTINCT pr.to_slug, p.type, p.title
   FROM page_relations pr
   JOIN pages p ON p.slug = pr.to_slug
@@ -60,7 +76,7 @@ sqlite3 wiki/faber.db "
 
 #### B. Entity lookups (including aliases)
 ```bash
-sqlite3 wiki/faber.db "
+sqlite3 $WIKI_ROOT/faber.db "
   SELECT p.slug, p.title FROM pages p
   LEFT JOIN aliases a ON a.entity_slug = p.slug
   WHERE p.slug LIKE '%keyword%'
@@ -73,7 +89,7 @@ sqlite3 wiki/faber.db "
 
 "What did I work on last week?"
 ```bash
-sqlite3 -header -column wiki/faber.db "
+sqlite3 -header -column $WIKI_ROOT/faber.db "
   SELECT event_date, operation, title, pages_created AS '+', pages_updated AS '~'
   FROM v_recent_activity
   WHERE julianday('now') - julianday(event_date) <= 7
@@ -83,7 +99,7 @@ sqlite3 -header -column wiki/faber.db "
 
 "Show me everything touching `concept-x` over time"
 ```bash
-sqlite3 -header -column wiki/faber.db "
+sqlite3 -header -column $WIKI_ROOT/faber.db "
   SELECT le.event_date, le.operation, le.title, lep.action
   FROM log_event_pages lep
   JOIN log_events le ON le.id = lep.event_id
@@ -94,7 +110,7 @@ sqlite3 -header -column wiki/faber.db "
 
 "FTS log search — find log entries about a topic"
 ```bash
-sqlite3 -header -column wiki/faber.db "
+sqlite3 -header -column $WIKI_ROOT/faber.db "
   SELECT event_date, operation, title, snippet(fts_log, 4, '»', '«', '...', 30)
   FROM fts_log
   WHERE fts_log MATCH 'distribution OR programmatic'
@@ -107,7 +123,7 @@ sqlite3 -header -column wiki/faber.db "
 
 "What did I learn about distribution in the last 14 days?"
 ```bash
-sqlite3 -header -column wiki/faber.db "
+sqlite3 -header -column $WIKI_ROOT/faber.db "
   SELECT DISTINCT p.slug, p.type, p.title, MAX(le.event_date) AS last_touched
   FROM fts_content fc
   JOIN pages p ON p.slug = fc.slug
@@ -123,7 +139,7 @@ sqlite3 -header -column wiki/faber.db "
 #### E. Claims search (FTS on key_claims)
 
 ```bash
-sqlite3 -header -column wiki/faber.db "
+sqlite3 -header -column $WIKI_ROOT/faber.db "
   SELECT source_slug, snippet(fts_claims, 1, '»', '«', '...', 40)
   FROM fts_claims
   WHERE fts_claims MATCH 'keyword'
@@ -154,7 +170,7 @@ After presenting the answer, ask:
 If yes:
 1. Create `wiki/syntheses/{slug}.md` with full frontmatter
 2. Append entry to `wiki/log.md` (operation: `query → synthesis`)
-3. Run `python3 wiki/faber_sync.py`
+3. Run `python3 "$WIKI_ROOT/faber_sync.py"`
 
 ## Rules
 - Always cite sources — never present wiki knowledge without attribution

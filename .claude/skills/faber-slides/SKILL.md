@@ -12,6 +12,23 @@ description: |
 
 You generate complete, standalone HTML presentations from Faber wiki content (or any vault doc) **without asking the user a single clarifying question**. Content, style, length, language, and structure are all **inferred from context**. The user already gave you everything you need by invoking the skill — your job is to figure out what to build, build it, save it, and report.
 
+## Wiki Discovery
+
+Resolve wiki + slides output paths before any bash block:
+
+```bash
+WIKI_ROOT=$(d="$PWD"; while [ "$d" != "/" ]; do
+  [ -f "$d/wiki/.faber.toml" ] && { echo "$d/wiki"; break; }
+  [ -f "$d/.faber.toml" ] && { echo "$d"; break; }
+  d=$(dirname "$d")
+done)
+[ -z "$WIKI_ROOT" ] && { echo "Error: no .faber.toml found from $PWD" >&2; exit 1; }
+VAULT_ROOT=$(dirname "$WIKI_ROOT")
+SLIDES_DIR="$VAULT_ROOT/slides"   # matches [slides] output_dir in .faber.toml
+```
+
+All SQL below uses `"$WIKI_ROOT/faber.db"` and all writes go to `"$SLIDES_DIR/..."`.
+
 **Inheritance:** This skill reuses the visual primitives from `frontend-slides`:
 - `.claude/skills/frontend-slides/STYLE_PRESETS.md` — color palettes, typography, layout patterns
 - `.claude/skills/frontend-slides/JS_PRESETS.md` — `SlidePresentation` and `AnnotationOverlay` classes (copy verbatim)
@@ -36,7 +53,7 @@ Parse `$ARGUMENTS` for one of:
 If no argument, check for a freshly created synthesis page (within the last hour):
 
 ```bash
-sqlite3 -readonly wiki/faber.db <<'SQL'
+sqlite3 -readonly $WIKI_ROOT/faber.db <<'SQL'
 SELECT slug, title, file_path, prose
 FROM pages
 WHERE type = 'synthesis'
@@ -68,7 +85,7 @@ Only if all the above fail (no DB, no recent activity, empty argument, no recent
 Once the source is identified, load the full content and classify it. Use `faber.db` for metadata when available.
 
 ```bash
-sqlite3 -readonly wiki/faber.db <<'SQL'
+sqlite3 -readonly $WIKI_ROOT/faber.db <<'SQL'
 .mode list
 .separator '|'
 SELECT type, title, category, maturity, confidence, word_count, prose
@@ -296,7 +313,7 @@ Before calling Write, verify mentally:
 | `/faber-slides naval-ravikant` | Loads entity (person), picks Vintage Editorial, generates 7 slides |
 | `/faber-slides "distribution"` | FTS query, picks top match, generates from that page |
 | `/faber-slides` (after /faber-query about `nbrAIn`) | Detects recent query, generates from inline result, picks Bold Signal |
-| `/faber-slides concepts/ai-learning-platform.md` | Reads vault doc, RO detected, picks Pastel Geometry (Romanian education), 12 RO slides |
+| `/faber-slides workshop/drafts/ai-learning-platform.md` | Reads vault doc, RO detected, picks Pastel Geometry (Romanian education), 12 RO slides |
 | `/faber-slides` (no recent activity) | Picks the most recently mtime'd wiki .md file |
 
 ## Rules

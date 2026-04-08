@@ -8,15 +8,32 @@ description: |
 
 # Faber Status — Wiki Dashboard
 
-You are reporting on the Faber wiki at `wiki/`. The DB has two layers:
+You are reporting on the Faber wiki located via `.faber.toml` auto-discovery. The DB has two layers:
 
 1. **Knowledge graph** — `pages`, `key_claims`, `page_relations`, `prose_wikilinks`
 2. **Temporal layer** — `log_events`, `log_event_pages` (parsed from `log.md`)
 
+## Wiki Discovery
+
+Resolve the wiki path once per invocation by walking up from `cwd` looking for `.faber.toml`:
+
+```bash
+WIKI_ROOT=$(d="$PWD"; while [ "$d" != "/" ]; do
+  [ -f "$d/wiki/.faber.toml" ] && { echo "$d/wiki"; break; }
+  [ -f "$d/.faber.toml" ] && { echo "$d"; break; }
+  d=$(dirname "$d")
+done)
+[ -z "$WIKI_ROOT" ] && { echo "Error: no .faber.toml found from $PWD" >&2; exit 1; }
+```
+
+Use `"$WIKI_ROOT/faber.db"` in all SQL and `python3 "$WIKI_ROOT/faber_sync.py"` for rebuilds.
+Each Bash tool call runs in a fresh subshell, so prepend the resolver to each block OR capture
+the absolute path from the first call and substitute it in subsequent calls.
+
 ## Pre-check: Ensure DB is Current
 
 ```bash
-python3 wiki/faber_sync.py
+python3 "$WIKI_ROOT/faber_sync.py"
 ```
 
 ## Workflow
@@ -25,43 +42,43 @@ Run all dashboard queries in a single Bash call:
 
 ```bash
 echo "=== DASHBOARD ===" && \
-sqlite3 -header -column wiki/faber.db "SELECT * FROM v_dashboard;" && \
+sqlite3 -header -column $WIKI_ROOT/faber.db "SELECT * FROM v_dashboard;" && \
 echo "" && \
 echo "=== TOP ENTITIES ===" && \
-sqlite3 -header -column wiki/faber.db "SELECT slug, title, connections FROM v_entity_connectivity LIMIT 5;" && \
+sqlite3 -header -column $WIKI_ROOT/faber.db "SELECT slug, title, connections FROM v_entity_connectivity LIMIT 5;" && \
 echo "" && \
 echo "=== MATURITY ===" && \
-sqlite3 -header -column wiki/faber.db "SELECT * FROM v_maturity;" && \
+sqlite3 -header -column $WIKI_ROOT/faber.db "SELECT * FROM v_maturity;" && \
 echo "" && \
 echo "=== CONFIDENCE ===" && \
-sqlite3 -header -column wiki/faber.db "SELECT * FROM v_confidence;" && \
+sqlite3 -header -column $WIKI_ROOT/faber.db "SELECT * FROM v_confidence;" && \
 echo "" && \
 echo "=== HEALTH ===" && \
-sqlite3 wiki/faber.db "SELECT COUNT(*) || ' orphans' FROM v_orphans; SELECT COUNT(*) || ' phantoms' FROM v_phantoms; SELECT COUNT(*) || ' phantom log refs' FROM v_phantom_log_refs; SELECT COUNT(*) || ' log mismatches' FROM v_log_mismatches;" && \
+sqlite3 $WIKI_ROOT/faber.db "SELECT COUNT(*) || ' orphans' FROM v_orphans; SELECT COUNT(*) || ' phantoms' FROM v_phantoms; SELECT COUNT(*) || ' phantom log refs' FROM v_phantom_log_refs; SELECT COUNT(*) || ' log mismatches' FROM v_log_mismatches;" && \
 echo "" && \
 echo "=== RECENT ACTIVITY (last 10 events) ===" && \
-sqlite3 -header -column wiki/faber.db "SELECT event_date, operation, substr(title,1,50) AS title, pages_created AS '+', pages_updated AS '~' FROM v_recent_activity LIMIT 10;" && \
+sqlite3 -header -column $WIKI_ROOT/faber.db "SELECT event_date, operation, substr(title,1,50) AS title, pages_created AS '+', pages_updated AS '~' FROM v_recent_activity LIMIT 10;" && \
 echo "" && \
 echo "=== RECENTLY TOUCHED PAGES (last 14d) ===" && \
-sqlite3 -header -column wiki/faber.db "SELECT slug, type, times_touched AS hits, last_touched FROM v_recently_touched_pages WHERE julianday('now') - julianday(last_touched) <= 14 LIMIT 10;" && \
+sqlite3 -header -column $WIKI_ROOT/faber.db "SELECT slug, type, times_touched AS hits, last_touched FROM v_recently_touched_pages WHERE julianday('now') - julianday(last_touched) <= 14 LIMIT 10;" && \
 echo "" && \
 echo "=== INGEST VELOCITY (per week) ===" && \
-sqlite3 -header -column wiki/faber.db "SELECT week, operation, event_count, pages_created_total AS created FROM v_ingest_velocity LIMIT 10;" && \
+sqlite3 -header -column $WIKI_ROOT/faber.db "SELECT week, operation, event_count, pages_created_total AS created FROM v_ingest_velocity LIMIT 10;" && \
 echo "" && \
 echo "=== DAILY ACTIVITY (last 14d) ===" && \
-sqlite3 -header -column wiki/faber.db "SELECT * FROM v_daily_activity WHERE julianday('now') - julianday(event_date) <= 14;" && \
+sqlite3 -header -column $WIKI_ROOT/faber.db "SELECT * FROM v_daily_activity WHERE julianday('now') - julianday(event_date) <= 14;" && \
 echo "" && \
 echo "=== STALE CONCEPTS (>30d untouched) ===" && \
-sqlite3 wiki/faber.db "SELECT COUNT(*) || ' stale concepts/entities' FROM v_stale_concepts;" && \
+sqlite3 $WIKI_ROOT/faber.db "SELECT COUNT(*) || ' stale concepts/entities' FROM v_stale_concepts;" && \
 echo "" && \
 echo "=== RECENT SYNCS ===" && \
-sqlite3 -header -column wiki/faber.db "SELECT synced_at, pages_synced, log_events_synced, duration_ms FROM sync_log ORDER BY id DESC LIMIT 5;"
+sqlite3 -header -column $WIKI_ROOT/faber.db "SELECT synced_at, pages_synced, log_events_synced, duration_ms FROM sync_log ORDER BY id DESC LIMIT 5;"
 ```
 
 For cross-link stats:
 ```bash
-sqlite3 wiki/faber.db "SELECT COUNT(*) || ' wiki→vault refs' FROM vault_refs;" && \
-sqlite3 wiki/faber.db "SELECT COUNT(*) || ' vault→wiki wikilinks' FROM prose_wikilinks WHERE is_vault_link = 1;"
+sqlite3 $WIKI_ROOT/faber.db "SELECT COUNT(*) || ' wiki→vault refs' FROM vault_refs;" && \
+sqlite3 $WIKI_ROOT/faber.db "SELECT COUNT(*) || ' vault→wiki wikilinks' FROM prose_wikilinks WHERE is_vault_link = 1;"
 ```
 
 ## Output Format
@@ -104,7 +121,7 @@ sqlite3 wiki/faber.db "SELECT COUNT(*) || ' vault→wiki wikilinks' FROM prose_w
 ```
 
 ## Rules
-- Run `python3 wiki/faber_sync.py` first to ensure DB is current
+- Run `python3 "$WIKI_ROOT/faber_sync.py"` first to ensure DB is current
 - Use SQL queries exclusively — no file reads needed for the dashboard
 - No modifications — this is read-only
 - If `v_log_mismatches` has rows, surface them prominently — they indicate the log claims more pages created than actually exist (data integrity warning)

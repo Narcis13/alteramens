@@ -8,9 +8,25 @@ description: |
 
 # Faber Link — Cross-Link Tool
 
-You are creating cross-references between the Faber wiki (`wiki/`) and the rest of the Alteramens vault. Read `wiki/FABER.md` for linking conventions if you need a refresher.
+You are creating cross-references between the Faber wiki and the rest of the Alteramens vault. Read `$WIKI_ROOT/FABER.md` for linking conventions if you need a refresher.
 
-**Source of truth:** `wiki/*.md` files. The `wiki/faber.db` SQLite index is a derived view used here for fast discovery — you NEVER write to it directly. After applying link changes, suggest running `/faber-sync` to refresh the index.
+**Source of truth:** `$WIKI_ROOT/*.md` files. The `$WIKI_ROOT/faber.db` SQLite index is a derived view used here for fast discovery — you NEVER write to it directly. After applying link changes, suggest running `/faber-sync` to refresh the index.
+
+## Wiki Discovery
+
+Resolve wiki + vault paths before any bash block:
+
+```bash
+WIKI_ROOT=$(d="$PWD"; while [ "$d" != "/" ]; do
+  [ -f "$d/wiki/.faber.toml" ] && { echo "$d/wiki"; break; }
+  [ -f "$d/.faber.toml" ] && { echo "$d"; break; }
+  d=$(dirname "$d")
+done)
+[ -z "$WIKI_ROOT" ] && { echo "Error: no .faber.toml found from $PWD" >&2; exit 1; }
+VAULT_ROOT=$(dirname "$WIKI_ROOT")
+```
+
+Use `"$WIKI_ROOT/faber.db"` for SQL, `"$VAULT_ROOT/<path>"` for vault files.
 
 ## Input
 
@@ -21,12 +37,12 @@ Parse `$ARGUMENTS` for a vault file path. If no arguments, ask the user which fi
 ### Step 1: Read & verify index
 
 1. Read the specified vault document (frontmatter + full body).
-2. Verify `wiki/faber.db` exists. If missing or older than the most recent `wiki/**/*.md` mtime, warn the user it may be stale and suggest running `/faber-sync` first. Proceed only if the user accepts (or after sync).
+2. Verify `$WIKI_ROOT/faber.db` exists. If missing or older than the most recent `wiki/**/*.md` mtime, warn the user it may be stale and suggest running `/faber-sync` first. Proceed only if the user accepts (or after sync).
 
 ```bash
 # Existence + freshness check
-test -f wiki/faber.db && \
-  echo "db_mtime=$(stat -f %m wiki/faber.db) newest_md=$(find wiki -name '*.md' -type f -exec stat -f %m {} \; | sort -nr | head -1)"
+test -f $WIKI_ROOT/faber.db && \
+  echo "db_mtime=$(stat -f %m $WIKI_ROOT/faber.db) newest_md=$(find wiki -name '*.md' -type f -exec stat -f %m {} \; | sort -nr | head -1)"
 ```
 
 ### Step 2: Extract candidate terms from the vault doc
@@ -41,11 +57,11 @@ For each candidate, also generate slugified variants (lowercase, hyphenated) to 
 
 ### Step 3: Query `faber.db` for matches
 
-Use `sqlite3` (read-only) to find candidate wiki pages. The DB is at `wiki/faber.db`.
+Use `sqlite3` (read-only) to find candidate wiki pages. The DB is at `$WIKI_ROOT/faber.db`.
 
 **Query A — Exact title / slug match:**
 ```bash
-sqlite3 -readonly wiki/faber.db <<'SQL'
+sqlite3 -readonly $WIKI_ROOT/faber.db <<'SQL'
 .mode column
 .headers on
 SELECT slug, type, title, category, maturity
@@ -88,7 +104,7 @@ WHERE type = 'concept' AND maturity IN ('developing','mature')
 ```sql
 SELECT page_slug, ref_type
 FROM vault_refs
-WHERE vault_path = 'concepts/ai-learning-platform.md';
+WHERE vault_path = 'workshop/drafts/ai-learning-platform.md';
 ```
 Use this to skip wiki pages that already reference the doc.
 
@@ -113,7 +129,7 @@ Present two lists. Be specific about line numbers and quote the matching text.
 
 **Vault → Wiki links to add:**
 ```
-In concepts/ai-learning-platform.md, line 32 ("Ipoteze de validat"):
+In workshop/drafts/ai-learning-platform.md, line 32 ("Ipoteze de validat"):
   → Add inline note: > Aplicare: [[wiki/concepts/validate-before-build|Validate Before Build]]
   → Match basis: FTS rank 0.92, title match + 4 hypothesis-driven sections
 ```
@@ -121,7 +137,7 @@ In concepts/ai-learning-platform.md, line 32 ("Ipoteze de validat"):
 **Wiki → Vault references to add:**
 ```
 In wiki/concepts/validate-before-build.md, frontmatter `applications:` (concept page):
-  → Add: "concepts/ai-learning-platform.md"
+  → Add: "workshop/drafts/ai-learning-platform.md"
   → Reason: vault doc is structured around 3 validation hypotheses + customer interview plan
 ```
 
