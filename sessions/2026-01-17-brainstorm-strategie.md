@@ -80,7 +80,7 @@ Platformă colaborativă contabil-antreprenor cu interfață conversațională:
 ## Artifacts create
 
 - [[owner/Who am i]] - actualizat cu background complet
-- [[concepts/agentic-business-platform]] - concept detaliat
+- [[workshop/drafts/agentic-business-platform]] - concept detaliat
 - [[projects/workscript/README]] - proiect documentat
 - [[projects/workscript/decisions]] - log decizii
 

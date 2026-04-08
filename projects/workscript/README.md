@@ -13,7 +13,7 @@ repo: https://github.com/Narcis13/workscript
 
 ## Overview
 
-Engine de workflow-uri JSON care va sta la baza [[concepts/agentic-business-platform|Agentic Business Platform]].
+Engine de workflow-uri JSON care va sta la baza [[workshop/drafts/agentic-business-platform|Agentic Business Platform]].
 
 ## Repository
 
@@ -64,6 +64,6 @@ Vezi [[projects/workscript/decisions|Log decizii]] pentru istoricul deciziilor m
 
 ## Conexiuni
 
-- [[concepts/agentic-business-platform]] - Conceptul de business
+- [[workshop/drafts/agentic-business-platform]] - Conceptul de business
 - [[owner/Who am i]] - Context personal
 - [[MANIFEST]] - Obiective

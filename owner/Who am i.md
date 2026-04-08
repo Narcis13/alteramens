@@ -55,4 +55,4 @@ Vezi [[MANIFEST]] pentru timeline detaliat.
 ## Conexiuni
 - [[MANIFEST]] - Viziune și principii
 - [[CLAUDE]] - Ghid colaborare
-- [[concepts/agentic-business-platform]] - Conceptul principal în dezvoltare
+- [[workshop/drafts/agentic-business-platform]] - Conceptul principal în dezvoltare

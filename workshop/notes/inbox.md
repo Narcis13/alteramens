@@ -42,7 +42,7 @@ Format:
 
 ## Procesare
 Când procesezi inbox-ul:
-1. Transformă ideile în fișiere noi în `ideas/` folosind [[ideas/_template|template-ul]]
-2. Notele generale mută-le în `notes/`
+1. Transformă ideile în fișiere noi în `workshop/ideas/` folosind [[workshop/ideas/_template|template-ul]]
+2. Notele generale mută-le în `workshop/notes/`
 3. Bifează ce ai procesat
 4. Șterge periodic ce e vechi și procesat

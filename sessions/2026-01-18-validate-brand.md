@@ -89,7 +89,7 @@ Idee TikTok: antreprenor în mașină vorbind cu app-ul
 
 ## Artifacts actualizate
 
-- [[concepts/agentic-business-platform]] - de actualizat cu brand + preț
+- [[workshop/drafts/agentic-business-platform]] - de actualizat cu brand + preț
 - [[strategies/social-media-plan]] - de creat
 
 ## Următoarea sesiune

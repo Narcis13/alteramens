@@ -16,7 +16,7 @@ complexitate:
 ---
 
 ## Conexiuni
-- Idei similare: [[ideas/inbox|inbox]]
+- Idei similare: [[workshop/ideas/inbox|inbox]]
 - Inspirație: [[]]
 - Poate combina cu: [[]]
 

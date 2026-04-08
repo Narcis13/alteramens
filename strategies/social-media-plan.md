@@ -133,5 +133,5 @@ Antreprenor în mașină, în trafic, vorbește cu aplicația:
 
 ## Connections
 
-- [[concepts/agentic-business-platform]] - Produsul
+- [[workshop/drafts/agentic-business-platform]] - Produsul
 - [[sessions/2026-01-18-validate-brand]] - Sesiunea de brand

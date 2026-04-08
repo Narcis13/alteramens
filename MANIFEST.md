@@ -145,7 +145,7 @@ Nu aștept inspirație. Nu aștept momentul perfect. Execut, măsor, ajustez.
 
 ## Fundament
 - [[Foundation|Productize Yourself]] - Naval's framework: specific knowledge + leverage + judgment + accountability
-- [[concepts/Articol interesant|The Skill Era]] - De la API-uri la Skills: expertise ca infrastructură
+- [[workshop/drafts/Articol interesant|The Skill Era]] - De la API-uri la Skills: expertise ca infrastructură
 
 ## Related
 - [[CLAUDE]] - Ghid colaborare

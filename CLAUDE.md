@@ -18,7 +18,7 @@ Vezi [[MANIFEST]] pentru viziune și principii.
 
 Două teze fundamentale ghidează toate deciziile din Alteramens:
 
-### Skill Era ([[concepts/Articol interesant|The Skill Era]])
+### Skill Era ([[workshop/drafts/Articol interesant|The Skill Era]])
 - LLM-urile comprimă execuția → **judgment-ul devine valoros**
 - De la API-uri (funcționalitate mecanică) la Skills (judgment encodat)
 - Distribuția = a fi parte din workflow-ul agenților, nu dashboard-uri
