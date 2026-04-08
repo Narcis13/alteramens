@@ -8,7 +8,7 @@ related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design,
 maturity: mature
 confidence: high
 contradictions: []
-applications: ["CLAUDE.md", "concepts/Articol interesant.md"]
+applications: ["CLAUDE.md", "workshop/drafts/Articol interesant.md"]
 ---
 
 # The Skill Era — From Pipes to Patterns

@@ -7,7 +7,7 @@ first_seen: nbrain-concept
 sources: [nbrain-concept]
 related_entities: [nbrain]
 related_concepts: [conversational-interface]
-vault_refs: ["concepts/agentic-business-platform.md"]
+vault_refs: ["workshop/drafts/agentic-business-platform.md"]
 status: active
 ---
 

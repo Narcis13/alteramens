@@ -8,7 +8,7 @@ related: [skill-era, judgment, leverage, agent-fleet-architecture, world-model, 
 maturity: developing
 confidence: high
 contradictions: []
-applications: ["CLAUDE.md", "concepts/ai-learning-platform.md"]
+applications: ["CLAUDE.md", "workshop/drafts/ai-learning-platform.md"]
 ---
 
 # Encoded Judgment — Skills vs Functions

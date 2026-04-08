@@ -7,7 +7,7 @@ first_seen: workscript-decisions
 sources: [workscript-decisions, nbrain-concept]
 related_entities: [nbrain, alteramens]
 related_concepts: [validate-before-build]
-vault_refs: ["projects/workscript/decisions.md", "concepts/agentic-business-platform.md"]
+vault_refs: ["projects/workscript/decisions.md", "workshop/drafts/agentic-business-platform.md"]
 status: active
 ---
 

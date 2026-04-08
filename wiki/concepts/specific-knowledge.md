@@ -8,7 +8,7 @@ related: [productize-yourself, leverage, authentic-creation, bounded-problem-wed
 maturity: mature
 confidence: high
 contradictions: []
-applications: ["concepts/agentic-business-platform.md", "projects/ai-tutor-admitere/decisions.md"]
+applications: ["workshop/drafts/agentic-business-platform.md", "projects/ai-tutor-admitere/decisions.md"]
 ---
 
 # Specific Knowledge

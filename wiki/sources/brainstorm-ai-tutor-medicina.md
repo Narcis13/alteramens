@@ -28,7 +28,7 @@ confidence: high
 
 Conversational brainstorming session between Narcis and Claude on 2026-04-07. Initial seed from Narcis: a personalized AI learning platform inspired by Faber wiki patterns, motivated by his son Mihai's upcoming application to UMF Carol Davila Bucharest. Initial framing was vague ("personalized AI learning, biology textbook the Faber way, SaaS or local Electron"). The conversation reframed it into a sharply bounded product.
 
-This brainstorm is a **pivot** from the earlier exploration in [[concepts/ai-learning-platform|concepts/ai-learning-platform.md]] (Jan 2025), which considered generic AI learning across multiple segments. The pivot replaces "AI personalized learning" with "AI tutor for Romanian medical school admission" — bounded problem, identified buyer, validated willingness to pay.
+This brainstorm is a **pivot** from the earlier exploration in [[workshop/drafts/ai-learning-platform|workshop/drafts/ai-learning-platform.md]] (Jan 2025), which considered generic AI learning across multiple segments. The pivot replaces "AI personalized learning" with "AI tutor for Romanian medical school admission" — bounded problem, identified buyer, validated willingness to pay.
 
 ## The Reframe
 
@@ -113,7 +113,7 @@ This unlocks the strategic frame in [[ai-tutor-admitere-strategic-frame]] to be 
 
 ## See also
 
-- Vault: [[concepts/ai-learning-platform|concepts/ai-learning-platform.md]] — earlier generic exploration this brainstorm pivots from (now marked as pivoted)
+- Vault: [[workshop/drafts/ai-learning-platform|workshop/drafts/ai-learning-platform.md]] — earlier generic exploration this brainstorm pivots from (now marked as pivoted)
 - Concepts: all six new concepts referenced above
 - Synthesis: [[ai-tutor-admitere-strategic-frame]] — strategic frame derived from this brainstorm
 - Competitors: [[centrul-excelenta-carol-davila]] (institutional / trust-anchor), [[eduboom]] (content library)

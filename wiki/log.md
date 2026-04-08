@@ -14,7 +14,7 @@ Chronological record of wiki operations. Append-only.
 - Six Claude Code skills created: faber-ingest, faber-query, faber-lint, faber-status, faber-seed, faber-link
 
 ## [2026-04-05] seed | Vault Seeding — First Pass
-- Processed 8 vault documents: Foundation.md, MANIFEST.md, concepts/Articol interesant.md, concepts/agentic-business-platform.md, concepts/ai-learning-platform.md (skipped — low overlap with current focus), strategies/social-media-plan.md, projects/workscript/decisions.md, ideas/API + CLI.md (skipped — captured via entity references)
+- Processed 8 vault documents: Foundation.md, MANIFEST.md, workshop/drafts/Articol interesant.md, workshop/drafts/agentic-business-platform.md, workshop/drafts/ai-learning-platform.md (skipped — low overlap with current focus), strategies/social-media-plan.md, projects/workscript/decisions.md, workshop/ideas/API + CLI.md (skipped — captured via entity references)
 - Sources created: naval-framework, skill-era-article, alteramens-manifest, nbrain-concept, nbrain-social-strategy, workscript-decisions
 - Entities created: naval-ravikant, nbrain, alteramens, workscript, anaf
 - Concepts created: productize-yourself, specific-knowledge, leverage, judgment, accountability, compounding-games, skill-era, encoded-judgment, work-as-play, authentic-creation, validate-before-build, kill-fast, building-in-public, conversational-interface
@@ -43,7 +43,7 @@ Chronological record of wiki operations. Append-only.
 - Guided ingest: discussed takeaways with Narcis, emphasis on Programmatic SEO
 
 ## [2026-04-06] ingest | Claude Code as Sales & Marketing Engine — Simon Severino Interview
-- Source: Clippings/saas marketing (video transcript)
+- Source: inbox/clippings/saas marketing (video transcript)
 - Entities created: simon-severino, hunter-io
 - Concepts created: ai-collaborator-army, deliver-dont-promise, seven-critics-loop
 - Concepts updated: leverage (added collaborator army section + new source), skill-era (added new source + related), distribution-over-product (added new source + related)
@@ -71,7 +71,7 @@ Chronological record of wiki operations. Append-only.
 - Concepts involved: 14 (validate-before-build, kill-fast, encoded-judgment, skill-era, distribution-over-product, mcp-as-distribution, deliver-dont-promise, viral-artifacts, leverage, productize-yourself, compounding-games, internal-to-product, data-compounding-moat, programmatic-seo)
 - **Cross-wiki synthesis:** combines operational principles (manifest), philosophical foundations (Naval + Skill Era), distribution tactics (marketing sources), and practical patterns (Severino) into actionable weekly sequence
 
-## [2026-04-07] link | concepts/ai-learning-platform.md
+## [2026-04-07] link | workshop/drafts/ai-learning-platform.md
 - Added 4 vault→wiki links: validate-before-build, encoded-judgment, kill-fast, skill-era
 - Added 3 wiki→vault references: validate-before-build.applications, kill-fast.applications, encoded-judgment.applications
 - Document promoted from "skipped — low overlap" (2026-04-05 seed) to actively linked
@@ -84,7 +84,7 @@ Chronological record of wiki operations. Append-only.
 - Concepts updated: (none — strategic resolution, not new patterns)
 - Sources updated: brainstorm-ai-tutor-medicina (added competitor entities to frontmatter, added Resolution section to Risk flagged, expanded See also)
 - Synthesis updated: ai-tutor-admitere-strategic-frame (resolved 1K MRR open question, added competitive landscape section, bumped updated date)
-- Vault doc updated: concepts/ai-learning-platform.md (PIVOT marker at top, two new rows in Decizii table, status → pivoted)
+- Vault doc updated: workshop/drafts/ai-learning-platform.md (PIVOT marker at top, two new rows in Decizii table, status → pivoted)
 - Vault doc updated: projects/ai-tutor-admitere/decisions.md (Decision 5 — decoupling from 1K MRR, Note 5a — AIDIDACT brand proposal, Note 5b — competitor intel, Open decisions list refreshed)
 - **Totals: 2 entities, 1 wiki source updated, 1 synthesis updated, 2 vault docs updated**
 - Strategic resolution: the 1K MRR / 6-month tension flagged as "most important open question" in the 2026-04-07 brainstorm is now resolved — Path A chosen (decouple, play 18-24 month compounding game, full implementation flexibility)
@@ -118,5 +118,5 @@ Chronological record of wiki operations. Append-only.
 - Synthesis created: ai-tutor-admitere-strategic-frame (5-layer stack: wedge → mechanism → pricing → authenticity → compounding)
 - Vault project doc created: projects/ai-tutor-admitere/decisions.md (4 decisions logged + open questions)
 - **Totals: 1 source, 2 entities, 6 concepts, 1 synthesis = 10 new wiki pages + 4 concepts updated + 1 vault doc**
-- Pivot: this brainstorm reframes the earlier vault concept [[concepts/ai-learning-platform]] from generic ed-tech to bounded "AI tutor for Carol Davila admission, biology, 2027 cohort"
+- Pivot: this brainstorm reframes the earlier vault concept [[workshop/drafts/ai-learning-platform]] from generic ed-tech to bounded "AI tutor for Carol Davila admission, biology, 2027 cohort"
 - Guided ingest: extraction plan confirmed by Narcis before writing

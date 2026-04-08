@@ -7,7 +7,7 @@ first_seen: nbrain-concept
 sources: [nbrain-concept, nbrain-social-strategy, workscript-decisions]
 related_entities: [alteramens, workscript, anaf]
 related_concepts: [conversational-interface, validate-before-build, specific-knowledge, building-in-public]
-vault_refs: ["concepts/agentic-business-platform.md", "strategies/social-media-plan.md"]
+vault_refs: ["workshop/drafts/agentic-business-platform.md", "strategies/social-media-plan.md"]
 status: active
 ---
 

@@ -3,7 +3,7 @@ title: "Claude Code as Sales & Marketing Engine — Simon Severino Interview"
 type: source
 format: transcript
 origin: vault
-source_ref: "Clippings/saas marketing"
+source_ref: "inbox/clippings/saas marketing"
 ingested: 2026-04-06
 guided: true
 entities: [simon-severino, hunter-io]

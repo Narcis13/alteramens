@@ -8,7 +8,7 @@ related: [validate-before-build, distribution-over-product, kill-fast, specific-
 maturity: seed
 confidence: high
 contradictions: []
-applications: ["concepts/ai-learning-platform.md"]
+applications: ["workshop/drafts/ai-learning-platform.md"]
 ---
 
 # Bounded Problem Wedge — Narrow Beats Generic

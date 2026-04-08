@@ -8,7 +8,7 @@ related: [specific-knowledge, leverage, judgment, accountability, compounding-ga
 maturity: mature
 confidence: high
 contradictions: []
-applications: ["MANIFEST.md", "CLAUDE.md", "concepts/agentic-business-platform.md"]
+applications: ["MANIFEST.md", "CLAUDE.md", "workshop/drafts/agentic-business-platform.md"]
 ---
 
 # Productize Yourself

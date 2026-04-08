@@ -3,7 +3,7 @@ title: "The Skill Era of the Internet"
 type: source
 format: article
 origin: vault
-source_ref: "concepts/Articol interesant.md"
+source_ref: "workshop/drafts/Articol interesant.md"
 ingested: 2026-04-05
 guided: false
 entities: [alteramens]
@@ -21,7 +21,7 @@ confidence: high
 
 # The Skill Era of the Internet
 
-Manifesto article about the paradigm shift from the API era to the Skill era. Source: [[concepts/Articol interesant|Vault concept note]].
+Manifesto article about the paradigm shift from the API era to the Skill era. Source: [[workshop/drafts/Articol interesant|Vault concept note]].
 
 ## The Shift
 

@@ -3,7 +3,7 @@ title: "nbrAIn — Agentic Business Platform for Romanian Accounting"
 type: source
 format: article
 origin: vault
-source_ref: "concepts/agentic-business-platform.md"
+source_ref: "workshop/drafts/agentic-business-platform.md"
 ingested: 2026-04-05
 guided: false
 entities: [nbrain, workscript, anaf]
@@ -22,7 +22,7 @@ confidence: high
 
 # nbrAIn — Agentic Business Platform
 
-The primary revenue candidate for Alteramens. A B2B SaaS targeting Romanian accountants and SME entrepreneurs with a conversational AI interface. Source: [[concepts/agentic-business-platform|Concept note]].
+The primary revenue candidate for Alteramens. A B2B SaaS targeting Romanian accountants and SME entrepreneurs with a conversational AI interface. Source: [[workshop/drafts/agentic-business-platform|Concept note]].
 
 ## The Problem
 

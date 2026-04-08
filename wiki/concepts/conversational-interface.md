@@ -8,7 +8,7 @@ related: [encoded-judgment, skill-era]
 maturity: developing
 confidence: medium
 contradictions: []
-applications: ["concepts/agentic-business-platform.md"]
+applications: ["workshop/drafts/agentic-business-platform.md"]
 ---
 
 # Conversational Interface — Questions Over Forms
