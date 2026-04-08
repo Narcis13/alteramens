@@ -120,3 +120,11 @@ Chronological record of wiki operations. Append-only.
 - **Totals: 1 source, 2 entities, 6 concepts, 1 synthesis = 10 new wiki pages + 4 concepts updated + 1 vault doc**
 - Pivot: this brainstorm reframes the earlier vault concept [[workshop/drafts/ai-learning-platform]] from generic ed-tech to bounded "AI tutor for Carol Davila admission, biology, 2027 cohort"
 - Guided ingest: extraction plan confirmed by Narcis before writing
+
+## [2026-04-08] query → project artifact | AI Tutor Admitere — PRD Alpha v0.1
+- Query: "schiță versiune alpha de PRD pentru platforma de învățare admitere Carol Davila 2027"
+- Source pages consulted: brainstorm-ai-tutor-medicina, ai-tutor-admitere-strategic-frame, agentic-curriculum, calibration-over-content, longitudinal-user-model, reverse-time-planning, bounded-problem-wedge, bootcamp-pricing, building-in-public, authentic-creation, encoded-judgment, eduboom, centrul-excelenta-carol-davila, carol-davila-umf, mihai-brindusescu, specific-knowledge
+- Project artifact created: projects/ai-tutor-admitere/prd-alpha.md (alpha v0.1, 20 sections + 2 anexe)
+- New material vs existing wiki: 6-module breakdown with acceptance criteria, MVP cut for autumn 2026, 4-tier success metrics, content validation pipeline, architectural property requirements, gated roadmap, 8 new open decisions proposed for decisions.md
+- No new wiki pages created (this is a project-level artifact, not knowledge promotion)
+- Decoupled from 1K MRR / 6 month goal per Decision 5 (2026-04-08)
