@@ -1,8 +1,9 @@
 ---
 title: "Faber Model B Migration — Library + Workshop"
 type: doc
-status: planning
+status: complete
 created: 2026-04-07
+completed: 2026-04-08
 related:
   - "[[CLAUDE]]"
   - "[[wiki/FABER]]"
@@ -15,10 +16,10 @@ related:
 | Stage | Description | Reached? |
 |---|---|---|
 | **A** | Vault-embedded wiki, free-form folders, conceptual roles documented | ✅ **2026-04-07** |
-| **B** | Library + Workshop — physical role separation, wiki auto-discovery | ⏳ planned |
+| **B** | Library + Workshop — physical role separation, wiki auto-discovery | ✅ **2026-04-08** |
 | **C** | Multi-library federation (alteramens-wiki + health-it-wiki + ...) | 🔮 future |
 
-This document captures **what's needed to move from Stage A → Stage B**. Stage A is just a config file + mental model upgrade with zero risk. Stage B is the physical refactor that unlocks portability and multi-domain scaling.
+This document captures **what was needed to move from Stage A → Stage B**. Stage A was a config file + mental model upgrade with zero risk. Stage B was the physical refactor that unlocked portability and multi-domain scaling. Both are now complete; the doc remains as an archaeological record of the migration.
 
 ---
 
