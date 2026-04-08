@@ -30,21 +30,20 @@ vault_root      = ".."
 slides_output   = "../slides"
 
 # ──────────────────────────────────────────────────────────────────────
-# Vault role conventions (Stage A — informational only)
+# Vault role conventions (Stage B — physically enforced)
 #
-# These describe the CONCEPTUAL roles within the vault, not enforced
-# directories. Today the vault uses free-form folders; the role mapping
-# below is documented in CLAUDE.md and lives as a mental model only.
-#
-# Stage B (see docs/faber-model-b-migration.md) will physically separate
-# these roles into dedicated top-level folders. When that happens, the
-# `inbox`, `workshop`, `projects` keys below get uncommented.
+# These are real directories relative to `vault_root`. Each role owns
+# one kind of content per the promotion path documented in CLAUDE.md:
+#   inbox     → raw material waiting for /faber-ingest
+#   workshop  → drafty exploration (ideas, drafts, experiments, notes)
+#   projects  → application context (code, decisions, learnings)
+#   archive   → parked or finalized work
 # ──────────────────────────────────────────────────────────────────────
 [paths.roles]
-# inbox    = "../inbox"      # raw material waiting for /faber-ingest
-# workshop = "../workshop"   # drafty exploration: ideas, drafts, experiments
-# projects = "../projects"   # application context: code, decisions, learnings
-# archive  = "../archive"    # parked or finalized work
+inbox    = "../inbox"      # raw material waiting for /faber-ingest
+workshop = "../workshop"   # drafty exploration: ideas, drafts, experiments, notes
+projects = "../projects"   # application context: code, decisions, learnings
+archive  = "../archive"    # parked or finalized work
 
 # ──────────────────────────────────────────────────────────────────────
 # Skill defaults
