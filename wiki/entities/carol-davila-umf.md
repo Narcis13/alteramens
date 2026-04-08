@@ -5,7 +5,7 @@ category: platform
 aliases: ["Carol Davila", "UMF Carol Davila", "UMFCD", "Universitatea Carol Davila", "Carol Davila București"]
 first_seen: brainstorm-ai-tutor-medicina
 sources: [brainstorm-ai-tutor-medicina]
-related_entities: [mihai-brindusescu]
+related_entities: [mihai-brindusescu, centrul-excelenta-carol-davila, eduboom]
 related_concepts: [bounded-problem-wedge, longitudinal-user-model, agentic-curriculum, bootcamp-pricing]
 vault_refs: []
 status: active
@@ -43,8 +43,19 @@ The admission exam typically covers:
 
 Initial product wedge focuses on **biologie** because (a) it is the most universal choice, (b) it has the clearest content scope, and (c) Mihai will take it.
 
+## Competitive Landscape Around This Target
+
+The admission market around Carol Davila is the operating environment for the AI tutor product. Two competitors are currently mapped:
+
+- **[[centrul-excelenta-carol-davila]]** — institutional / trust-anchor competitor. Strong on proximity to the university; structurally limited on geography, personalization, and daily cadence.
+- **[[eduboom]]** — content-library competitor. Strong on Romanian high-school content; structurally absent from calibration, longitudinal modeling, and parent dashboards.
+
+Neither competitor occupies the wedge the AI tutor is built around: **calibration + agentic curriculum + per-student longitudinal model + parent dashboard + founder authenticity**, sold as a [[bootcamp-pricing|bootcamp package]] to parents who already pay 5,000-10,000 EUR for meditații.
+
 ## See Also
 
 - [[brainstorm-ai-tutor-medicina]] — origin source
 - [[bounded-problem-wedge]] — why a target this specific is the right starting point
 - [[mihai-brindusescu]] — user zero, will apply here in 2027
+- [[centrul-excelenta-carol-davila]] — institutional competitor
+- [[eduboom]] — content competitor

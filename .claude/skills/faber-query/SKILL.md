@@ -1,19 +1,30 @@
 ---
 name: faber-query
 description: |
-  Query the Faber wiki for accumulated knowledge. Use when the user asks a question about topics
-  covered in the wiki, or invokes /faber-query. Reads the index, finds relevant pages, synthesizes
-  an answer with citations. Can file good answers as synthesis pages. Trigger on /faber-query or
-  "ask faber", "what does faber know about", "search the wiki".
+  Query the Faber wiki for accumulated knowledge — by topic, by date, by activity. Reads the index,
+  finds relevant pages and log events, synthesizes an answer with citations. Can file good answers
+  as synthesis pages. Trigger on /faber-query or "ask faber", "what does faber know about",
+  "search the wiki", "what did I work on last week".
 ---
 
 # Faber Query — Search & Synthesize
 
 You are querying the Faber wiki at `wiki/`. Read `wiki/FABER.md` for conventions.
 
+The Faber DB has TWO query surfaces:
+1. **Knowledge layer** (`fts_content`, `pages`, `page_relations`) — what is known
+2. **Temporal layer** (`log_events`, `fts_log`, `log_event_pages`) — when/how it evolved
+
 ## Input
 
-Parse `$ARGUMENTS` for the question. If no arguments, ask the user what they want to know.
+Parse `$ARGUMENTS` for the question. Recognize temporal modifiers:
+- "last week" / "last 7 days" / "săptămâna trecută" → `--since 7d`
+- "today" / "azi" → `event_date = date('now')`
+- "in March" / "în martie" → `event_date LIKE '2026-03-%'`
+- "what did I work on" / "ce am lucrat" → temporal log query, no FTS topic
+- "show me everything about X" → FTS topic query, no temporal filter
+
+If no arguments, ask the user what they want to know.
 
 ## Pre-check: Ensure DB Exists
 
@@ -25,8 +36,7 @@ test -f wiki/faber.db || python3 wiki/faber_sync.py
 
 ### Step 1: Discover via SQL
 
-Use FTS5 full-text search to find relevant pages:
-
+#### A. Topic queries (FTS on pages)
 ```bash
 sqlite3 wiki/faber.db "
   SELECT slug, title, snippet(fts_content, 4, '»', '«', '...', 40)
@@ -37,8 +47,7 @@ sqlite3 wiki/faber.db "
 "
 ```
 
-Then expand via relations to find connected pages:
-
+Expand via relations:
 ```bash
 sqlite3 wiki/faber.db "
   SELECT DISTINCT pr.to_slug, p.type, p.title
@@ -49,7 +58,7 @@ sqlite3 wiki/faber.db "
 "
 ```
 
-For entity lookups (including aliases):
+#### B. Entity lookups (including aliases)
 ```bash
 sqlite3 wiki/faber.db "
   SELECT p.slug, p.title FROM pages p
@@ -60,20 +69,83 @@ sqlite3 wiki/faber.db "
 "
 ```
 
+#### C. Temporal queries (log events)
+
+"What did I work on last week?"
+```bash
+sqlite3 -header -column wiki/faber.db "
+  SELECT event_date, operation, title, pages_created AS '+', pages_updated AS '~'
+  FROM v_recent_activity
+  WHERE julianday('now') - julianday(event_date) <= 7
+  ORDER BY event_date DESC, position DESC;
+"
+```
+
+"Show me everything touching `concept-x` over time"
+```bash
+sqlite3 -header -column wiki/faber.db "
+  SELECT le.event_date, le.operation, le.title, lep.action
+  FROM log_event_pages lep
+  JOIN log_events le ON le.id = lep.event_id
+  WHERE lep.page_slug = 'concept-x'
+  ORDER BY le.event_date DESC;
+"
+```
+
+"FTS log search — find log entries about a topic"
+```bash
+sqlite3 -header -column wiki/faber.db "
+  SELECT event_date, operation, title, snippet(fts_log, 4, '»', '«', '...', 30)
+  FROM fts_log
+  WHERE fts_log MATCH 'distribution OR programmatic'
+  ORDER BY rank
+  LIMIT 10;
+"
+```
+
+#### D. Combined topic + temporal
+
+"What did I learn about distribution in the last 14 days?"
+```bash
+sqlite3 -header -column wiki/faber.db "
+  SELECT DISTINCT p.slug, p.type, p.title, MAX(le.event_date) AS last_touched
+  FROM fts_content fc
+  JOIN pages p ON p.slug = fc.slug
+  LEFT JOIN log_event_pages lep ON lep.page_slug = p.slug
+  LEFT JOIN log_events le ON le.id = lep.event_id
+  WHERE fts_content MATCH 'distribution'
+    AND (le.event_date IS NULL OR julianday('now') - julianday(le.event_date) <= 14)
+  GROUP BY p.slug
+  ORDER BY last_touched DESC;
+"
+```
+
+#### E. Claims search (FTS on key_claims)
+
+```bash
+sqlite3 -header -column wiki/faber.db "
+  SELECT source_slug, snippet(fts_claims, 1, '»', '«', '...', 40)
+  FROM fts_claims
+  WHERE fts_claims MATCH 'keyword'
+  LIMIT 10;
+"
+```
+
 ### Step 2: Read
-Read only the truly relevant .md files identified by SQL (not all pages). For each, note:
-- Key claims and their confidence
+Read only the truly relevant `.md` files identified by SQL. For each, note:
+- Key claims and confidence
 - Sources behind the claims
-- Cross-references to other pages
-- Contradictions if any exist
+- Cross-references
+- Contradictions if any
 
 ### Step 3: Synthesize
 Compose an answer that:
 - Directly addresses the question
-- Cites wiki pages with wikilinks: `[[page-name]]`
+- Cites wiki pages with wikilinks `[[page-name]]`
+- For temporal queries, cites log events with date+operation+title
 - Notes confidence levels where relevant
-- Flags contradictions or gaps in coverage
-- Suggests related pages the user might want to explore
+- Flags contradictions or gaps
+- Suggests related pages
 
 ### Step 4: File (optional)
 After presenting the answer, ask:
@@ -81,12 +153,12 @@ After presenting the answer, ask:
 
 If yes:
 1. Create `wiki/syntheses/{slug}.md` with full frontmatter
-2. Append to `wiki/log.md`
-3. Run `python3 wiki/faber_sync.py` to update DB and index
+2. Append entry to `wiki/log.md` (operation: `query → synthesis`)
+3. Run `python3 wiki/faber_sync.py`
 
 ## Rules
 - Always cite sources — never present wiki knowledge without attribution
-- If the wiki doesn't have relevant content, say so honestly and suggest sources to ingest
-- Prefer depth over breadth — read fewer pages thoroughly rather than many superficially
-- The answer format should match the question: factual questions get concise answers, analytical questions get structured analysis
+- For temporal questions ("what did I work on"), prefer log_events over file mtime
+- The answer format should match the question: factual → concise; analytical → structured
 - **Use SQL for discovery, .md files for prose** — don't read files just to find relevant pages
+- Be honest about gaps: if neither pages nor log mention the topic, say so

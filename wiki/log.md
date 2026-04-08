@@ -76,6 +76,39 @@ Chronological record of wiki operations. Append-only.
 - Added 3 wiki→vault references: validate-before-build.applications, kill-fast.applications, encoded-judgment.applications
 - Document promoted from "skipped — low overlap" (2026-04-05 seed) to actively linked
 
+## [2026-04-08] ingest | AI Tutor Admitere — Strategic Decoupling + Competitive Intel
+- Source: conversation:2026-04-08 (deferred deliberations from prior session)
+- Entities created: eduboom, centrul-excelenta-carol-davila
+- Entities updated: carol-davila-umf (added competitor relations + competitive landscape section)
+- Concepts created: (none)
+- Concepts updated: (none — strategic resolution, not new patterns)
+- Sources updated: brainstorm-ai-tutor-medicina (added competitor entities to frontmatter, added Resolution section to Risk flagged, expanded See also)
+- Synthesis updated: ai-tutor-admitere-strategic-frame (resolved 1K MRR open question, added competitive landscape section, bumped updated date)
+- Vault doc updated: concepts/ai-learning-platform.md (PIVOT marker at top, two new rows in Decizii table, status → pivoted)
+- Vault doc updated: projects/ai-tutor-admitere/decisions.md (Decision 5 — decoupling from 1K MRR, Note 5a — AIDIDACT brand proposal, Note 5b — competitor intel, Open decisions list refreshed)
+- **Totals: 2 entities, 1 wiki source updated, 1 synthesis updated, 2 vault docs updated**
+- Strategic resolution: the 1K MRR / 6-month tension flagged as "most important open question" in the 2026-04-07 brainstorm is now resolved — Path A chosen (decouple, play 18-24 month compounding game, full implementation flexibility)
+- Brand proposal recorded: AIDIDACT (autodidact + AI), not yet ratified
+- Portfolio-level question raised: does the 1K MRR / 6 month goal stay active for Alteramens via a different vehicle? — deferred to a separate portfolio strategy session
+
+## [2026-04-08] build | Faber Temporal Layer — log.md → SQL + new views + /faber-brief
+- Created: temporal layer in `wiki/faber_sync.py` — log.md is now parsed into structured `log_events` + `log_event_pages` junction
+- Created: 10 new SQL views — v_recent_activity, v_log_integrity, v_log_mismatches, v_page_activity, v_recently_touched_pages, v_recent_pages, v_stale_concepts, v_ingest_velocity, v_daily_activity, v_phantom_log_refs, v_backlinks
+- Created: 2 new FTS5 virtual tables — fts_claims (search across all key claims), fts_log (search across all log entries body+title)
+- Created: skill `/faber-brief` — single-SQL session wake-up briefing for fresh Claude sessions
+- Updated: skill `/faber-status` — adds recent activity, recently touched pages, ingest velocity, daily activity, log mismatches, phantom log refs sections
+- Updated: skill `/faber-query` — supports temporal filters (--since, --recent), FTS log search, combined topic+temporal queries, page-history traversal via log_event_pages
+- Updated: skill `/faber-lint` — adds log integrity checks, phantom log refs, stale concepts (via log activity), orphaned ingest events
+- Updated: `wiki/FABER.md` — formalizes the log.md format as a parsing contract (header regex, label table, reconciliation rules), documents both DB layers (knowledge graph + temporal), updates Agent Consumption section
+- Updated: `wiki/index.md` — auto-generated, now includes "Recent Activity" and "Recently Touched Pages" sections
+- Added: temporal indexes on `pages.updated`, `pages.created`, `pages.ingested`, `pages.type`, `pages.maturity`
+- Added: source-slug reconciliation — ingest events matching `pages.source_ref` against `Source: <url>` lines automatically
+- Added: claimed-vs-actual integrity checks (claimed_sources_created etc. on log_events)
+- Added: sync_log history is now preserved across rebuilds (was previously dropped)
+- **DB stats:** 65 pages, 539 relations, 331 wikilinks, 11 log events parsed, 0 mismatches, 0 phantom log refs, ~120ms sync
+- **Why:** Faber was a static knowledge graph — knew *what* exists but not *how it evolved*. log.md captured the evolution but was 100% write-only. Now the DB has temporal awareness: "what did I work on last week", "show me everything touching concept X over time", "ingest velocity per week" all answerable in one SQL query
+- **Compounding angle:** every future ingest, lint, or query operation will be automatically structured into log_events on the next sync — the wiki is now self-aware about its own history
+
 ## [2026-04-07] ingest | Brainstorm — AI Tutor pentru Admitere Carol Davila
 - Source: conversation:2026-04-07 (Narcis ↔ Claude brainstorm)
 - Source page created: brainstorm-ai-tutor-medicina

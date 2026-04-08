@@ -1,11 +1,27 @@
 ---
 title: AI Learning Platform
-status: researching
+status: pivoted
 created: 2025-01-25
-tags: [saas, education, AI, b2c, b2b]
+pivoted: 2026-04-07
+pivoted_to: projects/ai-tutor-admitere
+tags: [saas, education, AI, b2c, b2b, pivoted]
 priority: high
 revenue_potential: high
 effort: high
+---
+
+> [!warning] PIVOT — 2026-04-07
+> Această explorare generică a fost **reframuită** într-un produs cu scope îngust:
+> **AI tutor pentru admitere UMF Carol Davila, biologie, cohorta 2027.**
+>
+> - Brainstorm sursă: [[wiki/sources/brainstorm-ai-tutor-medicina|Brainstorm — AI Tutor pentru Admitere Carol Davila]]
+> - Strategic frame: [[wiki/syntheses/ai-tutor-admitere-strategic-frame|Strategic Frame (5 layers)]]
+> - Decision log: [[projects/ai-tutor-admitere/decisions|projects/ai-tutor-admitere/decisions.md]]
+> - Pattern: [[wiki/concepts/bounded-problem-wedge|Bounded Problem Wedge]] — vagueness was the enemy
+>
+> Documentul de mai jos rămâne pentru context istoric. Nu mai e roadmap activ.
+> Decizia strategică din 2026-04-08: **proiectul e decuplat de obiectivul 1K MRR / 6 luni** și se joacă pe orizont 18-24 luni (compounding game). Vezi [[projects/ai-tutor-admitere/decisions|decisions.md]] pentru detalii.
+
 ---
 
 # AI Learning Platform
@@ -152,6 +168,8 @@ Platformă de învățare AI-first care adaptează conținutul, ritmul și metod
 | Data | Decizie | Reasoning |
 |------|---------|-----------|
 | 2025-01-25 | Focus pe segment adulți 25-45 | Durere acută, willingness to pay |
+| 2026-04-07 | **PIVOT — abandon segment adulți 25-45, focus exclusiv pe admitere medicină Carol Davila 2027** | Vague "personalized learning" eșuează la fiecare test din [[wiki/concepts/bounded-problem-wedge\|Bounded Problem Wedge]]. Scope îngust = manual finit, deadline real, buyer identificat (părinți), alternativă validată (meditații 5-10k EUR). Vezi [[wiki/sources/brainstorm-ai-tutor-medicina\|brainstorm]]. |
+| 2026-04-08 | **Decuplare de obiectivul 1K MRR / 6 luni** | Proiectul are orizont 18-24 luni (cohorta 2027). Decizie: full-time pe acest joc compounding, flexibilitate pe implementare. Decision 5 în [[projects/ai-tutor-admitere/decisions\|decisions.md]]. |
 
 ---
 

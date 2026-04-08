@@ -199,14 +199,65 @@ See [[wiki/concepts/permissionless-leverage]]
 
 ## Log Format
 
-`wiki/log.md` is append-only. Each entry:
+`wiki/log.md` is append-only AND parsed into structured `log_events` rows by `faber_sync.py`.
+The format is a contract — keep it consistent so the parser stays accurate.
+
+### Header (mandatory)
+
 ```
 ## [YYYY-MM-DD] operation | Title
-- Details of what changed
-- Pages created/updated
 ```
 
-Parseable with `grep "^## \[" wiki/log.md | tail -5`.
+- `YYYY-MM-DD` — ISO date
+- `operation` — one of: `init`, `seed`, `ingest`, `build`, `link`, `query`, `lint`,
+  `query → synthesis` (multi-word allowed)
+- `Title` — free-form, short
+
+### Body (parseable bullets)
+
+The parser recognizes these labelled lines under each header. Keep the labels exact:
+
+| Label | Action stored | Page type |
+|---|---|---|
+| `Source: <url-or-path>` | sets `source_origin` on event | — |
+| `Source page created: <slug>` | created | source |
+| `Sources created: a, b, c` | created | source |
+| `Sources updated: a, b` | updated | source |
+| `Entities created: a, b` | created | entity |
+| `Entities updated: a, b` | updated | entity |
+| `Concepts created: a, b` | created | concept |
+| `Concepts updated: a (note), b (note)` | updated | concept |
+| `Syntheses created: a` / `Synthesis created: a` | created | synthesis |
+| `Synthesis updated: a` | updated | synthesis |
+| `Sources consulted: N (a, b, c)` | consulted | source |
+| `Concepts involved: N (a, b)` | involved | concept |
+| `Entities involved: N (a, b)` | involved | entity |
+| `Vault doc created: path/to/file.md` | created | vault_doc |
+| `Vault doc updated: path/to/file.md` | updated | vault_doc |
+| `Query: "the question"` | sets `question` on event | — |
+| `**Totals: N sources, M entities, K concepts = X new + Y updated**` | sets `claimed_*` columns for integrity check | — |
+| `Guided ingest: ...` | sets `guided=1` on event | — |
+
+Parenthetical annotations after slugs (e.g. `skill-era (added section + new source)`)
+are stripped — only the slug is stored. Lists like `(none)` or `(none — skipped)`
+are recognized as empty.
+
+Unrecognized bullets are still preserved verbatim in `log_events.body`, so nothing is lost.
+
+### Reconciliation
+
+For `ingest` events that have a `Source: <url>` line but no explicit `Source page created`
+slug, the parser reconciles by matching the URL against `pages.source_ref` (or fallback:
+title against `pages.title`). This means the integrity view (`v_log_mismatches`) catches
+events whose totals claim more pages created than actually exist.
+
+### Quick checks
+
+```bash
+grep "^## \[" wiki/log.md | tail -5                   # raw last 5 entries
+sqlite3 wiki/faber.db "SELECT * FROM v_recent_activity LIMIT 5;"  # parsed
+sqlite3 wiki/faber.db "SELECT * FROM v_log_mismatches;"           # integrity
+```
 
 ## Image Policy — Strict Rules
 
@@ -256,28 +307,70 @@ When processing a source with images, Claude must:
 
 ## SQLite Index Layer
 
-`faber.db` is a derived SQLite database that mirrors all frontmatter and relationships for fast querying. Rebuilt from scratch by `python3 wiki/faber_sync.py` (idempotent, ~30ms).
+`faber.db` is a derived SQLite database that mirrors all frontmatter, relationships, AND
+the temporal log for fast agentic querying. Rebuilt from scratch by `python3 wiki/faber_sync.py`
+(idempotent, ~120ms). The DB has two layers:
 
-**Tables:** `pages`, `key_claims`, `aliases`, `vault_refs`, `page_relations`, `prose_wikilinks`, `sync_log`
-**Views:** `v_dashboard`, `v_maturity`, `v_entity_connectivity`, `v_orphans`, `v_phantoms`, `v_thin_pages`, `v_confidence`
-**FTS5:** Full-text search across all prose content via `fts_content` table
+### Layer 1: Knowledge graph (what is known)
 
-**When to sync:** After every ingest, seed, or manual page edit. Run `python3 wiki/faber_sync.py`.
+**Tables:** `pages`, `key_claims`, `aliases`, `vault_refs`, `page_relations`, `prose_wikilinks`, `images`
+**Views:** `v_dashboard`, `v_maturity`, `v_entity_connectivity`, `v_orphans`, `v_phantoms`,
+`v_thin_pages`, `v_confidence`, `v_backlinks`
+**FTS5:** `fts_content` (page prose), `fts_claims` (key claims)
 
-**How skills use it:**
-- `/faber-lint` — SQL views replace 30+ file reads
-- `/faber-query` — FTS5 search + relation traversal instead of index.md scanning
-- `/faber-status` — Dashboard queries in one Bash call
-- `/faber-ingest` — Duplicate detection via aliases table, auto-sync at end
+### Layer 2: Temporal layer (how it evolved)
+
+Parsed from `log.md` on every sync. See **Log Format** section for the parsing contract.
+
+**Tables:** `log_events`, `log_event_pages` (junction)
+**Views:**
+- `v_recent_activity` — events with pages-created/updated counts, ordered by date+position
+- `v_log_integrity` — claimed vs actual counts for every event with a Totals line
+- `v_log_mismatches` — only rows where claimed ≠ actual (data integrity warnings)
+- `v_page_activity` — every page with `times_touched` + `first_touched` + `last_touched`
+- `v_recently_touched_pages` — pages ordered by most-recent log touch
+- `v_recent_pages` — pages ordered by frontmatter `updated` field
+- `v_stale_concepts` — concepts/entities with no log touch in 30+ days
+- `v_ingest_velocity` — per-week event/page-creation counts grouped by operation
+- `v_daily_activity` — per-day summary of events and pages created
+- `v_phantom_log_refs` — slugs referenced in log but missing from `pages`
+**FTS5:** `fts_log` (event title + body — enables "what did I work on about X")
+
+### Sync persistence
+
+`sync_log` history is **preserved across rebuilds** so you can track build performance over
+time. Everything else is dropped and recreated.
+
+### When to sync
+
+After every ingest, seed, manual page edit, OR manual log.md edit. Run `python3 wiki/faber_sync.py`.
+
+### How skills use the DB
+
+| Skill | Layer | Usage |
+|---|---|---|
+| `/faber-status` | both | Dashboard queries across all views in one Bash call |
+| `/faber-query` | both | FTS topic + temporal log filters; combined queries via JOIN |
+| `/faber-lint` | both | Phantom/orphan/thin checks + log integrity + stale concepts |
+| `/faber-brief` | temporal | Wake-up briefing for fresh sessions — single SQL pass |
+| `/faber-ingest` | knowledge | Duplicate detection via `aliases`, auto-sync at end |
+| `/faber-link` | knowledge | Discover candidate links via FTS + alias matching |
+| `/faber-slides` | knowledge | Page lookup + relation traversal for deck content |
 
 ## Agent Consumption
 
-Wiki pages are dual-layer: YAML frontmatter for machine parsing, prose for human reading. The SQLite index adds a third layer for efficient structured queries.
+Wiki pages are dual-layer: YAML frontmatter for machine parsing, prose for human reading.
+The SQLite index adds a third layer for efficient structured queries — and the temporal
+layer adds a fourth: time-aware queries over the wiki's own evolution.
 
-**SQL query:** `sqlite3 wiki/faber.db "SELECT ..."` — for finding pages, checking relations, running diagnostics.
-**FTS search:** `sqlite3 wiki/faber.db "SELECT slug, title FROM fts_content WHERE fts_content MATCH 'keyword'"` — full-text search.
-**Prose reading:** Read specific `.md` files when you need the full narrative content.
+**Knowledge SQL:** `sqlite3 wiki/faber.db "SELECT ..."` — finding pages, checking relations.
+**FTS pages:** `sqlite3 wiki/faber.db "SELECT slug, title FROM fts_content WHERE fts_content MATCH 'keyword'"`
+**FTS claims:** `sqlite3 wiki/faber.db "SELECT source_slug, claim FROM fts_claims WHERE fts_claims MATCH 'keyword'"`
+**FTS log:** `sqlite3 wiki/faber.db "SELECT event_date, title FROM fts_log WHERE fts_log MATCH 'keyword'"` — find log entries about a topic
 **Entity lookup:** `sqlite3 wiki/faber.db "SELECT * FROM pages p LEFT JOIN aliases a ON a.entity_slug = p.slug WHERE ..."` — includes aliases.
+**Temporal traversal:** `sqlite3 wiki/faber.db "SELECT le.event_date, le.title, lep.action FROM log_event_pages lep JOIN log_events le ON le.id = lep.event_id WHERE lep.page_slug = 'X'"` — every event that touched page X.
+**Wake-up briefing:** `/faber-brief` — single-query session orientation. Use this on cold starts.
+**Prose reading:** Read specific `.md` files when you need the full narrative content.
 
 ## Dataview Queries
 

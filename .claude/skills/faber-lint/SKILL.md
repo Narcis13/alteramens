@@ -2,13 +2,18 @@
 name: faber-lint
 description: |
   Health-check the Faber wiki. Scans for contradictions, orphan pages, stale content, missing
-  cross-references, phantom links, thin pages, and data gaps. Produces an actionable report.
-  Use when the user invokes /faber-lint or says "check wiki health", "lint the wiki", "wiki maintenance".
+  cross-references, phantom links, thin pages, log integrity issues, and data gaps.
+  Produces an actionable report. Use when the user invokes /faber-lint or says
+  "check wiki health", "lint the wiki", "wiki maintenance".
 ---
 
 # Faber Lint — Wiki Health Check
 
 You are auditing the Faber wiki at `wiki/`. Read `wiki/FABER.md` for conventions.
+
+The DB has two layers — both must be checked:
+1. **Knowledge graph** — orphans, phantoms, thin pages, contradictions
+2. **Temporal layer** — log integrity, log phantom refs, stale concepts (via log activity)
 
 ## Pre-check: Ensure DB is Current
 
@@ -16,26 +21,66 @@ You are auditing the Faber wiki at `wiki/`. Read `wiki/FABER.md` for conventions
 python3 wiki/faber_sync.py
 ```
 
-This rebuilds faber.db from all .md files and regenerates index.md. Fast and idempotent.
+This rebuilds `faber.db` from all `.md` files and parses `log.md` into structured events. Idempotent.
 
 ## Workflow
 
 ### Step 1: Structural Checks via SQL
 
-Run all structural checks with a single Bash call:
-
 ```bash
-echo "=== PHANTOMS ===" && sqlite3 wiki/faber.db "SELECT from_slug, target FROM v_phantoms;" && \
-echo "=== ORPHANS ===" && sqlite3 wiki/faber.db "SELECT slug, type, title FROM v_orphans;" && \
-echo "=== THIN PAGES ===" && sqlite3 wiki/faber.db "SELECT slug, type, title, source_count FROM v_thin_pages;" && \
-echo "=== MATURITY ===" && sqlite3 wiki/faber.db "SELECT * FROM v_maturity;" && \
-echo "=== CONFIDENCE ===" && sqlite3 wiki/faber.db "SELECT * FROM v_confidence;" && \
-echo "=== DASHBOARD ===" && sqlite3 wiki/faber.db "SELECT * FROM v_dashboard;"
+echo "=== PHANTOMS (broken wikilinks) ===" && \
+sqlite3 wiki/faber.db "SELECT from_slug, target FROM v_phantoms;" && \
+echo "" && \
+echo "=== ORPHANS (no inbound links) ===" && \
+sqlite3 wiki/faber.db "SELECT slug, type, title FROM v_orphans;" && \
+echo "" && \
+echo "=== THIN PAGES (≤1 source) ===" && \
+sqlite3 wiki/faber.db "SELECT slug, type, title, source_count FROM v_thin_pages;" && \
+echo "" && \
+echo "=== MATURITY ===" && \
+sqlite3 wiki/faber.db "SELECT * FROM v_maturity;" && \
+echo "" && \
+echo "=== CONFIDENCE ===" && \
+sqlite3 wiki/faber.db "SELECT * FROM v_confidence;" && \
+echo "" && \
+echo "=== DASHBOARD ===" && \
+sqlite3 wiki/faber.db "SELECT * FROM v_dashboard;"
 ```
 
-### Step 2: Content Checks (requires reading .md files)
+### Step 2: Temporal Layer Checks (NEW)
 
-Only read specific files flagged by Step 1, or for these checks:
+```bash
+echo "=== LOG INTEGRITY MISMATCHES ===" && \
+sqlite3 -header -column wiki/faber.db "
+  SELECT id, event_date, substr(title,1,40) AS title,
+         claimed_sources_created AS c_src,  actual_sources_created AS a_src,
+         claimed_entities_created AS c_ent, actual_entities_created AS a_ent,
+         claimed_concepts_created AS c_con, actual_concepts_created AS a_con
+  FROM v_log_mismatches;
+" && \
+echo "" && \
+echo "=== PHANTOM LOG REFS (slugs in log but not in pages) ===" && \
+sqlite3 -header -column wiki/faber.db "SELECT * FROM v_phantom_log_refs;" && \
+echo "" && \
+echo "=== STALE CONCEPTS (no log touch in 30+ days) ===" && \
+sqlite3 -header -column wiki/faber.db "
+  SELECT slug, type, maturity,
+         COALESCE(last_touched, 'never') AS last_touched,
+         COALESCE(days_since_touch, 999) AS days
+  FROM v_stale_concepts
+  ORDER BY days DESC;
+" && \
+echo "" && \
+echo "=== ORPHANED LOG EVENTS (events with no junction rows) ===" && \
+sqlite3 -header -column wiki/faber.db "
+  SELECT le.id, le.event_date, le.operation, le.title
+  FROM log_events le
+  WHERE le.touched_page_count = 0
+    AND le.operation IN ('ingest','seed');
+"
+```
+
+### Step 3: Content Checks
 
 **Contradictions** (severity: high)
 ```bash
@@ -43,9 +88,17 @@ sqlite3 wiki/faber.db "SELECT source_slug, claim FROM key_claims ORDER BY source
 ```
 Compare claims on overlapping topics. Flag direct conflicts.
 
+For automated scanning, use FTS on claims:
+```bash
+sqlite3 wiki/faber.db "
+  SELECT source_slug, snippet(fts_claims, 1, '»', '«', '...', 40)
+  FROM fts_claims
+  WHERE fts_claims MATCH 'keyword';
+"
+```
+
 **Missing links** (severity: medium)
 ```bash
-# Find entity/concept names mentioned in prose but not wikilinked
 sqlite3 wiki/faber.db "
   SELECT p.slug, p.title FROM pages p
   WHERE p.type IN ('entity','concept')
@@ -61,22 +114,18 @@ sqlite3 wiki/faber.db "
 "
 ```
 
-**Stale content** (severity: low)
+**Backlink-poor pages** (severity: low)
 ```bash
 sqlite3 wiki/faber.db "
-  SELECT p.slug, p.type, p.title, p.updated
+  SELECT p.slug, p.type, COALESCE(b.backlink_count, 0) AS backlinks
   FROM pages p
+  LEFT JOIN v_backlinks b ON b.slug = p.slug
   WHERE p.type IN ('entity','concept')
-  AND p.updated < date('now', '-30 days')
-  ORDER BY p.updated;
+  ORDER BY backlinks ASC LIMIT 10;
 "
 ```
 
-**Gaps** (severity: info)
-- Look for recurring terms in prose that don't have dedicated pages
-- Suggest new pages to create
-
-### Step 3: Report
+### Step 4: Report
 
 Present findings organized by severity:
 
@@ -84,28 +133,33 @@ Present findings organized by severity:
 ## Faber Lint Report — YYYY-MM-DD
 
 ### High Severity
-- Phantoms: [[links]] pointing to nonexistent pages
+- Phantoms: [[X]] broken wikilinks
+- Log mismatches: N events where totals claim more pages created than actual
+- Phantom log refs: N slugs referenced in log.md but missing from pages
 - Contradictions: conflicting claims across sources
 
 ### Medium Severity
-- Orphans: pages with no inbound links
+- Orphans: N pages with no inbound links
 - Missing links: entity/concept names not wikilinked
+- Orphaned ingest events: ingest entries with no parsed page refs
 
 ### Low Severity
 - Thin pages: entity/concept with only 1 source
-- Stale content: not updated in >30 days
+- Stale concepts: not touched by any log event in 30+ days
+- Backlink-poor pages: top 10 with fewest inbound links
 
 ### Suggestions
-- Gaps: important topics without pages
+- Gaps: important topics without dedicated pages
 - Suggested sources: what to look for
 
 ### Summary
-- Total pages: X (via v_dashboard)
+- Total pages: X | Total log events: X
 - Issues found: X high, Y medium, Z low
 - Suggestions: X
 ```
 
-### Step 4: Log
+### Step 5: Log
+
 Append to `wiki/log.md`:
 ```
 ## [YYYY-MM-DD] lint | Health Check
@@ -114,7 +168,9 @@ Append to `wiki/log.md`:
 ```
 
 ## Rules
-- Use SQL queries first — only read .md files when prose analysis is needed
+- Use SQL queries first — only read `.md` files when prose analysis is needed
 - Be thorough but actionable — every issue should have a clear fix
-- Don't auto-fix anything — present the report and let Narcis decide what to address
+- Don't auto-fix anything — present the report and let Narcis decide
+- **Surface log mismatches and phantom log refs prominently** — these indicate the log narrative has drifted from reality
 - Group related issues together (e.g., all phantoms from the same page)
+- After lint, run `python3 wiki/faber_sync.py` so the new lint entry in log.md is indexed

@@ -7,7 +7,7 @@ sources_consulted: [brainstorm-ai-tutor-medicina, naval-framework, skill-era-art
 concepts_involved: [bounded-problem-wedge, longitudinal-user-model, calibration-over-content, agentic-curriculum, bootcamp-pricing, reverse-time-planning, building-in-public, authentic-creation, accountability, specific-knowledge, encoded-judgment, data-compounding-moat, compounding-games, productize-yourself, validate-before-build]
 entities_involved: [carol-davila-umf, mihai-brindusescu, alteramens]
 created: 2026-04-07
-updated: 2026-04-07
+updated: 2026-04-08
 maturity: developing
 ---
 
@@ -137,14 +137,23 @@ The frame **is** reusable for any market that shares those properties. Examples 
 
 ## Open Questions Carried Forward From Brainstorm
 
-- Product name and brand
+- Product name and brand — *working proposal: AIDIDACT (autodidact + AI), not yet ratified. See [[projects/ai-tutor-admitere/decisions|decisions.md]].*
 - Legal entity structure
 - LLM cost economics
 - UMF student reviewer recruitment and contract
 - Build-in-public channel mix
 - MVP scope for autumn 2026
 - Pricing experiment plan
-- The 1K MRR / 6 month tension: this project is 18-24 months minimum. Decision on whether to pursue full-time vs as 30%-time second project remains open and is the most important question.
+- ~~The 1K MRR / 6 month tension: this project is 18-24 months minimum. Decision on whether to pursue full-time vs as 30%-time second project remains open and is the most important question.~~ **RESOLVED 2026-04-08:** Path A chosen — project is decoupled from the 1K MRR / 6-month goal and operated as an 18-24 month [[compounding-games|compounding game]]. Implementation has full flexibility. See [[projects/ai-tutor-admitere/decisions|decisions.md]] Decision 5.
+
+## Competitive Landscape (added 2026-04-08)
+
+Two mapped competitors, in different categories:
+
+- **[[centrul-excelenta-carol-davila]]** — institutional / trust-anchor competitor. Wins on proximity to the university. Loses on geography (Bucharest-bound), personalization, and daily cadence. The AI tutor must respect this trust ceiling rather than try to demolish it; it competes by serving the structurally underserved segment (non-Bucharest, non-cohort, daily accountability).
+- **[[eduboom]]** — content-library competitor. Wins on Romanian high-school content depth and brand. Loses on calibration, longitudinal modeling, agentic curriculum, parent dashboard, and authenticity. Different category for the parent buyer if positioning is done correctly: subscription content vs bootcamp package replacing meditații.
+
+Neither competitor occupies the wedge: **calibration + longitudinal model + agentic curriculum + parent dashboard + founder authenticity, sold as a bootcamp package**. The synthesis remains intact.
 
 ## Next Synthesis Trigger
 

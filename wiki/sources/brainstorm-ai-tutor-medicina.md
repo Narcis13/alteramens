@@ -6,7 +6,7 @@ origin: conversation
 source_ref: "conversation:2026-04-07"
 ingested: 2026-04-07
 guided: true
-entities: [carol-davila-umf, mihai-brindusescu, alteramens]
+entities: [carol-davila-umf, mihai-brindusescu, alteramens, centrul-excelenta-carol-davila, eduboom]
 concepts: [bounded-problem-wedge, longitudinal-user-model, calibration-over-content, agentic-curriculum, bootcamp-pricing, reverse-time-planning, building-in-public, authentic-creation, specific-knowledge, data-compounding-moat, compounding-games, productize-yourself]
 key_claims:
   - "An AI tutor product wins by being narrowly bounded (Carol Davila biology 2027), not by being a generic personalized learning platform"
@@ -103,8 +103,18 @@ Long validation cycle. Cannot sell to 2027 cohort until summer 2026. Proof that 
 
 Decision deferred — but flagged as the most important question, more important than SaaS-vs-Electron.
 
+### Resolution — 2026-04-08
+
+**Path A chosen.** Narcis explicitly decoupled this project from the 1K MRR / 6-month goal: *"decupleaza de obiectivul de 1K MRR, suntem extrem de flexibili cu implementarea."*
+
+The project is now operated as an 18-24 month [[compounding-games|compounding game]], not a quarterly revenue play. Implementation choices (SaaS vs Electron, MVP scope, channel mix, content production cadence) gain optionality as a result — they no longer have to optimize for "revenue by month 6." See [[projects/ai-tutor-admitere/decisions|projects/ai-tutor-admitere/decisions.md]] Decision 5 for the full record.
+
+This unlocks the strategic frame in [[ai-tutor-admitere-strategic-frame]] to be played as designed: layer 5 (compounding) is now the primary scoreboard, not a "nice to have after MRR is hit."
+
 ## See also
 
-- Vault: [[concepts/ai-learning-platform|concepts/ai-learning-platform.md]] — earlier generic exploration this brainstorm pivots from
+- Vault: [[concepts/ai-learning-platform|concepts/ai-learning-platform.md]] — earlier generic exploration this brainstorm pivots from (now marked as pivoted)
 - Concepts: all six new concepts referenced above
 - Synthesis: [[ai-tutor-admitere-strategic-frame]] — strategic frame derived from this brainstorm
+- Competitors: [[centrul-excelenta-carol-davila]] (institutional / trust-anchor), [[eduboom]] (content library)
+- Decision log: [[projects/ai-tutor-admitere/decisions|projects/ai-tutor-admitere/decisions.md]]
