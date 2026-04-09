@@ -141,3 +141,8 @@ Chronological record of wiki operations. Append-only.
 - Entities involved: 5 (alteramens, nbrain, workscript, single-brain, single-grain)
 - Query: "How does the SaaS paradigm shift from rigid database wrappers to AI-driven knowledge platforms?"
 - **Totals: 0 sources, 0 entities, 4 concepts = 5 new + 6 updated**
+
+## [2026-04-09] lint | Health Check
+- Issues: 2 high (phantom vault links + parser false positives in faber-sqlite-index), 15 medium (4 orphan syntheses + 11 missing wikilinks), 45+ low (24 thin pages + backlink-poor)
+- Temporal layer: clean (0 mismatches, 0 phantom log refs, 0 stale concepts)
+- Suggestions: 5 (2 parser fixes: vault-link classification + code-block escaping; 3 content: cross-link orphan syntheses, add missing wikilinks, enrich thin entities)
