@@ -142,6 +142,15 @@ Chronological record of wiki operations. Append-only.
 - Query: "How does the SaaS paradigm shift from rigid database wrappers to AI-driven knowledge platforms?"
 - **Totals: 0 sources, 0 entities, 4 concepts = 5 new + 6 updated**
 
+## [2026-04-09] query → synthesis | Personal Brand Strategy — Narcis, AI Builder
+- Query: "Ce strategie să adopt pentru a-mi crea un brand personal Narcis, specialist în AI cu aplicare în programare și ed-tech"
+- Synthesis created: personal-brand-strategy
+- Sources consulted: 4 (nbrain-social-strategy, naval-framework, ai-marketing-distribution, brainstorm-ai-tutor-medicina)
+- Concepts involved: 10 (productize-yourself, specific-knowledge, building-in-public, accountability, authentic-creation, leverage, answer-engine-optimization, distribution-over-product, skill-era, viral-artifacts)
+- Entities involved: 4 (nbrain, alteramens, naval-ravikant, mihai-brindusescu)
+- Key output: 5 content pillars, platform matrix (LinkedIn/GitHub/Blog/X/TikTok), brand architecture (Narcis = umbrella, products underneath), 5-step launch sequence, anti-patterns
+- **Totals: 0 sources, 0 entities, 0 concepts, 1 synthesis = 1 new page**
+
 ## [2026-04-09] lint | Health Check
 - Issues: 2 high (phantom vault links + parser false positives in faber-sqlite-index), 15 medium (4 orphan syntheses + 11 missing wikilinks), 45+ low (24 thin pages + backlink-poor)
 - Temporal layer: clean (0 mismatches, 0 phantom log refs, 0 stale concepts)
