@@ -4,7 +4,7 @@ type: concept
 category: mental-model
 sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system]
 entities: [alteramens, single-grain, eric-siu, block-inc]
-related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army]
+related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army, knowledge-first-development, ambient-computation, executable-wiki]
 maturity: mature
 confidence: high
 contradictions: []

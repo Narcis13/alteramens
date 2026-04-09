@@ -4,7 +4,7 @@ type: concept
 category: mental-model
 sources: [skill-era-article, eric-siu-world-intelligence]
 entities: [alteramens, single-grain, eric-siu]
-related: [skill-era, judgment, leverage, agent-fleet-architecture, world-model, internal-to-product]
+related: [skill-era, judgment, leverage, agent-fleet-architecture, world-model, internal-to-product, knowledge-first-development, emergent-schema]
 maturity: developing
 confidence: high
 contradictions: []

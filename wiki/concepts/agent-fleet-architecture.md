@@ -4,7 +4,7 @@ type: concept
 category: technical-playbook
 sources: [eric-siu-world-intelligence]
 entities: [single-grain, eric-siu]
-related: [ai-native-org-design, world-model, encoded-judgment, dri-with-agents]
+related: [ai-native-org-design, world-model, encoded-judgment, dri-with-agents, ambient-computation]
 maturity: seed
 confidence: medium
 contradictions:

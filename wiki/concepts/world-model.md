@@ -4,7 +4,7 @@ type: concept
 category: technical-playbook
 sources: [eric-siu-world-intelligence]
 entities: [single-brain, single-grain, block-inc]
-related: [data-compounding-moat, ai-native-org-design, agent-fleet-architecture, compounding-games]
+related: [data-compounding-moat, ai-native-org-design, agent-fleet-architecture, compounding-games, emergent-schema, executable-wiki, knowledge-first-development, ambient-computation]
 maturity: developing
 confidence: high
 contradictions: []

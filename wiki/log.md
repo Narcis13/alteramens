@@ -128,3 +128,16 @@ Chronological record of wiki operations. Append-only.
 - New material vs existing wiki: 6-module breakdown with acceptance criteria, MVP cut for autumn 2026, 4-tier success metrics, content validation pipeline, architectural property requirements, gated roadmap, 8 new open decisions proposed for decisions.md
 - No new wiki pages created (this is a project-level artifact, not knowledge promotion)
 - Decoupled from 1K MRR / 6 month goal per Decision 5 (2026-04-08)
+
+## [2026-04-09] query → synthesis | Knowledge-Driven Platform Paradigm
+
+- Source: conversation:2026-04-09
+- Guided ingest: yes — brainstorm on SaaS paradigm shift, filtered by user (meta-trap concept excluded)
+- Concepts created: emergent-schema, executable-wiki, ambient-computation, knowledge-first-development
+- Concepts updated: world-model (added related), conversational-interface (added related), internal-to-product (added related), skill-era (added related), encoded-judgment (added related), agent-fleet-architecture (added related)
+- Synthesis created: knowledge-driven-platform-paradigm
+- Sources consulted: 4 (skill-era-article, eric-siu-world-intelligence, nbrain-concept, workscript-decisions)
+- Concepts involved: 13 (skill-era, world-model, encoded-judgment, conversational-interface, emergent-schema, executable-wiki, ambient-computation, knowledge-first-development, internal-to-product, distribution-over-product, validate-before-build, compounding-games, agent-fleet-architecture)
+- Entities involved: 5 (alteramens, nbrain, workscript, single-brain, single-grain)
+- Query: "How does the SaaS paradigm shift from rigid database wrappers to AI-driven knowledge platforms?"
+- **Totals: 0 sources, 0 entities, 4 concepts = 5 new + 6 updated**

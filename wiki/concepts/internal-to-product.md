@@ -4,7 +4,7 @@ type: concept
 category: pattern
 sources: [eric-siu-world-intelligence]
 entities: [single-grain, single-brain, eric-siu]
-related: [skill-era, leverage, data-compounding-moat, validate-before-build, encoded-judgment]
+related: [skill-era, leverage, data-compounding-moat, validate-before-build, encoded-judgment, executable-wiki, knowledge-first-development]
 maturity: developing
 confidence: high
 contradictions: []

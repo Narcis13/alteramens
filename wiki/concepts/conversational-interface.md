@@ -4,7 +4,7 @@ type: concept
 category: technical-playbook
 sources: [nbrain-concept, workscript-decisions]
 entities: [nbrain, anaf]
-related: [encoded-judgment, skill-era]
+related: [encoded-judgment, skill-era, ambient-computation, emergent-schema]
 maturity: developing
 confidence: medium
 contradictions: []
