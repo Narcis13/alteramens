@@ -155,3 +155,166 @@ Chronological record of wiki operations. Append-only.
 - Issues: 2 high (phantom vault links + parser false positives in faber-sqlite-index), 15 medium (4 orphan syntheses + 11 missing wikilinks), 45+ low (24 thin pages + backlink-poor)
 - Temporal layer: clean (0 mismatches, 0 phantom log refs, 0 stale concepts)
 - Suggestions: 5 (2 parser fixes: vault-link classification + code-block escaping; 3 content: cross-link orphan syntheses, add missing wikilinks, enrich thin entities)
+
+## [2026-04-14] seed | Marketing Skills Catalog Pass
+- Processed 35 marketing skills in `.claude/skills/` (excluding faber-*, email, frontend-slides, knowledge-capture, session-sync)
+- Strategy: lightweight catalog — pointer-only, not full concept extraction. See reasoning in synthesis page.
+- Skills indexed by cluster: CRO (6), SEO (5), Content & Copy (4), Paid (3), Lifecycle (4), Strategy (6), Distribution (2), Sales/RevOps (5)
+- Syntheses created: marketing-skills-catalog
+- Sources created: (none — skills are local artifacts, source of truth is SKILL.md)
+- Entities created: (none)
+- Concepts created: (none — deep extraction deferred to lazy-ingest on project application)
+- Concepts involved: 5 (encoded-judgment, specific-knowledge, skill-era, leverage, distribution-over-product)
+- Entities involved: 1 (alteramens)
+- Rationale: SKILL.md files are already encoded judgment; paraphrasing them into concepts would duplicate canonical content. Concept pages will be created when a skill is applied to a real project and produces non-obvious learnings.
+- **Totals: 0 sources, 0 entities, 0 concepts, 1 synthesis = 1 new page**
+
+## [2026-04-14] ingest | CRO Skills Suite — Deep Ingest (Cluster 1 din Catalog)
+- Source: .claude/skills/{page-cro,signup-flow-cro,onboarding-cro,form-cro,popup-cro,paywall-upgrade-cro}/SKILL.md
+- Strategy: 6 skill-uri ingerate ca un singur source (suite coordonat, vocabular partajat), 6 concepts cross-cutting extrase, 1 synthesis aplicat pentru proiecte Alteramens
+- Language: conținut în română, slugs în engleză (convention-consistent cu wiki existent)
+- Source page created: cro-skills-suite
+- Entities created: (none — skill-urile sunt expertiză generică, nu persoane/companii)
+- Entities updated: (none)
+- Concepts created: value-before-ask, friction-cost, progressive-commitment, aha-moment, escape-hatch-principle, context-aware-interrupt
+- Concepts updated: (none — toate 6 sunt noi în wiki)
+- Syntheses created: cro-framework-alteramens
+- Syntheses updated: marketing-skills-catalog (Cluster 1 marcat deep-ingested cu cross-refs)
+- Key insight: cele 6 skill-uri împărtășesc un vocabular comun (friction, aha moment, progressive commitment, value-first, escape hatch). Extragerea concepts-urilor ca atomi reutilizabili permite querying pattern-urilor fără duplicare.
+- **Totals: 1 source, 0 entities, 6 concepts, 1 synthesis = 8 new + 1 updated**
+- Guided ingest: false — Narcis a autorizat deep ingest direct, fără Q&A intermediar (per directive: "treci direct la primul cluster")
+
+## [2026-04-14] ingest | SEO Skills Suite — Deep Ingest (Cluster 2 din Catalog)
+- Source: .claude/skills/{seo-audit,ai-seo,schema-markup,programmatic-seo,site-architecture}/SKILL.md
+- Strategy: 5 skill-uri ingerate ca un singur source (suite cu cross-referencing activ), 5 concepts noi extrase, 2 concepts existente actualizate substanțial (promovate de la seed la developing), 1 synthesis aplicat
+- Language: conținut în română pentru pagini noi; updates la concepts existente ca secțiuni separate dated (păstrează conținutul englez original per Faber convention "ADD, don't replace")
+- Source page created: seo-skills-suite
+- Entities created: (none — skill-urile sunt expertiză generică)
+- Entities updated: (none)
+- Concepts created: extractable-content, third-party-signal, machine-readable-structure, hub-and-spoke-architecture, agent-readable-web
+- Concepts updated: answer-engine-optimization (seed → developing, adăugat Princeton GEO research, cei 3 piloni, platform differences, statistici critice, monitoring tools, AI bots crawl control, machine-readable files, content types citation share), programmatic-seo (seed → developing, adăugat cele 12 playbooks, ierarhia defensibilității datelor, quality-over-quantity principle, URL structure, implementation framework)
+- Syntheses created: seo-framework-alteramens
+- Syntheses updated: marketing-skills-catalog (Cluster 2 marcat deep-ingested cu cross-refs)
+- Key insights:
+  - Web-ul se despică în human-readable și agent-readable layer — concepte precum agent-readable-web (`/pricing.md`, `/llms.txt`) devin leverage asimetric pentru solo builders
+  - Princeton GEO research (KDD 2024) oferă o primă măsurătoare riguroasă a efectului tacticilor AI SEO: +40% pentru citing sources, -10% pentru keyword stuffing
+  - Third-party presence (Wikipedia, Reddit, G2) este 6.5x mai impactantă decât propriul site pentru AI citations
+- **Totals: 1 source, 0 entities, 5 concepts, 1 synthesis = 7 new + 3 updated**
+- Guided ingest: false — continuation directive from previous cluster ("treci la clusterul urmator")
+
+## [2026-04-14] ingest | Content & Copy Skills Suite — Deep Ingest (Cluster 3 din Catalog)
+- Source: .claude/skills/{copywriting,copy-editing,content-strategy,lead-magnets}/SKILL.md
+- Strategy: 4 skill-uri ingerate ca un singur source (suite coordonat care leagă SEO de CRO prin layer-ul de mesaj), 5 concepts noi cross-cutting extrase, 1 synthesis aplicat
+- Language: conținut în română, slugs în engleză (convention-consistent)
+- Source page created: content-copy-skills-suite
+- Entities created: (none — skill-urile sunt expertiză generică)
+- Entities updated: alteramens (added new source ref)
+- Concepts created: searchable-vs-shareable, seven-sweeps-editing, voice-of-customer, content-pillars, buyer-stage-mapping
+- Concepts updated: (none — toate 5 sunt noi)
+- Syntheses created: content-copy-framework-alteramens
+- Key insights:
+  - Suite-ul Content & Copy se așează în mijloc între SEO (atrage) și CRO (convertește) — "mesajul" e layer-ul lipsă pe care celelalte două îl presupun dar nu îl fabrică
+  - Seven Sweeps Editing e judgment encodat în formă pură: o procedură reproductibilă care înlocuiește ani de mentorat editorial (1 dimensiune per pas + loop-back)
+  - Searchable-vs-Shareable e regula de prioritizare care elimină 60-70% din ideile de blog post-uri în mod sistematic
+  - Voice of Customer e materia primă a copy-ului (nu element decorativ); sursa primă = interviuri 1:1 + reviews + support tickets, nu LLM-generated
+  - Cele 4 skill-uri sunt expresii ale Skill Era: pentru un solo builder cu 10h/săpt, multiplicatorul real nu e viteza, ci consistența calității deciziei strategice (stadiu, format, trigger)
+- **Totals: 1 source, 0 entities, 5 concepts, 1 synthesis = 7 new + 1 updated**
+- Guided ingest: true — Narcis a confirmat plan-ul (5 concepte + synthesis paralel + emfasă pe Skill Era) înainte de scriere
+
+## [2026-04-14] ingest | Paid Acquisition Skills Suite — Deep Ingest (Cluster 4 din Catalog)
+- Source: .claude/skills/{paid-ads,ad-creative,ab-test-setup}/SKILL.md
+- Strategy: 3 skill-uri ingerate ca un singur source (suite coordonat: ipoteză → producție creative → măsurare statistică), 5 concepts noi cross-cutting extrase, 1 synthesis aplicat cu accent pe "experimentation as compounding asset"
+- Language: conținut în română, slugs în engleză (convention-consistent)
+- Source page created: paid-acquisition-skills-suite
+- Entities created: (none — skill-urile sunt expertiză generică)
+- Entities updated: alteramens (added new source ref)
+- Concepts created: hypothesis-driven-experimentation, ice-prioritization, angle-diversification, performance-data-loop, paid-acquisition-economics
+- Concepts updated: (none — toate 5 sunt noi)
+- Syntheses created: paid-acquisition-framework-alteramens
+- Key insights:
+  - Pentru solo builder, paid ads devine compounding asset (nu cost continuu) DACĂ rulezi performance-data-loop cu capture religios. 12-16 experiments/lună × 25% win rate = 30-60 patterns/an capturate în playbook. Playbook-ul devine specific knowledge (Naval) — imposibil de copiat pentru că e derivat din date proprii.
+  - ICE Prioritization e cel mai transferabil din cele 5: aplică la experiments, features, proiecte, content — orice context cu multe opțiuni și timp limitat. Standalone framework.
+  - Angle diversification e distinct de voice-of-customer (limbaj) și buyer-stage-mapping (timing). 8 categorii validate (pain/outcome/social proof/curiosity/comparison/urgency/identity/contrarian) — 3-5 per campanie e sweet spot.
+  - Paid acquisition economics impune decision tree strict: "should I run ads at all" are 5 pre-condiții non-negociabile. Pentru nbrAIn în stadiul curent: paid OFF; build organic foundation first.
+  - Cele 3 skill-uri compresează experiment time de la 6-9h/experiment la 2.5-3h/experiment → velocity 4x → compounding real pentru 10h/săpt bucket
+- **Totals: 1 source, 0 entities, 5 concepts, 1 synthesis = 7 new + 1 updated**
+- Guided ingest: true — Narcis a confirmat plan-ul (5 concepte recomandate + accent pe "experimentation as compounding asset" + continuă Skill Era) înainte de scriere
+
+## [2026-04-14] ingest | Lifecycle & Retention Skills Suite — Deep Ingest (Cluster 5 din Catalog)
+- Source: .claude/skills/{email-sequence,cold-email,churn-prevention,referral-program}/SKILL.md
+- Strategy: 4 skill-uri ingerate ca un singur source (suite coordonat: activare → outbound → prevenție churn → viralitate), 6 concepts noi cross-cutting extrase, 1 synthesis aplicat cu accent pe "retention ca compounding game + revenue protection before growth"
+- Language: conținut în română, slugs în engleză (convention-consistent)
+- Source page created: lifecycle-retention-skills-suite
+- Entities created: (none — skill-urile sunt expertiză generică; tools rămân în tools/REGISTRY.md)
+- Entities updated: (none)
+- Concepts created: dynamic-save-offer, voluntary-vs-involuntary-churn, dunning-stack, churn-health-score, referral-loop, peer-voice-outreach
+- Concepts updated: value-before-ask (added lifecycle source + 2 related links), aha-moment (added lifecycle source + 2 related links), friction-cost (added lifecycle source + 2 related links)
+- Syntheses created: lifecycle-retention-framework-alteramens
+- Syntheses updated: marketing-skills-catalog (marked Cluster 5 as ingested with cross-links)
+- Key insights:
+  - Voluntary vs involuntary churn taxonomy e primul layer — 50-70% / 30-50% split. Dunning stack (involuntary) e adesea cel mai mare ROI quick-win pentru solo builders ($500-2000 valoare, 1-2 zile muncă, 40-60% recovery pe toate generațiile viitoare de customers).
+  - Dynamic save offer: match offer la cancel reason — same offer pentru toate reason-urile pierde 50-80% din save-uri. Pattern generalizabil: "diagnostichează cauza, intervine specific".
+  - Churn health score e Fază 3 (100-500 paying customers), nu premature. Înainte de asta, dunning + cancel flow minim.
+  - Referral loop cere aha moment definit. Cererea înainte de aha = invite spam. Trigger moments high-intent: post-aha, post-milestone, post-excellent-support, post-renewal.
+  - Peer voice outreach e universal (cold email, LinkedIn DM, Twitter replies, community DMs). Framework-ul nu e problema — vocea aplicată peste framework e.
+  - Retention e compounding game: 1% reduction în monthly churn = ~12% increase LTV long-term. Pentru solo builder cu 10h/săpt, cel mai mare levier (mai mare decât features noi sau paid ads).
+  - Skill Era aplicație specifică pentru Alteramens: retention skills ca produs (/setup-dunning-stripe, /design-cancel-flow, /referral-program-launch) — encoded judgment pur, ce costă $500-2000 cu consultant astăzi, invocabil în 15 min. Prototip potențial la Fază 3 Alteramens.
+- **Totals: 1 source, 0 entities, 6 concepts, 1 synthesis = 8 new + 4 updated**
+- Guided ingest: true — Narcis a aprobat plan-ul (6 concepte recomandate + synthesis cu accent pe Skill Era + retention-before-growth) înainte de scriere
+
+## [2026-04-15] ingest | Strategy & Foundations Skills Suite — Deep Ingest (Cluster 6 din Catalog)
+- Source: .claude/skills/{product-marketing-context,marketing-psychology,customer-research,pricing-strategy,launch-strategy,marketing-ideas}/SKILL.md
+- Strategy: 6 skill-uri ingerate ca un singur source (suite upstream: contextul care configurează toate celelalte clustere — nu execută, configurează). 7 concepts noi cross-cutting + 1 concept existent promovat. 1 synthesis aplicat cu accent pe "configurație înainte de execuție" pentru solo operator AI-augmented cu timp limitat.
+- Language: conținut în română, slugs în engleză (convention-consistent)
+- Guided ingest: true — Narcis a aprobat plan-ul complet ("ship all")
+- Source page created: strategy-foundations-skills-suite
+- Entities created: (none — skill-urile sunt expertiză generică)
+- Entities updated: alteramens (adăugat strategy-foundations-skills-suite + lifecycle-retention-skills-suite în sources list — lipsea lifecycle de la ingest-ul precedent)
+- Concepts created: product-marketing-context, jobs-to-be-done, orb-channel-framework, phased-launch, value-based-pricing, good-better-best-pricing
+- Concepts updated: voice-of-customer (added strategy-foundations-skills-suite source + 2 related links [product-marketing-context, jobs-to-be-done] + 2 noi secțiuni [two modes + confidence tiers + sample bias + JTBD linkage]; promoted developing → mature)
+- Syntheses created: strategy-foundations-framework-alteramens
+- Syntheses updated: marketing-skills-catalog (marked Cluster 6 as deep-ingested with cross-links)
+- Key insights:
+  - product-marketing-context e root-skill-ul: creează `.agents/product-marketing-context.md` pe care toate celelalte 30+ skills îl citesc ca prim pas. Pattern skill-era aplicat intern — encoded judgment recursiv, output-ul unui skill devine input pentru toate celelalte.
+  - Cluster 6 NU face execuție; face configurație. Diferit calitativ de Clusters 1–5. "Configurația bună bate execuția bună pentru AI-augmented solo operator."
+  - JTBD Four Forces (Push/Pull/Habit/Anxiety) operaționalizează switching dynamics. Marketing bun reduce Habit+Anxiety la fel cât amplifică Pull+Push (nu doar Pull).
+  - ORB framework central rule: all roads lead to Owned. Rented/Borrowed dau atenție, doar Owned o păstrează (compounding).
+  - Value-based pricing: preț între next best alternative și perceived value. Cost e doar baseline, NU basis. 3 axe (packaging × metric × price point) se decid împreună.
+  - Good-Better-Best cu Better ca țintă, 2–3× între Better și Best e sweet spot. Anchoring + decoy + contrast simultan.
+  - "Launch again and again" — fiecare feature = mini-launch. 5-phase approach (Internal → Alpha → Beta → Early Access → Full). Single "big bang" launch = anti-pattern.
+  - Confidence tiers + recency window (12 luni) + min 5 data points per segment = research guardrails; nu fabrica persoanas din < 5 surse.
+  - 4-star G2 reviews = cea mai bună sursă pentru competitive intel (3★=zgomot, 5★=fan, 4★=critică constructivă).
+  - Pentru Alteramens (solo, AI-augmented, 1K MRR target): investiția în Cluster 6 (~10h) e ROI-ul cel mai mare per oră pentru că multiplică toate celelalte skills.
+- **Totals: 1 source, 0 entities, 6 concepts, 1 synthesis = 8 new + 2 updated**
+
+## [2026-04-15] ingest | Sales & Revenue Ops Skills Suite — Deep Ingest (Cluster 8 din Catalog)
+- Source: .claude/skills/{sales-enablement,revops,analytics-tracking,competitor-alternatives,free-tool-strategy}/SKILL.md
+- Strategy: 5 skill-uri ingerate ca un singur source (suite revenue-accountability: cluster-ul care închide loop-ul de la marketing la deal închis). 7 concepts cross-cutting noi + 1 synthesis aplicat pentru small-team AI-augmented solo cu 1K MRR target.
+- Language: conținut în română, slugs în engleză (convention-consistent)
+- Guided ingest: true — Narcis a aprobat 5–7 concepts, nothing to skip
+- Source page created: sales-revenue-ops-skills-suite
+- Entities created: (none — skill-urile sunt expertiză generică)
+- Entities updated: alteramens (adăugat sales-revenue-ops-skills-suite în sources list)
+- Concepts created: speed-to-lead, lead-lifecycle-funnel, fit-plus-engagement-scoring, engineering-as-marketing, honest-competitive-positioning, tracking-plan-as-contract, revenue-attribution-loop
+- Concepts updated: (none — all 7 are new territory)
+- Syntheses created: sales-revenue-ops-framework-alteramens
+- Syntheses updated: marketing-skills-catalog (marked Cluster 8 as deep-ingested with cross-links — catalogul întreg acum 100% deep-ingested pe toate 8 clustere)
+- Key insights:
+  - Cluster 8 e revenue-accountability layer: nu creează demand (asta fac Clusters 1–7), ci conectează demand la closed revenue. Singurul cluster care duce măsurarea până la ARR.
+  - Speed-to-lead e cel mai subestimat factor: <5min = 21× conversion vs baseline; >30min = 10× drop. La scale mic automatizarea (push notifications, auto-reply cu Calendly) rezolvă SLA-ul fără staffing.
+  - MQL requires BOTH fit AND engagement — niciunul singur nu e suficient. Perfect fit fără engagement = lead neservibil. Engagement fără fit = time waste. Scoring-ul operaționalizează acest AND.
+  - Revenue attribution loop = Analytics → RevOps → Sales-Enablement → feedback. Dacă feedback loop-ul e rupt, modelul de scoring se deprecia silently și calitatea leads scade. Compounding engine.
+  - Engineering as marketing (free tools) = unfair advantage pentru AI-augmented solo: un tool care lua 2-4 săptămâni ia acum 3-5 zile. Compoundează SEO + brand + lead capture. 8-factor scorecard (25+ strong) ca decision filter.
+  - Honest competitive positioning beats trash-the-competitor pentru underdog: cititorii verifică claims în 4 minute. Acknowledge competitor strengths = trust moat. 4-star G2 reviews sunt aurul research-ului.
+  - Tracking plan as contract: events decision-first, NOT data-first. object_action naming (lowercase, underscores). Context în properties, nu în event name. Fără tracking plan disciplinat, AI-augmented analytics workflow nu scalează.
+  - Pentru 1K MRR Alteramens: loop-ul simplified (spreadsheet scoring, markdown collateral, 5 essential events, 3 comparison pages) e mai important, nu mai puțin. Small-team dacă ratează un lead = 1% lunar impact. Cluster 8 discipline = între 15% și 25% close rate diferență pe aceeași pipeline.
+- **Totals: 1 source, 0 entities, 7 concepts, 1 synthesis = 9 new + 2 updated**
+
+## [2026-04-15] lint | Health Check
+- Phantoms: 14 (2 vault-ref syntax, 5 `[[concepts]]` as folder pointer, 3 skill-name wiki-links, 4 false positives in faber-sqlite-index doc examples)
+- Log integrity: clean (0 mismatches, 0 phantom log refs, 0 orphaned ingest events)
+- Orphans: 4 synthesis pages (expected — leaf nodes)
+- Stale concepts: 0 (everything log-touched in <30 days)
+- Backlink-poor: dri-with-agents (0), alteramens entity (1 — suspiciously low)
+- Issues: 14 high, 4 medium, ~10 low
+- Suggestions: 6
