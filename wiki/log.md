@@ -318,3 +318,19 @@ Chronological record of wiki operations. Append-only.
 - Backlink-poor: dri-with-agents (0), alteramens entity (1 — suspiciously low)
 - Issues: 14 high, 4 medium, ~10 low
 - Suggestions: 6
+
+## [2026-04-16] query → synthesis | CRM Real Estate Exclusive — Launch Strategy
+- Question: "Strategie completă de lansare pentru platformă CRM agenți imobiliari specializați în contracte de reprezentare exclusivă"
+- Synthesis created: crm-real-estate-exclusive-launch
+- Sources consulted: saas-launch-manifest, strategy-foundations-framework-alteramens, alteramens-manifest
+- Concepts referenced: bounded-problem-wedge, phased-launch, validate-before-build, kill-fast, orb-channel-framework, value-based-pricing, good-better-best-pricing, jobs-to-be-done, voice-of-customer, engineering-as-marketing, deliver-dont-promise, programmatic-seo, third-party-signal, peer-voice-outreach, compounding-games, productize-yourself, encoded-judgment, skill-era, specific-knowledge, internal-to-product, data-compounding-moat, distribution-over-product, leverage
+- Key insights:
+  - Wedge bounded = "agent imobiliar cu mandat exclusiv", NU "agent imobiliar generic" — elimină competiție cu HubSpot/Salesforce/Imoapp/KW Command
+  - Judgment encodat = Weekly Seller Report + Objection Playbook + Listing Presentation, NU doar CRUD pe contacte — feature-urile pot fi clonate, metodologia + corpus verbatim RO nu
+  - Red flag autenticitate: Narcis nu vine din real estate → necesită co-pilot insider sau 30+ interviuri ca să închidă gap-ul de specific knowledge
+  - Wiki gap identificat: 0 pagini Faber despre real estate / vertical SaaS → recomandat ingest 3-5 surse (REMAX Approach, Mike Ferry, Gary Keller SHIFT) înainte de validare
+  - Pricing: Good €29 / Better €69 (ținta) / Best €149; trial 14 zile fără card, NU freemium (agenții nu sunt price-sensitive la ROI vizibil)
+  - Target 1K MRR = ~15 Pro clienți — fezabil în nișa RO de agenți exclusivi dacă distribuția începe în ziua 1
+  - Kill criteria explicite: <3 interviuri cu durere intensă la săpt 2 → stop; <€300 MRR la luna 4 → revalidare wedge
+- Maturity: seed (awaiting validation with 10 real-estate-agent interviews)
+- **Totals: 0 sources, 0 entities, 0 concepts, 1 synthesis = 1 new**
