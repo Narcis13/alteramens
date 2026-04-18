@@ -2,9 +2,9 @@
 title: "MCP as Distribution — Agent Plugins as Sales Channel"
 type: concept
 category: pattern
-sources: [ai-marketing-distribution]
+sources: [ai-marketing-distribution, pat-walls-agent-first-1t-thread]
 entities: []
-related: [skill-era, encoded-judgment, distribution-over-product, leverage]
+related: [skill-era, encoded-judgment, distribution-over-product, leverage, agent-native-startup, headless-saas-thesis, media-plus-agents-distribution]
 maturity: seed
 confidence: medium
 contradictions: []
@@ -49,3 +49,9 @@ Every tool Alteramens builds should consider MCP as a primary distribution chann
 - How do AI assistants discover and prioritize MCP servers? Is there a "ranking" like SEO?
 - What's the conversion model? Freemium MCP → paid features?
 - How do you measure attribution when the user never visits your site?
+
+## Agent-Native Era Context
+
+[[pat-walls-agent-first-1t-thread]] reinforces this concept's thesis from the opposite angle: if SaaS goes headless ([[headless-saas-thesis]]), the winning move is either (a) build an [[agent-native-startup]] that wraps incumbent APIs, or (b) *build the APIs themselves* and let other agents compose on them. MCP is one of the cleanest protocols for both directions — expose a skill as an MCP server and you're discoverable by any agent.
+
+The complement is [[media-plus-agents-distribution]]: MCP handles machine-surface discovery; media handles human-surface trust. Both layers compound together.

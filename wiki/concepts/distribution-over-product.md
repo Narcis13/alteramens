@@ -2,11 +2,11 @@
 title: "Distribution Over Product — Access Beats Quality"
 type: concept
 category: mental-model
-sources: [ai-marketing-distribution, severino-claude-sales-system]
-entities: []
-related: [validate-before-build, leverage, skill-era, programmatic-seo, answer-engine-optimization, mcp-as-distribution, viral-artifacts, deliver-dont-promise]
-maturity: seed
-confidence: medium
+sources: [ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread]
+entities: [pat-walls, sam-parr, roy-lee]
+related: [validate-before-build, leverage, skill-era, programmatic-seo, answer-engine-optimization, mcp-as-distribution, viral-artifacts, deliver-dont-promise, media-plus-agents-distribution, agent-native-startup]
+maturity: developing
+confidence: high
 contradictions: []
 applications: []
 ---
@@ -38,3 +38,9 @@ In the [[skill-era]], distribution means being embedded in agent workflows. If y
 ## Tension
 
 This doesn't mean product doesn't matter — it means product alone isn't enough. The anti-pattern is "build and they will come." The principle is: build AND distribute simultaneously.
+
+## Agent-Native Era Sharpening (2026-04)
+
+[[pat-walls-agent-first-1t-thread]] takes this thesis further: when agents + APIs make building trivial, distribution collapses into audience + brand. The founder's media surface becomes the permanent moat because product moats get commoditized.
+
+See [[media-plus-agents-distribution]] for the founder-level expression. The through-line: each wave reduces the cost of building; each wave raises the premium on owned distribution. The last wave rewarded pretty UIs on ugly data; this wave rewards smart agents on exposed APIs — and both waves reward whoever already owned the audience.

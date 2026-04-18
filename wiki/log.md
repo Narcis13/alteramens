@@ -334,3 +334,22 @@ Chronological record of wiki operations. Append-only.
   - Kill criteria explicite: <3 interviuri cu durere intensă la săpt 2 → stop; <€300 MRR la luna 4 → revalidare wedge
 - Maturity: seed (awaiting validation with 10 real-estate-agent interviews)
 - **Totals: 0 sources, 0 entities, 0 concepts, 1 synthesis = 1 new**
+
+## [2026-04-18] ingest | Pat Walls — $1T Agent-First Startup Opportunity Thread
+- Source: conversation:2026-04-18 (thread pasted by Narcis, attributed to Pat Walls / @startupideaspod)
+- Guided ingest: yes (Narcis directed emphasis on vertical-operator-edge + media-plus-agents + outcome-based-pricing; no skips)
+- Source page created: pat-walls-agent-first-1t-thread
+- Entities created: pat-walls, sam-parr, roy-lee, salesforce, hubspot, workday, startup-ideas-podcast
+- Entities updated: (none)
+- Concepts created: agent-native-startup, headless-saas-thesis, outcome-based-pricing, vertical-operator-edge, media-plus-agents-distribution, agent-replaces-implementation
+- Concepts updated: specific-knowledge (added operator-edge angle + Pat Walls source), distribution-over-product (added agent-native era sharpening + media+agents link), skill-era (added founder-opportunity angle + 4 new related concepts), mcp-as-distribution (added agent-native era context + headless-saas + media+agents links), value-based-pricing (added outcome-based specialization note), ai-native-org-design (added external-facing agent-native-startup version), agent-fleet-architecture (added when-it-becomes-a-product note)
+- Syntheses created: agent-native-vertical-playbook
+- Syntheses updated: alteramens-thesis (added "Sharpened: Agent-Native Vertical Playbook" section with 4 adjustments)
+- Key insights:
+  - Pat Walls thread compresses Alteramens strategy into a 4-leg stool: vertical-operator-edge + agent-native product + outcome-based pricing + media+agents distribution
+  - Distribution is the weakest leg for Alteramens today — LinkedIn cadence must start immediately (12-24mo compounding window)
+  - nBrain architecture pressure-test: is it truly wrapping Romanian accounting backends (SAGA, CielInfo, ANAF) or building yet another DB? Former is more defensible per headless-saas-thesis
+  - Outcome measurement must be instrumented from v1 even if pricing stays flat at 50 EUR/month — retrofit cost is 10x
+  - Naval's specific-knowledge = Pat Walls' vertical-operator-edge (same idea, cycle-specific expression); both Alteramens intersections (accounting + healthcare IT) pass all 4 operator-edge tests
+  - "Silicon Valley goes all influencer" validates personal-brand-strategy investment rather than treating it as nice-to-have
+- **Totals: 1 source, 7 entities, 6 concepts, 1 synthesis = 15 new + 8 updated**

@@ -1,6 +1,6 @@
 ---
 type: index
-updated: 2026-03-17
+updated: 2026-04-18
 ---
 
 # Portofoliu Proiecte
@@ -20,16 +20,18 @@ Overview-ul tuturor proiectelor active din Alteramens.
 | [[dualize/dualize\|Dualize]] | DevTools/Library | Active (v0.1) | Bun, Hono, Zod, citty | Design + Plan ready |
 | [[glyphrail/glyphrail\|Glyphrail]] | DevTools/Workflow | Active (v0.1) | Bun, TypeScript | MVP Slice 6 |
 | [[loom-ui/loom-ui\|Loom UI]] | DevTools/UI Framework | Active (v0.1) | Bun, TypeScript, HTML/CSS | Spec + partial impl |
+| [[docraftr/docraftr\|docraftr]] | DevTools/Document Engine | Active (v0.1 alpha) | Bun, Hono, SQLite, Drizzle, Zod, Loom UI | 10-layer arch |
+| [[takt/takt\|Takt]] | SaaS/Kanban | Active (v0.1) | Bun, Hono, React 19, SQLite, Nanoid | CLI + Web, event-driven |
 
 ## Clasificare
 
 ### Per Tip
-- **DevTools:** [[bunbase/bunbase|BunBase]], [[forma-mono/forma-mono|Forma]], [[robun/robun|Robun]], [[dualize/dualize|Dualize]], [[glyphrail/glyphrail|Glyphrail]], [[loom-ui/loom-ui|Loom UI]]
-- **SaaS:** [[davidup/davidup|DavidUp]], [[contzo/contzo|Contzo]]
+- **DevTools:** [[bunbase/bunbase|BunBase]], [[forma-mono/forma-mono|Forma]], [[robun/robun|Robun]], [[dualize/dualize|Dualize]], [[glyphrail/glyphrail|Glyphrail]], [[loom-ui/loom-ui|Loom UI]], [[docraftr/docraftr|docraftr]]
+- **SaaS:** [[davidup/davidup|DavidUp]], [[contzo/contzo|Contzo]], [[takt/takt|Takt]]
 - **Digital Product:** [[cct2/cct2|CCT2]]
 
 ### Per Maturitate
-- **Active development:** BunBase (v0.3), DavidUp (v0.2), Robun (v1.0), Glyphrail (v0.1 MVP Slice 6)
+- **Active development:** BunBase (v0.3), DavidUp (v0.2), Robun (v1.0), Glyphrail (v0.1 MVP Slice 6), docraftr (v0.1 alpha), Takt (v0.1)
 - **Planning:** Contzo (0% code, 200KB docs)
 - **Ready to build:** [[dualize/dualize|Dualize]] (design + TDD implementation plan, 37 tests planned)
 - **Prototype/MVP:** Forma (v0.1), CCT2 (2 commits), Loom UI (spec complet + partial impl)
@@ -55,6 +57,8 @@ Toate proiectele folosesc **Bun** ca runtime (excepție: CCT2 pe Next.js/Node). 
 - **Glyphrail** poate fi folosit de **Robun** pentru workflow orchestration cu bounded agent steps
 - **Loom UI** va fi folosit în proiectele cu UI (DavidUp, Contzo, BunBase) pentru componente agent-generabile
 - **Glyphrail** și **Loom UI** au ambele "agent-native CLI" ca design constraint — pattern comun cu restul Alteramens
+- **docraftr** e primul consumer real al **Loom UI** (vendored); împarte domeniul "Romanian business" cu **Forma** (validatori CUI/CNP) și cu **Contzo** (facturi); implementează deja pattern-ul dual HTTP+CLI pe care îl abstractizează **Dualize**
+- **Takt** partajează repo-ul cu framework-ul BRN (autonomous coding agent) — takt e testbed-ul; împarte stack-ul Bun+Hono+SQLite cu **BunBase** (potențial backend) și **docraftr**; candidat pentru integrare cu **Robun** (Telegram → create card)
 
 ## Legături Rapide
 

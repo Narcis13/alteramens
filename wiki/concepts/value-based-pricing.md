@@ -2,10 +2,10 @@
 title: "Value-Based Pricing — Prețul Între Alternative și Valoarea Percepută"
 type: concept
 category: decision-framework
-sources: [strategy-foundations-skills-suite]
+sources: [strategy-foundations-skills-suite, pat-walls-agent-first-1t-thread]
 entities: [alteramens]
-related: [good-better-best-pricing, jobs-to-be-done, bootcamp-pricing, voice-of-customer]
-maturity: seed
+related: [good-better-best-pricing, jobs-to-be-done, bootcamp-pricing, voice-of-customer, outcome-based-pricing, agent-native-startup]
+maturity: developing
 confidence: high
 contradictions: []
 applications: []
@@ -148,3 +148,9 @@ Identifici ce **features** clienții value most pentru tier packaging:
 2. **Copy competitor pricing**: ignori că ai alt cost structure și altă valoare percepută
 3. **One-size-fits-all** (single price): pierzi segment-ul high-WTP (nu extractezi suficient) și low-WTP (aliniază sub perceived value)
 4. **Value metric wrong**: per-seat când valoarea e per-automation → clientul auto-regulează usage pentru a păstra seat-count jos, churn crește
+
+## Agent-Native Era: outcome-based ca specializare
+
+[[pat-walls-agent-first-1t-thread]] argumentează că în era agent-native, per-seat devine incoherent pentru că un "seat" e un agent care face 10k calls/minute. Soluția pe care o propune (și care e deja validată în startup-uri ca Decagon, 11x) e [[outcome-based-pricing]] — plătești când hit-uiește revenue în cont.
+
+Outcome-based pricing e o **specializare** a value-based pricing-ului pentru produse agent-native, nu o filosofie nouă. Principiul rămâne același ("prețul = valoarea percepută, nu costul"). Ce se schimbă e că în agent-native, cel mai curat proxy pentru valoarea percepută e outcome-ul agentului însuși. Vezi [[outcome-based-pricing]] pentru când se aplică, când nu, și implicațiile pentru [[nbrain-concept]] (care momentan are 50 EUR/month flat).

@@ -2,9 +2,9 @@
 title: "AI-Native Org Design — From Hierarchy to Intelligence"
 type: concept
 category: mental-model
-sources: [eric-siu-world-intelligence]
-entities: [jack-dorsey, block-inc, single-grain, eric-siu]
-related: [skill-era, leverage, world-model, agent-fleet-architecture, dri-with-agents]
+sources: [eric-siu-world-intelligence, pat-walls-agent-first-1t-thread]
+entities: [jack-dorsey, block-inc, single-grain, eric-siu, pat-walls]
+related: [skill-era, leverage, world-model, agent-fleet-architecture, dri-with-agents, agent-native-startup, agent-replaces-implementation]
 maturity: developing
 confidence: high
 contradictions: []
@@ -60,3 +60,14 @@ This is the [[skill-era]] applied to organizational design. The company itself b
 ## Alteramens Implication
 
 Validates the thesis that small teams with AI leverage can operate at fundamentally different speed. The question for Alteramens isn't whether to adopt this pattern — it already has (Claude Code as partner, Faber as world model). The question is how to productize this capability for others.
+
+## External-Facing Version (Agent-Native Startup)
+
+[[pat-walls-agent-first-1t-thread]] extends this concept from *internal org design* to *product structure*. An [[agent-native-startup]] is what this pattern looks like when sold, not just run internally. The same coordination layer becomes the customer-facing product, with incumbent SaaS platforms as the "raw capabilities" layer underneath.
+
+This suggests a progression:
+1. Use AI-native org design internally (Alteramens does this via Claude Code + Faber)
+2. Productize the pattern for others ([[nbrain-concept]] is agent-native for Romanian accounting)
+3. Market the pattern as a worldview ([[alteramens-thesis]] + [[personal-brand-strategy]])
+
+Same architecture, three distribution layers.

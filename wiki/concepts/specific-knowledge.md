@@ -2,9 +2,9 @@
 title: "Specific Knowledge"
 type: concept
 category: mental-model
-sources: [naval-framework, brainstorm-ai-tutor-medicina]
-entities: [naval-ravikant]
-related: [productize-yourself, leverage, authentic-creation, bounded-problem-wedge]
+sources: [naval-framework, brainstorm-ai-tutor-medicina, pat-walls-agent-first-1t-thread]
+entities: [naval-ravikant, pat-walls]
+related: [productize-yourself, leverage, authentic-creation, bounded-problem-wedge, vertical-operator-edge, agent-native-startup]
 maturity: mature
 confidence: high
 contradictions: []
@@ -55,8 +55,15 @@ The brainstorm on 2026-04-07 (see [[brainstorm-ai-tutor-medicina]]) surfaced a s
 
 This intersection is rare. It enables the AI tutor for Carol Davila admission product as a [[bounded-problem-wedge]] no foreign competitor can casually enter. Same Naval principle as the accounting case: specific knowledge IS the moat.
 
+## Third Angle: Agent-Native Founder Opportunity
+
+The [[pat-walls-agent-first-1t-thread]] thread reframes specific knowledge as the **moat in the agent-native era**: *"The code is the easy part. Knowing that a property manager spends 14 hours a week on lease renewals is the insight worth $100M."*
+
+This is the same Naval principle re-expressed for the current cycle: when LLMs compress execution, vertical operator fluency becomes *more* valuable, not less. The concrete founder-level instantiation lives in [[vertical-operator-edge]], which should be read as the cycle-specific application of specific knowledge. Both Alteramens intersections (Romanian accounting, Romanian healthcare IT) qualify as operator-edge candidates for [[agent-native-startup]] wedges.
+
 ## See Also
 
 - [[leverage]] — How to scale specific knowledge
 - [[authentic-creation]] — Authenticity makes your specific knowledge inimitable
 - [[bounded-problem-wedge]] — Specific knowledge often points to the right wedge
+- [[vertical-operator-edge]] — Specific knowledge expressed as founder-level edge in the agent-native cycle

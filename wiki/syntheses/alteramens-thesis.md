@@ -3,11 +3,11 @@ title: "The Alteramens Thesis — Why This Works"
 type: synthesis
 trigger: insight
 question: "How do the philosophical foundations (Productize Yourself + Skill Era) connect to form the Alteramens strategy?"
-sources_consulted: [naval-framework, skill-era-article, alteramens-manifest, nbrain-concept, eric-siu-world-intelligence]
-concepts_involved: [productize-yourself, skill-era, specific-knowledge, leverage, judgment, encoded-judgment, validate-before-build, ai-native-org-design, world-model, data-compounding-moat, internal-to-product]
-entities_involved: [alteramens, nbrain, naval-ravikant, single-grain, eric-siu]
+sources_consulted: [naval-framework, skill-era-article, alteramens-manifest, nbrain-concept, eric-siu-world-intelligence, pat-walls-agent-first-1t-thread]
+concepts_involved: [productize-yourself, skill-era, specific-knowledge, leverage, judgment, encoded-judgment, validate-before-build, ai-native-org-design, world-model, data-compounding-moat, internal-to-product, agent-native-startup, vertical-operator-edge, outcome-based-pricing, media-plus-agents-distribution]
+entities_involved: [alteramens, nbrain, naval-ravikant, single-grain, eric-siu, pat-walls]
 created: 2026-04-05
-updated: 2026-04-05
+updated: 2026-04-18
 maturity: developing
 ---
 
@@ -77,3 +77,14 @@ The game is worth playing long-term. The specific knowledge is real. The leverag
 - **The moat is data, not tech:** [[data-compounding-moat]] — competitors can copy tech but not months of proprietary context. For Alteramens, specific knowledge about Romanian accounting/healthcare compounding in Faber creates the same defensibility.
 - **Small teams win:** Single Grain moved faster than Block (6,000 people). Size is a disadvantage when the leverage comes from AI agents + proprietary context. This is the Skill Era thesis in practice.
 - **The gap between theory and implementation is the opportunity:** Most companies will read Dorsey's essay and do nothing. The companies that actually implement — whether Single Grain at agency scale or Alteramens at builder scale — capture the value.
+
+## Sharpened: The Agent-Native Vertical Playbook (2026-04-18)
+
+The [[pat-walls-agent-first-1t-thread]] thread compresses the strategy into a four-leg stool: **vertical operator edge + agent-native product + outcome-based pricing + owned media distribution**. See [[agent-native-vertical-playbook]] for the full synthesis.
+
+Key adjustments this forces on Alteramens:
+
+1. **Distribution is the weakest leg.** Operator edge, product shape, and pricing philosophy are already in place. Media/audience is not. [[media-plus-agents-distribution]] must start immediately — LinkedIn cadence, because it takes 12-24 months to compound and product launches cold without it.
+2. **nBrain architecture pressure-test.** Is it truly [[agent-native-startup]] shape (wrap SAGA/ANAF/CielInfo as dumb backends) or a hybrid conversational SaaS? The first is more defensible per [[headless-saas-thesis]].
+3. **Outcome measurement from v1.** Instrument hours-saved, deadlines-hit, questions-resolved so [[outcome-based-pricing]] remains a switchable future pricing axis, not a rebuild.
+4. **Second vertical candidate (healthcare IT / Altera OS)** runs the same playbook.

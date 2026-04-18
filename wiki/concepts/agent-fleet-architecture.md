@@ -2,9 +2,9 @@
 title: "Agent Fleet Architecture — Specialized Agents + Coordinator"
 type: concept
 category: technical-playbook
-sources: [eric-siu-world-intelligence]
+sources: [eric-siu-world-intelligence, pat-walls-agent-first-1t-thread]
 entities: [single-grain, eric-siu]
-related: [ai-native-org-design, world-model, encoded-judgment, dri-with-agents, ambient-computation]
+related: [ai-native-org-design, world-model, encoded-judgment, dri-with-agents, ambient-computation, agent-native-startup]
 maturity: seed
 confidence: medium
 contradictions:
@@ -52,3 +52,7 @@ Eric Siu notes that as models improve, the trend is toward fewer, more capable a
 ## Relevance
 
 For small operations like Alteramens, the lesson isn't "build 7 agents." It's: map your business functions, decide which benefit most from persistent context, and start with 1-2 agents that compound. The coordinator pattern matters more than the fleet size.
+
+## When It Becomes an Agent-Native Product
+
+[[pat-walls-agent-first-1t-thread]] implies a second use case: a fleet can itself be the *product*, not just an internal org pattern. An [[agent-native-startup]] for a vertical (property management, accounting, healthcare IT) could ship as a small specialized fleet — one agent per operator role in the vertical, coordinated by a meta-agent. Eric Siu's consolidation trend tempers this: don't ship a fleet if a single stronger agent suffices.

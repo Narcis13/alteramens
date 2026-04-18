@@ -2,9 +2,9 @@
 title: "The Skill Era — From Pipes to Patterns"
 type: concept
 category: mental-model
-sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system]
-entities: [alteramens, single-grain, eric-siu, block-inc]
-related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army, knowledge-first-development, ambient-computation, executable-wiki]
+sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread]
+entities: [alteramens, single-grain, eric-siu, block-inc, pat-walls]
+related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army, knowledge-first-development, ambient-computation, executable-wiki, agent-native-startup, vertical-operator-edge, headless-saas-thesis, outcome-based-pricing]
 maturity: mature
 confidence: high
 contradictions: []
@@ -70,3 +70,9 @@ The [[ai-marketing-distribution]] source articulates a practical consequence: in
 [[mcp-as-distribution]] is the Skill Era's native distribution channel — MCP servers and AI plugins as zero-cost customer acquisition. Instead of marketing to humans, you embed your tool directly into agent workflows. This is the "distribution: agent workflows" row of the paradigm table made concrete.
 
 Complementary strategies like [[answer-engine-optimization]] and [[programmatic-seo]] extend this: be what AI cites (content distribution) and generate pages at scale (search distribution). All three are permissionless [[leverage]] plays.
+
+## Founder-Opportunity Angle (Pat Walls)
+
+[[pat-walls-agent-first-1t-thread]] translates the Skill Era thesis into a founder playbook: the winning startups in the next cycle are **agent-native** ([[agent-native-startup]]) — the agent IS the product, incumbent SaaS platforms become dumb backends, per-seat pricing gives way to [[outcome-based-pricing]], and the moat is vertical operator fluency ([[vertical-operator-edge]]) plus owned audience ([[media-plus-agents-distribution]]).
+
+This doesn't change the underlying Skill Era thesis — it operationalizes it for small-team founders choosing what to build in 2026.
