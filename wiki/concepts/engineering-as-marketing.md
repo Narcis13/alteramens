@@ -2,9 +2,9 @@
 title: "Engineering as Marketing — Free Tools as Distribution"
 type: concept
 category: pattern
-sources: [sales-revenue-ops-skills-suite]
+sources: [sales-revenue-ops-skills-suite, marketing-as-coding-reframe]
 entities: [alteramens]
-related: [distribution-over-product, leverage, compounding-games, encoded-judgment, searchable-vs-shareable, viral-artifacts, skill-era]
+related: [distribution-over-product, leverage, compounding-games, encoded-judgment, searchable-vs-shareable, viral-artifacts, skill-era, marketing-as-coding]
 maturity: seed
 confidence: high
 contradictions: []
@@ -108,6 +108,7 @@ Tool-ul trebuie să fie **adjacent**, nu identic. Cineva care folosește ROI cal
 - **[[searchable-vs-shareable]]** — tools pot fi both: search-optimized pentru "[X] calculator" + social-shareable pentru "check out ce am aflat".
 - **[[viral-artifacts]]** — tools care produc share-able outputs (website graders care dau un "score A-/B+") sunt direct viral.
 - **[[skill-era]]** — un tool e un skill agent-ready: utilitate productizată, invocabilă fără training.
+- **[[marketing-as-coding]]** — engineering-as-marketing e *cazul particular* (free tools as distribution); marketing-as-coding generalizează la *toate* activitățile de marketing operate ca cod versionat.
 
 ## Aplicare la Alteramens
 

@@ -2,9 +2,9 @@
 title: "Hypothesis-Driven Experimentation — Ipoteză Falsifiabilă Înainte de Cheltuială"
 type: concept
 category: decision-framework
-sources: [paid-acquisition-skills-suite]
+sources: [paid-acquisition-skills-suite, marketing-as-coding-reframe]
 entities: []
-related: [ice-prioritization, performance-data-loop, angle-diversification, validate-before-build, kill-fast, encoded-judgment]
+related: [ice-prioritization, performance-data-loop, angle-diversification, validate-before-build, kill-fast, encoded-judgment, marketing-as-coding]
 maturity: developing
 confidence: high
 contradictions: []
@@ -80,6 +80,10 @@ Hypothesis-driven experimentation e **același mecanism** ca [[validate-before-b
 Ambele refuză execuția fără criteriu de succes măsurabil.
 
 [[kill-fast]] e corolarul: dacă o ipoteză a fost infirmată clar, **retire-uiește variantă / campanie / test**, nu "mai încearcă o lună să vezi". Disciplina infirmării e la fel de importantă ca disciplina formulării.
+
+## Legătura cu marketing-as-coding
+
+În reframe-ul [[marketing-as-coding]], hypothesis statement-ul **este unit test-ul** pentru rulajul atenției: criteriul binar care face diferența între "experiment shipped" și "wishful thinking". Marketing repo-ul refuză merge-uri fără hypothesis, exact cum un repo de cod refuză deploy-uri fără test passing.
 
 ## Legătura cu Skill Era
 

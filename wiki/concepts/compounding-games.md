@@ -4,7 +4,7 @@ type: concept
 category: mental-model
 sources: [naval-framework, alteramens-manifest, eric-siu-world-intelligence]
 entities: [naval-ravikant, alteramens, single-grain, eric-siu]
-related: [productize-yourself, specific-knowledge, work-as-play, data-compounding-moat, world-model]
+related: [productize-yourself, specific-knowledge, work-as-play, data-compounding-moat, world-model, marketing-as-coding]
 maturity: mature
 confidence: high
 contradictions: []

@@ -373,3 +373,13 @@ Chronological record of wiki operations. Append-only.
   - Recomandări prioritare: Sprint 0 = LinkedIn cadence; decide explicit categoria; instrumentează outcomes din Sprint 1; gate Phase 3 pe signal real nu calendar
 - Maturity synthesis: developing
 - **Totals: 0 sources, 0 entities, 3 concepts, 1 synthesis = 4 new + 0 updated**
+
+## [2026-04-20] ingest | Marketing as Coding — The Reframe
+- Source: conversation:2026-04-20 (article pasted by Narcis)
+- Source page created: marketing-as-coding-reframe
+- Concepts created: marketing-as-coding
+- Concepts updated: engineering-as-marketing (added new source + cross-link), hypothesis-driven-experimentation (added new source + cross-link + section), compounding-games (added cross-link)
+- Synthesis created: dev-native-marketing-stack-alteramens
+- Guided ingest: discussed key takeaways with Narcis; he confirmed creating concept + synthesis
+- Insight: reframe acts as umbrella over engineering-as-marketing, hypothesis-driven-experimentation, compounding-games — unifies 8 alteramens framework pages into a single dev-native repo architecture
+- **Totals: 1 sources, 0 entities, 1 concepts = 3 new + 3 updated**
