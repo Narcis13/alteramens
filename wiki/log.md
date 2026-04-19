@@ -353,3 +353,23 @@ Chronological record of wiki operations. Append-only.
   - Naval's specific-knowledge = Pat Walls' vertical-operator-edge (same idea, cycle-specific expression); both Alteramens intersections (accounting + healthcare IT) pass all 4 operator-edge tests
   - "Silicon Valley goes all influencer" validates personal-brand-strategy investment rather than treating it as nice-to-have
 - **Totals: 1 source, 7 entities, 6 concepts, 1 synthesis = 15 new + 8 updated**
+
+## [2026-04-19] query → synthesis | Altera OS — Framework Fit & Honest Gaps
+- Query: "analizează ideea Altera OS în contextul conceptelor din wiki — generăm concepte noi sau trece filtrele Skill Era + agent-native era?"
+- Source: workshop/ideas/altera-os.md (v1.2, 2103 linii)
+- Guided ingest: yes (Narcis a cerut explicit filing + drafturi pentru concepte noi)
+- Synthesis created: altera-os-framework-fit
+- Concepts created: sovereign-ai-tokenization, dual-orchestrator-pattern, ai-native-operational-platform
+- Sources consulted: 5 (skill-era-article, pat-walls-agent-first-1t-thread, eric-siu-world-intelligence, naval-framework, alteramens-manifest)
+- Concepts involved: 22 (skill-era, encoded-judgment, agent-native-startup, vertical-operator-edge, internal-to-product, emergent-schema, executable-wiki, ambient-computation, conversational-interface, headless-saas-thesis, data-compounding-moat, compounding-games, specific-knowledge, productize-yourself, bounded-problem-wedge, validate-before-build, outcome-based-pricing, media-plus-agents-distribution, mcp-as-distribution, sovereign-ai-tokenization, dual-orchestrator-pattern, ai-native-operational-platform)
+- Entities involved: 3 (alteramens, nbrain, pat-walls)
+- Key insights:
+  - Altera OS este cea mai completă materializare a fundamentului Alteramens — 15 concepte wiki instanțiate simultan
+  - Trece filtrul Skill Era maximal (judgment encodat, leverage, compounding, internal-to-product)
+  - Trece parțial filtrul agent-native — 4 fisuri identificate: hibrid UI+chat vs pur agent-native, rebuild vs wrap incumbent, distribuție absentă, outcome-based pricing absent
+  - Tensiune explicită cu bounded-problem-wedge: build plan de 14 packages pentru 1 MVP use-case; risc platform-before-wedge antipattern
+  - Spec-ul expune 3 pattern-uri novel merite concepte dedicate: sovereign tokenization ca regulatory moat, dual orchestrator (runtime+dev-time), ai-native operational platform ca a treia categorie lângă agent-native-startup și headless-saas-thesis
+  - Ai-native-operational-platform creează contradictions explicite cu agent-native-startup și bounded-problem-wedge — flagged în frontmatter pentru viitor pressure-test
+  - Recomandări prioritare: Sprint 0 = LinkedIn cadence; decide explicit categoria; instrumentează outcomes din Sprint 1; gate Phase 3 pe signal real nu calendar
+- Maturity synthesis: developing
+- **Totals: 0 sources, 0 entities, 3 concepts, 1 synthesis = 4 new + 0 updated**
