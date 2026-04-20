@@ -40,20 +40,19 @@ Două teze fundamentale ghidează toate deciziile din Alteramens:
 ## Despre mine
 Vezi detalii în [[owner/Who am i|Who am i]] pentru context personal.
 - **Narcis Brindusescu** - Administrator IT la un spital din Pitești, România
-- **Program job:** 08:00 - 15:00 (timp limitat pentru side projects)
+- **Program job:** 08:00 - 15:00
 - Alteramens = proiect paralel, după program
 
 ## Superpower: AI-augmented development
 **Claude Code = multiplicator de productivitate.**
 - Scriu cod de calitate foarte rapid cu ajutorul AI
-- Asta compensează timpul limitat
-- Încredere că pot executa idei ambițioase în timeline scurt
+- Încredere că pot executa idei ambițioase
 - AI nu e doar tool, e partener de gândire și execuție
 
 *Implicație: Proiecte care ar lua luni pot fi făcute în săptămâni. Bottleneck-ul nu e coding-ul, ci validarea și găsirea problemei potrivite.*
 
-## Obiectiv principal
-**1K MRR în 6 luni** (Ian 2026 - Iul 2026)
+## Determinare
+**Sunt extrem de determinat să îmi ating obiectivele.** Execut, măsor, ajustez — fără scuze.
 
 ## Stil de colaborare
 - **Parteneriat** - Nu doar execuție, ci gândire împreună

@@ -9,7 +9,7 @@ guided: false
 entities: [alteramens]
 concepts: [validate-before-build, kill-fast, compounding-games, accountability]
 key_claims:
-  - "From 0 to 1K MRR in 6 months (Jan-Jul 2026)"
+  - "Extreme determination to achieve objectives — no specific numeric target defines the mission"
   - "An MVP must be embarrassingly simple"
   - "If an idea shows no signs of life after 2-3 weeks, archive and move on"
   - "Stars, followers, engagement don't matter if they don't generate revenue"
@@ -47,7 +47,7 @@ Freedom: control over time, location, and work. Home gym, proper tech setup, mou
 
 ## Timeline (Jan-Jul 2026)
 
-Jan: Setup + 3 ideas → Feb: First experiment → Mar: First users → Apr: First payment → May: 100$ MRR → Jun: 500$ MRR → Jul: 1000$ MRR
+Jan: Setup + 3 ideas → Feb: First experiment → Mar: First users → Apr: First payment → May: Growing revenue → Jun: Clear traction → Jul: Goals achieved
 
 ## Daily Levers
 

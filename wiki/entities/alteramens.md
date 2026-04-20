@@ -19,7 +19,7 @@ A laboratory for ideas and projects. A space for experimentation, validation, an
 
 ## Mission
 
-From 0 to **1K MRR in 6 months** (January - July 2026).
+Transform ideas into profitable products through extreme determination, disciplined execution, and AI-augmented leverage.
 
 ## Philosophical Foundation
 
@@ -43,4 +43,4 @@ Supporting infrastructure: BunBase (BaaS), Robun (AI agent), Dualize (API+CLI li
 
 ## The Builder
 
-**Narcis Brindusescu** — IT Administrator, economist by training, developer by practice. Constrained to ~10 hours/week after day job. Claude Code as force multiplier.
+**Narcis Brindusescu** — IT Administrator, economist by training, developer by practice. Extremely determined to achieve his goals. Claude Code as force multiplier.

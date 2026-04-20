@@ -35,7 +35,7 @@ date: 2026-01-17
 Transformarea ideilor în produse profitabile prin disciplină, experimentare și execuție focusată!
 
 ## Misiune
-De la 0 la **1K MRR în 6 luni** (Ianuarie - Iulie 2026)
+Transformarea ideilor în produse profitabile printr-o determinare extremă și execuție focusată.
 
 Vezi [[CLAUDE]] pentru ghidul de colaborare.
 
@@ -64,9 +64,9 @@ Dacă după 2-3 săptămâni de efort o idee nu arată semne de viață, archive
 | Feb 2026 | Primul experiment live |
 | Mar 2026 | Primii utilizatori (chiar și gratis) |
 | Apr 2026 | Prima plată |
-| Mai 2026 | 100$ MRR |
-| Iun 2026 | 500$ MRR |
-| Iul 2026 | 1000$ MRR |
+| Mai 2026 | Revenue creștetor |
+| Iun 2026 | Tracțiune clară |
+| Iul 2026 | Obiective atinse |
 
 ---
 
@@ -96,9 +96,9 @@ Dacă după 2-3 săptămâni de efort o idee nu arată semne de viață, archive
 - **30min** review și planificare pentru ziua următoare
 - **30min** interacțiune cu piața (conversații, feedback, comunități)
 
-### Weekend (4h bloc)
-- **2h** Sâmbătă: build/execuție
-- **2h** Duminică: reflecție, documentare, pregătire săptămână
+### Weekend
+- **Sâmbătă:** build/execuție
+- **Duminică:** reflecție, documentare, pregătire săptămână
 
 ### Trigger de verificare
 La finalul fiecărei zile: *"Am făcut cele 3 lucruri? DA/NU"*
@@ -130,7 +130,7 @@ Dacă NU de 2 zile la rând → oprește tot și diagnostichează problema.
 
 | Ora | Întrebare |
 |-----|-----------|
-| 07:00 | "Ce e CEL MAI important lucru de făcut azi pentru 1K MRR?" |
+| 07:00 | "Ce e CEL MAI important lucru de făcut azi pentru obiectivele mele?" |
 | 11:00 | "Sunt mai aproape de mocirla sau de libertate?" |
 | 15:00 | "Am irosit sau am investit orele de azi?" |
 | 19:00 | "Ce am lansat/validat/învățat azi?" |

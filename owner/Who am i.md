@@ -14,7 +14,7 @@ updated: 2026-01-17
 | Aspect | Detalii |
 |--------|---------|
 | **Job actual** | Administrator IT, Spital Pitești, România |
-| **Program** | 08:00 - 15:00 (timp limitat pentru side projects) |
+| **Program** | 08:00 - 15:00 |
 | **Experiență anterioară** | 10 ani șef birou contabilitate (același spital) |
 | **Educație** | Economist - Academia de Studii Economice, București |
 
@@ -39,11 +39,13 @@ updated: 2026-01-17
 - Status: ~75% engine ready
 - Direcție: Agentic Business Platform
 
-## Obiectiv 2026
+## Determinare
 
-**1K MRR până în Iulie 2026**
+**Sunt extrem de determinat să îmi ating obiectivele.**
 
-Vezi [[MANIFEST]] pentru timeline detaliat.
+Execut, măsor, ajustez — indiferent de obstacole.
+
+Vezi [[MANIFEST]] pentru principii și direcție.
 
 ## Stil de lucru
 

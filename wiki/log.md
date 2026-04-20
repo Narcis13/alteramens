@@ -383,3 +383,10 @@ Chronological record of wiki operations. Append-only.
 - Guided ingest: discussed key takeaways with Narcis; he confirmed creating concept + synthesis
 - Insight: reframe acts as umbrella over engineering-as-marketing, hypothesis-driven-experimentation, compounding-games — unifies 8 alteramens framework pages into a single dev-native repo architecture
 - **Totals: 1 sources, 0 entities, 1 concepts = 3 new + 3 updated**
+
+## [2026-04-20] link | Vault content update — removed 1K MRR & time-limit framing
+- Files updated: owner/Who am i.md, MANIFEST.md, CLAUDE.md, Home.md
+- Wiki updated: entities/alteramens.md, sources/alteramens-manifest.md, syntheses/alteramens-thesis.md
+- Change: removed all references to "1K MRR" as a target and "timp limitat / 4h per day" as constraints
+- Replacement framing: **extreme determination to achieve objectives** — the target matters less than the commitment
+- Note: Analytical wiki pages (syntheses, concepts) that reference "1K MRR" in reasoning context were left intact as historical reasoning

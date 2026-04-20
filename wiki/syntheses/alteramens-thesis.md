@@ -64,7 +64,7 @@ Everything compounds:
 - Each source ingested into Faber makes decisions sharper
 - Each customer conversation refines the product
 - Each project builds reusable infrastructure for the next
-- Each day of disciplined execution moves closer to 1K MRR
+- Each day of disciplined execution moves closer to the goal — extreme determination is the constant
 
 The game is worth playing long-term. The specific knowledge is real. The leverage is permissionless. The question is: will the market respond?
 

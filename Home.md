@@ -9,7 +9,7 @@ date: 2026-01-17
 
 # 🏠 Alteramens
 
-> Laborator de idei și proiecte. Obiectiv: **1K MRR în 6 luni**.
+> Laborator de idei și proiecte. Determinare extremă să transform ideile în produse profitabile.
 
 ## Quick Links
 - [[journal/{{date:YYYY-MM-DD}}|Daily note azi]] - Jurnalul zilei
