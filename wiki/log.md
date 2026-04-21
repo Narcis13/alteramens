@@ -390,3 +390,14 @@ Chronological record of wiki operations. Append-only.
 - Change: removed all references to "1K MRR" as a target and "timp limitat / 4h per day" as constraints
 - Replacement framing: **extreme determination to achieve objectives** — the target matters less than the commitment
 - Note: Analytical wiki pages (syntheses, concepts) that reference "1K MRR" in reasoning context were left intact as historical reasoning
+
+## [2026-04-21] ingest | Semnal — Sistem personal de creștere organică pe X
+- Source: workshop/drafts/semnal-x-growth-system.md
+- Source page created: semnal-x-growth-system
+- Entities created: (none — per Narcis: no dedicated semnal entity page until code exists)
+- Entities updated: alteramens (added source + 4 new related concepts)
+- Concepts created: voice-preservation, capture-at-source, human-in-loop-publishing, dogfood-as-content
+- Concepts updated: friction-cost (added "Friction at Personal Publishing — The Shipping-Friction Variant" section), content-pillars (added concrete Narcis-on-X 3-pillar example), building-in-public (added "Self-Referential Variant: Building the Distribution Tool Itself" section)
+- Synthesis: (none — cross-linked into existing content-pillars instead per user direction)
+- **Totals: 1 source, 0 entities, 4 concepts = 5 new + 4 updated**
+- Guided ingest: discussed takeaways with Narcis; agreed no dedicated semnal entity, fold shipping-friction into friction-cost, cross-link (not synthesis) into content-pillars, skip tech-stack detail

@@ -2,13 +2,13 @@
 title: "Building in Public"
 type: concept
 category: pattern
-sources: [nbrain-social-strategy, alteramens-manifest, brainstorm-ai-tutor-medicina]
+sources: [nbrain-social-strategy, alteramens-manifest, brainstorm-ai-tutor-medicina, semnal-x-growth-system]
 entities: [nbrain, alteramens, mihai-brindusescu]
-related: [accountability, authentic-creation, leverage]
-maturity: seed
+related: [accountability, authentic-creation, leverage, dogfood-as-content, human-in-loop-publishing]
+maturity: developing
 confidence: medium
 contradictions: []
-applications: ["strategies/social-media-plan.md", "projects/ai-tutor-admitere/decisions.md"]
+applications: ["strategies/social-media-plan.md", "projects/ai-tutor-admitere/decisions.md", "workshop/drafts/semnal-x-growth-system.md"]
 ---
 
 # Building in Public
@@ -49,3 +49,14 @@ This variant has properties no other build-in-public play matches:
 - **Content cadence is automatic** — daily reality of a child's exam prep generates the narrative without extra effort
 
 The risk profile is also unique: privacy must be explicit and revocable, the public narrative cannot become surveillance, and an honest reckoning is required if the outcome is not what was promised. This is [[accountability]] at maximum, not as marketing.
+
+## Self-Referential Variant: Building the Distribution Tool Itself
+
+A second distinctive variant, from [[semnal-x-growth-system]]: when the tool being built IS the solopreneur's distribution system, building it publicly becomes self-starting. The build produces content that feeds the exact channel the tool is designed to serve. See [[dogfood-as-content]] for the full treatment of the pattern.
+
+Contrast with the vanilla variant: most building-in-public plays talk about a product that exists elsewhere (SaaS, physical product, service). The self-referential variant collapses that distance — the product's output and the account's output are the same stream. This is stronger for cold-start distribution but has a specific failure mode: "meta-building without shipping" (talking about the build without actually building), covered in dogfood-as-content's anti-patterns.
+
+Guardrails for this variant:
+- **Shipping cadence must dominate narration cadence** — more "I shipped X" than "I am planning Y"
+- **Human-in-loop publishing is mandatory** (see [[human-in-loop-publishing]]) — the whole credibility play collapses if the account looks automated
+- **Authority earned by data, not claims** — wait for follower growth / bookmark ratio to justify tool-effectiveness claims

@@ -2,13 +2,13 @@
 title: "Content Pillars — 3-5 Topice pe Care le Owneşti"
 type: concept
 category: decision-framework
-sources: [content-copy-skills-suite]
+sources: [content-copy-skills-suite, semnal-x-growth-system]
 entities: []
-related: [searchable-vs-shareable, hub-and-spoke-architecture, buyer-stage-mapping, voice-of-customer, programmatic-seo]
+related: [searchable-vs-shareable, hub-and-spoke-architecture, buyer-stage-mapping, voice-of-customer, programmatic-seo, dogfood-as-content, voice-preservation]
 maturity: developing
 confidence: high
 contradictions: []
-applications: []
+applications: ["workshop/drafts/semnal-x-growth-system.md"]
 ---
 
 # Content Pillars
@@ -115,6 +115,24 @@ Pentru Alteramens ca brand-umbrelă (separat de proiectele individuale):
 | **AI-augmented development** | Aria personală de expertiză |
 
 Aceste 3 ar putea construi autoritate pentru Narcis personal (productize-yourself) în paralel cu produsele.
+
+## Aplicare concretă: Narcis pe X (via Semnal)
+
+[[semnal-x-growth-system]] propune 3 pillars pentru prezența personală a lui Narcis pe X, gândiți prin lentila "ce numai el poate scrie":
+
+| Pillar | Unghi | Lentile validatoare | Why only Narcis |
+|---|---|---|---|
+| **AI agents for solo builders** | Claude Code + skills ca extensie a creierului | Audience-led + Product-led | 30 ani de cod + AI hobby + build real ≠ influencer fără cod |
+| **Building as a 51yo from a Romanian public hospital** | Jurnal solopreneur post-career | Audience-led + Competitor-led | Inversarea completă a narativului 22-yo-SF-founder; raritate = memorabilitate |
+| **Skill Era craftsmanship** | Patterns, judgment, opinii — nu tutoriale | Competitor-led + Product-led | Aplicare directă a [[skill-era]] tezei; [[compounding-games]] long-game |
+
+Observații:
+
+1. **Pillar 1 și [[dogfood-as-content]] se hrănesc reciproc** — construirea tool-ului de growth (Semnal) este conținut organic pentru pillar 1. Meta-loop-ul dezvoltat în dogfood-as-content.
+2. **Pillar 2 e unicul "awareness-led"** — genul de content care face accountul memorabil, nu doar citit. Rarity = mnemonic device pentru algoritm și urmăritori.
+3. **Pillar 3 e compoundul cel mai curat** — judgment encodat, aliniat perfect cu filozofia Alteramens. Short-term mai puțin engagement decât pillar 2, long-term însă cel mai defensibil.
+
+Toate trei satisfac criteriul "aligned cu produsul" (pentru Narcis, produsul = Narcis; [[productize-yourself]]), "owned by authenticity" ([[authentic-creation]]), și "sustainable cadence" (build + hospital + Romania = inexhaustible well of material).
 
 ## Legătura cu Skill Era
 

@@ -2,13 +2,13 @@
 title: "Friction Cost"
 type: concept
 category: pattern
-sources: [cro-skills-suite, lifecycle-retention-skills-suite]
+sources: [cro-skills-suite, lifecycle-retention-skills-suite, semnal-x-growth-system]
 entities: []
-related: [value-before-ask, progressive-commitment, kill-fast, aha-moment, dunning-stack, peer-voice-outreach]
+related: [value-before-ask, progressive-commitment, kill-fast, aha-moment, dunning-stack, peer-voice-outreach, capture-at-source, human-in-loop-publishing]
 maturity: developing
 confidence: high
 contradictions: []
-applications: []
+applications: ["workshop/drafts/semnal-x-growth-system.md"]
 ---
 
 # Friction Cost
@@ -68,6 +68,29 @@ Afirmația "formularele lungi filtrează leadurile proaste" este aproape întotd
 - Cei cu ADHD / disabilități / tastat dificil
 
 Filtrarea corectă se face după colectarea datelor (lead scoring, disqualify questions opționale în onboarding) — nu prin bariere la poartă. Regula: **cere minimul, filtrează ulterior**.
+
+## Friction at Personal Publishing — The Shipping-Friction Variant
+
+From [[semnal-x-growth-system]]: the same friction-cost logic applies when the "funnel" is a solopreneur's own output pipeline (idea → draft → post). For a builder with expertise and ideas but poor posting consistency, the bottleneck is almost never content quality. It is **activation energy from idea to queue.**
+
+Concrete budget: **<60 seconds from "I have an idea" to "it is in the queue"** is the threshold below which shipping becomes habitual. Above that threshold, the writer decides to "do it later" — which statistically means never.
+
+Every point of friction in the personal-publishing loop has the same multiplicative cost as fields in a form:
+
+| Friction point | Cost (empirical) |
+|---|---|
+| Context switch from terminal → dedicated capture app | lose ~30% of seeds |
+| Pre-capture categorization (pick pillar before writing) | lose another 20-40% |
+| Perfectionism gate ("is this good enough to queue?") | lose 50%+ |
+| Multi-step drafting without variant offers | 2-5x time to ship |
+
+Design implications (operationalized in [[capture-at-source]] and [[human-in-loop-publishing]]):
+- Capture where thought happens — no context switch
+- Write-only capture; classify later
+- Offer 3 draft variants immediately, not 1 perfect draft
+- Human-in-loop gate at publish, not at capture
+
+The core insight: **friction-cost logic is not limited to forms and funnels.** Any pipeline where one person owns multiple steps (capture, draft, ship) is subject to the same multiplicative decay — and solopreneur publishing is the clearest personal-scale application.
 
 ## Contraexemple
 

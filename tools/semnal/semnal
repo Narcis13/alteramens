@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+# semnal — CLI pentru capturi rapide în x-queue/inbox.md
+# Pattern vault-walk-up: identic cu skills faber (caută .faber.toml).
+
+set -euo pipefail
+
+# ─────────────────────────────────────────────────────────────
+# Usage & help
+# ─────────────────────────────────────────────────────────────
+usage() {
+  cat <<'EOF'
+semnal — capture rapid în x-queue/inbox.md
+
+USAGE:
+  semnal capture "<text>"            append text ca seed brut
+  semnal capture "<text>" --shot     + screenshot area-select (macOS)
+  semnal capture "<text>" -s         alias pentru --shot
+  semnal --help                      afișează acest mesaj
+
+EXEMPLE:
+  semnal capture "pattern-ul ăsta cu skills trebuie spus"
+  semnal capture "după ce am văzut output-ul lui Claude..." --shot
+
+EFECT:
+  - detectează vault-ul căutând wiki/.faber.toml în sus de la CWD
+  - adaugă o secțiune "## Raw captures (CLI)" în workshop/x-queue/inbox.md
+    dacă nu există, apoi append entry cu timestamp
+  - cu --shot: rulează screencapture -i, salvează PNG în
+    workshop/x-queue/attachments/YYYY-MM-DD-HHMMSS.png, adaugă ![shot](...)
+
+EXIT CODES:
+  0  succes
+  1  args invalizi / usage error
+  2  screenshot anulat de user (Esc pe crosshair)
+  3  vault root negăsit (no .faber.toml în sus de la CWD)
+EOF
+}
+
+# ─────────────────────────────────────────────────────────────
+# Parse args
+# ─────────────────────────────────────────────────────────────
+if [ $# -eq 0 ]; then
+  usage
+  exit 1
+fi
+
+case "$1" in
+  -h|--help|help)
+    usage
+    exit 0
+    ;;
+  capture)
+    shift
+    ;;
+  *)
+    echo "error: unknown subcommand '$1' (expected: capture, --help)" >&2
+    usage >&2
+    exit 1
+    ;;
+esac
+
+TEXT=""
+SHOT=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --shot|-s)
+      SHOT=1
+      shift
+      ;;
+    --)
+      shift
+      TEXT="${TEXT:+$TEXT }$*"
+      break
+      ;;
+    -*)
+      echo "error: unknown flag '$1'" >&2
+      exit 1
+      ;;
+    *)
+      if [ -z "$TEXT" ]; then
+        TEXT="$1"
+      else
+        TEXT="$TEXT $1"
+      fi
+      shift
+      ;;
+  esac
+done
+
+if [ -z "$TEXT" ]; then
+  echo "error: capture needs text argument" >&2
+  echo "usage: semnal capture \"<text>\" [--shot]" >&2
+  exit 1
+fi
+
+# ─────────────────────────────────────────────────────────────
+# Walk-up vault root (caută wiki/.faber.toml sau .faber.toml)
+# Identic cu pattern-ul din skills faber-*
+# ─────────────────────────────────────────────────────────────
+VAULT_ROOT=""
+d="$PWD"
+while [ "$d" != "/" ]; do
+  if [ -f "$d/wiki/.faber.toml" ]; then
+    VAULT_ROOT="$d"
+    break
+  fi
+  if [ -f "$d/.faber.toml" ]; then
+    VAULT_ROOT="$(dirname "$d")"
+    break
+  fi
+  d="$(dirname "$d")"
+done
+
+if [ -z "$VAULT_ROOT" ]; then
+  echo "error: no wiki/.faber.toml found walking up from $PWD" >&2
+  echo "hint: rulează din interiorul vault-ului alteramens" >&2
+  exit 3
+fi
+
+XQUEUE="$VAULT_ROOT/workshop/x-queue"
+INBOX="$XQUEUE/inbox.md"
+ATTACH_DIR="$XQUEUE/attachments"
+mkdir -p "$ATTACH_DIR"
+
+# ─────────────────────────────────────────────────────────────
+# Timestamps
+# ─────────────────────────────────────────────────────────────
+TS_HUMAN="$(date '+%Y-%m-%d %H:%M')"
+TS_SLUG="$(date '+%Y-%m-%d-%H%M%S')"
+
+# ─────────────────────────────────────────────────────────────
+# Screenshot (opțional)
+# ─────────────────────────────────────────────────────────────
+SHOT_REF=""
+if [ "$SHOT" -eq 1 ]; then
+  if ! command -v screencapture >/dev/null 2>&1; then
+    echo "error: --shot requires macOS screencapture" >&2
+    exit 1
+  fi
+  SHOT_PATH="$ATTACH_DIR/$TS_SLUG.png"
+  echo "→ select area (Esc to cancel)..." >&2
+  # -i area-select; -o no shadow; fails silently on Esc (nu scrie fișierul)
+  screencapture -i -o "$SHOT_PATH" || true
+  if [ ! -f "$SHOT_PATH" ]; then
+    echo "cancelled: no screenshot saved, nothing appended to inbox" >&2
+    exit 2
+  fi
+  SHOT_REF="![shot](attachments/$TS_SLUG.png)"
+fi
+
+# ─────────────────────────────────────────────────────────────
+# Inbox: ensure "## Raw captures (CLI)" section exists, then append entry
+# ─────────────────────────────────────────────────────────────
+if [ ! -f "$INBOX" ]; then
+  echo "error: inbox not found at $INBOX" >&2
+  exit 3
+fi
+
+if ! grep -q '^## Raw captures (CLI)$' "$INBOX"; then
+  {
+    printf '\n\n---\n\n## Raw captures (CLI)\n\n'
+    printf '> *Append-only from `semnal capture`. Rafinate manual în secțiunile pe piloni de mai sus când ajungem la draft.*\n'
+  } >> "$INBOX"
+fi
+
+{
+  printf '\n### %s\n' "$TS_HUMAN"
+  printf '%s\n' "$TEXT"
+  if [ -n "$SHOT_REF" ]; then
+    printf '\n%s\n' "$SHOT_REF"
+  fi
+} >> "$INBOX"
+
+# ─────────────────────────────────────────────────────────────
+# Confirmare
+# ─────────────────────────────────────────────────────────────
+REL_INBOX="${INBOX#$VAULT_ROOT/}"
+echo "✓ captured → $REL_INBOX (## Raw captures (CLI) / $TS_HUMAN)"
+if [ -n "$SHOT_REF" ]; then
+  echo "  shot    → workshop/x-queue/attachments/$TS_SLUG.png"
+fi

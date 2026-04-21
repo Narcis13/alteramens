@@ -4,9 +4,9 @@ type: entity
 category: company
 aliases: [Alteramens, "the lab", "the vault"]
 first_seen: alteramens-manifest
-sources: [alteramens-manifest, skill-era-article, naval-framework, cro-skills-suite, seo-skills-suite, content-copy-skills-suite, paid-acquisition-skills-suite, lifecycle-retention-skills-suite, strategy-foundations-skills-suite, sales-revenue-ops-skills-suite]
+sources: [alteramens-manifest, skill-era-article, naval-framework, cro-skills-suite, seo-skills-suite, content-copy-skills-suite, paid-acquisition-skills-suite, lifecycle-retention-skills-suite, strategy-foundations-skills-suite, sales-revenue-ops-skills-suite, semnal-x-growth-system]
 related_entities: [nbrain, workscript]
-related_concepts: [productize-yourself, skill-era, compounding-games, validate-before-build, kill-fast]
+related_concepts: [productize-yourself, skill-era, compounding-games, validate-before-build, kill-fast, dogfood-as-content, voice-preservation, capture-at-source, human-in-loop-publishing]
 vault_refs: ["MANIFEST.md", "CLAUDE.md"]
 status: active
 ---
