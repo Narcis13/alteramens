@@ -112,28 +112,55 @@ optimization, schema-markup hints).
 For platform specs (character limits, format rules, hook formulas), read `references/platforms.md`.
 Don't memorize — consult as you draft each piece.
 
-### Step 4 — Draft all five pieces
+### Step 4 — Draft the four inline pieces (X is delegated)
 
-Produce them in this fixed order (regardless of what the user asked for — you'll reorder in
-presentation):
+Produce **four** pieces inline in the order below. **The X piece is NOT written here** — it is
+delegated to `/semnal-draft` in Step 4b, because semnal is the single source of truth for X voice
++ format and owns the `workshop/x-queue/` ecosystem (pilon-aware, 3 variants, reply radar, future
+metrics).
 
 1. **Blog article** — the anchor, SEO+AEO-optimized, ~1200-2000 words
 2. **Substack newsletter** — essayistic version of the same core claim, ~700-1200 words, personal and
    conversational
 3. **LinkedIn post** — 1200-1800 characters, one big idea + one concrete proof + soft CTA
-4. **X thread** — 6-10 posts, each ≤280 chars, strong hook, claim-evidence-claim rhythm
-5. **YouTube script** — 3-6 min video (~450-900 spoken words), with timestamps, B-roll cues, and a
+4. **YouTube script** — 3-6 min video (~450-900 spoken words), with timestamps, B-roll cues, and a
    hook in the first 15 seconds
 
-Write the blog first because it forces you to organize the argument. The other four are
-compressions/adaptations of that argument. This matches the hub-and-spoke pattern in
-[[hub-and-spoke-architecture]] and [[content-pillars]].
+Write the blog first because it forces you to organize the argument. The other three (Substack,
+LinkedIn, YouTube) are compressions/adaptations of that argument. This matches the hub-and-spoke
+pattern in [[hub-and-spoke-architecture]] and [[content-pillars]].
 
 **Every piece must cite or allude to at least one wiki concept** — not by raw URL, but woven in:
 "as Naval calls it, specific knowledge", "I've written before that distribution beats product", etc.
 For the blog article specifically, include real markdown links to the vault-published version of
 those concepts if they exist on a public site (Narcis will publish wiki pages selectively — if
 unsure, leave as `[[slug]]` placeholder and note in the output that links need swapping).
+
+### Step 4b — Delegate the X piece to /semnal-draft
+
+After the four inline pieces are drafted, invoke `/semnal-draft` to produce the X piece. Do **not**
+write X inline. Pass:
+
+- **Inline seed text** — a one-paragraph distillation of the core claim + the personal angle (NOT a
+  rewrite of the LinkedIn post; semnal will produce 3 variants in its own register)
+- **Pilon hint** — auto-derive from the cited Faber concepts:
+  - Concepts like [[skill-era]], [[encoded-judgment]], [[agent-fleet-architecture]] → **pilon 1** (AI-native craft)
+  - Personal-arc concepts, references to age/experience/Romania → **pilon 2** (51-year-old builder)
+  - Concepts about SMB/healthcare/unsexy verticals → **pilon 3** (unsexy problems)
+  - If ambiguous, ask the user once via AskUserQuestion (1/2/3) before invoking semnal
+- **Language** — same language decision as the rest of the pack (RO or EN)
+- **Voice knob** — `accented` is the default (preserves Romglish per [[voice-preservation]])
+
+`/semnal-draft` will produce `workshop/x-queue/ready/{TODAY}-{slug-x}.md` with 3 variants
+(plain/spicy/reflective) and a lint pass. Capture the file path — Step 5 references it.
+
+**Reading order before Step 4b:**
+- [[x-voice-rules]] (canonical X format/voice)
+- [[x-content-pillars]] (pilon definitions)
+- [[voice-preservation]] (Romglish & accent rules)
+
+These three replace what was previously the "X section" of `references/platforms.md` — that section
+is now a stub pointing here.
 
 ### Step 5 — Output format
 
@@ -198,11 +225,20 @@ status: draft
 
 ---
 
-## 4. X thread
-1/ {hook, ≤280 chars}
-2/ {...}
-...
-N/ {CTA or wrap, ≤280 chars}
+## 4. X (via /semnal-draft)
+
+**Source:** `workshop/x-queue/ready/{YYYY-MM-DD}-{slug-x}.md`
+**Pilon:** {1 | 2 | 3} — {pilon name}
+**Format:** {single | thread | long-form}
+**Recommended variant:** {A — Plain | B — Spicy | C — Reflective}
+
+> Mirror of recommended variant (read-only). To pick another variant or edit, open the source file.
+
+```
+{full text of recommended variant — for thread, number tweets 1/n, 2/n, ...}
+```
+
+To switch variants or ship: see source file. Lint status: {N/8 passed}.
 
 ---
 
@@ -264,9 +300,12 @@ Before handing off, each piece must pass:
    platitudes, no "10 tips" listicle energy unless explicitly requested).
 4. **Anti-slop gate** — no "In today's fast-paced world", no "Let's dive in", no emoji walls, no
    "game-changer", no "revolutionary". If you caught yourself writing one, rewrite.
-5. **Platform gate** — each piece obeys the length, format, and hook rules in
-   `references/platforms.md`. An X thread that's actually 3 posts is a fail.
-6. **Honesty gate** — no fabricated stats, no invented case studies, no fake testimonials. If a
+5. **Platform gate** — each inline piece obeys the length, format, and hook rules in
+   `references/platforms.md` (blog/Substack/LinkedIn/YouTube only — X is governed by
+   [[x-voice-rules]] and produced by `/semnal-draft`).
+6. **X delegation gate** — the X piece must come from `/semnal-draft`, not be written inline. The
+   content-pack mirrors the recommended variant and links to the x-queue source file.
+7. **Honesty gate** — no fabricated stats, no invented case studies, no fake testimonials. If a
    number isn't in the wiki, either leave it out or mark it `{ADD REAL NUMBER}`.
 
 If any gate fails, fix silently before output. Don't waste Narcis's review time on obvious misses.
@@ -276,6 +315,10 @@ If any gate fails, fix silently before output. Don't waste Narcis's review time 
 ## Anti-patterns
 
 - **Starting to write before /faber-query.** You will produce generic slop. Don't.
+- **Writing the X piece inline instead of delegating to `/semnal-draft`.** semnal is the source of
+  truth for X voice, format, and pilon awareness. Inlining X here produces drift, sterilized
+  Romglish, and posts that bypass `workshop/x-queue/` (so reply radar and future metrics miss
+  them). Always delegate.
 - **Summarizing the wiki instead of using it.** The wiki is fuel, not the content. Narcis wrote the
   concepts to *apply* them, not to recite them.
 - **Giving all five pieces the same hook.** Each platform rewards a different angle — contrarian on
@@ -321,6 +364,9 @@ with the blog (the synthesis is blog-length material already).
 ## Related skills
 
 - **/faber-query** — always invoked first. Non-negotiable.
+- **/semnal-draft** — **mandatory dependency** for the X piece. Step 4b delegates to it. Reads
+  [[x-voice-rules]], [[x-content-pillars]], [[voice-preservation]]; produces 3 variants in
+  `workshop/x-queue/ready/`. Never write X inline.
 - **/faber-ingest** — run after the user decides this content pack is worth promoting to the wiki
   (e.g. its core claim matures).
 - **/faber-link** — optional post-step, cross-link the content file with cited concepts.

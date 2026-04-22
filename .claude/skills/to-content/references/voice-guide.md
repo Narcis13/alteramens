@@ -1,10 +1,18 @@
 # Voice Guide — Narcis Brindusescu
 
+> **Scope:** this guide governs **blog / Substack / LinkedIn / YouTube** — the four pieces written
+> inline by `/to-content`. **It does NOT govern X.** For X (Twitter), the canonical sources are
+> [[wiki/concepts/voice-preservation]] (preserve Romglish, accent over fluency) and
+> [[wiki/concepts/x-voice-rules]] (hook in first 7 words, length tiers, 3 variants, forbidden
+> openers/LLM-isms). The X piece is produced by `/semnal-draft`, not by this skill — see Step 4b in
+> SKILL.md. Do not apply the RO-anglicism-sterilization rule below to X drafts; on X, Romglish
+> *is* the brand.
+
 Distilled from `MANIFEST.md`, `owner/Who am i.md`, `Foundation.md`, and the syntheses
 [[personal-brand-strategy]], [[content-copy-framework-alteramens]], [[authentic-creation]].
 
 Read this every time `/to-content` runs. The Faber wiki gives you *what* to say. This file gives you
-*how* Narcis says it.
+*how* Narcis says it on the four inline platforms (blog/Substack/LinkedIn/YouTube).
 
 ---
 
@@ -81,7 +89,7 @@ That sentence is the filter for everything. If a piece sounds like an influencer
 | **Blog** | Essayistic, measured, with structure (H2/H3). Allowed to be long. | Compounding SEO asset — needs to hold up in 2 years. |
 | **Substack** | Conversational, warm, personal. Think "letter to a friend who also builds." | Newsletter is where relationship happens. |
 | **LinkedIn** | Professional but human. Story-led. Break lines aggressively for skim. | LinkedIn rewards hooks + scannability + 1 strong payoff. |
-| **X / Twitter** | Tight, punchy, often contrarian. Claim → evidence → claim rhythm. | Short attention, global builder audience. |
+| **X / Twitter** | (governed by [[x-voice-rules]] + [[voice-preservation]] — produced by `/semnal-draft`) | Different system, different voice rules. See scope note at top. |
 | **YouTube script** | Spoken, natural, with pauses. Read aloud as you write. Use contractions. | It's speech, not prose. "I'm" not "I am". |
 
 ---

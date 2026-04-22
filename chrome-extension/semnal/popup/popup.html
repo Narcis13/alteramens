@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Semnal</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="hdr">
+    <div>
+      <h1>Semnal</h1>
+      <p class="sub">capture · reply radar</p>
+    </div>
+    <label class="toggle">
+      <input id="radar-toggle" type="checkbox" />
+      <span>Radar</span>
+    </label>
+  </header>
+
+  <section class="capture">
+    <div class="meta" id="page-meta">—</div>
+
+    <label for="selection">Quote</label>
+    <textarea id="selection" rows="3" placeholder="Citat din pagina curentă (selecția curentă, dacă există)…"></textarea>
+
+    <label for="thought">Gândul tău</label>
+    <textarea id="thought" rows="3" placeholder="De ce contează? Angle? (RO / EN / mix)"></textarea>
+
+    <div class="pillars" id="pillars-row"></div>
+
+    <p class="suggest" id="suggest">Alege un pilon sau Alt+0.</p>
+  </section>
+
+  <section class="buffer">
+    <div class="row">
+      <span id="buffer-count">0 captures in buffer</span>
+      <div class="actions">
+        <button id="export-btn" class="secondary">Export .md</button>
+        <button id="copy-all-btn" class="secondary">Copy all</button>
+        <button id="clear-btn" class="tertiary">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <a href="#" id="open-options">Settings</a>
+    <span class="dim">Cmd+Shift+Y to capture · Alt+Shift+R to toggle radar</span>
+  </footer>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="../lib/pillars.js"></script>
+  <script src="../lib/formatter.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

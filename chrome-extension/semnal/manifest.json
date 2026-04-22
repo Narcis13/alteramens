@@ -1,0 +1,79 @@
+{
+  "manifest_version": 3,
+  "name": "Semnal — Capture & Reply Radar",
+  "version": "0.1.0",
+  "description": "Capture text de pe orice site în x-queue/inbox.md + Reply Radar pe timeline-ul X (sweet-spot highlighting).",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Semnal — capture",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "contextMenus",
+    "clipboardWrite",
+    "downloads",
+    "notifications"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "commands": {
+    "capture-selection": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Capture selecția curentă în inbox"
+    },
+    "toggle-radar": {
+      "suggested_key": {
+        "default": "Alt+Shift+R",
+        "mac": "Alt+Shift+R"
+      },
+      "description": "Toggle Reply Radar pe timeline-ul X"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "lib/pillars.js",
+        "lib/formatter.js",
+        "content/capture-overlay.js"
+      ],
+      "css": ["content/capture-overlay.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    },
+    {
+      "matches": ["*://x.com/*", "*://twitter.com/*"],
+      "js": [
+        "lib/pillars.js",
+        "content/radar.js"
+      ],
+      "css": ["content/radar.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}

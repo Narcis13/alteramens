@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Semnal — Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main>
+    <h1>Semnal — Settings</h1>
+    <p class="intro">
+      Extensia funcționează 100% local. Nimic nu se trimite la un backend. Capture-urile
+      se țin în <code>chrome.storage.local</code>; folosește <strong>Export</strong> ca să
+      le copiezi în <code>workshop/x-queue/inbox.md</code>.
+    </p>
+
+    <section>
+      <h2>Pillars</h2>
+      <p>
+        Definește cei 3 piloni folosiți la capture + radar. Hints sunt keyword-uri care
+        sugerează automat pilonul în overlay/popup.
+      </p>
+      <div id="pillars-list"></div>
+      <div class="row">
+        <button id="add-pillar" class="secondary">+ Add pillar</button>
+        <button id="reset-pillars" class="tertiary">Reset to defaults</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Radar targets (sweet-spot accounts)</h2>
+      <p>
+        Handles X pe care Radar-ul le va highlight-a pe timeline. Format: handle fără @,
+        pilon (P1/P2/P3), scurt angle. Mirror după
+        <code>workshop/x-queue/targets.md</code>.
+      </p>
+      <div id="targets-list"></div>
+      <div class="row">
+        <button id="add-target" class="secondary">+ Add target</button>
+        <button id="reset-targets" class="tertiary">Reset to defaults</button>
+        <button id="import-targets" class="secondary">Import from markdown…</button>
+      </div>
+      <textarea id="import-area" placeholder="Lipește markdown din targets.md aici (parse best-effort, extrage rânduri de formă `@handle` + pilon P1/P2/P3)…" rows="4" hidden></textarea>
+      <div class="row" id="import-row" hidden>
+        <button id="import-apply" class="secondary">Apply import</button>
+        <button id="import-cancel" class="tertiary">Cancel</button>
+      </div>
+    </section>
+
+    <section class="flex-row">
+      <div>
+        <h2>Radar state</h2>
+        <label class="switch">
+          <input id="radar-enabled" type="checkbox" />
+          <span>Reply Radar activat pe x.com / twitter.com</span>
+        </label>
+      </div>
+      <div>
+        <h2>Buffer</h2>
+        <p class="count" id="buffer-count">—</p>
+        <div class="row">
+          <button id="export-all" class="secondary">Export .md</button>
+          <button id="clear-all" class="tertiary">Clear buffer</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Shortcuts</h2>
+      <ul class="shortcuts">
+        <li><kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>Y</kbd> — capture de pe pagina curentă (overlay)</li>
+        <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> — toggle Reply Radar</li>
+        <li><kbd>Alt</kbd>+<kbd>1/2/3</kbd> — pilon în overlay/popup</li>
+        <li><kbd>Alt</kbd>+<kbd>0</kbd> — unassigned</li>
+        <li><kbd>Esc</kbd> — închide overlay-ul / drawer-ul</li>
+      </ul>
+      <p class="dim">Modifică shortcut-urile în <code>chrome://extensions/shortcuts</code>.</p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="options.js" type="module"></script>
+</body>
+</html>

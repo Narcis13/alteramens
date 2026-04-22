@@ -118,21 +118,26 @@ Aceste 3 ar putea construi autoritate pentru Narcis personal (productize-yoursel
 
 ## Aplicare concretă: Narcis pe X (via Semnal)
 
-[[semnal-x-growth-system]] propune 3 pillars pentru prezența personală a lui Narcis pe X, gândiți prin lentila "ce numai el poate scrie":
+**Vezi [[x-content-pillars]] pentru definițiile canonice ale celor 3 piloni** (AI-native craft /
+51-year-old builder / Unsexy problems), validați 2026-04-21 prin moat/sustainability/compounding
+tests. Working copy operațional pentru `semnal` la `workshop/x-queue/pillars.md`. Reguli de format
+& voce pe X la [[x-voice-rules]].
 
-| Pillar | Unghi | Lentile validatoare | Why only Narcis |
-|---|---|---|---|
-| **AI agents for solo builders** | Claude Code + skills ca extensie a creierului | Audience-led + Product-led | 30 ani de cod + AI hobby + build real ≠ influencer fără cod |
-| **Building as a 51yo from a Romanian public hospital** | Jurnal solopreneur post-career | Audience-led + Competitor-led | Inversarea completă a narativului 22-yo-SF-founder; raritate = memorabilitate |
-| **Skill Era craftsmanship** | Patterns, judgment, opinii — nu tutoriale | Competitor-led + Product-led | Aplicare directă a [[skill-era]] tezei; [[compounding-games]] long-game |
+Cele 3 piloni satisfac toate lentilele de validare din acest concept părinte: aliniere cu produsul
+(pentru Narcis, produsul = Narcis; [[productize-yourself]]), owned by authenticity
+([[authentic-creation]]), sustainable cadence (build + hospital + Romania = inexhaustible well of
+material), și compounding (fiecare pilon trimite la celelalte).
 
-Observații:
+**Cross-pilon dynamics:**
 
-1. **Pillar 1 și [[dogfood-as-content]] se hrănesc reciproc** — construirea tool-ului de growth (Semnal) este conținut organic pentru pillar 1. Meta-loop-ul dezvoltat în dogfood-as-content.
-2. **Pillar 2 e unicul "awareness-led"** — genul de content care face accountul memorabil, nu doar citit. Rarity = mnemonic device pentru algoritm și urmăritori.
-3. **Pillar 3 e compoundul cel mai curat** — judgment encodat, aliniat perfect cu filozofia Alteramens. Short-term mai puțin engagement decât pillar 2, long-term însă cel mai defensibil.
-
-Toate trei satisfac criteriul "aligned cu produsul" (pentru Narcis, produsul = Narcis; [[productize-yourself]]), "owned by authenticity" ([[authentic-creation]]), și "sustainable cadence" (build + hospital + Romania = inexhaustible well of material).
+1. **Pillar 1 ("AI-native craft") + [[dogfood-as-content]] se hrănesc reciproc** — construirea
+   tool-ului de growth (Semnal) este conținut organic pentru pillar 1. Meta-loop dezvoltat în
+   dogfood-as-content.
+2. **Pillar 2 ("51-year-old builder") e unicul "awareness-led"** — genul de content care face
+   accountul memorabil, nu doar citit. Rarity = mnemonic device pentru algoritm și urmăritori.
+3. **Pillar 3 ("Unsexy problems") e compoundul cel mai curat** — judgment encodat, aliniat perfect
+   cu filozofia Alteramens. Short-term mai puțin engagement decât pillar 2, long-term cel mai
+   defensibil.
 
 ## Legătura cu Skill Era
 

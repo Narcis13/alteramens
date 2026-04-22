@@ -6,7 +6,14 @@ tags:
   - pillars
 date: 2026-04-21
 status: locked
+canonical_source: "[[wiki/concepts/x-content-pillars]]"
 ---
+
+> **Sursa canonică:** [[wiki/concepts/x-content-pillars]]. Acest fișier e **working copy operațional**
+> pentru `semnal` (citit zilnic de `/semnal-draft` și `/semnal-reply`). Modificările aici se promovează
+> în wiki la următorul `/semnal-reflect` săptămânal sau prin `/faber-link`. Pentru reguli de
+> format/voce pe X (hook, length, variante, lint), vezi [[wiki/concepts/x-voice-rules]] — singura
+> sursă canonică.
 
 # Cei 3 piloni — decizie finală
 

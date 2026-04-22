@@ -1,0 +1,6 @@
+
+As vrea sa gindesti profund la o posibila dezvoltare a sistemului nostru faber de conjunctie cognitiva intre un wiki asa cum este structurat si un vault asa cum este el acum adaugind in ecuatie 2 idei :
+- in loc de owner/Who am i sa integram toate informatiile despre mine mai adinc in wiki si astfel sa intre in sistemul de compunding impreuna cu toate conceptele ,sursele, sintezele etc. In timp se vor stringe mai mute informatii din mai multe unghiuri despre mine si activitatea mea in paralel si intercorelat conceptual cu restul wiki.
+- dar sa existe si o "voce" a ta, a agentului AI cu care practic dialoghez atunci cind dezvoltam tot angrenajul alteramens care sa exprime contextul,obiectivele, constringerile si modul de gindire in general in procesul de augmentare si compund conceptual al alteramens prin wiki, faber si skill-urile din .claude. Ca un fel de CLAUDE.md dar pentru sistemul nostru , fisier ce va evolua in timp .
+aceste 2 paliere pot si ar trebui integrate in baza de date sqlite din spatele faber sa fie cetateni de prin rang al acestui ecosistem.
+Acestea sunt oar propunerile mele, dupa ce analizezi si intelegi deplin ce doresc putem sta de vorba (interviu) pentru a netezi unele aspecte. De asemenea te incurajez sa propui si tu concepte sau aspecte sau workflowuri pentru imbogatirea acestui sistem.

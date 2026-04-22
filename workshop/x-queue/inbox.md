@@ -117,3 +117,14 @@ Opinia mea după 20 de ani în IT de spital public: 80% din software-ul care rul
 
 ### 2026-04-21 13:48
 Vreau sa documentez aici pe X creastea contului utilizind claude code si o combinatie de Obsidian vault + wiki a la Karpathy + proprium sistem care il dezvolt in timp real pe masura ce cresc. Un fel de Grow on X in public
+
+---
+
+## Raw captures (Obsidian)
+
+> *Append-only from Obsidian hotkey (`Cmd+Shift+X`). Rafinate manual în secțiunile pe piloni de mai sus când ajungem la draft.*
+
+### 2026-04-22 12:52 — [[wiki/sources/naval-framework]] — pilon: P3 — Unsexy problems
+
+> ### 1. Play Compounding Games
+> Pick an industry, craft, and people for the long term. Every direction change interrupts compounding. Growth is slow at first, then accelerates. The key is not to interrupt the process.

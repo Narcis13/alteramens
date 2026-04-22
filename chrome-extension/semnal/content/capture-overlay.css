@@ -1,0 +1,168 @@
+/* Semnal capture overlay — injected on any site.
+ * All selectors are prefixed with `.semnal-` and use `all: revert` on the root
+ * container to defend against host-site CSS bleeding in. */
+
+.semnal-overlay-root {
+  all: initial;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646; /* max-ish, just below browser UI */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #111;
+}
+
+.semnal-overlay-root * {
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.semnal-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 15, 25, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.semnal-overlay-panel {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(540px, 94vw);
+  max-height: 84vh;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  padding: 18px 20px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.semnal-overlay-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.semnal-overlay-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.semnal-overlay-header .semnal-meta {
+  font-size: 11px;
+  color: #666;
+}
+
+.semnal-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #555;
+  margin: 6px 0 2px;
+}
+
+.semnal-overlay-panel textarea,
+.semnal-overlay-panel input[type="text"] {
+  width: 100%;
+  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  background: #fafafa;
+  line-height: 1.4;
+}
+
+.semnal-overlay-panel textarea {
+  resize: vertical;
+  min-height: 90px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", monospace;
+  font-size: 13px;
+}
+
+.semnal-overlay-panel textarea:focus,
+.semnal-overlay-panel input[type="text"]:focus {
+  outline: 2px solid #4f46e5;
+  outline-offset: 1px;
+  background: #fff;
+}
+
+.semnal-pillar-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.semnal-pillar-btn {
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.1s, border-color 0.1s;
+}
+.semnal-pillar-btn:hover { background: #f4f4f5; }
+.semnal-pillar-btn.semnal-suggested {
+  border-color: #4f46e5;
+  background: #eef2ff;
+}
+.semnal-pillar-btn .semnal-pillar-key {
+  font-weight: 700;
+  margin-right: 6px;
+}
+.semnal-pillar-btn .semnal-shortcut {
+  float: right;
+  color: #999;
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+.semnal-suggestion-note {
+  font-size: 12px;
+  color: #4f46e5;
+  margin: 0;
+}
+.semnal-suggestion-note.semnal-muted { color: #888; }
+
+.semnal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+.semnal-footer .semnal-hint {
+  font-size: 11px;
+  color: #999;
+}
+.semnal-footer button {
+  padding: 6px 10px;
+  font-size: 12px;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+.semnal-footer button:hover { background: #f4f4f5; }
+
+.semnal-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2147483647;
+  background: #111;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  animation: semnal-toast-in 0.15s ease-out;
+}
+@keyframes semnal-toast-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

@@ -154,50 +154,27 @@ each piece.
 
 ---
 
-## 4. X / Twitter thread
+## 4. X / Twitter — DELEGATED to /semnal-draft
 
-**Purpose:** Global builder-tech audience. Contrarian or highly specific claims spread best.
+**`/to-content` does NOT write X inline.** The X piece is produced by `/semnal-draft`, which is the
+single source of truth for X voice, format, pilon awareness, and the `workshop/x-queue/` ecosystem
+(reply radar, replies-log, future metrics via `/semnal-reflect`).
 
-| Parameter | Value |
-|---|---|
-| Posts per thread | 6-10 typical (short: 4-6, long: 10-15; >15 rare) |
-| Per-post character limit | 280 (count carefully, emoji and URLs count) |
-| Hook (post 1) | Must stand alone. Bold claim, contrarian take, or specific number. |
-| CTA (last post) | Usually a bookmark cue ("bookmark this for the next time...") or a "follow for..." ONLY if it ties to the thread topic |
-| Hashtags | 0-2 max, and only if they're active community tags |
-| Media | A screenshot, GIF, or diagram in post 1 massively boosts reach. Include if relevant. |
+**Canonical X rules live in the wiki, not here:**
+- **Format & voice mechanics:** [[x-voice-rules]] (hook, length, structure, variants, lint, forbidden
+  openers/LLM-isms)
+- **Topical scope per pilon:** [[x-content-pillars]] (3 pillars + voice register per pilon + rotation rule)
+- **Romglish / accent preservation:** [[voice-preservation]] (X preserves accent — do NOT apply this
+  file's `voice-guide.md` to X)
 
-**Thread structure:**
-```
-1/ {Hook — bold claim or contrarian take, stands alone}
-2/ {Context / why most people get this wrong}
-3/ {The core insight or framework}
-4/ {Proof point 1 — concrete}
-5/ {Proof point 2 — concrete}
-6/ {Implication — zoom out}
-7/ {Quotable line — this is the one people screenshot}
-8/ {Recap + CTA}
-```
+**How to invoke from `/to-content`:** see Step 4b in `SKILL.md`. Pass core_claim, pilon (auto-derived
+from cited Faber concepts), language, and `voice: accented`. The result lands in
+`workshop/x-queue/ready/{date}-{slug-x}.md` with 3 variants. The content-pack mirrors the recommended
+variant and links to that file.
 
-**Hook patterns that work (pick one):**
-- **Hot take lead:** "Most {builders/founders/devs} think {X}. They're wrong. Here's why."
-- **List promise:** "After {6 months / N attempts / building X}, here are the {3/5/7} things that
-  mattered:"
-- **Story hook:** "Last week I killed a SaaS idea after 14 days. What I learned:"
-- **Stat hook:** "{Specific surprising number}. Here's what it changes:"
-
-**Voice on X:**
-- Punchy, no throat-clearing. Every post earns its spot.
-- Short sentences. Period. Period.
-- Allowed: strategic line breaks within a post for rhythm.
-- Allowed: a single emoji in the hook if it's doing real work (an arrow, a pointer). Usually skip.
-
-**Failure modes:**
-- Hook requires reading post 2 to make sense. Fail.
-- Thread reads like a blog post chopped arbitrarily. Each post should reward standalone reading.
-- "Thread 🧵" as the only hook — that's 2020. Just start with the claim.
-- Numbered without adding value — if posts 3-7 are "3.", "4.", "5." with no incremental insight,
-  compress to 3 posts.
+**Why this delegation:** before this change, X rules were duplicated in 3 places and drifted
+(sterilize vs preserve Romglish; 6-10 vs 3-8 thread length; pilon mandatory vs absent). Single
+source of truth removes drift permanently.
 
 ---
 
@@ -294,7 +271,7 @@ X: {URL}
 | Blog | 800 words | 1200-1800 | 2500+ |
 | Substack | 500 words | 800-1200 | 1800+ |
 | LinkedIn | 600 chars | 1200-1800 | 2500 (rare) |
-| X thread | 4-5 posts | 7-9 | 12-15 (rare) |
+| X | (delegated to /semnal-draft — see [[x-voice-rules]]) | | |
 | YouTube | 3 min | 5-7 min | 10-15 min |
 
 Default to "standard" unless the topic genuinely deserves more. More length is not more value.
@@ -310,7 +287,7 @@ Never reuse the same hook across all five pieces. Each platform wants a differen
 | Blog | **Problem statement + angle** — "The skill era breaks the SaaS distribution playbook. Here's why." |
 | Substack | **Personal moment** — "I was debugging at 22:30 last Thursday when it hit me..." |
 | LinkedIn | **Contrarian claim** or **constraint flex** — "I build 4h a day. Here's what I had to give up to ship." |
-| X thread | **Bold, standalone claim** — "Most devtools will be unbundled into skills by 2027." |
+| X | (see [[x-voice-rules]] — hook patterns per pilon, first 7 words must carry it) |
 | YouTube | **Payoff upfront** — "By the end of this video, you'll have an AI tutor that costs <$2/user/month." |
 
 ---

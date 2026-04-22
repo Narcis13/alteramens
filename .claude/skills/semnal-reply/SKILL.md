@@ -27,7 +27,11 @@ XQUEUE="$VAULT_ROOT/workshop/x-queue"
 ```
 
 Files you'll touch:
-- Read-only: `$XQUEUE/pillars.md`, `$XQUEUE/targets.md`, `$VAULT_ROOT/wiki/concepts/voice-preservation.md`
+- Read-only canonical: `$VAULT_ROOT/wiki/concepts/x-voice-rules.md` (format & voice rules — single
+  source of truth, includes reply-specific constraints), `$VAULT_ROOT/wiki/concepts/x-content-pillars.md`
+  (canonical pilon definitions), `$VAULT_ROOT/wiki/concepts/voice-preservation.md` (referenced from
+  x-voice-rules)
+- Read-only operational: `$XQUEUE/pillars.md` (working copy), `$XQUEUE/targets.md` (sweet-spot accounts)
 - Append-only (Phase 4 only, after explicit confirmation): `$XQUEUE/replies-log.md`
 
 ## Input
@@ -51,8 +55,11 @@ The URL is usually `x.com/<handle>/status/<id>` or `twitter.com/<handle>/status/
 3. **Fetch post content:**
    - Try `WebFetch` on the URL with a prompt like "Extract the original post text, author handle, and approximate date. Do not include replies."
    - If WebFetch fails (login wall, nitter blocked, etc.): tell Narcis "could not fetch — paste the post text or quote the key line" and wait.
-4. **Read `pillars.md`** (lock the voice on Narcis's side).
-5. **Read `voice-preservation.md`** (same no-sterilization rule as `/semnal-draft`).
+4. **Read `wiki/concepts/x-voice-rules.md`** — canonical reply constraints (≤250 chars, ≤3 sentences,
+   3 variants: context/contrarian/question, forbidden openers, English-only output rule, voice
+   preservation reference). All reply rules below inherit from this file.
+5. **Read `wiki/concepts/x-content-pillars.md`** + `$XQUEUE/pillars.md` (operational copy) to map
+   the target's pilon match.
 
 Do NOT skip this phase. Replying without post content = generating generic filler.
 
@@ -95,22 +102,16 @@ YES:
 Specificity signals attention. Attention invites reply. A reply from a sweet-spot account
 to a 0-follower account = pure algorithmic gold.
 
-**Universal constraints:**
+**Universal constraints — see [[x-voice-rules]] § Reply-specific constraints for the canonical list.**
+
+Quick reminders (the file has the full version):
 - English only in reply output (even if Narcis's thought was Romanian)
 - ≤ 250 chars, ≤ 3 sentences
-- No "Great post!", "Thanks for sharing!", "This!", "100%!"
-- No emoji (maximum 1 if truly carries meaning)
-- No hashtags
-- No LLM-telltales ("dive deep", "game-changer", "it's not just X, it's Y", "in today's...")
-- If the post is a thread: reply only engages with the claim Narcis cared about, not "the whole thread"
+- 3 variants must be genuinely distinct (context / contrarian / question)
+- No forbidden openers (`Great point!`, `Love this!`, `This resonates...`, `+1`, etc.)
+- No forbidden LLM-isms (`dive deep`, `game-changer`, `it's not just X, it's Y`, etc.)
 - Voice preservation applies — accented EN fine; no sterilization
-
-**Do NOT use these openers:**
-- "Great point!"
-- "Love this!"
-- "This resonates..."
-- "I've been thinking about this..."
-- Any variation of "+1"
+- If the post is a thread: reply only engages with the claim Narcis cared about, not "the whole thread"
 
 ### Phase 3 — Present + Request Selection
 

@@ -31,10 +31,19 @@ Use `"$XQUEUE/inbox.md"`, `"$XQUEUE/pillars.md"`, `"$XQUEUE/ready/"` throughout.
 
 ## Required Reading (once per invocation)
 
-Before generating anything, read these three files:
-1. `$XQUEUE/pillars.md` — the locked 3 pillars (voice per pilon, audience, post types)
-2. `$VAULT_ROOT/wiki/concepts/voice-preservation.md` — the Romglish / accent rules
-3. The seed itself (see Input parsing below)
+Before generating anything, read these files:
+
+1. **`$VAULT_ROOT/wiki/concepts/x-voice-rules.md`** — **canonical** format & voice rules for X
+   (hook, length, structure, variants, lint, forbidden openers/LLM-isms). Single source of truth —
+   if anything below contradicts this file, the file wins.
+2. **`$VAULT_ROOT/wiki/concepts/x-content-pillars.md`** — canonical pilon definitions (3 pillars +
+   voice register per pilon + rotation rule).
+3. **`$XQUEUE/pillars.md`** — operational working copy of the pillars (mirrors the wiki, evolves
+   faster via `/semnal-reflect`). Read this for the latest day-to-day pilon framing; if it diverges
+   from the wiki copy, prefer this one for *operational* decisions but flag the drift.
+4. **`$VAULT_ROOT/wiki/concepts/voice-preservation.md`** — the Romglish / accent rules referenced
+   from `x-voice-rules`.
+5. **The seed itself** (see Input parsing below).
 
 **Hard rule:** you do not invent pillars, you do not sterilize voice, you do not auto-post.
 
@@ -44,6 +53,10 @@ Parse `$ARGUMENTS`:
 - **`S###`** (e.g., `S005`) — find the seed in `$XQUEUE/inbox.md` under its pillar section
 - **Raw text** (longer than ~10 words) — treat as inline seed
 - **Empty** — list the available seeds (both structured S### blocks and "## Raw captures (CLI)" entries), ask Narcis to pick one
+- **Structured invocation from `/to-content`** — when invoked from `/to-content` Step 4b, the input
+  carries: `core_claim`, `pilon`, `language`, `voice`, and `seed_ref` (a Faber concept slug like
+  `[[skill-era]]`). Use these to skip Phase 1 questions; `seed_ref` lands in frontmatter as
+  `source_faber`.
 
 ## Workflow
 
@@ -81,33 +94,23 @@ If the seed is strongly pilon-2, you can still produce three *reflective-adjacen
 with different beats, or widen — use judgment. The point is 3 genuinely different takes,
 not three near-synonyms.
 
-**Mandatory constraints on every variant:**
+**Mandatory constraints — see [[x-voice-rules]] for the full canonical list.** It defines: hook
+(first 7 words), length tiers (single 180-260, thread 3-8, long-form), no-link in tweet #1,
+voice preservation (Romglish per [[voice-preservation]]), pilon-specific registers, forbidden
+openers, forbidden LLM-isms, lint checklist.
 
-1. **Hook within first 7 words.** No "Something I've been thinking about...", no meta-preambles.
-2. **Length:**
-   - `single`: 180-260 chars (safe-zone, avoids auto-truncation in previews)
-   - `thread`: 3-8 tweets, each ≤ 280 chars, tweet #1 ≤ 260 chars
-   - `long-form` (Premium): one block, no arbitrary cap, but keep density high
-3. **No external links in tweet #1 of a thread.** Links go in the first reply (2026 algorithm pattern).
-4. **Preserve voice** per `voice-preservation.md`:
-   - Keep Romanian-cadenced English when the seed has it
-   - Romglish OK when intentional ("am prins vreo 5-6 astfel de shift-uri" → "I've caught maybe 5-6 of these shifts" preserves the counting cadence; compare to sterilized "I've experienced several such shifts")
-   - Do NOT translate idioms to their nearest-English equivalent when that kills specificity
-5. **Voice anchors** (these make it sound like Narcis):
-   - Short declarative sentences ending in a beat ("It's here now." / "Use it.")
-   - Occasional Romanian loanword where English has no clean equivalent, *italicized* or in quotes
-   - Timestamps of experience ("30 years of code", "since DOS 3.1", "20 years in public healthcare IT")
-   - Dry pragmatism over inspiration
-6. **Pilon 1 registers:** avoid tutorial-speak. State the pattern/judgment, show you live with it.
-7. **Pilon 2 registers:** flashback → reframe → punchy landing. Don't overdo nostalgia.
-8. **Pilon 3 registers:** specific observation > generic critique. Name the unsexy thing.
+This file inherits all of those rules. Do not duplicate them here. If you need a refresher mid-draft,
+re-read `$VAULT_ROOT/wiki/concepts/x-voice-rules.md`.
 
-**Forbidden:**
-- "Great post!" / "Thanks for sharing" / "Here's a thread on..." opener
-- Hashtag walls (max 0-1 hashtag, and only if load-bearing)
-- Emoji as punctuation (max 1 if truly needed)
-- LLM tells: "dive deep", "unlock", "in today's fast-paced world", "game-changer", "at the end of the day"
-- Moralizing at the end ("remember, anyone can do it!")
+**Flow-specific reminders** (not rules, just things that apply specifically to the draft phase):
+
+- The 3 variants must be genuinely different angles, not paraphrases. If you find yourself producing
+  near-synonyms, widen the register (e.g., make Spicy more contrarian, make Reflective more narrative).
+- Voice anchors that make it sound like Narcis (re-applied here for emphasis):
+  - Short declarative sentences ending in a beat ("It's here now." / "Use it.")
+  - Occasional Romanian loanword where English has no clean equivalent, *italicized* or in quotes
+  - Timestamps of experience ("30 years of code", "since DOS 3.1", "20 years in public healthcare IT")
+  - Dry pragmatism over inspiration
 
 ### Phase 3 — Write Draft File
 
@@ -124,7 +127,8 @@ type: draft
 status: ready
 pilon: {1|2|3}
 pilon_name: "AI-native craft" | "51-year-old builder" | "Unsexy problems"
-source_seed: {S### or "inline"}
+source_seed: {S### or "inline" or "to-content"}
+source_faber: {[[concept-slug]] if invoked from /to-content; else null}
 format: {single|thread|long-form}
 language: {accented|standard-en|romglish}
 hook: "{first ≤7 words of recommended variant}"
@@ -154,13 +158,16 @@ tags:
 
 {full text}
 
-## Lint pass/fail
+## Lint pass/fail (per [[x-voice-rules]] checklist)
 
 - [{x|✗}] Hook in first 7 words: "{first 7 words}"
 - [{x|✗}] Length in safe zone: {actual}/{target-range}
 - [{x|✗}] No link in tweet #1
-- [{x|✗}] Pilon declared
-- [{x|✗}] Voice preservation (no sterilization detected)
+- [{x|✗}] Pilon declared (1, 2, or 3)
+- [{x|✗}] 3 distinct variants (not paraphrases)
+- [{x|✗}] Voice preservation — no sterilization detected
+- [{x|✗}] No forbidden opener / LLM-ism
+- [{x|✗}] No emoji wall, no hashtag wall
 
 ## Notes
 
@@ -201,7 +208,11 @@ Optionally suggest: `pbcopy < <(sed -n '/^## Variant A — Plain/,/^## Variant B
 - **Never invent biographical facts.** Stay within the seed + pillars file + voice-preservation concept. If you need a detail that's not there, ask.
 - **Always write to `ready/`, never to `scheduled/` or `published/`.** Those are Narcis's to move.
 - **One invocation = one draft file.** Batch-generation of many posts is out of scope for v1.
-- **When in doubt on voice:** read `wiki/concepts/voice-preservation.md` again before drafting. Fluency is the ceiling, not the floor.
+- **When in doubt on voice or format:** re-read `wiki/concepts/x-voice-rules.md` (canonical) and
+  `wiki/concepts/voice-preservation.md` (referenced from x-voice-rules). Fluency is the ceiling,
+  not the floor.
+- **When invoked from `/to-content`:** `seed_ref` is a Faber concept slug — embed it in frontmatter
+  as `source_faber: [[concept-slug]]` so the X draft can be cross-linked back to the content-pack.
 
 ## Out of scope (yet)
 

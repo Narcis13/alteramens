@@ -1,0 +1,10 @@
+{
+  "id": "semnal-capture",
+  "name": "Semnal Capture",
+  "version": "0.1.0",
+  "minAppVersion": "1.0.0",
+  "description": "Hotkey capture of selected text (or prompted text) into workshop/x-queue/inbox.md with source, timestamp, and pilon metadata. Part of the Semnal X-growth system.",
+  "author": "Narcis Brindusescu",
+  "authorUrl": "https://github.com/narcis13",
+  "isDesktopOnly": false
+}
