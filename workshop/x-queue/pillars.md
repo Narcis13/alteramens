@@ -11,9 +11,9 @@ canonical_source: "[[wiki/concepts/x-content-pillars]]"
 
 > **Sursa canonică:** [[wiki/concepts/x-content-pillars]]. Acest fișier e **working copy operațional**
 > pentru `semnal` (citit zilnic de `/semnal-draft` și `/semnal-reply`). Modificările aici se promovează
-> în wiki la următorul `/semnal-reflect` săptămânal sau prin `/faber-link`. Pentru reguli de
-> format/voce pe X (hook, length, variante, lint), vezi [[wiki/concepts/x-voice-rules]] — singura
-> sursă canonică.
+> în wiki la următorul `/semnal-reflect` săptămânal sau prin `/faber-link`. Regulile de format pe X
+> (hook, length, variante, lint) trăiesc în `/semnal-draft` însuși; vocea e în tabela `voice_rules`
+> din `faber.db`, populată din [[wiki/self/narcis-voice]].
 
 # Cei 3 piloni — decizie finală
 

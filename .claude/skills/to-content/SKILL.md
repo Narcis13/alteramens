@@ -66,6 +66,25 @@ they determine:
 
 ## Workflow
 
+### Step 0 — Load Narcis's self context (always, before anything else)
+
+Pull the active self context from `faber.db` — **voice rules, pillars, and constraints come from the DB, not from MD files.**
+
+```bash
+WIKI_DB=$(d="$PWD"; while [ "$d" != "/" ]; do
+  [ -f "$d/wiki/faber.db" ] && { echo "$d/wiki/faber.db"; break; }
+  d=$(dirname "$d")
+done)
+sqlite3 -json "$WIKI_DB" "SELECT voice_rules_json, pillars_json, constraints_json FROM v_self_active_context;"
+```
+
+Treat every returned section as a hard constraint on every piece you'll draft:
+- `voice_rules_json` — the register/romglish/specificity discipline
+- `pillars_json` — every piece must align with at least one active pillar
+- `constraints_json` — e.g. time budget (08-15 work hours), weakness flags (procrastination on publishing) — weave where load-bearing; never fabricate
+
+If the DB is missing or the view returns empty, stop and tell Narcis.
+
 ### Step 1 — Ground in the wiki via /faber-query
 
 This is the non-negotiable first step. Do NOT start writing before it runs.
@@ -155,12 +174,10 @@ write X inline. Pass:
 (plain/spicy/reflective) and a lint pass. Capture the file path — Step 5 references it.
 
 **Reading order before Step 4b:**
-- [[x-voice-rules]] (canonical X format/voice)
 - [[x-content-pillars]] (pilon definitions)
-- [[voice-preservation]] (Romglish & accent rules)
-
-These three replace what was previously the "X section" of `references/platforms.md` — that section
-is now a stub pointing here.
+- [[voice-preservation]] (strategic framing — operational discipline lives in `voice_rules`)
+- X format mechanics (hook, length, variants, lint) live inside `/semnal-draft` itself; you
+  do not need to duplicate them here — semnal owns them.
 
 ### Step 5 — Output format
 
@@ -301,8 +318,7 @@ Before handing off, each piece must pass:
 4. **Anti-slop gate** — no "In today's fast-paced world", no "Let's dive in", no emoji walls, no
    "game-changer", no "revolutionary". If you caught yourself writing one, rewrite.
 5. **Platform gate** — each inline piece obeys the length, format, and hook rules in
-   `references/platforms.md` (blog/Substack/LinkedIn/YouTube only — X is governed by
-   [[x-voice-rules]] and produced by `/semnal-draft`).
+   `references/platforms.md` (blog/Substack/LinkedIn/YouTube only — X is owned by `/semnal-draft`).
 6. **X delegation gate** — the X piece must come from `/semnal-draft`, not be written inline. The
    content-pack mirrors the recommended variant and links to the x-queue source file.
 7. **Honesty gate** — no fabricated stats, no invented case studies, no fake testimonials. If a
@@ -364,8 +380,9 @@ with the blog (the synthesis is blog-length material already).
 ## Related skills
 
 - **/faber-query** — always invoked first. Non-negotiable.
-- **/semnal-draft** — **mandatory dependency** for the X piece. Step 4b delegates to it. Reads
-  [[x-voice-rules]], [[x-content-pillars]], [[voice-preservation]]; produces 3 variants in
+- **/semnal-draft** — **mandatory dependency** for the X piece. Step 4b delegates to it. Owns its
+  own X format mechanics + loads `voice_rules` from DB; reads [[x-content-pillars]] and
+  [[voice-preservation]] for pilon/tone framing. Produces 3 variants in
   `workshop/x-queue/ready/`. Never write X inline.
 - **/faber-ingest** — run after the user decides this content pack is worth promoting to the wiki
   (e.g. its core claim matures).

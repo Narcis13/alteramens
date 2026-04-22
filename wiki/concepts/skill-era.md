@@ -2,9 +2,9 @@
 title: "The Skill Era — From Pipes to Patterns"
 type: concept
 category: mental-model
-sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread]
-entities: [alteramens, single-grain, eric-siu, block-inc, pat-walls]
-related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army, knowledge-first-development, ambient-computation, executable-wiki, agent-native-startup, vertical-operator-edge, headless-saas-thesis, outcome-based-pricing]
+sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread, skillify-agents-same-mistakes]
+entities: [alteramens, single-grain, eric-siu, block-inc, pat-walls, garry-tan, gbrain, hermes-agent, openclaw, langchain]
+related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army, knowledge-first-development, ambient-computation, executable-wiki, agent-native-startup, vertical-operator-edge, headless-saas-thesis, outcome-based-pricing, skillify, thin-harness-fat-skills, latent-vs-deterministic]
 maturity: mature
 confidence: high
 contradictions: []
@@ -76,3 +76,16 @@ Complementary strategies like [[answer-engine-optimization]] and [[programmatic-
 [[pat-walls-agent-first-1t-thread]] translates the Skill Era thesis into a founder playbook: the winning startups in the next cycle are **agent-native** ([[agent-native-startup]]) — the agent IS the product, incumbent SaaS platforms become dumb backends, per-seat pricing gives way to [[outcome-based-pricing]], and the moat is vertical operator fluency ([[vertical-operator-edge]]) plus owned audience ([[media-plus-agents-distribution]]).
 
 This doesn't change the underlying Skill Era thesis — it operationalizes it for small-team founders choosing what to build in 2026.
+
+## Skill-Era Reliability: The Missing Discipline (Garry Tan)
+
+[[skillify-agents-same-mistakes|Garry Tan's Skillify essay]] adds the testing-and-compounding layer the Skill Era needs to actually work at production scale. His indictment of [[langchain]]'s $160M/three-year arc — "pieces but not a practice" — is directly consistent with the "encoded judgment is the moat" claim: primitives without opinionated workflows produce vibes-based reliability that decays at complexity.
+
+Three new primitives land on this page:
+- [[thin-harness-fat-skills]] — the architecture: minimal runtime, markdown skill files as fat procedures, resolver routes intents to skills. This is the skill-era artifact made concrete.
+- [[latent-vs-deterministic]] — inside each skill, split work correctly: judgment to the LLM, precision to code. This keeps skills from being expensive, slow, and fragile.
+- [[skillify]] — the 10-step promotion ritual that turns every failure (or working prototype) into permanent, test-backed infrastructure. Every bug gets a test; the test lives forever; the bug becomes structurally impossible.
+
+Reference stack: [[openclaw]] (harness) + [[gbrain]] (verification) + [[hermes-agent]] (autonomous skill creation from Nous Research). Garry's synthesis: creation + verification = both needed. This is the "without tests, any codebase rots" problem that software engineering solved in 2005, finally applied to agent skills.
+
+For Alteramens: the `.claude/skills/` directory is already a skill-era artifact; what's missing is the Skillify discipline over it. Highest-leverage experiment — add a resolver-eval / dark-skill / DRY audit layer across the existing skills.

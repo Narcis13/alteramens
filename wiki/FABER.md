@@ -142,6 +142,26 @@ maturity: draft  # draft | developing | mature
 ---
 ```
 
+### Universal field: `alignment` (optional, any page type)
+
+Any wiki page may declare how it relates to Narcis's active pillars (`self/narcis-pillars.md`).
+Populated by `/faber-ingest` Phase 3b (alignment & stance detection) and synced into the
+`self_alignment` SQLite table.
+
+```yaml
+alignment:
+  - pillar: skill-era-craftsmanship
+    relation: reinforces     # reinforces | weakens | contradicts | neutral
+    source_event: "YYYY-MM-DD ingest | {Title}"
+```
+
+- `pillar` — slug of an active pillar (or the long form `pillar_slug:`).
+- `relation` — one of `reinforces | weakens | contradicts | neutral`. Only write `neutral` when a previous non-neutral mark needs to be explicitly reset; otherwise omit.
+- `source_event` (optional) — free-text trail (ideally the log entry title that produced it).
+- `page_slug` (optional) — defaults to the declaring page. Override only when you are declaring alignment on behalf of a different page (rare).
+
+Query the combined view with `SELECT * FROM v_narcis_alignment`.
+
 ## Slug Convention
 
 Page filenames use kebab-case slugs: `naval-ravikant.md`, `permissionless-leverage.md`, `saas-pricing-models.md`. The slug is the canonical identifier used in frontmatter references.

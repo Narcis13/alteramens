@@ -4,7 +4,7 @@ type: concept
 category: decision
 sources: [semnal-x-growth-system]
 entities: [narcis-brindusescu]
-related: [content-pillars, x-voice-rules, voice-preservation, productize-yourself, authentic-creation, dogfood-as-content, compounding-games, skill-era]
+related: [content-pillars, voice-preservation, productize-yourself, authentic-creation, dogfood-as-content, compounding-games, skill-era]
 maturity: mature
 confidence: high
 contradictions: []
@@ -17,7 +17,7 @@ applications: ["workshop/x-queue/pillars.md", ".claude/skills/semnal-draft/", ".
 
 This is the canonical wiki form. The operational working copy used by `semnal` day-to-day lives at `workshop/x-queue/pillars.md` — it mirrors this file but evolves faster (`/semnal-reflect` updates it weekly based on what's working). Promotions back here happen at milestone reviews or via `/faber-link`.
 
-For the **mechanics** (hook, length, variants, lint) of writing on X, see [[x-voice-rules]]. For the strategic framework that produced these pillars, see [[content-pillars]].
+For the **mechanics** (hook, length, variants, lint) of writing on X, see `/semnal-draft` — those rules live inside the skill itself. **Voice** rules are first-class in the Faber DB (`voice_rules` table, populated from [[self/narcis-voice]]) and loaded by skills via `v_self_active_context`. For the strategic framework that produced these pillars, see [[content-pillars]].
 
 ---
 
@@ -45,7 +45,7 @@ All three pillars below pass all three tests (validated 2026-04-21).
 
 **Audience:** developers asking themselves how to use AI seriously, not just ChatGPT for boilerplate.
 
-**Voice register on this pilon** (see [[x-voice-rules]] for full mechanics): **plain** dominates; **spicy** when taking a stance against a popular pattern. Avoid tutorial-speak — state the pattern/judgment, show you live with it.
+**Voice register on this pilon** (mechanics live in `/semnal-draft`): **plain** dominates; **spicy** when taking a stance against a popular pattern. Avoid tutorial-speak — state the pattern/judgment, show you live with it.
 
 **Cross-references:**
 - [[skill-era]] — the underlying thesis
@@ -130,9 +130,9 @@ All three satisfy: aligned with the product (for Narcis, the product = Narcis; [
 
 | Skill | Reads | Effect |
 |---|---|---|
-| `/semnal-draft` | This file + `workshop/x-queue/pillars.md` (working copy) + [[x-voice-rules]] | Declares pilon in frontmatter; selects voice variant |
-| `/semnal-reply` | This file + `workshop/x-queue/targets.md` | Maps target handle → pilon → reply tone |
-| `/to-content` (X piece) | This file + [[x-voice-rules]] | Auto-derives pilon from cited Faber concepts; passes to `/semnal-draft` |
+| `/semnal-draft` | This file + `workshop/x-queue/pillars.md` (working copy) + `voice_rules` (from `faber.db`) | Declares pilon in frontmatter; selects voice variant |
+| `/semnal-reply` | This file + `workshop/x-queue/targets.md` + `voice_rules` + `self_stances` (from `faber.db`) | Maps target handle → pilon → reply tone |
+| `/to-content` (X piece) | This file + delegates to `/semnal-draft` (which owns X mechanics + loads `voice_rules`) | Auto-derives pilon from cited Faber concepts; passes to `/semnal-draft` |
 | `/semnal-reflect` (future) | Recent published/ posts vs this file | Updates working copy; flags drift back to here |
 
 ---

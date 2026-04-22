@@ -48,6 +48,22 @@ If no arguments, ask the user what they want to know.
 test -f $WIKI_ROOT/faber.db || python3 "$WIKI_ROOT/faber_sync.py"
 ```
 
+## Self Context Loading (always, before Step 1)
+
+Pull the full active self context — pillars, stances, constraints, voice rules — so synthesis is personalized to where Narcis currently stands, not to generic wiki content.
+
+```bash
+sqlite3 -json "$WIKI_ROOT/faber.db" "SELECT * FROM v_self_active_context;"
+```
+
+Apply it in Step 3 (Synthesize):
+- **Frame answers against active pillars** — e.g., "For your pilon 'AI agents for solo builders', this means…"
+- **Flag stance tensions** — if wiki content contradicts an active stance, say so explicitly: "This source contradicts your stance on X. Worth revisiting."
+- **Respect constraints** — don't propose actions that ignore the 08-15 work constraint or weakness flags.
+- **Voice when writing syntheses** — if the user files the answer as a synthesis page, the `voice_rules` govern the prose. No sterilized LLM tone.
+
+The point: queries return *what's true in the wiki given who Narcis is right now*, not neutral summaries.
+
 ## Workflow
 
 ### Step 1: Discover via SQL

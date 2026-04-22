@@ -29,21 +29,31 @@ XQUEUE="$VAULT_ROOT/workshop/x-queue"
 
 Use `"$XQUEUE/inbox.md"`, `"$XQUEUE/pillars.md"`, `"$XQUEUE/ready/"` throughout.
 
+## Self Context Loading (first step, always)
+
+Before any generation, load Narcis's active self-context from `faber.db` — **voice rules come from the DB, not from MD files.** The `v_self_active_context` view returns pillars, stances, constraints, and voice rules as JSON, all `status='active'`.
+
+```bash
+WIKI_DB="$VAULT_ROOT/wiki/faber.db"
+sqlite3 -json "$WIKI_DB" "SELECT voice_rules_json, pillars_json FROM v_self_active_context;"
+```
+
+Treat the returned `voice_rules_json` array as **hard constraints** for every draft — each `rule` is an active discipline; `examples_yes` / `examples_no` show the line. `pillars_json` lists the active pillars (slug + title + since) — the Pilon declared in each draft must correspond to one of them (or the X-content-pillars mapping, below).
+
+If the DB is missing or the view returns empty, stop and tell Narcis — do not fall back to hard-coded voice rules.
+
 ## Required Reading (once per invocation)
 
 Before generating anything, read these files:
 
-1. **`$VAULT_ROOT/wiki/concepts/x-voice-rules.md`** — **canonical** format & voice rules for X
-   (hook, length, structure, variants, lint, forbidden openers/LLM-isms). Single source of truth —
-   if anything below contradicts this file, the file wins.
-2. **`$VAULT_ROOT/wiki/concepts/x-content-pillars.md`** — canonical pilon definitions (3 pillars +
+1. **`$VAULT_ROOT/wiki/concepts/x-content-pillars.md`** — canonical pilon definitions (3 pillars +
    voice register per pilon + rotation rule).
-3. **`$XQUEUE/pillars.md`** — operational working copy of the pillars (mirrors the wiki, evolves
+2. **`$XQUEUE/pillars.md`** — operational working copy of the pillars (mirrors the wiki, evolves
    faster via `/semnal-reflect`). Read this for the latest day-to-day pilon framing; if it diverges
    from the wiki copy, prefer this one for *operational* decisions but flag the drift.
-4. **`$VAULT_ROOT/wiki/concepts/voice-preservation.md`** — the Romglish / accent rules referenced
-   from `x-voice-rules`.
-5. **The seed itself** (see Input parsing below).
+3. **`$VAULT_ROOT/wiki/concepts/voice-preservation.md`** — Romglish / accent rules (strategic
+   framing; the operational discipline lives in the `voice_rules` table loaded above).
+4. **The seed itself** (see Input parsing below).
 
 **Hard rule:** you do not invent pillars, you do not sterilize voice, you do not auto-post.
 
@@ -94,15 +104,57 @@ If the seed is strongly pilon-2, you can still produce three *reflective-adjacen
 with different beats, or widen — use judgment. The point is 3 genuinely different takes,
 not three near-synonyms.
 
-**Mandatory constraints — see [[x-voice-rules]] for the full canonical list.** It defines: hook
-(first 7 words), length tiers (single 180-260, thread 3-8, long-form), no-link in tweet #1,
-voice preservation (Romglish per [[voice-preservation]]), pilon-specific registers, forbidden
-openers, forbidden LLM-isms, lint checklist.
+**X format mechanics — canonical, absorbed here from the retired `x-voice-rules.md`.** Voice rules are loaded from the DB (`v_self_active_context`); format rules live in this skill.
 
-This file inherits all of those rules. Do not duplicate them here. If you need a refresher mid-draft,
-re-read `$VAULT_ROOT/wiki/concepts/x-voice-rules.md`.
+### Hook
 
-**Flow-specific reminders** (not rules, just things that apply specifically to the draft phase):
+- **First 7 words carry the hook.** No "Something I've been thinking about...", no meta-preambles, no "Thread 🧵" label.
+- **The hook stands alone.** A reader who only sees post 1 must understand the claim.
+- **Hook patterns that work** (rotate across posts):
+  - **Stat hook:** `{Specific surprising number}. Here's what it changes:`
+  - **Hot take:** `Most {builders/devs/founders} think {X}. They're wrong.`
+  - **Story hook:** `Last week I killed a SaaS idea after 14 days.`
+  - **Constraint flex:** `I build 4h/day. Here's what I had to cut.`
+  - **Flashback (pilon 2):** `My first computer: 386, 4MB RAM. Today {contrast}.`
+  - **Field note (pilon 3):** `20 years in a Romanian public hospital. {observation}.`
+
+### Length
+
+| Format | Length | Notes |
+|---|---|---|
+| Single | 180-260 chars | Safe zone — avoids preview auto-truncation |
+| Thread | 3-8 tweets | Tweet #1 ≤ 260 chars; each subsequent ≤ 280 |
+| Long-form (Premium) | No hard cap | Density must stay high |
+
+Threads of 9-12 allowed when the topic deserves them; >12 is usually an essay miscast as a thread.
+
+### Structural rules
+
+1. **No external links in tweet #1 of a thread.** Algorithm penalizes link-leading posts. Put links in the first reply.
+2. **No hashtag walls.** Max 0-1 hashtag per post, only if load-bearing (`#buildinpublic` when participating in a real conversation).
+3. **No emoji as punctuation.** Max 1 per post if it's doing real work (arrow, pointer); usually skip.
+4. **No numbered "filler" posts** in threads.
+5. **Pilon declared in frontmatter.** Every X draft declares pilon 1, 2, or 3 — see `x-content-pillars`.
+
+### Pilon-specific registers
+
+- **Pilon 1 — AI-native craft:** avoid tutorial-speak. State the pattern/judgment. Concrete commit/skill/workflow > generic advice.
+- **Pilon 2 — 51-year-old builder:** flashback → reframe → punchy landing. Specific tech reference (386, Turbo Pascal, DOS 3.1) > "back in my day".
+- **Pilon 3 — Unsexy problems:** specific observation > generic critique. Name the unsexy thing (ANAF report, Excel reconciliation, hospital procurement form).
+
+### Forbidden openers
+
+- `Great post!` / `Thanks for sharing` / `Here's a thread on...`
+- `Hot take:` / `Unpopular opinion:` (overused → signals the opposite)
+- `Thread 🧵` as the only hook
+- `Just a quick thought...` / `Random thought...`
+- `Something I've been thinking about...`
+
+### Forbidden LLM-isms (zero tolerance)
+
+`dive deep`, `let's dive in`, `let's unpack`, `unlock`, `supercharge`, `turbocharge`, `elevate your`, `in today's fast-paced world`, `game-changer`, `revolutionary`, `disruptive`, `transform`, `seamless`, `holistic`, `robust`, `scalable` (when imprecise), `leverage` as a verb, `it's not just X, it's Y`, `at the end of the day`, `when push comes to shove`, `synergy`, moralizing closers (`remember, anyone can do it!`, `the future is now`, `we're all in this together`).
+
+**Flow-specific reminders** (apply to the draft phase):
 
 - The 3 variants must be genuinely different angles, not paraphrases. If you find yourself producing
   near-synonyms, widen the register (e.g., make Spicy more contrarian, make Reflective more narrative).
@@ -158,7 +210,7 @@ tags:
 
 {full text}
 
-## Lint pass/fail (per [[x-voice-rules]] checklist)
+## Lint pass/fail (per the X format mechanics above + `voice_rules` from DB)
 
 - [{x|✗}] Hook in first 7 words: "{first 7 words}"
 - [{x|✗}] Length in safe zone: {actual}/{target-range}
@@ -208,9 +260,10 @@ Optionally suggest: `pbcopy < <(sed -n '/^## Variant A — Plain/,/^## Variant B
 - **Never invent biographical facts.** Stay within the seed + pillars file + voice-preservation concept. If you need a detail that's not there, ask.
 - **Always write to `ready/`, never to `scheduled/` or `published/`.** Those are Narcis's to move.
 - **One invocation = one draft file.** Batch-generation of many posts is out of scope for v1.
-- **When in doubt on voice or format:** re-read `wiki/concepts/x-voice-rules.md` (canonical) and
-  `wiki/concepts/voice-preservation.md` (referenced from x-voice-rules). Fluency is the ceiling,
-  not the floor.
+- **When in doubt on voice:** re-select `voice_rules_json` from `v_self_active_context` — it's the
+  single source of truth. Strategic framing lives in `wiki/concepts/voice-preservation.md`.
+  Fluency is the ceiling, not the floor.
+- **When in doubt on X format:** re-read the "X format mechanics" section above.
 - **When invoked from `/to-content`:** `seed_ref` is a Faber concept slug — embed it in frontmatter
   as `source_faber: [[concept-slug]]` so the X draft can be cross-linked back to the content-pack.
 

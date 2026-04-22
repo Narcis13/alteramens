@@ -1,112 +1,110 @@
 ---
 title: "Faber — Narcis și Claude ca cetățeni de prim rang"
-status: researching
+status: planning
 tags:
   - idee
   - faber
   - wiki
   - arhitectura
   - meta
+  - implementation-ready
 created: 2026-04-22
 updated: 2026-04-22
-session_type: brainstorm
+session_type: spec
 participants:
-  - Narcis (propunător)
-  - Claude (analiză + propuneri extinse)
+  - Narcis (decident)
+  - Claude (arhitect + executant)
 ---
 
 # Faber — Narcis și Claude ca cetățeni de prim rang
 
-> Draft pentru o sesiune ulterioară de atac. Brainstorm din 2026-04-22.
-> **Input Narcis:** două propuneri (integrarea profilului în wiki + vocea evolutivă a agentului).
-> **Output Claude:** analiză profundă + 7-8 propuneri extinse + 7 întrebări de interviu.
+> **Status:** decizii luate, gata de implementare.
+> **Input Narcis (2026-04-22):** două propuneri (integrarea profilului în wiki + vocea evolutivă a agentului) + răspunsuri la cele 7 întrebări de rafinare.
+> **Output:** spec de implementare cu roadmap pe faze.
 
-## Propunerile inițiale ale lui Narcis
+## Propunerile inițiale
 
-1. **Integrare profil Narcis în wiki** — în loc de `owner/Who am i`, informațiile despre Narcis intră adânc în wiki și în sistemul de compounding alături de concepte/surse/sinteze. Se vor aduna informații din multiple unghiuri, intercorelat conceptual.
-2. **Vocea evolutivă a agentului AI** — un fișier analog `CLAUDE.md`, dar pentru sistemul nostru, care exprimă contextul, obiectivele, constrângerile, modul de gândire al agentului în procesul de augmentare și compounding conceptual. Evolutiv, nu static.
-3. **Ambele paliere în SQLite** — să fie cetățeni de prim rang în `faber.db`.
-
----
-
-# Ce am înțeles despre propunere
-
-**Ce există azi:**
-- Wiki-ul are 156 pagini, 4 tipuri (source/entity/concept/synthesis), DB cu 2 straturi (knowledge graph + temporal log), FTS pe prose+claims+log.
-- Entitatea `alteramens` există deja ca **entity** cu 86 conexiuni — e deja cetățean de rang. Dar **Narcis nu e**. Narcis trăiește în `owner/Who am i.md`, în afara wiki-ului, fără schema, fără DB, fără linking automat.
-- `CLAUDE.md` e top-down: instrucțiuni de la Narcis către Claude. Static. Dictat. Nu reflectă ce *observă Claude* în colaborare.
-- Asimetria e frapantă: *lumea externă* (Naval, Eric Siu, Pat Walls, ANAF, Single Grain) e modelată cu rigoare. *Narcis* și *Claude* — protagoniștii reali ai fiecărei pagini — sunt extra-muros.
-
-**Ce se propune, privit mai profund:**
-Nu doar "mută `Who am i` în wiki". Saltul adevărat: **cei doi agenți care fac compounding-ul devin ei înșiși obiecte care compound**.
-- Narcis nu ca entity terță (categorie `person` lângă Naval), ci ca **centru gravitațional** — sursele/conceptele/sintezele orbitează în jurul întrebării "ce înseamnă asta pentru Narcis?".
-- Claude nu ca instrument invizibil, ci ca **organism observabil** — cu heuristici documentate, pattern-uri de eșec/succes, voce care evoluează.
+1. **Integrare profil Narcis în wiki** — în loc de `owner/Who am i`, informațiile intră adânc în wiki ca cetățean de prim rang, cu compounding real (fragmentat pe dimensiuni, nu monolit).
+2. **Vocea evolutivă a agentului AI** — pagină `agent/claude.md`: jurnal de echipaj, descriptiv + introspectiv, evolutiv.
+3. **Ambele paliere în SQLite** — `self` și `agent` ca tipuri noi de pagină în `faber.db`, cu tabele auxiliare tipate.
 
 ---
 
-# Propunerea 1 — Narcis ca cetățean de prim rang
+# Decizii luate (răspunsuri la cele 7 întrebări)
 
-## De ce NU e suficient "îl faci entity"
+| # | Întrebare | Decizie |
+|---|-----------|---------|
+| 1 | Sfera `agent/` | **Doar aici**, în Alteramens. Nu e portabil. Schema self-contained, optimizată pentru acest context. |
+| 2 | Autoritate pe heuristici Claude | **Narcis nu șterge; marchează `status: challenged`.** Heuristica rămâne citabilă, cu disputa logată. |
+| 3 | Alți protagoniști de rang 1 | **Doar Narcis + Claude.** Fără soție, copii, Mihai etc. — rămân `entities/` standard. |
+| 4 | `self/` în skill-uri | **Da — injection automat.** Skill-uri (`/semnal-*`, `/to-content`, `/faber-ingest`) citesc `self_context` la startup. |
+| 5 | Raport descriptiv / confruntațional | **Mai mult confruntațional.** `/faber-mirror` activ și direct. Paginile `self/` pot fi descriptive, dar mecanismele derivate (lint, mirror) confruntă explicit. |
+| 6 | "Voice" ca tabelă separată | **Da — `voice_rules` first-class.** Populat din `self/narcis-voice.md`. Elimină `wiki/concepts/x-voice-rules.md`. |
+| 7 | Granularitate istorică | **Snapshot al paginilor `self/` la fiecare `/faber-meet`.** View `v_self_history` peste snapshots. Git oferă diff-ul natural, SQLite oferă query-uri structurate. |
 
-Entity-ul are categoria `person` și set `related_entities, related_concepts, sources, vault_refs`. Dar Narcis are o relație *fundamental diferită* cu wiki-ul:
+**Decizie suplimentară:** fragmentare `self/` **din prima fază**. Nu trecem prin monolit. Granularitate = infrastructură, nu optimizare ulterioară.
 
-| Entity standard (Naval) | Narcis |
+---
+
+# Propunerea 1 — Narcis ca cetățean de prim rang (`self/`)
+
+## Tip nou de pagină: `self`
+
+Nu entity standard. Relația lui Narcis cu wiki-ul e fundamental diferită:
+
+| Entity standard (Naval) | `self` (Narcis) |
 |---|---|
-| Sursele *despre* el sunt externe (articole) | Sursele sunt propriul vault, proiectele, deciziile lui |
-| Fixed frame | Evolutiv — crede X azi, crede Y peste o lună |
-| Nu "cere" nimic paginilor | *Orientează* tot: fiecare sursă ingestă poate fi corelată cu pilonii, stances, constrângerile lui |
-| Read-only (moare ≠ updates) | Append + revise cu *challenged* ca la concepte |
+| Surse externe (articole) | Surse = propriul vault, proiecte, decizii |
+| Fixed frame | Evolutiv — credințe revizuibile, stance-uri tipate |
+| Nu orientează paginile | **Orientează totul**: fiecare ingest se corelează cu pilonii |
+| Read-only | Append + revise cu `status` (active/retired/challenged) |
 
-Deci: **tip nou de pagină: `self`**, NU doar entry în `entities/`. Motivul practic — vrem SQL de forma "toate conceptele care întăresc un pilon activ al lui Narcis" → cere relație tipată, nu linking simplu.
+## Fragmentare din Faza 1
 
-## Descompunerea paginii `self`
+Structura `wiki/self/`:
 
-**Varianta A — monolit:** O singură pagină `self/narcis.md` cu secțiuni standardizate (profil, piloni, stances, constrângeri, obiective, slăbiciuni).
-- Avantaj: coerență, ușor de citit.
-- Dezavantaj: toate updatele se îngrămădesc într-un loc.
+| Pagină | Rol | Update frequency |
+|---|---|---|
+| `self/narcis-profile.md` | Biografic static (51yo, Pitești, economist+dev, familia) | Rar |
+| `self/narcis-pillars.md` | Piloni activi (AI agents for solo builders, Building as 51yo în RO, Skill Era craftsmanship) | Trimestrial |
+| `self/narcis-stances.md` | Poziții active ("Romglish autentic > engleză sterilizată", "Shipping > perfecționare", "Judgment > funcționalitate") | La fiecare revizie |
+| `self/narcis-constraints.md` | Limitări (program 08-15, slăbiciunea amânării) | Rar |
+| `self/narcis-commitments.md` | Obligații măsurabile cu deadline + progress marker | Săptămânal |
+| `self/narcis-voice.md` | Reguli de voce (populează `voice_rules` în DB) | La drift de stil |
+| `syntheses/narcis-trajectory-2026.md` | Arcul narativ anual | Trimestrial |
 
-**Varianta B — fragmentat pe sub-pagini:**
-- `self/narcis-profile.md` — biografic static (51yo, Pitești, economist+dev, familia)
-- `self/narcis-pillars-2026.md` — dinamic: pilonii curenți (AI agents for solo builders, Building as 51yo în RO, Skill Era craftsmanship)
-- `self/narcis-stances.md` — poziții active ("Romglish autentic > engleză sterilizată", "Shipping > Perfecționare", "Judgment > Funcționalitate mecanică")
-- `self/narcis-constraints.md` — limitări active (program 08-15, slăbiciunea amânării, timp limitat post-15:00)
-- `self/narcis-commitments.md` — obligații măsurabile cu deadline ("1000 followers X organic până la Q3 2026", cu progress marker)
-- `syntheses/narcis-trajectory-2026.md` — arcul narativ anual, updatat trimestrial
-
-**Preferința Claude: B, cu regulă strictă.** Monolitul devine haos în 6 luni. Fragmentarea permite maturity tracking pe bucăți (un stance poate trece de la `seed` la `mature` la `challenged`, independent de restul profilului).
+**Regulă strictă per pagină:** fiecare fragment are propria maturity (`seed | developing | mature | archived`) și status, independent de restul profilului. Un stance poate fi `challenged` fără să afecteze pilonii.
 
 ## Ce câștigă concret
 
-Exemple cu datele reale din wiki:
-- **Query nou:** `"Ce concepte sunt aliniate cu pilonii mei activi?"` → SQL JOIN între `self_pillars` și `page_relations` → răspuns instant.
-- **Lint nou:** `/faber-lint` detectează "stance declarat contrazis de sursă recentă" — ex: declarație "shipping > perfectionism", dar log-ul arată 10 ingest-uri fără post public. Flag.
-- **Ingest aliniat:** la ingest, Claude spune explicit "această sursă întărește pilonul **Skill Era craftsmanship**, slăbește pilonul **AI agents for solo builders**, introduce tensiune cu stance-ul despre authentic creation". Compounding *corectiv*, nu doar aditiv.
-- **Pentru skill-uri:** `/semnal-draft` și `/to-content` pot face query în DB pentru regulile de voce (în loc de citirea fișierelor MD separate — `wiki/concepts/x-voice-rules.md` devine stance-uri tipate).
+- **Query agentic:** `"Ce concepte sunt aliniate cu pilonii activi?"` → JOIN `self_pillars` ↔ `page_relations`.
+- **Lint corectiv:** `/faber-lint` detectează "stance declarat contrazis de log" — ex: "shipping > perfectionism", dar 10 ingest-uri fără post public → flag.
+- **Ingest aliniat:** Claude spune explicit la ingest: "Sursa întărește pilonul X, slăbește pilonul Y, introduce tensiune cu stance Z". Compounding *corectiv*, nu aditiv.
+- **Skill-uri curate:** `/semnal-draft` și `/to-content` interoghează `voice_rules` din DB, nu citesc MD-uri.
 
 ---
 
-# Propunerea 2 — Vocea lui Claude ca `agent/` evolutiv
+# Propunerea 2 — `agent/claude.md` (scoped la Alteramens)
 
-## Ce e subtil aici
+## Ce e subtil
 
-Nu un CLAUDE.md v2. Acela e *dictat*. Aici: **jurnal de echipaj** — ce observă Claude lucrând cu Narcis, heuristicile cristalizate, confuziile recurente, pattern-urile de succes/eșec.
+Nu CLAUDE.md v2 (dictat, prescriptiv, static). Aici: **jurnal de echipaj** — descriptiv, introspectiv, evolutiv. Observații Claude → pagină. În DB. Queryable.
 
 | CLAUDE.md actual | `agent/claude.md` propus |
 |---|---|
 | Instrucțiuni Narcis → Claude | Observații Claude → pagină |
 | Prescriptiv | Descriptiv + introspectiv |
-| Static (editezi rar) | Evolutiv (ingest-uri, retrospective) |
-| Nu poate fi contestat | Narcis pretine revizii ("nu, asta nu e adevărat despre mine, retragi") |
+| Static | Evolutiv |
+| Nu poate fi contestat | Narcis marchează `challenged`; nu șterge |
 | Nu e în DB | E în DB — queryable |
 
-## Structura propusă
-
-`agent/claude.md` (tip `agent`):
+## Structura
 
 ```yaml
 ---
 title: "Claude — Modelul de lucru în Alteramens"
 type: agent
+scope: alteramens-only
 updated: 2026-04-22
 heuristics_count: 12
 active_beliefs_about_narcis: 7
@@ -114,36 +112,41 @@ active_beliefs_about_narcis: 7
 ```
 
 Secțiuni:
-1. **Ce înțelege Claude despre Narcis acum** — model curent, sincronizat cu `self/narcis-pillars`. Dacă divergă, `/faber-lint` flaghează.
-2. **Heuristici active** — reguli observate, fiecare cu:
-   - Regula: "Când Narcis amână un subiect > 2 sesiuni, e semnal că ideea nu-l aprinde — nu forța refresh."
-   - Evidențe: linkuri la log events concrete.
-   - Confidence: `high | medium | low`.
-   - Status: `active | retired | challenged`.
-3. **Anti-pattern-uri de evitat** — ce s-a învățat că NU funcționează (ex: "Nu propune features care adaugă friction la shipping — Narcis declară explicit că shipping e bottleneck.").
-4. **Deschis pentru revizie** — lucruri unde Claude nu e sigur, unde cere clarificare.
+1. **Ce înțelege Claude despre Narcis** — sincronizat cu `self/narcis-pillars`. Divergență → `/faber-lint` flag.
+2. **Heuristici active** — fiecare cu: rule, evidențe (log event IDs), confidence (high/medium/low), status (active/retired/challenged).
+3. **Anti-pattern-uri** — ce s-a învățat că NU funcționează.
+4. **Deschis pentru revizie** — întrebări Claude către Narcis, răspunse asincron.
+
+## Autoritate și dispute
+
+- Narcis revizuiește, corectează, marchează `challenged`. **Nu poate șterge.**
+- O heuristică `challenged` rămâne citabilă, cu motivul disputei logat în `agent_heuristics.dispute_reason`.
+- Mecanism "agreed to disagree": Claude poate menține o heuristică ca `challenged` — nu dispare, doar iese din setul activ.
 
 ## Cine scrie ce
 
-- **Heuristici, anti-pattern-uri**: scrise de Claude după ingest/sesiune. Skill nou: `/agent-reflect` la final de sesiuni mari.
-- **Modelul despre Narcis**: propus de Claude, aprobat/corectat de Narcis la `/faber-meet`.
-- **Deschis pentru revizie**: Claude scrie întrebările, Narcis răspunde când vrea.
+- **Heuristici, anti-pattern-uri** → Claude, la `/agent-reflect` (final de sesiuni mari).
+- **Modelul despre Narcis** → Claude propune, Narcis ratifică/corectează la `/faber-meet`.
+- **Deschis pentru revizie** → Claude scrie, Narcis răspunde asincron.
 
-**Regulă strictă:** fiecare heuristică trebuie să aibă **cel puțin un log event citabil** ca evidență. Fără asta, e AI slop.
+**Regulă strictă:** fiecare heuristică = minim 1 log event ca evidență. Fără → nu intră.
 
 ---
 
-# Ce trebuie să se întâmple în SQLite
+# Schema SQLite — adăugări
 
-Adăugări, *nu* breaking changes:
+Non-breaking. Extinderi la `faber.db`:
 
-**1. Extinde CHECK-ul `pages.type`:**
+## 1. Extensie CHECK pe `pages.type`
+
 ```sql
 CHECK(type IN ('source','entity','concept','synthesis','meta','self','agent'))
 ```
 
-**2. Tabele noi:**
+## 2. Tabele noi
+
 ```sql
+-- Piloni activi ai lui Narcis
 CREATE TABLE self_pillars (
     slug TEXT PRIMARY KEY,
     title TEXT NOT NULL,
@@ -152,14 +155,17 @@ CREATE TABLE self_pillars (
     evidence_events INTEGER DEFAULT 0
 );
 
+-- Stance-uri (poziții pe sub-probleme)
 CREATE TABLE self_stances (
     slug TEXT PRIMARY KEY,
     on_topic TEXT NOT NULL,
     position TEXT NOT NULL,
-    confidence TEXT,
+    confidence TEXT CHECK(confidence IN ('high','medium','low')),
+    status TEXT CHECK(status IN ('active','retired','challenged')),
     last_reaffirmed TEXT
 );
 
+-- Obligații măsurabile cu deadline
 CREATE TABLE self_commitments (
     slug TEXT PRIMARY KEY,
     title TEXT NOT NULL,
@@ -168,133 +174,228 @@ CREATE TABLE self_commitments (
     progress_marker TEXT
 );
 
+-- Reguli de voce (first-class, populat din self/narcis-voice.md)
+CREATE TABLE voice_rules (
+    slug TEXT PRIMARY KEY,
+    rule TEXT NOT NULL,
+    category TEXT,  -- ex: 'register', 'romglish', 'pillar-alignment'
+    examples_yes TEXT,  -- JSON list
+    examples_no TEXT,   -- JSON list
+    status TEXT CHECK(status IN ('active','retired','challenged'))
+);
+
+-- Heuristicile lui Claude
 CREATE TABLE agent_heuristics (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     rule TEXT NOT NULL,
     first_observed TEXT,
     evidence_events TEXT,  -- JSON list of log event IDs
-    confidence TEXT,
-    status TEXT CHECK(status IN ('active','retired','challenged'))
+    confidence TEXT CHECK(confidence IN ('high','medium','low')),
+    status TEXT CHECK(status IN ('active','retired','challenged')),
+    dispute_reason TEXT   -- set when status='challenged'
 );
 
+-- Alinierea paginilor cu pilonii
 CREATE TABLE self_alignment (
     page_slug TEXT NOT NULL,
     pillar_slug TEXT NOT NULL,
     relation TEXT CHECK(relation IN ('reinforces','weakens','contradicts','neutral')),
-    PRIMARY KEY (page_slug, pillar_slug)
+    source_event TEXT,  -- log event care a stabilit relația
+    PRIMARY KEY (page_slug, pillar_slug),
+    FOREIGN KEY (pillar_slug) REFERENCES self_pillars(slug)
 );
+
+-- Snapshot-uri la /faber-meet
+CREATE TABLE self_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    taken_at TEXT NOT NULL,
+    meet_event_id TEXT,   -- ref la log event /faber-meet
+    page_slug TEXT NOT NULL,
+    frontmatter_json TEXT NOT NULL,
+    body_hash TEXT NOT NULL,
+    body TEXT NOT NULL
+);
+CREATE INDEX idx_self_snapshots_page ON self_snapshots(page_slug, taken_at);
 ```
 
-**3. Views noi:**
-- `v_narcis_alignment` — fiecare pilon cu toate conceptele care îl întăresc/slăbesc/contrazic.
-- `v_declaration_vs_observation` — fiecare stance declarat + count de log events care îl confirmă/infirmă în ultimele 30 zile (mecanismul corectiv).
-- `v_agent_heuristics_evidence` — heuristici cu numărul de evidențe; cele cu 0 evidențe sunt flagged.
-- `v_open_commitments` — ce e încă neîndeplinit, cu zile rămase până la deadline.
+## 3. Views
 
-Asta e **infrastructura de oglindă**. Fără asta, `self/` e doar un folder nou. Cu asta, devine sistem activ de aliniere.
+```sql
+-- Fiecare pilon cu paginile care îl întăresc/slăbesc/contrazic
+CREATE VIEW v_narcis_alignment AS
+  SELECT p.slug AS pillar, p.status AS pillar_status,
+         sa.page_slug, sa.relation, COUNT(*) OVER (PARTITION BY p.slug, sa.relation) AS cnt
+  FROM self_pillars p
+  LEFT JOIN self_alignment sa ON sa.pillar_slug = p.slug;
 
----
+-- Stance declarat vs. observație în log (ultimele 30 zile)
+CREATE VIEW v_declaration_vs_observation AS
+  SELECT s.slug, s.on_topic, s.position, s.status,
+         /* COUNT aligned/misaligned log events in last 30d — computed in sync */ 0 AS aligned_cnt,
+         0 AS misaligned_cnt
+  FROM self_stances s;
 
-# Propuneri suplimentare de la Claude — concepte și workflow-uri
+-- Heuristici cu evidențe (cele cu 0 → flag)
+CREATE VIEW v_agent_heuristics_evidence AS
+  SELECT id, rule, confidence, status,
+         json_array_length(COALESCE(evidence_events,'[]')) AS evidence_count
+  FROM agent_heuristics;
 
-## Concepte
+-- Commitments deschise, sortate după urgență
+CREATE VIEW v_open_commitments AS
+  SELECT slug, title, due_date, progress_marker,
+         julianday(due_date) - julianday('now') AS days_left
+  FROM self_commitments
+  WHERE status = 'active'
+  ORDER BY days_left ASC;
 
-**A. `stance` ca primitiv separat de `concept`**
-Conceptele răspund "cum funcționează lumea?". Stance-urile răspund "cum aleg eu să răspund?". Narcis are deja stance-uri ascunse în `Who am i` — structurate, devin queryable. Exemple: "Romglish autentic > engleză sterilizată", "Validare înainte de build", "Shipping > perfecționare".
-
-**B. `reflection` ca tip de pagină (subclass al synthesis)**
-Sinteza curentă e cross-cutting *în interior* (conectează surse/concepte). Reflexia e cross-cutting *în timp*: "în Q1 credeam X; în aprilie, cred Y; ce e diferit?". Captează evoluția intelectuală care altfel se pierde.
-
-**C. `friction-log` — pattern recognition pe blocaje**
-Tabelă specială pentru momentele de amânare. De fiecare dată când un draft stă > 7 zile în `workshop/drafts/` fără progres, eveniment automat în `friction_log`. După 3 luni, pattern recognition: "draft-urile stagnează cel mai des când au > 800 cuvinte înainte de publicare" — plan concret de atac pentru slăbiciunea declarată ("am tendința să amân postarea").
-
-**D. `calibration` — predicții vs. realitate**
-Când faci o predicție ("ideea X va valida în 2 săptămâni"), se salvează. La data predicției, se revizuiește. Ce fac Tetlock/superforecasters religios. Pentru un lab de idei — nebun de puternic. În timp, track record al intuitiei.
-
-## Workflow-uri
-
-**E. `/faber-mirror`** — săptămânal, oglindă corectivă
-Query-uri gen:
-- "Ce ai declarat în pilonii tăi? Ce arată log-ul că ai făcut în ultimele 7 zile?"
-- "Câte ingest-uri, câte commits, câte posts publice? Ratio."
-- "Ce commitments deschise sunt aproape de deadline?"
-Output: pagină reflection scurtă, săptămânală. Atac direct pe slăbiciunea declarată — amânarea.
-
-**F. `/faber-align <source-slug>`**
-La ingest, după extract, un pas în plus: "Această sursă întărește pilonul X, slăbește pilonul Y, introduce stance nou despre Z — vrei să-l adopți?". Compounding agentic.
-
-**G. `/agent-reflect`**
-La final de sesiuni mari (> 30 min, > 3 ingest-uri), Claude scrie mini-update la `agent/claude.md`: "Am observat X, heuristica Y s-a confirmat/eșuat, întreb Z la următoarea sesiune". Narcis revizuiește asincron. Jurnal de echipaj.
-
-**H. `/faber-meet`** — sesiune de revizie lunară
-Dedicată: Narcis revede pilonii, stances, commitments. Claude prezintă propuneri de updates bazate pe log. Output: log event `self-update` + pagini `self/` actualizate.
-
-**I. Promotion path: `owner/Who am i` → `self/`**
-Paralel cu Stage B (rolurile fizic separate), Stage C: tot ce e despre Narcis migrează *în* wiki. `owner/` devine archive. Unică sursă de adevăr. Consistent cu filosofia: wiki = library.
+-- Istoric self: snapshot-uri ordonate cronologic per pagină
+CREATE VIEW v_self_history AS
+  SELECT page_slug, taken_at, meet_event_id, body_hash,
+         LAG(body_hash) OVER (PARTITION BY page_slug ORDER BY taken_at) AS prev_hash
+  FROM self_snapshots;
+```
 
 ---
 
-# Tensiuni arhitecturale de rezolvat
+# Workflow-uri
 
-1. **`self` monolit vs. fragmentat** — B fragmentat dă granularitate dar mai multe pagini. Cum vrei să interacționezi cu profilul tău: CV dinamic unit, sau piese mici independente?
+## `/faber-mirror` — săptămânal, confruntațional
 
-2. **Cine are ultimul cuvânt pe `agent/claude.md`** — dacă Claude scrie ceva greșit, Narcis retrage. Dar dacă Claude are dreptate și Narcis nu vrea să accepte (bias Claude: dă-te bătut — mai slab; instinct natural)? Mecanism de "agreed to disagree"?
+Query-uri active pe log:
+- "Ce ai declarat în piloni vs. ce arată log-ul ultimelor 7 zile?"
+- "Câte ingest-uri, commits, posts publice? Ratio."
+- "Ce commitments sunt aproape de deadline? Ce progres real?"
 
-3. **Frecvența `/faber-mirror`** — săptămânal, bi-săptămânal, sau la request? Săptămânal = consistent, dar poate deveni zgomot. La request riscă să fie evitat exact când ar trebui confruntat.
+**Ton:** direct, confruntațional (conform deciziei 5). Nu cere permisiune să confrunte. Output = reflection scurtă, săptămânală. Atac pe slăbiciunea declarată (amânarea).
 
-4. **`stances` vs. `self-pillars`** — overlap real. Pilonii = "temele mari pe care îmi construiesc identitatea". Stance-urile = "poziții specifice pe sub-probleme". Prag subtil. Ideal 3-5 piloni, 15-30 stances. Separate sau unificate?
+## `/faber-meet` — lunar, revizie + snapshot
 
-5. **Paginile `self` — guided obligatoriu?** Sursele au `guided: true/false`. `self` întotdeauna `guided: true` (nimic fără confirmare), sau Claude propune și Narcis ratifică ulterior?
+1. Narcis revede piloni, stances, commitments.
+2. Claude prezintă propuneri de updates bazate pe log.
+3. **Snapshot automat:** toate paginile `self/` → `self_snapshots` cu `meet_event_id` comun.
+4. Log event `self-update`.
+5. Pagini `self/` actualizate.
 
-6. **Migrarea `owner/Who am i`** — sweep integral sau incremental (`narcis-profile` întâi, apoi `narcis-pillars`, etc.)? Recomandare: incremental — timp să calibrăm granularitatea.
+Snapshot-ul dă `v_self_history` — diff-uri structurate ale identității în timp.
 
-7. **Versionare stance-uri** — când schimbi părerea ("credeam X, acum cred Y"), payload vechi rămâne în `log.md` + `page_relations` cu relation `superseded_by`, sau arhivat separat? Compounding adevărat = vechile versiuni încă citabile.
+## `/agent-reflect` — final sesiuni mari
 
----
+Trigger: sesiune > 30 min sau > 3 ingest-uri. Claude scrie mini-update la `agent/claude.md`:
+- Heuristici confirmate/eșuate (cu log event IDs).
+- Observații noi.
+- Întrebări deschise pentru Narcis.
 
-# Întrebări de interviu — rafinare
+## `/faber-align <source-slug>`
 
-1. **Sfera lui `agent/`** — doar aici, în Alteramens? Sau fișier care călătorește cu Narcis (gen `claude-persona.md` universal pentru toate proiectele)? Răspunsul schimbă schema — self-contained vs. portabil.
-
-2. **Autoritatea pe `agent/`** — poți corecta o heuristică (bun), dar ai dreptul să *șterg*i una cu care nu ești de acord, dar pe care Claude o crede adevărată? Sau rămâne `status: challenged`?
-
-3. **Pragul de "cetățean de prim rang"** — pe lângă Narcis + Claude, alți protagoniști? Soția (expert contabil, acces la IMM)? Copiii? Mihai (User Zero deja entity)? Doar Narcis + Claude?
-
-4. **Rolul `self` în skill-uri existente** — `/semnal-draft`, `/to-content`, `/faber-ingest` să citească automat `self/narcis-pillars` la decizii? Dacă da — `self_context` injection la startup-ul skill-urilor.
-
-5. **Raportul pasiv-descriptiv / activ-confruntațional** — pagini `self` sunt pasive (descriu). `/faber-mirror` e activ (confruntă). Ce raport vrei? Claude înclină spre mai mult confruntațional, dar poate simți ca nag.
-
-6. **"Voice" ca tabelă separată** — există deja `wiki/concepts/x-voice-rules.md` în workspace. Urcat la nivel de schema DB (`voice_rules` populată automat din `self/narcis-voice.md`)? Curăță skill-urile `/semnal-*` și `/to-content`.
-
-7. **Granularitate istorică** — snapshot al paginilor `self` la fiecare `/faber-meet`? Git oferă gratis, dar un view SQL `v_self_history` peste snapshots face diferențele ușor de văzut.
+La ingest, post-extract: "Această sursă întărește pilonul X, slăbește Y, introduce stance despre Z — adopți?". Populează `self_alignment` și propune stance-uri noi.
 
 ---
 
-# Recomandare pragmatică pentru implementare
+# Skill integration — `self_context` injection
 
-Dacă întrebarea e "de unde începem?":
+Conform deciziei 4, skill-urile existente citesc `self/` la startup:
 
-1. **Faza 0 — decizii:** Răspunsuri la întrebările 1-7. Interviu 30-45 min.
-2. **Faza 1 — `self/` minimal:** Un singur `self/narcis.md` (varianta A, monolit) migrat din `owner/Who am i`. Frontmatter tipat. Schema extinsă (`type IN ... 'self'`). Sync script actualizat.
-3. **Faza 2 — `agent/claude.md`:** Pagină inițială cu observații curente (3-5 heuristici). CHECK extinsă pentru `agent`.
-4. **Faza 3 — Tabele auxiliare:** `self_pillars`, `self_stances` cu migrarea conținutului din profilul monolit.
-5. **Faza 4 — Views corective:** `v_declaration_vs_observation`, `v_narcis_alignment`.
-6. **Faza 5 — `/faber-mirror` și `/agent-reflect`** — workflow-urile active.
-7. **Faza 6 — Fragmentare `self/`** DACĂ monolitul devine inconfortabil.
+| Skill | Ce injectează |
+|---|---|
+| `/semnal-draft` | `voice_rules` + `self_pillars` activi |
+| `/semnal-reply` | `voice_rules` + `self_stances` active |
+| `/to-content` | `voice_rules` + `self_pillars` + `self_constraints` |
+| `/faber-ingest` | `self_pillars` (pentru alignment), `self_stances` (pentru detecție tensiune) |
+| `/faber-query` | `self_context` complet (context pentru sinteză personalizată) |
 
-Cale de ieșire la fiecare pas. Oprire la Faza 2 dacă merge. Continuare la Faza 4 dacă vrei infrastructura corectivă.
+Mecanism tehnic: fiecare skill face un SELECT minimal la startup pe views precompilate (`v_self_active_context`), fără să citească MD-uri. Sync-ul păstrează DB-ul la zi.
+
+---
+
+# Migrare `owner/Who am i` → `wiki/self/`
+
+**Stage C** în consistența cu Stage B (separarea fizică a rolurilor):
+
+1. `owner/Who am i.md` rămâne temporar ca *arhivă de origine*.
+2. Conținutul se fragmentează în cele 7 pagini `self/*.md` + `narcis-voice.md`.
+3. După validare (2 săptămâni fără lipsuri detectate), `owner/` devine `archive/owner/`.
+4. Unică sursă de adevăr: `wiki/self/`.
+
+---
+
+# Roadmap de implementare
+
+Fragmentare self **din Faza 1** (per decizie). Fără detur prin monolit.
+
+## Faza 1 — Schema DB + `self/` fragmentat
+
+- Extinde `pages.type` CHECK pentru `self`, `agent`.
+- Creează tabele: `self_pillars`, `self_stances`, `self_commitments`, `self_constraints`, `voice_rules`, `agent_heuristics`, `self_alignment`, `self_snapshots`.
+- Creează views: `v_narcis_alignment`, `v_declaration_vs_observation`, `v_agent_heuristics_evidence`, `v_open_commitments`, `v_self_history`, `v_self_active_context`.
+- Migrează `owner/Who am i` → 6 pagini `self/` + 1 synthesis.
+- Actualizează `faber_sync.py` pentru parsarea frontmatter-ului `self`/`agent` și populate tabele auxiliare.
+- Validare: `sqlite3 faber.db "SELECT * FROM v_dashboard;"` arată types `self` + `agent`.
+
+## Faza 2 — `agent/claude.md` inițial
+
+- Creează `wiki/agent/claude.md` (tip `agent`, scope `alteramens-only`).
+- Populează cu 3-5 heuristici inițiale (cele deja evidente din CLAUDE.md + sesiuni recente).
+- Fiecare heuristică referențiază log events reale.
+- Sync → `agent_heuristics` populat.
+
+## Faza 3 — `/faber-mirror` (confruntațional)
+
+- Skill nou: `skills/faber-mirror/SKILL.md`.
+- Query-uri standard pe log + `self_*`.
+- Output: pagină reflection săptămânală în `syntheses/mirror-YYYY-WW.md`.
+- Ton: confruntațional, fără diplomație.
+
+## Faza 4 — `/faber-meet` (cu snapshot)
+
+- Skill nou: `skills/faber-meet/SKILL.md`.
+- Flow: revizie → propuneri → aprobare → snapshot → log event → update.
+- Snapshot automat la începutul `/faber-meet` (înainte de editare).
+
+## Faza 5 — `/agent-reflect`
+
+- Skill nou: `skills/agent-reflect/SKILL.md`.
+- Trigger manual (inițial); auto pe heuristici observate mai târziu.
+- Scrie update la `agent/claude.md` + log event.
+
+## Faza 6 — `self_context` injection în skill-uri existente
+
+- Adaugă `self_context` loading la `/semnal-draft`, `/semnal-reply`, `/semnal-draft`, `/to-content`, `/faber-ingest`, `/faber-query`.
+- Elimină `wiki/concepts/x-voice-rules.md` (înlocuit de `voice_rules` table + `self/narcis-voice.md`).
+
+## Faza 7 — `/faber-align` (ingest alignment)
+
+- Adaugă pas post-extract la `/faber-ingest`: aliniere cu piloni, detecție stance nou.
+- Populează `self_alignment` automat.
+
+**Cale de ieșire la fiecare fază.** Oprire după Faza 2 dacă suficient; continuare către Faza 4+ pentru mecanismele corective.
+
+---
+
+# Definition of Done
+
+- [ ] `faber.db` conține toate tabelele `self_*`, `agent_*`, `voice_rules`, `self_snapshots`.
+- [ ] `wiki/self/` are 6 pagini + `narcis-voice.md`; `wiki/agent/claude.md` există.
+- [ ] `faber_sync.py` parsează și populează corect.
+- [ ] Views `v_narcis_alignment`, `v_self_history`, `v_open_commitments` returnează date.
+- [ ] `/faber-mirror` rulează și produce reflection cu ton confruntațional.
+- [ ] `/faber-meet` ia snapshot automat în `self_snapshots`.
+- [ ] `/semnal-draft` citește `voice_rules` din DB (nu din MD).
+- [ ] `agent_heuristics` conține ≥ 3 heuristici cu evidențe din log.
+- [ ] Narcis poate marca `challenged` pe o heuristică; nu poate șterge.
 
 ---
 
 # Next action
 
-Sesiune ulterioară de atac pe:
-- Decizii la întrebările 1-7
-- Clarificare tensiuni arhitecturale
-- Eventual promovare în `wiki/` ca synthesis dacă direcția e validată
+Start la Faza 1 — schema DB + fragmentare `self/`. Primul task concret:
+
+1. Extinde `CHECK` pe `pages.type` în `faber_sync.py`.
+2. Adaugă tabelele noi în schema de sync.
+3. Creează stub-uri pentru cele 6 pagini `self/` + `narcis-voice.md` (frontmatter + skelet, conținut extras incremental din `owner/Who am i`).
 
 ## Conexiuni
 - [[CLAUDE]] — baza de la care evoluează
 - [[owner/Who am i|Who am i]] — sursa pentru migrarea în `self/`
 - [[wiki/FABER|Faber schema]] — ce extindem
-- [[wiki/concepts/compounding-games]] — filosofia care justifică eforul
+- [[wiki/concepts/compounding-games]] — filosofia care justifică efortul

@@ -120,8 +120,9 @@ Aceste 3 ar putea construi autoritate pentru Narcis personal (productize-yoursel
 
 **Vezi [[x-content-pillars]] pentru definițiile canonice ale celor 3 piloni** (AI-native craft /
 51-year-old builder / Unsexy problems), validați 2026-04-21 prin moat/sustainability/compounding
-tests. Working copy operațional pentru `semnal` la `workshop/x-queue/pillars.md`. Reguli de format
-& voce pe X la [[x-voice-rules]].
+tests. Working copy operațional pentru `semnal` la `workshop/x-queue/pillars.md`. Mecanica X
+(hook, length, variants, lint) trăiește în `/semnal-draft`; vocea trăiește în tabela `voice_rules`
+din `faber.db`, populată din [[self/narcis-voice]].
 
 Cele 3 piloni satisfac toate lentilele de validare din acest concept părinte: aliniere cu produsul
 (pentru Narcis, produsul = Narcis; [[productize-yourself]]), owned by authenticity

@@ -2,9 +2,9 @@
 title: "Encoded Judgment — Skills vs Functions"
 type: concept
 category: mental-model
-sources: [skill-era-article, eric-siu-world-intelligence]
-entities: [alteramens, single-grain, eric-siu]
-related: [skill-era, judgment, leverage, agent-fleet-architecture, world-model, internal-to-product, knowledge-first-development, emergent-schema]
+sources: [skill-era-article, eric-siu-world-intelligence, skillify-agents-same-mistakes]
+entities: [alteramens, single-grain, eric-siu, garry-tan, langchain]
+related: [skill-era, judgment, leverage, agent-fleet-architecture, world-model, internal-to-product, knowledge-first-development, emergent-schema, skillify, thin-harness-fat-skills, latent-vs-deterministic]
 maturity: developing
 confidence: high
 contradictions: []
@@ -51,3 +51,20 @@ If a project does only what a generic API does (send email, process payment, fet
 - **World Agent** doesn't just coordinate — it holds the full organizational context that would otherwise require a leadership meeting to surface
 
 The [[world-model]] is what makes this possible. Without proprietary context, agents are generic. With it, they encode the specific judgment of this company, this market, this team. This is [[internal-to-product]] at the judgment level.
+
+## Encoded Judgment Needs a Verification Discipline
+
+[[skillify-agents-same-mistakes|Garry Tan's Skillify essay]] sharpens this concept with a hard question: **once judgment is encoded, how do you keep it honest?** His answer reframes the "API vs Skill" table above — encoded judgment isn't safe just because it exists. Without tests, resolver evals, DRY audits, and `check-resolvable` meta-tests, skills:
+- Rot silently when upstream APIs shift shape
+- Collide with duplicate variants created from different conversations
+- Become dark (unreachable from the resolver) — capability exists, LLM can't call it
+
+Garry's framing lands directly on this page: his critique of [[langchain]] is that they shipped *primitives without opinions* — and opinions without verification decay back into vibes. The full chain is:
+
+```
+API  →  Skill (encoded judgment)  →  Skillified skill (judgment + verification)
+```
+
+[[skillify]] is the 10-step promotion that moves a skill from "code that happens to work today" to durable infrastructure. Inside every skill, [[latent-vs-deterministic]] splits the work correctly: judgment to the LLM, precision to code. [[thin-harness-fat-skills]] is the architecture where this all fits.
+
+**Implication for the "Where is the judgment?" filter:** the question is no longer just *whether* judgment is encoded. It's also *whether it's tested, routed, and kept alive*. An untested skill has no more moat than an API.

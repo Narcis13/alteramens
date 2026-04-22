@@ -27,12 +27,24 @@ XQUEUE="$VAULT_ROOT/workshop/x-queue"
 ```
 
 Files you'll touch:
-- Read-only canonical: `$VAULT_ROOT/wiki/concepts/x-voice-rules.md` (format & voice rules — single
-  source of truth, includes reply-specific constraints), `$VAULT_ROOT/wiki/concepts/x-content-pillars.md`
-  (canonical pilon definitions), `$VAULT_ROOT/wiki/concepts/voice-preservation.md` (referenced from
-  x-voice-rules)
+- Read-only canonical: `$VAULT_ROOT/wiki/concepts/x-content-pillars.md` (canonical pilon definitions),
+  `$VAULT_ROOT/wiki/concepts/voice-preservation.md` (strategic framing — operational discipline comes
+  from the `voice_rules` table loaded below)
 - Read-only operational: `$XQUEUE/pillars.md` (working copy), `$XQUEUE/targets.md` (sweet-spot accounts)
 - Append-only (Phase 4 only, after explicit confirmation): `$XQUEUE/replies-log.md`
+
+## Self Context Loading (first step, always)
+
+Before any reply generation, load active voice rules and stances from `faber.db` — **voice and positional rules come from the DB, not from MD files.**
+
+```bash
+WIKI_DB="$VAULT_ROOT/wiki/faber.db"
+sqlite3 -json "$WIKI_DB" "SELECT voice_rules_json, stances_json FROM v_self_active_context;"
+```
+
+`voice_rules_json` governs every reply's register. `stances_json` (active `self_stances`) is critical for the **contrarian** variant — if a reply contradicts an active stance, you must flag it rather than draft it. If the contrarian angle can be built on top of an active stance, anchor it there.
+
+If the DB is missing or the view returns empty, stop and tell Narcis — do not fall back to hard-coded voice rules.
 
 ## Input
 
@@ -55,9 +67,9 @@ The URL is usually `x.com/<handle>/status/<id>` or `twitter.com/<handle>/status/
 3. **Fetch post content:**
    - Try `WebFetch` on the URL with a prompt like "Extract the original post text, author handle, and approximate date. Do not include replies."
    - If WebFetch fails (login wall, nitter blocked, etc.): tell Narcis "could not fetch — paste the post text or quote the key line" and wait.
-4. **Read `wiki/concepts/x-voice-rules.md`** — canonical reply constraints (≤250 chars, ≤3 sentences,
-   3 variants: context/contrarian/question, forbidden openers, English-only output rule, voice
-   preservation reference). All reply rules below inherit from this file.
+4. **Reply constraints** are defined inline in this skill (section "Reply format rules" below) —
+   ≤250 chars, ≤3 sentences, 3 variants (context/contrarian/question), English-only output.
+   Voice discipline comes from the `voice_rules` loaded in Self Context Loading above.
 5. **Read `wiki/concepts/x-content-pillars.md`** + `$XQUEUE/pillars.md` (operational copy) to map
    the target's pilon match.
 
@@ -102,16 +114,20 @@ YES:
 Specificity signals attention. Attention invites reply. A reply from a sweet-spot account
 to a 0-follower account = pure algorithmic gold.
 
-**Universal constraints — see [[x-voice-rules]] § Reply-specific constraints for the canonical list.**
+### Reply format rules (canonical — absorbed here from retired `x-voice-rules.md`)
 
-Quick reminders (the file has the full version):
-- English only in reply output (even if Narcis's thought was Romanian)
-- ≤ 250 chars, ≤ 3 sentences
-- 3 variants must be genuinely distinct (context / contrarian / question)
-- No forbidden openers (`Great point!`, `Love this!`, `This resonates...`, `+1`, etc.)
-- No forbidden LLM-isms (`dive deep`, `game-changer`, `it's not just X, it's Y`, etc.)
-- Voice preservation applies — accented EN fine; no sterilization
-- If the post is a thread: reply only engages with the claim Narcis cared about, not "the whole thread"
+Voice discipline comes from the `voice_rules` loaded in Self Context Loading (DB). Format rules live here.
+
+- **English only** in reply output (even if Narcis's thought was in Romanian)
+- **≤ 250 chars** (ideally 180-230 — short replies perform on X)
+- **≤ 3 sentences**
+- **3 variants genuinely distinct**: context (extend with Narcis-specific experience), contrarian (gentle, evidence-anchored), question (specific, only makeable if you read carefully)
+- **Must add something** the original author doesn't already know or hadn't said — if you can't, tell Narcis honestly
+- **Forbidden reply openers:** `Great point!`, `Love this!`, `This resonates...`, `I've been thinking about this...`, any variant of `+1` / `100%!` / `This!`
+- **Forbidden LLM-isms (zero tolerance):** `dive deep`, `let's dive in`, `unlock`, `supercharge`, `game-changer`, `revolutionary`, `disruptive`, `transform`, `seamless`, `leverage` as a verb, `it's not just X, it's Y`, `at the end of the day`, `synergy`, moralizing closers
+- **Voice preservation applies** — accented EN fine; no sterilization. `voice_rules` from the DB are the operational check
+- **Thread replies:** engage with the claim Narcis cared about, not "the whole thread"
+- **Contrarian guardrail:** if your contrarian angle contradicts an active `self_stance`, flag it to Narcis rather than drafting it — it's either a stance change or a bad reply
 
 ### Phase 3 — Present + Request Selection
 

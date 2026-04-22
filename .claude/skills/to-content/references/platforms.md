@@ -160,12 +160,14 @@ each piece.
 single source of truth for X voice, format, pilon awareness, and the `workshop/x-queue/` ecosystem
 (reply radar, replies-log, future metrics via `/semnal-reflect`).
 
-**Canonical X rules live in the wiki, not here:**
-- **Format & voice mechanics:** [[x-voice-rules]] (hook, length, structure, variants, lint, forbidden
-  openers/LLM-isms)
+**Canonical X rules live in `/semnal-draft` and the Faber DB:**
+- **Format mechanics** (hook, length, structure, variants, lint, forbidden openers/LLM-isms) — inlined
+  in `/semnal-draft/SKILL.md`.
+- **Voice discipline** — `voice_rules` table in `faber.db`, loaded at skill startup via
+  `v_self_active_context`. Populated from [[wiki/self/narcis-voice]].
 - **Topical scope per pilon:** [[x-content-pillars]] (3 pillars + voice register per pilon + rotation rule)
-- **Romglish / accent preservation:** [[voice-preservation]] (X preserves accent — do NOT apply this
-  file's `voice-guide.md` to X)
+- **Romglish / accent preservation (strategic framing):** [[voice-preservation]] (X preserves accent
+  — do NOT apply this file's `voice-guide.md` to X)
 
 **How to invoke from `/to-content`:** see Step 4b in `SKILL.md`. Pass core_claim, pilon (auto-derived
 from cited Faber concepts), language, and `voice: accented`. The result lands in
@@ -271,7 +273,7 @@ X: {URL}
 | Blog | 800 words | 1200-1800 | 2500+ |
 | Substack | 500 words | 800-1200 | 1800+ |
 | LinkedIn | 600 chars | 1200-1800 | 2500 (rare) |
-| X | (delegated to /semnal-draft — see [[x-voice-rules]]) | | |
+| X | (delegated to /semnal-draft — owns its own format mechanics) | | |
 | YouTube | 3 min | 5-7 min | 10-15 min |
 
 Default to "standard" unless the topic genuinely deserves more. More length is not more value.
@@ -287,7 +289,7 @@ Never reuse the same hook across all five pieces. Each platform wants a differen
 | Blog | **Problem statement + angle** — "The skill era breaks the SaaS distribution playbook. Here's why." |
 | Substack | **Personal moment** — "I was debugging at 22:30 last Thursday when it hit me..." |
 | LinkedIn | **Contrarian claim** or **constraint flex** — "I build 4h a day. Here's what I had to give up to ship." |
-| X | (see [[x-voice-rules]] — hook patterns per pilon, first 7 words must carry it) |
+| X | (see `/semnal-draft` — hook patterns per pilon, first 7 words must carry it) |
 | YouTube | **Payoff upfront** — "By the end of this video, you'll have an AI tutor that costs <$2/user/month." |
 
 ---

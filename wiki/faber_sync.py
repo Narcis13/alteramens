@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS pages (
     slug            TEXT PRIMARY KEY,
     title           TEXT NOT NULL,
     type            TEXT NOT NULL
-                    CHECK(type IN ('source','entity','concept','synthesis','meta')),
+                    CHECK(type IN ('source','entity','concept','synthesis','meta','self','agent')),
     file_path       TEXT NOT NULL,
     format          TEXT,
     origin          TEXT,
@@ -61,9 +61,9 @@ CREATE TABLE IF NOT EXISTS pages (
     category        TEXT,
     first_seen      TEXT,
     status          TEXT
-                    CHECK(status IS NULL OR status IN ('active','historical','deprecated')),
+                    CHECK(status IS NULL OR status IN ('active','historical','deprecated','retired','challenged')),
     maturity        TEXT
-                    CHECK(maturity IS NULL OR maturity IN ('seed','developing','mature','challenged','draft')),
+                    CHECK(maturity IS NULL OR maturity IN ('seed','developing','mature','challenged','draft','archived')),
     confidence      TEXT
                     CHECK(confidence IS NULL OR confidence IN ('low','medium','high')),
     trigger_type    TEXT
@@ -163,6 +163,101 @@ CREATE TABLE IF NOT EXISTS sync_log (
     log_events_synced INTEGER,
     duration_ms       INTEGER
 );
+
+-- =========================================================================
+-- Self + Agent layer (first-class citizens: Narcis & Claude)
+-- =========================================================================
+
+-- Narcis's active pillars (long-arc identity anchors).
+CREATE TABLE IF NOT EXISTS self_pillars (
+    slug              TEXT PRIMARY KEY,
+    title             TEXT NOT NULL,
+    since             TEXT,
+    status            TEXT CHECK(status IN ('active','retired','challenged')),
+    evidence_events   INTEGER DEFAULT 0,
+    page_slug         TEXT REFERENCES pages(slug) ON DELETE SET NULL,
+    last_synced       TEXT DEFAULT (datetime('now'))
+);
+
+-- Stances: positions on specific sub-topics (shipping > perfection, etc.).
+CREATE TABLE IF NOT EXISTS self_stances (
+    slug              TEXT PRIMARY KEY,
+    on_topic          TEXT NOT NULL,
+    position          TEXT NOT NULL,
+    confidence        TEXT CHECK(confidence IN ('high','medium','low')),
+    status            TEXT CHECK(status IN ('active','retired','challenged')),
+    last_reaffirmed   TEXT,
+    page_slug         TEXT REFERENCES pages(slug) ON DELETE SET NULL,
+    last_synced       TEXT DEFAULT (datetime('now'))
+);
+
+-- Measurable commitments with deadlines + progress marker.
+CREATE TABLE IF NOT EXISTS self_commitments (
+    slug              TEXT PRIMARY KEY,
+    title             TEXT NOT NULL,
+    due_date          TEXT,
+    status            TEXT CHECK(status IN ('active','met','missed','revised')),
+    progress_marker   TEXT,
+    page_slug         TEXT REFERENCES pages(slug) ON DELETE SET NULL,
+    last_synced       TEXT DEFAULT (datetime('now'))
+);
+
+-- Constraints: time / habit / weakness / resource boundaries.
+CREATE TABLE IF NOT EXISTS self_constraints (
+    slug              TEXT PRIMARY KEY,
+    description       TEXT NOT NULL,
+    kind              TEXT,
+    status            TEXT CHECK(status IN ('active','retired','resolved')),
+    page_slug         TEXT REFERENCES pages(slug) ON DELETE SET NULL,
+    last_synced       TEXT DEFAULT (datetime('now'))
+);
+
+-- First-class voice rules (populated from self/narcis-voice.md).
+CREATE TABLE IF NOT EXISTS voice_rules (
+    slug              TEXT PRIMARY KEY,
+    rule              TEXT NOT NULL,
+    category          TEXT,
+    examples_yes      TEXT,
+    examples_no       TEXT,
+    status            TEXT CHECK(status IN ('active','retired','challenged')),
+    page_slug         TEXT REFERENCES pages(slug) ON DELETE SET NULL,
+    last_synced       TEXT DEFAULT (datetime('now'))
+);
+
+-- Claude's heuristics about how to work in Alteramens.
+CREATE TABLE IF NOT EXISTS agent_heuristics (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug              TEXT UNIQUE,
+    rule              TEXT NOT NULL,
+    first_observed    TEXT,
+    evidence_events   TEXT,
+    confidence        TEXT CHECK(confidence IN ('high','medium','low')),
+    status            TEXT CHECK(status IN ('active','retired','challenged')),
+    dispute_reason    TEXT,
+    page_slug         TEXT REFERENCES pages(slug) ON DELETE SET NULL,
+    last_synced       TEXT DEFAULT (datetime('now'))
+);
+
+-- Alignment between any page and a pillar (reinforces / weakens / contradicts).
+CREATE TABLE IF NOT EXISTS self_alignment (
+    page_slug         TEXT NOT NULL,
+    pillar_slug       TEXT NOT NULL,
+    relation          TEXT CHECK(relation IN ('reinforces','weakens','contradicts','neutral')),
+    source_event      TEXT,
+    PRIMARY KEY (page_slug, pillar_slug),
+    FOREIGN KEY (pillar_slug) REFERENCES self_pillars(slug) ON DELETE CASCADE
+);
+
+-- Snapshot of every self/ page at each /faber-meet.
+CREATE TABLE IF NOT EXISTS self_snapshots (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    taken_at          TEXT NOT NULL,
+    meet_event_id     TEXT,
+    page_slug         TEXT NOT NULL,
+    frontmatter_json  TEXT NOT NULL,
+    body_hash         TEXT NOT NULL,
+    body              TEXT NOT NULL
+);
 """
 
 INDEX_SQL = """
@@ -188,6 +283,20 @@ CREATE INDEX IF NOT EXISTS idx_lep_slug             ON log_event_pages(page_slug
 CREATE INDEX IF NOT EXISTS idx_lep_action           ON log_event_pages(action);
 CREATE INDEX IF NOT EXISTS idx_lep_event            ON log_event_pages(event_id);
 CREATE INDEX IF NOT EXISTS idx_lep_page_type        ON log_event_pages(page_type);
+
+-- Self + agent indexes
+CREATE INDEX IF NOT EXISTS idx_self_pillars_status      ON self_pillars(status);
+CREATE INDEX IF NOT EXISTS idx_self_stances_status      ON self_stances(status);
+CREATE INDEX IF NOT EXISTS idx_self_commitments_status  ON self_commitments(status);
+CREATE INDEX IF NOT EXISTS idx_self_commitments_due     ON self_commitments(due_date);
+CREATE INDEX IF NOT EXISTS idx_self_constraints_status  ON self_constraints(status);
+CREATE INDEX IF NOT EXISTS idx_voice_rules_status       ON voice_rules(status);
+CREATE INDEX IF NOT EXISTS idx_voice_rules_category     ON voice_rules(category);
+CREATE INDEX IF NOT EXISTS idx_agent_heuristics_status  ON agent_heuristics(status);
+CREATE INDEX IF NOT EXISTS idx_self_alignment_pillar    ON self_alignment(pillar_slug);
+CREATE INDEX IF NOT EXISTS idx_self_alignment_relation  ON self_alignment(relation);
+CREATE INDEX IF NOT EXISTS idx_self_snapshots_page      ON self_snapshots(page_slug, taken_at);
+CREATE INDEX IF NOT EXISTS idx_self_snapshots_meet      ON self_snapshots(meet_event_id);
 """
 
 FTS_SQL = """
@@ -413,6 +522,108 @@ WHERE p.slug IS NULL
   AND lep.page_type != 'vault_doc'
   AND lep.page_slug NOT LIKE '%/%'
   AND lep.page_slug NOT LIKE '%.%';
+
+-- =========================================================================
+-- Self + agent views
+-- =========================================================================
+
+-- Alignment matrix: every pillar with pages reinforcing/weakening/contradicting it.
+CREATE VIEW IF NOT EXISTS v_narcis_alignment AS
+SELECT
+    p.slug            AS pillar,
+    p.title           AS pillar_title,
+    p.status          AS pillar_status,
+    sa.page_slug,
+    sa.relation,
+    sa.source_event,
+    COUNT(*) OVER (PARTITION BY p.slug, sa.relation) AS cnt
+FROM self_pillars p
+LEFT JOIN self_alignment sa ON sa.pillar_slug = p.slug;
+
+-- Declared stance vs. observed log behaviour (last 30 days).
+CREATE VIEW IF NOT EXISTS v_declaration_vs_observation AS
+SELECT
+    s.slug,
+    s.on_topic,
+    s.position,
+    s.confidence,
+    s.status,
+    s.last_reaffirmed,
+    (SELECT COUNT(*)
+       FROM self_alignment sa
+       JOIN log_events le ON le.id = CAST(NULLIF(sa.source_event,'') AS INTEGER)
+      WHERE sa.page_slug = s.slug
+        AND sa.relation = 'reinforces'
+        AND julianday('now') - julianday(le.event_date) <= 30) AS aligned_cnt,
+    (SELECT COUNT(*)
+       FROM self_alignment sa
+       JOIN log_events le ON le.id = CAST(NULLIF(sa.source_event,'') AS INTEGER)
+      WHERE sa.page_slug = s.slug
+        AND sa.relation IN ('weakens','contradicts')
+        AND julianday('now') - julianday(le.event_date) <= 30) AS misaligned_cnt
+FROM self_stances s;
+
+-- Heuristics + evidence count (heuristics with 0 evidence → flag).
+CREATE VIEW IF NOT EXISTS v_agent_heuristics_evidence AS
+SELECT
+    id,
+    slug,
+    rule,
+    confidence,
+    status,
+    dispute_reason,
+    CASE
+        WHEN evidence_events IS NULL OR evidence_events = '' THEN 0
+        ELSE json_array_length(evidence_events)
+    END AS evidence_count
+FROM agent_heuristics;
+
+-- Open commitments sorted by urgency.
+CREATE VIEW IF NOT EXISTS v_open_commitments AS
+SELECT
+    slug,
+    title,
+    due_date,
+    progress_marker,
+    CASE
+        WHEN due_date IS NULL OR due_date = '' THEN NULL
+        ELSE CAST(julianday(due_date) - julianday('now') AS INTEGER)
+    END AS days_left
+FROM self_commitments
+WHERE status = 'active'
+ORDER BY
+    CASE WHEN due_date IS NULL OR due_date = '' THEN 1 ELSE 0 END,
+    due_date ASC;
+
+-- Self history: chronological snapshots per page, with previous body_hash for diff.
+CREATE VIEW IF NOT EXISTS v_self_history AS
+SELECT
+    page_slug,
+    taken_at,
+    meet_event_id,
+    body_hash,
+    LAG(body_hash)  OVER (PARTITION BY page_slug ORDER BY taken_at) AS prev_hash,
+    LAG(taken_at)   OVER (PARTITION BY page_slug ORDER BY taken_at) AS prev_taken_at
+FROM self_snapshots;
+
+-- Active self context: the bundle read by skills at startup.
+-- Four sections packed as JSON arrays so a single SELECT covers the whole context.
+CREATE VIEW IF NOT EXISTS v_self_active_context AS
+SELECT
+    (SELECT json_group_array(json_object(
+        'slug', slug, 'title', title, 'since', since))
+       FROM self_pillars WHERE status = 'active')       AS pillars_json,
+    (SELECT json_group_array(json_object(
+        'slug', slug, 'on_topic', on_topic, 'position', position,
+        'confidence', confidence))
+       FROM self_stances WHERE status = 'active')       AS stances_json,
+    (SELECT json_group_array(json_object(
+        'slug', slug, 'description', description, 'kind', kind))
+       FROM self_constraints WHERE status = 'active')   AS constraints_json,
+    (SELECT json_group_array(json_object(
+        'slug', slug, 'rule', rule, 'category', category,
+        'examples_yes', examples_yes, 'examples_no', examples_no))
+       FROM voice_rules WHERE status = 'active')        AS voice_rules_json;
 """
 
 
@@ -723,18 +934,33 @@ def parse_log_md(log_path: Path) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def create_db(db_path: Path) -> sqlite3.Connection:
-    """Create a fresh database. Preserves sync_log history across rebuilds."""
-    preserved: list = []
+    """Create a fresh database.
+
+    Preserves two tables across rebuilds because they hold history that cannot
+    be reconstructed from the markdown source of truth:
+      - sync_log       — time-series of past sync runs
+      - self_snapshots — pre-edit snapshots taken at each /faber-meet
+    """
+    preserved_sync: list = []
+    preserved_snapshots: list = []
     if db_path.exists():
         try:
             existing = sqlite3.connect(str(db_path))
-            preserved = existing.execute(
+            preserved_sync = existing.execute(
                 "SELECT synced_at, pages_synced, relations_synced, "
                 "wikilinks_synced, duration_ms FROM sync_log"
             ).fetchall()
+            try:
+                preserved_snapshots = existing.execute(
+                    "SELECT taken_at, meet_event_id, page_slug, "
+                    "frontmatter_json, body_hash, body FROM self_snapshots"
+                ).fetchall()
+            except sqlite3.Error:
+                preserved_snapshots = []
             existing.close()
         except sqlite3.Error:
-            preserved = []
+            preserved_sync = []
+            preserved_snapshots = []
         db_path.unlink()
 
     conn = sqlite3.connect(str(db_path))
@@ -743,12 +969,21 @@ def create_db(db_path: Path) -> sqlite3.Connection:
     conn.executescript(FTS_SQL)
     conn.executescript(VIEWS_SQL)
 
-    for row in preserved:
+    for row in preserved_sync:
         conn.execute(
             "INSERT INTO sync_log (synced_at, pages_synced, relations_synced, "
             "wikilinks_synced, duration_ms) VALUES (?,?,?,?,?)",
             row,
         )
+
+    for row in preserved_snapshots:
+        conn.execute(
+            "INSERT INTO self_snapshots "
+            "(taken_at, meet_event_id, page_slug, frontmatter_json, body_hash, body) "
+            "VALUES (?,?,?,?,?,?)",
+            row,
+        )
+
     conn.commit()
     return conn
 
@@ -885,6 +1120,187 @@ def insert_wikilinks(conn: sqlite3.Connection, slug: str, prose: str) -> int:
             (slug, lnk["target"], lnk["display_text"], lnk["is_vault_link"]),
         )
     return len(links)
+
+
+# ---------------------------------------------------------------------------
+# Self + agent aux-table population
+# ---------------------------------------------------------------------------
+
+def _json_or_none(value) -> str | None:
+    """Serialize a list/dict to JSON; return None for empty/None."""
+    if value is None:
+        return None
+    if isinstance(value, (list, dict)) and not value:
+        return None
+    return json.dumps(value, ensure_ascii=False)
+
+
+def insert_self_aux(conn: sqlite3.Connection, fm: dict) -> int:
+    """Populate self_* / voice_rules / agent_heuristics from a self/agent page.
+
+    Recognized frontmatter top-level keys (all optional lists of dicts):
+      pillars, stances, commitments, constraints, voice_rules, heuristics
+
+    Each item's `slug` is its primary key. Items missing a slug are skipped with a warning.
+    Returns the number of aux rows inserted.
+
+    Alignment entries are handled by `insert_alignment_fm` and accepted on ANY page type.
+    """
+    page_slug = fm["_slug"]
+    ptype = fm.get("type")
+    if ptype not in ("self", "agent"):
+        return 0
+
+    inserted = 0
+
+    for p in fm.get("pillars") or []:
+        if not isinstance(p, dict) or not p.get("slug"):
+            continue
+        conn.execute(
+            """INSERT OR REPLACE INTO self_pillars
+               (slug, title, since, status, evidence_events, page_slug, last_synced)
+               VALUES (?,?,?,?,?,?, datetime('now'))""",
+            (
+                p["slug"],
+                p.get("title", p["slug"]),
+                str(p["since"]) if p.get("since") else None,
+                p.get("status", "active"),
+                int(p.get("evidence_events", 0) or 0),
+                page_slug,
+            ),
+        )
+        inserted += 1
+
+    for s in fm.get("stances") or []:
+        if not isinstance(s, dict) or not s.get("slug"):
+            continue
+        conn.execute(
+            """INSERT OR REPLACE INTO self_stances
+               (slug, on_topic, position, confidence, status, last_reaffirmed, page_slug, last_synced)
+               VALUES (?,?,?,?,?,?,?, datetime('now'))""",
+            (
+                s["slug"],
+                s.get("on_topic", ""),
+                s.get("position", ""),
+                s.get("confidence"),
+                s.get("status", "active"),
+                str(s["last_reaffirmed"]) if s.get("last_reaffirmed") else None,
+                page_slug,
+            ),
+        )
+        inserted += 1
+
+    for c in fm.get("commitments") or []:
+        if not isinstance(c, dict) or not c.get("slug"):
+            continue
+        conn.execute(
+            """INSERT OR REPLACE INTO self_commitments
+               (slug, title, due_date, status, progress_marker, page_slug, last_synced)
+               VALUES (?,?,?,?,?,?, datetime('now'))""",
+            (
+                c["slug"],
+                c.get("title", c["slug"]),
+                str(c["due_date"]) if c.get("due_date") else None,
+                c.get("status", "active"),
+                c.get("progress_marker"),
+                page_slug,
+            ),
+        )
+        inserted += 1
+
+    for k in fm.get("constraints") or []:
+        if not isinstance(k, dict) or not k.get("slug"):
+            continue
+        conn.execute(
+            """INSERT OR REPLACE INTO self_constraints
+               (slug, description, kind, status, page_slug, last_synced)
+               VALUES (?,?,?,?,?, datetime('now'))""",
+            (
+                k["slug"],
+                k.get("description", ""),
+                k.get("kind"),
+                k.get("status", "active"),
+                page_slug,
+            ),
+        )
+        inserted += 1
+
+    for v in fm.get("voice_rules") or []:
+        if not isinstance(v, dict) or not v.get("slug"):
+            continue
+        conn.execute(
+            """INSERT OR REPLACE INTO voice_rules
+               (slug, rule, category, examples_yes, examples_no, status, page_slug, last_synced)
+               VALUES (?,?,?,?,?,?,?, datetime('now'))""",
+            (
+                v["slug"],
+                v.get("rule", ""),
+                v.get("category"),
+                _json_or_none(v.get("examples_yes")),
+                _json_or_none(v.get("examples_no")),
+                v.get("status", "active"),
+                page_slug,
+            ),
+        )
+        inserted += 1
+
+    for h in fm.get("heuristics") or []:
+        if not isinstance(h, dict):
+            continue
+        hslug = h.get("slug")
+        if not hslug:
+            continue
+        conn.execute(
+            """INSERT OR REPLACE INTO agent_heuristics
+               (slug, rule, first_observed, evidence_events, confidence, status,
+                dispute_reason, page_slug, last_synced)
+               VALUES (?,?,?,?,?,?,?,?, datetime('now'))""",
+            (
+                hslug,
+                h.get("rule", ""),
+                str(h["first_observed"]) if h.get("first_observed") else None,
+                _json_or_none(h.get("evidence_events")),
+                h.get("confidence"),
+                h.get("status", "active"),
+                h.get("dispute_reason"),
+                page_slug,
+            ),
+        )
+        inserted += 1
+
+    return inserted
+
+
+def insert_alignment_fm(conn: sqlite3.Connection, fm: dict) -> int:
+    """Populate `self_alignment` from any page's `alignment:` frontmatter.
+
+    Accepted on every page type (source / entity / concept / synthesis / self / agent).
+    Each entry is a dict with:
+      - pillar_slug  (alias: pillar)   — REQUIRED
+      - relation                       — REQUIRED: reinforces | weakens | contradicts | neutral
+      - page_slug                      — OPTIONAL; defaults to the page declaring the alignment
+      - source_event                   — OPTIONAL; log event id / ISO date / free text trail
+    """
+    own_slug = fm["_slug"]
+    inserted = 0
+
+    for a in fm.get("alignment") or []:
+        if not isinstance(a, dict):
+            continue
+        tgt = a.get("page_slug") or own_slug
+        pillar = a.get("pillar_slug") or a.get("pillar")
+        rel = a.get("relation")
+        if not (tgt and pillar and rel):
+            continue
+        conn.execute(
+            """INSERT OR REPLACE INTO self_alignment
+               (page_slug, pillar_slug, relation, source_event)
+               VALUES (?,?,?,?)""",
+            (tgt, pillar, rel, a.get("source_event")),
+        )
+        inserted += 1
+
+    return inserted
 
 
 def insert_log_events(conn: sqlite3.Connection, events: list[dict]) -> tuple[int, int]:
@@ -1098,7 +1514,7 @@ def sync(wiki_dir: Path, generate_index_flag: bool = True):
 
     # --- Pages layer ---
     md_files = []
-    for subdir in ("sources", "entities", "concepts", "syntheses"):
+    for subdir in ("sources", "entities", "concepts", "syntheses", "self", "agent"):
         d = wiki_dir / subdir
         if d.exists():
             md_files.extend(d.glob("*.md"))
@@ -1106,7 +1522,12 @@ def sync(wiki_dir: Path, generate_index_flag: bool = True):
     pages_synced = 0
     relations_synced = 0
     wikilinks_synced = 0
+    self_aux_synced = 0
+    alignment_synced = 0
 
+    parsed_pages: list[dict] = []
+
+    # Pass 1: insert all pages (so self_pillars is populated before alignment FK checks).
     for filepath in sorted(md_files):
         fm = parse_md_file(filepath)
         if fm is None:
@@ -1117,7 +1538,13 @@ def sync(wiki_dir: Path, generate_index_flag: bool = True):
         insert_arrays(conn, fm)
         relations_synced += insert_relations(conn, fm)
         wikilinks_synced += insert_wikilinks(conn, fm["_slug"], fm["_prose"])
+        self_aux_synced += insert_self_aux(conn, fm)
+        parsed_pages.append(fm)
         pages_synced += 1
+
+    # Pass 2: alignment — runs after self_pillars is fully populated.
+    for fm in parsed_pages:
+        alignment_synced += insert_alignment_fm(conn, fm)
 
     # --- Temporal layer ---
     log_path = wiki_dir / LOG_FILENAME
@@ -1142,7 +1569,8 @@ def sync(wiki_dir: Path, generate_index_flag: bool = True):
     print(
         f"  Synced: {pages_synced} pages, {relations_synced} relations, "
         f"{wikilinks_synced} wikilinks, {log_events_synced} log events "
-        f"({log_junction_synced} page refs)"
+        f"({log_junction_synced} page refs), {self_aux_synced} self/agent rows, "
+        f"{alignment_synced} alignment rows"
     )
     print(f"  Duration: {duration_ms}ms")
     return pages_synced, relations_synced, wikilinks_synced, log_events_synced

@@ -401,3 +401,14 @@ Chronological record of wiki operations. Append-only.
 - Synthesis: (none — cross-linked into existing content-pillars instead per user direction)
 - **Totals: 1 source, 0 entities, 4 concepts = 5 new + 4 updated**
 - Guided ingest: discussed takeaways with Narcis; agreed no dedicated semnal entity, fold shipping-friction into friction-cost, cross-link (not synthesis) into content-pillars, skip tech-stack detail
+
+## [2026-04-22] ingest | Skillify — Every Agent Failure Becomes Permanent Infrastructure (Garry Tan)
+- Source: Clippings/How to really stop your agents from making the same mistakes.md (original: https://x.com/garrytan/status/2046876981711769720)
+- Source page created: skillify-agents-same-mistakes
+- Entities created: garry-tan, langchain, langsmith, openclaw, gbrain, hermes-agent, gstack
+- Concepts created: skillify, thin-harness-fat-skills, latent-vs-deterministic
+- Concepts updated: encoded-judgment (added Skillify verification discipline section + sources/entities/related), skill-era (added "Skill-Era Reliability: The Missing Discipline" section + sources/entities/related)
+- Synthesis: (none — three new concepts already carry the load; candidate for future synthesis linking Skillify ↔ Narcis's .claude/skills/ directory)
+- Guided ingest: discussed takeaways with Narcis; he confirmed all 3 concepts, 7 entities, zero images. Alignment: strongly reinforces skill-era-craftsmanship + ai-agents-for-solo-builders pillars; reinforces judgment-over-functionality + pragmatic-over-elegant stances; no contradictions.
+- Insight: Narcis's `.claude/skills/` already matches thin-harness-fat-skills architecture; missing layer is Skillify verification discipline (resolver evals, dark-skill audit, DRY audit across skills).
+- **Totals: 1 sources, 7 entities, 3 concepts = 11 new + 2 updated**
