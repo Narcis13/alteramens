@@ -128,3 +128,6 @@ Vreau sa documentez aici pe X creastea contului utilizind claude code si o combi
 
 > ### 1. Play Compounding Games
 > Pick an industry, craft, and people for the long term. Every direction change interrupts compounding. Growth is slow at first, then accelerates. The key is not to interrupt the process.
+
+### 2026-04-23 10:08
+Am descoperit un gem: Rails candidat bun sa inlocuiasca NextJS hell si in plus claude code zice ca a vazut 20 de ani de ruby on rails si ca e mastermind pe Rails

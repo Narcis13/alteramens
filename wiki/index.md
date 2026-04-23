@@ -1,7 +1,7 @@
 ---
 title: Faber Index
 type: meta
-updated: 2026-04-22
+updated: 2026-04-23
 total_pages: 174
 generated: true
 ---
