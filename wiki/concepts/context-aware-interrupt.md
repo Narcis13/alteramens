@@ -30,7 +30,7 @@ Orice trigger optim combină mai multe dintre:
 
 ## Spectrul trigger-urilor (de la rău la bun)
 
-Din [[cro-skills-suite|popup-cro]] și [[paywall-upgrade-cro]]:
+Din [[cro-skills-suite|popup-cro]] și skill-ul `paywall-upgrade-cro`:
 
 | Trigger | Calitate | Când se folosește |
 |---|---|---|

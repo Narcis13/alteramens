@@ -13,7 +13,7 @@ maturity: developing
 
 # Lifecycle & Retention Framework pentru Proiecte Alteramens
 
-Cele 4 skill-uri Lifecycle & Retention din suite-ul local ([[lifecycle-retention-skills-suite]]) împărtășesc pattern-uri cross-cutting (deja extrase ca [[concepts]]). Acest document le leagă într-un **framework aplicat pentru un solo builder cu 10h/săpt**, integrat cu suite-urile [[cro-skills-suite|CRO]], [[content-copy-skills-suite|Content]], [[seo-skills-suite|SEO]], [[paid-acquisition-skills-suite|Paid]], sub umbrela [[skill-era|Skill Era]].
+Cele 4 skill-uri Lifecycle & Retention din suite-ul local ([[lifecycle-retention-skills-suite]]) împărtășesc pattern-uri cross-cutting (deja extrase ca concepts). Acest document le leagă într-un **framework aplicat pentru un solo builder cu 10h/săpt**, integrat cu suite-urile [[cro-skills-suite|CRO]], [[content-copy-skills-suite|Content]], [[seo-skills-suite|SEO]], [[paid-acquisition-skills-suite|Paid]], sub umbrela [[skill-era|Skill Era]].
 
 ## Poziția Lifecycle & Retention în stiva Alteramens
 

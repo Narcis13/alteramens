@@ -32,6 +32,11 @@ WIKI_DIR_DEFAULT = Path(__file__).parent
 DB_NAME = "faber.db"
 LOG_FILENAME = "log.md"
 WIKILINK_RE = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
+# Matches fenced code blocks (``` ... ```), inline code (` ... `), and indented
+# 4-space code blocks. These are stripped before wikilink extraction so that
+# examples of the [[syntax]] inside documentation don't get indexed as real links.
+FENCED_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
+INLINE_CODE_RE = re.compile(r"`[^`\n]+`")
 
 # Log.md header contract: `## [YYYY-MM-DD] operation | Title`
 # `operation` may be multi-word (e.g. "query → synthesis")
@@ -361,12 +366,31 @@ SELECT DISTINCT pw.from_slug, pw.target FROM prose_wikilinks pw
 LEFT JOIN pages p ON p.slug = pw.target
 WHERE p.slug IS NULL AND pw.is_vault_link = 0;
 
+-- Thin pages: concept/entity pages related to <=1 source/synthesis.
+-- "Related" means either direction:
+--   • the page declares `sources:` / `sources_consulted:` (outbound has_source / consulted_source)
+--   • a source/synthesis cites the page via `concepts:` / `entities:` / `*_involved:`
+--     (inbound has_concept / has_entity / involves_concept / involves_entity)
+-- Counts distinct related pages across both directions.
 CREATE VIEW IF NOT EXISTS v_thin_pages AS
-SELECT p.slug, p.type, p.title, COUNT(DISTINCT pr.from_slug) as source_count
+SELECT p.slug, p.type, p.title,
+       COUNT(DISTINCT CASE
+         WHEN pr.from_slug = p.slug
+              AND pr.relation_type IN ('has_source','consulted_source')
+           THEN pr.to_slug
+         WHEN pr.to_slug = p.slug
+              AND pr.relation_type IN ('has_concept','has_entity',
+                                        'involves_concept','involves_entity')
+           THEN pr.from_slug
+       END) AS source_count
 FROM pages p
 LEFT JOIN page_relations pr ON (
-    (pr.to_slug = p.slug AND pr.relation_type IN ('has_source','consulted_source'))
-    OR (pr.from_slug = p.slug AND pr.relation_type IN ('has_entity','has_concept'))
+    (pr.from_slug = p.slug
+     AND pr.relation_type IN ('has_source','consulted_source'))
+    OR
+    (pr.to_slug = p.slug
+     AND pr.relation_type IN ('has_concept','has_entity',
+                               'involves_concept','involves_entity'))
 )
 WHERE p.type IN ('entity', 'concept')
 GROUP BY p.slug HAVING source_count <= 1;
@@ -659,11 +683,32 @@ def parse_md_file(filepath: Path) -> dict | None:
 
 
 def extract_wikilinks(prose: str) -> list[dict]:
-    """Extract all [[target|display]] wikilinks from prose."""
+    """Extract all [[target|display]] wikilinks from prose.
+
+    Strips fenced code blocks and inline code first so `[[example]]` tokens
+    inside schema documentation or query snippets don't get indexed as links.
+    Splits `target#anchor` into `target` + anchor (anchor stored in display_text
+    when no explicit display label is given) so the phantom-check is driven by
+    the page slug, not the heading.
+    """
+    cleaned = FENCED_BLOCK_RE.sub("", prose)
+    cleaned = INLINE_CODE_RE.sub("", cleaned)
+
     results = []
-    for m in WIKILINK_RE.finditer(prose):
-        target = m.group(1).strip()
+    for m in WIKILINK_RE.finditer(cleaned):
+        raw_target = m.group(1).strip()
         display = m.group(2).strip() if m.group(2) else None
+
+        # Split off heading anchor so the phantom check compares page slugs.
+        if "#" in raw_target:
+            target, anchor = raw_target.split("#", 1)
+            target = target.strip()
+            anchor = anchor.strip()
+            if display is None and anchor:
+                display = f"#{anchor}"
+        else:
+            target = raw_target
+
         is_vault = 1 if "/" in target else 0
         results.append({"target": target, "display_text": display, "is_vault_link": is_vault})
     return results

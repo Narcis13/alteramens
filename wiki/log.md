@@ -435,3 +435,18 @@ Chronological record of wiki operations. Append-only.
 - Revision: V1 (2 parallel narratives + 5 content pillars + launch sequence vag) → V2 (3 pillars locked + weekly scientific loop + 4-tier asset funnel + Google Doc Offer pentru HT + timeline 36 săpt. calibrat pe x-1000-followers commitment)
 - Alignment: reinforces skill-era-craftsmanship + building-as-51yo-from-ro-public-hospital
 - Maturity bump: seed → developing (now grounded in operational playbook + locked pillars)
+
+## [2026-04-24] lint | Health Check
+- Issues: 3 high, 2 medium, 2 low
+- Suggestions: 4 (fix real phantoms, convert anchor refs, source 37 zero-source concepts, evaluate 5 synthesis orphans)
+- Log layer: clean (0 mismatches, 0 phantom refs, 0 orphaned events)
+
+## [2026-04-24] build | Lint Fixes — All 5 Suggestions Resolved
+- Vault doc updated: wiki/faber_sync.py (patched `extract_wikilinks` to strip fenced/inline code blocks before regex; split `target#anchor` so phantom-check uses bare slug)
+- Vault doc updated: wiki/faber_sync.py (fixed `v_thin_pages` view — was counting relations in wrong direction, now correctly unions outbound `has_source` + inbound `has_concept`/`has_entity`/`involves_*`)
+- Sources updated: content-copy-skills-suite, cro-skills-suite, lifecycle-retention-skills-suite, paid-acquisition-skills-suite (removed 5 `[[concepts]]` pseudo-links, kept as prose)
+- Synthesis updated: lifecycle-retention-framework-alteramens (removed `[[concepts]]` pseudo-link)
+- Sources updated: alteramens-manifest, naval-framework (rewrote `[[MANIFEST]]`/`[[Foundation]]` as vault links `[[../MANIFEST|MANIFEST]]` / `[[../Foundation|Foundation]]`)
+- Concepts updated: context-aware-interrupt, value-before-ask, product-marketing-context (rewrote skill-name wikilinks as inline code or plain prose — paywall-upgrade-cro, free-tool-strategy, customer-research are skills, not wiki pages)
+- **Metrics delta: phantoms 28→0, thin pages 137→17, zero-source concepts/entities 37→0, log layer remains clean**
+- Root-cause discovered: the 37 "zero-source concepts" were a false positive — `v_thin_pages` view was looking for inbound `has_source` on concepts but the schema stores it outbound. All 37 concepts had sources declared in frontmatter; fixing the view was the actual fix.

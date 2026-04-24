@@ -24,7 +24,7 @@ confidence: high
 
 # Productize Yourself — Naval's 10 Ideas on Getting Rich
 
-Summary of Naval Ravikant's framework as curated by Stijn Noorman. Source: Twitter/X thread, saved in vault as [[Foundation]].
+Summary of Naval Ravikant's framework as curated by Stijn Noorman. Source: Twitter/X thread, saved in vault as [[../Foundation|Foundation]].
 
 ## Core Thesis
 

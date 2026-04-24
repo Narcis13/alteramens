@@ -39,7 +39,7 @@ Skill-urile live în `.claude/skills/` și sunt invocabile direct prin `/<nume-s
 
 ## Principiile fundamentale pe care le împărtășesc
 
-Cele 4 skill-uri, deși aplicate pe surfețe diferite, derivă din același set de pattern-uri reutilizabile. Acestea au fost extrase ca pagini de [[concepts]] separate:
+Cele 4 skill-uri, deși aplicate pe surfețe diferite, derivă din același set de pattern-uri reutilizabile. Acestea au fost extrase ca pagini de concepts separate:
 
 - **[[searchable-vs-shareable]]** — fiecare piesă captează cerere existentă (search) sau creează cerere nouă (share); prioritizarea search-ului ca fundație
 - **[[seven-sweeps-editing]]** — metodologia secvențială de editare prin 7 pase single-dimension cu loop-back

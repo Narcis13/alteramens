@@ -61,7 +61,7 @@ Acesta este [[encoded-judgment]] recursiv: un skill al cărui output devine inpu
 
 - Schimbare de poziționare (nou ICP, nou mesaj central)
 - Schimbare de pricing sau business model
-- Rezultate noi din [[customer-research|customer research]] (verbatim nou, personas noi)
+- Rezultate noi din customer research (verbatim nou, personas noi)
 - Lansare majoră care schimbă "ce ești"
 
 ## Relația cu alte skill-uri

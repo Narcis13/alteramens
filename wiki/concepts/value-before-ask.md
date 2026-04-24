@@ -40,7 +40,7 @@ Suite-ul [[cro-skills-suite|CRO Skills]] reformulează acest principiu în fieca
 ### În marketing
 - Headline-uri outcome-focused ("Obții X fără Y") înainte de "Download now"
 - Case studies cu numere concrete înainte de "Contact sales"
-- Free tools utile ([[free-tool-strategy]]) ca lead magnet, nu gated PDF-uri
+- Free tools utile (skill-ul `free-tool-strategy`) ca lead magnet, nu gated PDF-uri
 
 ### În onboarding
 - Primul ecran = primul câștig (nu configurare)

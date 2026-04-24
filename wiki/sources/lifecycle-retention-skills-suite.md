@@ -40,7 +40,7 @@ Un set de 4 skill-uri coordonate care guvernează **ce se întâmplă după sign
 
 ## Principiile fundamentale pe care le împărtășesc
 
-Cele 4 skill-uri, deși aplicate pe momente diferite din lifecycle, derivă din pattern-uri cross-cutting. Acestea au fost extrase ca pagini de [[concepts]] separate:
+Cele 4 skill-uri, deși aplicate pe momente diferite din lifecycle, derivă din pattern-uri cross-cutting. Acestea au fost extrase ca pagini de concepts separate:
 
 - **[[dynamic-save-offer]]** — match offer la cancel reason; un discount nu salvează pe cineva care nu folosește produsul
 - **[[voluntary-vs-involuntary-churn]]** — taxonomie de bază: 50-70% voluntary vs 30-50% involuntary, strategii diferite

@@ -38,7 +38,7 @@ Skill-urile live în `.claude/skills/` și sunt invocabile direct prin `/<nume-s
 
 ## Principiile fundamentale pe care le împărtășesc
 
-Cele 3 skill-uri derivă din același set de pattern-uri reutilizabile, extrase ca pagini de [[concepts]] separate:
+Cele 3 skill-uri derivă din același set de pattern-uri reutilizabile, extrase ca pagini de concepts separate:
 
 - **[[hypothesis-driven-experimentation]]** — orice cheltuială/creativ/test începe cu ipoteză falsifiabilă, nu cu speranță
 - **[[ice-prioritization]]** — framework universal (Impact + Confidence + Ease)/3 pentru a alege ce să testezi next

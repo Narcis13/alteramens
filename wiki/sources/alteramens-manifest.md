@@ -21,7 +21,7 @@ confidence: high
 
 # Alteramens Manifest
 
-The founding document of Alteramens. Contains the AntiVision (what to refuse), the Vision (what to build toward), principles, timeline, daily operational rhythms, and constraints. Source: [[MANIFEST]].
+The founding document of Alteramens. Contains the AntiVision (what to refuse), the Vision (what to build toward), principles, timeline, daily operational rhythms, and constraints. Source: [[../MANIFEST|MANIFEST]].
 
 ## AntiVision (What Drives Action)
 

@@ -38,7 +38,7 @@ Skill-urile live în `.claude/skills/` și sunt invocabile direct prin `/<nume-s
 
 ## Principiile fundamentale pe care le împărtășesc
 
-Toate 6 skill-urile, deși aplicate la surfețe diferite, derivă din același set de principii. Aceste principii au fost extrase ca pagini de [[concepts]] separate:
+Toate 6 skill-urile, deși aplicate la surfețe diferite, derivă din același set de principii. Aceste principii au fost extrase ca pagini de concepts separate:
 
 - **[[value-before-ask]]** — demonstrează valoare înainte de a cere angajament (date, signup, plată)
 - **[[friction-cost]]** — fiecare punct de fricțiune are cost cuantificabil în conversii
