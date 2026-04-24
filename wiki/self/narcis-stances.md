@@ -5,7 +5,7 @@ subtype: stances
 status: active
 maturity: developing
 created: 2026-04-22
-updated: 2026-04-22
+updated: 2026-04-24
 stances:
   - slug: shipping-over-perfection
     on_topic: delivery cadence
@@ -43,6 +43,38 @@ stances:
     confidence: high
     status: active
     last_reaffirmed: 2026-04-22
+  - slug: written-offer-over-sales-call
+    on_topic: selling premium services
+    position: "Written offer > sales call. Un Google Doc care pre-gestionează obiecțiile scalează; un call de discovery nu. Yes-ul self-generated bate yes-ul extras."
+    confidence: medium
+    status: active
+    created: 2026-04-24
+    last_reaffirmed: 2026-04-24
+    source: asset-creators-operator-playbook
+  - slug: client-cap-as-discipline
+    on_topic: growth boundaries in coaching/consulting
+    position: "Client cap e disciplină, nu scarcity theater. Dincolo de 5-6 activi devii angajat. Mai bine slot gol decât client greșit — un client greșit costă 6 săptămâni și testimonial inutilizabil."
+    confidence: medium
+    status: active
+    created: 2026-04-24
+    last_reaffirmed: 2026-04-24
+    source: asset-creators-operator-playbook
+  - slug: no-refunds-as-buyer-filter
+    on_topic: policies as pre-sale filters
+    position: "No refunds = filtru de serious buyer, nu lipsă de integritate. Refund policy atrage buyer's remorse ca model de business. Edge cases (medical, familial, seller fail) se tratează privat."
+    confidence: medium
+    status: active
+    created: 2026-04-24
+    last_reaffirmed: 2026-04-24
+    source: asset-creators-operator-playbook
+  - slug: services-as-distribution-products-as-business
+    on_topic: business model for solo operators
+    position: "Serviciile (coaching, advisory, consulting) nu sunt business-ul. Sunt cum rămâi aproape de problema reală pentru a construi produsele scalabile. Clienții co-construiesc produsele."
+    confidence: medium
+    status: active
+    created: 2026-04-24
+    last_reaffirmed: 2026-04-24
+    source: asset-creators-operator-playbook
 ---
 
 # Stance-uri active
@@ -72,3 +104,27 @@ Target X: [[narcis-commitments#x-1000-followers|1000+ urmăritori reali]]. Zero 
 ## Bias pentru acțiune
 
 Gândirea are loc în execuție. Dacă am îndoieli, le rezolv prin shipping — nu prin încă o iterație de plan.
+
+---
+
+## Written offer > sales call *(adăugat 2026-04-24, confidence: medium)*
+
+Adoptat după ingest-ul [[asset-creators-operator-playbook]]. Un document scris care pre-gestionează obiecțiile — nu un deck, nu un landing page, **un Google Doc** — devine asset-ul shareable. Yes-ul self-generated (buyer-ul decide la 11pm singur) scalează; yes-ul extras (discovery call) cere munca 10x per sale. Aplicabil la orice advisory/coaching/done-with-you offer Alteramens. Vezi [[google-doc-offer]] pentru pattern complet.
+
+**Când NU se aplică:** B2B enterprise cu procurement formal. Pentru piețe SMB / creator economy / solopreneur, stance-ul ține.
+
+## Client cap ca disciplină *(adăugat 2026-04-24, confidence: medium)*
+
+Adoptat după ingest-ul [[asset-creators-operator-playbook]]. Dincolo de 5-6 clienți 1:1 activi, un solo operator devine angajat — pierde capacitatea de a răspunde în 4h și de a ship produse scalabile. Cap-ul nu e marketing (scarcity theater), ci **operational**. Implicația concretă: atunci când Narcis lansează un advisory offer, cap explicit de 3-5 slots, cu slot-uri deschise chiar și nevandute dacă fit-ul e greșit.
+
+## No refunds ca filtru de cumpărător *(adăugat 2026-04-24, confidence: medium)*
+
+Adoptat după ingest-ul [[asset-creators-operator-playbook]]. Premisa: refund policy **filtrează serious buyers** (serious people don't plan to fail) și **atrage buyer's remorse ca model de business**. Adoptare conservativă — aplicabil pentru offer-uri $500+ unde fit-ul e pre-filtrat prin [[google-doc-offer]]. Pentru micro offer ($49 template), politica standard de refund pe 14 zile rămâne acceptabilă (e e-commerce, nu advisory).
+
+Edge cases (medical, familial, seller fail) se gestionează privat, nu sunt publicizate.
+
+## Serviciile = distribuție, produsele = business *(adăugat 2026-04-24, confidence: medium)*
+
+Adoptat după ingest-ul [[asset-creators-operator-playbook]]. Nu e contradicție cu [[productize-yourself]] — e **clarificare operațională**: coaching/advisory nu e destinația finală, e **mecanismul de învățare** care face posibilă productizarea ulterioară. Swipe Bank devine $97 template. Playbook intern devine $997 course. Clienții co-construiesc produsele.
+
+Implicație pentru Alteramens: orice advisory offer pe care Narcis îl lansează **trebuie să fie proiectat explicit ca feedback loop pentru primul produs scalabil**, nu ca destinație.

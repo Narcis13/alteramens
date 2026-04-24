@@ -2,9 +2,9 @@
 title: "The Skill Era — From Pipes to Patterns"
 type: concept
 category: mental-model
-sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread, skillify-agents-same-mistakes]
-entities: [alteramens, single-grain, eric-siu, block-inc, pat-walls, garry-tan, gbrain, hermes-agent, openclaw, langchain]
-related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army, knowledge-first-development, ambient-computation, executable-wiki, agent-native-startup, vertical-operator-edge, headless-saas-thesis, outcome-based-pricing, skillify, thin-harness-fat-skills, latent-vs-deterministic]
+sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread, skillify-agents-same-mistakes, asset-creators-operator-playbook]
+entities: [alteramens, single-grain, eric-siu, block-inc, pat-walls, garry-tan, gbrain, hermes-agent, openclaw, langchain, creator-shows]
+related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army, knowledge-first-development, ambient-computation, executable-wiki, agent-native-startup, vertical-operator-edge, headless-saas-thesis, outcome-based-pricing, skillify, thin-harness-fat-skills, latent-vs-deterministic, google-doc-offer]
 maturity: mature
 confidence: high
 contradictions: []
@@ -89,3 +89,14 @@ Three new primitives land on this page:
 Reference stack: [[openclaw]] (harness) + [[gbrain]] (verification) + [[hermes-agent]] (autonomous skill creation from Nous Research). Garry's synthesis: creation + verification = both needed. This is the "without tests, any codebase rots" problem that software engineering solved in 2005, finally applied to agent skills.
 
 For Alteramens: the `.claude/skills/` directory is already a skill-era artifact; what's missing is the Skillify discipline over it. Highest-leverage experiment — add a resolver-eval / dark-skill / DRY audit layer across the existing skills.
+
+## Non-Tech Variant: Written Offer as Skill Artifact ([[creator-shows]])
+
+[[asset-creators-operator-playbook]] operationalizes the Skill Era în forma ei **non-technical** — pentru creatori cu 1-3K followers și skill vândabil, dar fără audience de developeri. Insight-ul cheie: **[[google-doc-offer]] e un skill-era artifact.**
+
+- Un Google Doc de 1,500 cuvinte **encodează judgment-ul coach-ului despre positioning în niche**
+- URL-ul shareable = **skill invocată de oricine** (buyer, readers, referrals)
+- Validation = first paying stranger (buyer-ul execută skill-ul, adică se convinge singur)
+- Compounding = 2-4 rewrites până first sale, apoi skill-ul devine asset recurent pentru ani
+
+Asta extinde teza Skill Era dincolo de `.claude/skills/` și MCP servers: **orice document care encodează judgment cristalizat și e distribuibil via URL e un skill în sensul larg**. Pentru solo operators non-tech, Google Doc e distribuția — nu dashboard, nu deck, nu landing page.

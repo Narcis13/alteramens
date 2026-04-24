@@ -2,9 +2,9 @@
 title: "Productize Yourself"
 type: concept
 category: mental-model
-sources: [naval-framework]
-entities: [naval-ravikant, alteramens]
-related: [specific-knowledge, leverage, judgment, accountability, compounding-games, authentic-creation]
+sources: [naval-framework, asset-creators-operator-playbook]
+entities: [naval-ravikant, alteramens, creator-shows]
+related: [specific-knowledge, leverage, judgment, accountability, compounding-games, authentic-creation, google-doc-offer, asset-funnel-price-ladder, annual-prepay-cash-flow]
 maturity: mature
 confidence: high
 contradictions: []
@@ -47,3 +47,14 @@ For every new project or idea: Does it productize Narcis's specific knowledge? D
 
 - [[skill-era]] — The Skill Era extends this: expertise as infrastructure, judgment as the scarce resource
 - [[compounding-games]] — The temporal dimension: don't interrupt the process
+
+## Operațional — Playbook-ul [[creator-shows]]
+
+Sursa [[asset-creators-operator-playbook]] aplică cadrul Naval la o piață specifică (creatori micro-audience pe X) cu sistem complet operaționalizat:
+
+- **Specific Knowledge** → productizat în [[google-doc-offer]] (1,200–1,800 cuvinte care encodează positioning-ul)
+- **Leverage** → [[asset-funnel-price-ladder]] cu 4 trepte (lead magnet → micro → mid → HT) + email sequencing automatizat
+- **Judgment** → încorporat în fiecare treaptă (care content e growth vs. competence, care tool-uri refuzi, care clienți respingi)
+- **Accountability** → [[annual-prepay-cash-flow]] = buyer cu skin in the game, iar seller cu obligație contractuală 12 luni
+
+**Clarificare practică importantă:** playbook-ul zice explicit "coaching-ul nu e business-ul, coaching-ul e cum rămâi aproape de problemă ca să continui să construiești produse scalabile." Asta nu contradice Productize Yourself — complementează: coaching-ul e **mecanismul de învățare** care face posibilă productizarea ulterioară (Swipe Bank → $97 template, playbook → $997 course). Clienții co-construiesc produsele.

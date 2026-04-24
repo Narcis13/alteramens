@@ -412,3 +412,26 @@ Chronological record of wiki operations. Append-only.
 - Guided ingest: discussed takeaways with Narcis; he confirmed all 3 concepts, 7 entities, zero images. Alignment: strongly reinforces skill-era-craftsmanship + ai-agents-for-solo-builders pillars; reinforces judgment-over-functionality + pragmatic-over-elegant stances; no contradictions.
 - Insight: Narcis's `.claude/skills/` already matches thin-harness-fat-skills architecture; missing layer is Skillify verification discipline (resolver evals, dark-skill audit, DRY audit across skills).
 - **Totals: 1 sources, 7 entities, 3 concepts = 11 new + 2 updated**
+
+## [2026-04-24] ingest | Asset Creators — Internal Operator Playbook
+- Source: conversation:2026-04-24 (paste)
+- Source page created: asset-creators-operator-playbook
+- Entities created: creator-shows, beehiiv, kit, gumroad, payhip, lemon-squeezy, typefully
+- Entities updated: (none)
+- Concepts created: google-doc-offer, scientific-content-split, asset-funnel-price-ladder, annual-prepay-cash-flow
+- Concepts updated: productize-yourself (added source + operational section + creator-shows entity + related concepts), skill-era (added source + "Non-Tech Variant: Written Offer as Skill Artifact" section + creator-shows entity + google-doc-offer related)
+- Synthesis: (none — 4 new concepts + updated productize-yourself/skill-era already carry the load; candidate for future synthesis "Non-Tech Skill Era — Google Doc as Productized Judgment")
+- Guided ingest: discussed takeaways with Narcis; he confirmed title "Asset Creators — Internal Operator Playbook", all 4 concepts, all 7 entities, all 4 stance candidates, origin=conversation, zero images
+- Alignment: 6 entries — skill-era-craftsmanship: reinforces ×2 (source + google-doc-offer) / building-as-51yo-from-ro-public-hospital: reinforces ×3 (source + asset-funnel-price-ladder + annual-prepay-cash-flow) / skill-era-craftsmanship: reinforces ×1 (scientific-content-split)
+- Stance candidates: 4 — all accepted by Narcis ("toate"): written-offer-over-sales-call, client-cap-as-discipline, no-refunds-as-buyer-filter, services-as-distribution-products-as-business. All added as active stances with confidence=medium (newly adopted, need field validation)
+- **Totals: 1 sources, 7 entities, 4 concepts = 12 new + 2 updated**
+
+## [2026-04-24] query → synthesis | Personal Brand Playbook V2
+- Query: "hai sa mai incercam o reiterare pentru un playbook despre cum sa imi definesc sa cresc si eventual sa monetizez brandul meu personal"
+- Synthesis updated: personal-brand-strategy (V1 seed 2026-04-08 → V2 developing 2026-04-24)
+- Sources consulted: 6 (nbrain-social-strategy, naval-framework, ai-marketing-distribution, brainstorm-ai-tutor-medicina, semnal-x-growth-system, asset-creators-operator-playbook)
+- Entities involved: 9 (nbrain, alteramens, naval-ravikant, mihai-brindusescu, creator-shows, beehiiv, kit, gumroad, typefully)
+- Concepts involved: 21 (productize-yourself, specific-knowledge, building-in-public, accountability, authentic-creation, leverage, answer-engine-optimization, distribution-over-product, skill-era, viral-artifacts, x-content-pillars, content-pillars, voice-preservation, dogfood-as-content, human-in-loop-publishing, compounding-games, google-doc-offer, scientific-content-split, asset-funnel-price-ladder, annual-prepay-cash-flow, engineering-as-marketing)
+- Revision: V1 (2 parallel narratives + 5 content pillars + launch sequence vag) → V2 (3 pillars locked + weekly scientific loop + 4-tier asset funnel + Google Doc Offer pentru HT + timeline 36 săpt. calibrat pe x-1000-followers commitment)
+- Alignment: reinforces skill-era-craftsmanship + building-as-51yo-from-ro-public-hospital
+- Maturity bump: seed → developing (now grounded in operational playbook + locked pillars)
