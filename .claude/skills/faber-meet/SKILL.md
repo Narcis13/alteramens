@@ -1,5 +1,6 @@
 ---
 name: faber-meet
+composition_level: molecule
 description: |
   Monthly self-review — Narcis revises pillars, stances, commitments,
   constraints, voice rules based on log evidence. Flow: review → proposals →

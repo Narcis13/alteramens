@@ -1,5 +1,6 @@
 ---
 name: faber-seed
+composition_level: molecule
 description: |
   Autonomous vault seeding for Faber wiki. Scans the Alteramens vault for high-value content
   and creates initial wiki pages (sources, entities, concepts). First pass is autonomous;

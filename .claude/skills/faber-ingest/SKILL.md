@@ -1,5 +1,6 @@
 ---
 name: faber-ingest
+composition_level: molecule
 description: |
   Guided ingestion of a source into the Faber wiki (wiki/). Use when the user provides a source
   to ingest — a file path, URL, pasted text, or says "ingest this". Reads the source, discusses

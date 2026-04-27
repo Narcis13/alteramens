@@ -1,5 +1,6 @@
 ---
 name: agent-reflect
+composition_level: molecule
 description: |
   End-of-session reflection for Claude's working model. Reviews recent log
   evidence, proposes updates to agent/claude.md — heuristics confirmed,

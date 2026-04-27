@@ -1,5 +1,6 @@
 ---
 name: semnal-draft
+composition_level: molecule
 description: |
   Transform a raw seed (thought, note, Romanian draft) into 3 publish-ready X post variants
   in English — plain, spicy, reflective — preserving Narcis's authentic voice (Romglish when

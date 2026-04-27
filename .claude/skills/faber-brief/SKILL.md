@@ -1,5 +1,6 @@
 ---
 name: faber-brief
+composition_level: atom
 description: |
   Wake-up briefing for fresh sessions. Single SQL pass over faber.db that returns "what's been
   happening here lately" — recent events, top active pages, recent syntheses, open threads,

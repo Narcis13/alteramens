@@ -450,3 +450,46 @@ Chronological record of wiki operations. Append-only.
 - Concepts updated: context-aware-interrupt, value-before-ask, product-marketing-context (rewrote skill-name wikilinks as inline code or plain prose — paywall-upgrade-cro, free-tool-strategy, customer-research are skills, not wiki pages)
 - **Metrics delta: phantoms 28→0, thin pages 137→17, zero-source concepts/entities 37→0, log layer remains clean**
 - Root-cause discovered: the 37 "zero-source concepts" were a false positive — `v_thin_pages` view was looking for inbound `has_source` on concepts but the schema stores it outbound. All 37 concepts had sources declared in frontmatter; fixing the view was the actual fix.
+
+## [2026-04-27] ingest | Skill Graphs 2.0
+- Source: conversation:2026-04-27 (heinrich article on atoms/molecules/compounds + skill graphs)
+- Source page created: skill-graphs-2-heinrich
+- Entities created: heinrich, arscontexta
+- Concepts created: atoms-molecules-compounds, skill-graphs, brain-ram-leverage
+- Concepts updated: skill-era (added Compositional Architecture section), thin-harness-fat-skills (added atoms/molecules/compounds mapping), encoded-judgment (added Judgment Bounded vs Open section), skillify (added Verification at Each Composition Level section)
+- Synthesis created: faber-as-skill-graph
+- Guided ingest: 5-section structure (Faber as skill graph + lens applied to .claude/skills/ + tensions + open directions)
+- **Totals: 1 sources, 2 entities, 3 concepts, 1 synthesis = 7 new + 4 updated**
+- Alignment: 6 entries — skill-era-craftsmanship: reinforces ×6, ai-agents-for-solo-builders: reinforces ×4
+- Stance candidates: 1 surfaced — "compose at atoms/molecules/compounds layers, don't ship undifferentiated SKILL.md piles" (status: ACCEPTED — added as `compose-skills-by-level` to narcis-stances.md, confidence medium)
+
+## [2026-04-27] build | Retroactive composition_level tagging on .claude/skills/
+- Implemented direction #1 from synthesis `faber-as-skill-graph`
+- Inserted `composition_level: atom | molecule | compound` after `name:` in 52/54 SKILL.md frontmatters
+- Atoms (3): faber-sync, faber-status, faber-brief — single-pass deterministic reads/scripts, no inter-skill calls
+- Molecules (49): all multi-phase workflows with encoded judgment (faber-ingest/query/link/lint/seed/slides/mirror/meet, semnal-draft/reply, to-content, agent-reflect, email, frontend-slides, plus full marketing/SEO/CRO/lifecycle suite)
+- Compounds (0): none yet — orchestrating multiple molecules is still done manually in conversation
+- Skipped (2): `knowledge-capture`, `session-sync` — no YAML frontmatter at all (legacy heading-style SKILL.md)
+- Cost: ~30 min (under the 1h estimate). Beneficiu: vizibilitate — un grep `composition_level: compound` îți spune mecanic ce playbook-uri ai (azi: niciun)
+
+## [2026-04-27] build | MOC skill-engineering
+- Vault doc created: wiki/mocs/skill-engineering.md
+- New page type introduced: `moc` (Map of Content) — first explicit MOC in Faber
+- New directory created: `wiki/mocs/`
+- Aggregates: 7 concepts (skill-era, encoded-judgment, thin-harness-fat-skills, skillify, atoms-molecules-compounds, skill-graphs, brain-ram-leverage) + latent-vs-deterministic mention
+- References: 3 sources (skill-era-article, skillify-agents-same-mistakes, skill-graphs-2-heinrich), 7 entities (garry-tan, heinrich, openclaw, gbrain, hermes-agent, langchain, arscontexta), 1 synthesis (faber-as-skill-graph)
+- Structure: 3 reading-order traseu-uri (paradigm 15min / build 1h / Alteramens-apply) + per-concept annotated descriptions + open questions + pillars alignment
+- Implements directly direction #2 from synthesis `faber-as-skill-graph` ("MOC pentru skill engineering ca entry point pentru /faber-query")
+- Alignment: 2 entries — skill-era-craftsmanship: reinforces, ai-agents-for-solo-builders: reinforces
+
+## [2026-04-27] build | MOC active-skills — bridge wiki ↔ skills
+- Vault doc created: wiki/mocs/active-skills.md
+- Vault doc updated: wiki/mocs/skill-engineering.md
+- Purpose: unite the two graphs — every skill in `.claude/skills/` (54 total) now has a semantic home in the wiki, with wikilinks to relevant concepts/syntheses
+- Structure: 6 native clusters (Faber ops 11 / Semnal 2 / cross-medium content 2 / agent meta 1 / legacy capture 2 / tooling 1 = 19 skills) + delegation to existing [[marketing-skills-catalog]] for the remaining 35 marketing skills
+- Three-level hierarchy clarified: active-skills MOC (index) → marketing-skills-catalog / faber-as-skill-graph (cluster syntheses) → {framework}-alteramens (applied syntheses)
+- Resolves: Open Question #1 from `skill-engineering` MOC ("merită un MOC `wiki/mocs/active-skills.md`?") — marked addressed in skill-engineering.md
+- Open questions surfaced: composition_level audit on `knowledge-capture` + `session-sync` (missing frontmatter); `email` and `frontend-slides` as tooling-vs-skill (filtru encoded-judgment); first compound candidate (e.g. `/launch-pack`)
+- Concepts involved: 8 (skill-era, encoded-judgment, thin-harness-fat-skills, atoms-molecules-compounds, skill-graphs, brain-ram-leverage, executable-wiki, knowledge-first-development)
+- Syntheses involved: 9 (marketing-skills-catalog, faber-as-skill-graph, plus 7 *-framework-alteramens)
+- Alignment: 2 entries — skill-era-craftsmanship: reinforces, ai-agents-for-solo-builders: reinforces

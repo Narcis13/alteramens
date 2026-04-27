@@ -1,5 +1,6 @@
 ---
 name: faber-status
+composition_level: atom
 description: |
   Show Faber wiki dashboard — page counts, recent activity, top entities, maturity distribution,
   cross-link stats, temporal velocity, and log integrity. Quick overview of wiki health and size.

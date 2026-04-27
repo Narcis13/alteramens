@@ -1,5 +1,6 @@
 ---
 name: email
+composition_level: molecule
 description: Manage Gmail inbox via Himalaya CLI. Use when the user wants to check email, read messages, search inbox, triage mail, delete or move messages, list folders, or any email-related task. Trigger on /email or any mention of email, inbox, mail, messages.
 ---
 

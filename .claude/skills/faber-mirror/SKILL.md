@@ -1,5 +1,6 @@
 ---
 name: faber-mirror
+composition_level: molecule
 description: |
   Confrontational weekly reflection. Compares declared self (self_pillars, self_stances,
   self_commitments, self_constraints) against log reality for the past 7 days and writes

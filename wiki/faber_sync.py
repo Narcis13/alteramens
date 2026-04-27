@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS pages (
     slug            TEXT PRIMARY KEY,
     title           TEXT NOT NULL,
     type            TEXT NOT NULL
-                    CHECK(type IN ('source','entity','concept','synthesis','meta','self','agent')),
+                    CHECK(type IN ('source','entity','concept','synthesis','meta','self','agent','moc')),
     file_path       TEXT NOT NULL,
     format          TEXT,
     origin          TEXT,
@@ -1559,7 +1559,7 @@ def sync(wiki_dir: Path, generate_index_flag: bool = True):
 
     # --- Pages layer ---
     md_files = []
-    for subdir in ("sources", "entities", "concepts", "syntheses", "self", "agent"):
+    for subdir in ("sources", "entities", "concepts", "syntheses", "self", "agent", "mocs"):
         d = wiki_dir / subdir
         if d.exists():
             md_files.extend(d.glob("*.md"))

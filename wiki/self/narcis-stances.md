@@ -5,7 +5,7 @@ subtype: stances
 status: active
 maturity: developing
 created: 2026-04-22
-updated: 2026-04-24
+updated: 2026-04-27
 stances:
   - slug: shipping-over-perfection
     on_topic: delivery cadence
@@ -75,6 +75,14 @@ stances:
     created: 2026-04-24
     last_reaffirmed: 2026-04-24
     source: asset-creators-operator-playbook
+  - slug: compose-skills-by-level
+    on_topic: skill architecture
+    position: "Compose at atoms/molecules/compounds layers — don't ship undifferentiated SKILL.md piles. Skills nemarcate cu nivel de compoziție sunt skills nematurate."
+    confidence: medium
+    status: active
+    created: 2026-04-27
+    last_reaffirmed: 2026-04-27
+    source: skill-graphs-2-heinrich
 ---
 
 # Stance-uri active
@@ -128,3 +136,18 @@ Edge cases (medical, familial, seller fail) se gestionează privat, nu sunt publ
 Adoptat după ingest-ul [[asset-creators-operator-playbook]]. Nu e contradicție cu [[productize-yourself]] — e **clarificare operațională**: coaching/advisory nu e destinația finală, e **mecanismul de învățare** care face posibilă productizarea ulterioară. Swipe Bank devine $97 template. Playbook intern devine $997 course. Clienții co-construiesc produsele.
 
 Implicație pentru Alteramens: orice advisory offer pe care Narcis îl lansează **trebuie să fie proiectat explicit ca feedback loop pentru primul produs scalabil**, nu ca destinație.
+
+## Compose skills pe niveluri *(adăugat 2026-04-27, confidence: medium)*
+
+Adoptat după ingest-ul [[skill-graphs-2-heinrich]]. Operationalizare a stance-ului [[#judgment-encodat--funcționalitate-mecanică|judgment-over-functionality]] — nu e suficient ca un skill să encodeze judgment; **trebuie să declare la ce nivel îl encodează**. Un skill fără nivel = un skill fără contract de reliability.
+
+Cele trei niveluri (heinrich, [[atoms-molecules-compounds]]):
+- **Atom** — primitive single-purpose, aproape determinist, no inter-skill calls
+- **Molecule** — chain de 2-10 atoms cu instrucțiuni explicite when/how
+- **Compound** — orchestrator multi-molecule cu autonomie reală
+
+Implicație pentru `.claude/skills/`: fiecare SKILL.md ar trebui să declare `composition_level` în frontmatter. Skill-urile nemarcate sunt suspecte — fie n-au scope clar, fie maschează molecule ca atom, fie pretind compound dar fac doar molecule.
+
+Filtrul Alteramens (peste heinrich): un compound merită construit doar dacă (1) encodează judgment Alteramens, nu generic, (2) reduce brain RAM-ul, nu doar înmulțește output, (3) e voice-aware, (4) e aliniat cu un pillar activ. Vezi [[faber-as-skill-graph]] și [[brain-ram-leverage]].
+
+**Când NU se aplică:** scripts one-off care nu sunt skills (ex: un bash util în `scripts/`). Stance-ul vorbește despre skills agentic, nu cod în general.

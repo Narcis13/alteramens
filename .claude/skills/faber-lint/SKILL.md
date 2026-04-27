@@ -1,5 +1,6 @@
 ---
 name: faber-lint
+composition_level: molecule
 description: |
   Health-check the Faber wiki. Scans for contradictions, orphan pages, stale content, missing
   cross-references, phantom links, thin pages, log integrity issues, and data gaps.

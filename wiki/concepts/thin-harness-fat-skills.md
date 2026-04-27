@@ -2,9 +2,9 @@
 title: "Thin Harness, Fat Skills — Markdown Procedures Over Framework Code"
 type: concept
 category: technical-playbook
-sources: [skillify-agents-same-mistakes]
-entities: [garry-tan, openclaw, gbrain, hermes-agent]
-related: [skillify, latent-vs-deterministic, encoded-judgment, skill-era, executable-wiki, agent-fleet-architecture]
+sources: [skillify-agents-same-mistakes, skill-graphs-2-heinrich]
+entities: [garry-tan, openclaw, gbrain, hermes-agent, heinrich]
+related: [skillify, latent-vs-deterministic, encoded-judgment, skill-era, executable-wiki, agent-fleet-architecture, atoms-molecules-compounds, skill-graphs, brain-ram-leverage]
 maturity: seed
 confidence: high
 contradictions: []
@@ -87,6 +87,20 @@ What's missing (the [[skillify]] discipline):
 
 These are mechanical improvements that preserve the existing architecture. The architecture is already correct; the verification layer is the gap.
 
+## Atoms / Molecules / Compounds Mapping (Heinrich)
+
+[[skill-graphs-2-heinrich|heinrich's compositional model]] e ortogonal pe thin-harness-fat-skills, nu competitiv. Garry răspunde la *arhitectura unui skill*. Heinrich răspunde la *cum se așază mai multe skills împreună*.
+
+Mapare directă:
+
+- **Un atom** = un fat skill cu scope bounded și no inter-skill calls. Markdown procedure + script deterministic + resolver entry. Aproape determinist.
+- **O moleculă** = un fat skill care **cheamă alte fat skills via resolver-ul**. Push composition into the SKILL.md ("first call atom-A, then atom-B, then atom-C"). Minimum runtime decision-making.
+- **Un compound** = un fat skill care orkestrează multiple molecules cu autonomie reală. Aici resolver-ul devine load-bearing — agentul face judgment calls inter-molecule.
+
+Combinarea cu [[skillify]] e critică: gradul de verification posibil **scade pe măsură ce urci**. Atoms = unit + integration + LLM evals. Molecules = workflow tests pe combinații. Compounds = E2E smoke + human-in-loop. Heinrich admite asta când recunoaște că compounds încă cer human driver — verification-ul nu poate prinde tot ce un compound autonom ar greși.
+
+Pentru Alteramens: arhitectura e deja corectă (Claude Code = harness, `.claude/skills/*/SKILL.md` = fat skills, descriptions = resolver). Lipsește **clasificarea explicită** atom/molecule/compound peste skill-urile existente. Vezi [[faber-as-skill-graph]].
+
 ## Connections
 
 - [[skillify]] — the discipline that keeps fat skills durable
@@ -95,3 +109,6 @@ These are mechanical improvements that preserve the existing architecture. The a
 - [[skill-era]] — fat skills are the skill-era artifact
 - [[executable-wiki]] — same general shape (LLM-maintained structured knowledge that agents consume)
 - [[agent-fleet-architecture]] — the org-scale analog: specialist agents with their own skills
+- [[atoms-molecules-compounds]] — modelul de stratificare care fit-uie peste fat skills
+- [[skill-graphs]] — topologia knowledge-network în care trăiesc skills
+- [[brain-ram-leverage]] — argumentul economic care motivează urcarea în nivel de compoziție

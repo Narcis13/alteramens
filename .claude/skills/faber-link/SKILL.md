@@ -1,5 +1,6 @@
 ---
 name: faber-link
+composition_level: molecule
 description: |
   Cross-link tool for Faber wiki. Given a vault document, finds relevant wiki pages and suggests/creates
   wikilinks in both directions. Use when the user invokes /faber-link or says "link this to the wiki",

@@ -1,5 +1,6 @@
 ---
 name: semnal-reply
+composition_level: molecule
 description: |
   Generate 3 value-adding English reply variants for an X post — add-context, gentle-contrarian,
   question-that-unlocks-thread — each under 250 chars, human-in-the-loop, no auto-post.

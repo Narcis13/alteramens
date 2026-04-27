@@ -1,5 +1,6 @@
 ---
 name: faber-sync
+composition_level: atom
 description: |
   Rebuild the Faber SQLite index (wiki/faber.db) from all wiki markdown files.
   Run after every ingest/seed, or on demand if the DB is missing or stale.

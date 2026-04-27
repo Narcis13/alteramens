@@ -2,9 +2,9 @@
 title: "The Skill Era — From Pipes to Patterns"
 type: concept
 category: mental-model
-sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread, skillify-agents-same-mistakes, asset-creators-operator-playbook]
-entities: [alteramens, single-grain, eric-siu, block-inc, pat-walls, garry-tan, gbrain, hermes-agent, openclaw, langchain, creator-shows]
-related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army, knowledge-first-development, ambient-computation, executable-wiki, agent-native-startup, vertical-operator-edge, headless-saas-thesis, outcome-based-pricing, skillify, thin-harness-fat-skills, latent-vs-deterministic, google-doc-offer]
+sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread, skillify-agents-same-mistakes, asset-creators-operator-playbook, skill-graphs-2-heinrich]
+entities: [alteramens, single-grain, eric-siu, block-inc, pat-walls, garry-tan, gbrain, hermes-agent, openclaw, langchain, creator-shows, heinrich, arscontexta]
+related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army, knowledge-first-development, ambient-computation, executable-wiki, agent-native-startup, vertical-operator-edge, headless-saas-thesis, outcome-based-pricing, skillify, thin-harness-fat-skills, latent-vs-deterministic, google-doc-offer, atoms-molecules-compounds, skill-graphs, brain-ram-leverage]
 maturity: mature
 confidence: high
 contradictions: []
@@ -89,6 +89,20 @@ Three new primitives land on this page:
 Reference stack: [[openclaw]] (harness) + [[gbrain]] (verification) + [[hermes-agent]] (autonomous skill creation from Nous Research). Garry's synthesis: creation + verification = both needed. This is the "without tests, any codebase rots" problem that software engineering solved in 2005, finally applied to agent skills.
 
 For Alteramens: the `.claude/skills/` directory is already a skill-era artifact; what's missing is the Skillify discipline over it. Highest-leverage experiment — add a resolver-eval / dark-skill / DRY audit layer across the existing skills.
+
+## Compositional Architecture (Heinrich)
+
+[[skill-graphs-2-heinrich|heinrich's "Skill Graphs 2.0"]] adaugă layer-ul compozițional peste teza Skill Era. Skill Era spune *ce* e valoros (judgment encodat). Heinrich răspunde la *cum compui* skill-uri într-o arhitectură care scalează cognitiv.
+
+Trei primitive noi care intră pe pagina asta:
+
+- [[atoms-molecules-compounds]] — modelul stratificat (capabilities / composites / playbooks). Atoms = primitive deterministe; molecules = chain-uri 2-10 atoms cu instrucțiuni explicite; compounds = orchestratori multi-molecule cu autonomie reală. Each level up = ~10x leverage.
+- [[skill-graphs]] — forma corectă a unei rețele de skills. Wikilinks-în-proză + YAML descriptions + MOCs + index ca entry point. Progressive disclosure: index → descriptions → links → sections → full content.
+- [[brain-ram-leverage]] — argumentul economic. Resursa scarce a solo operator-ului agentic e brain RAM, nu coding speed. 5 compounds în paralel = 500 atomic units. Ăsta e Skill Era operationalizat la nivel de operator individual.
+
+Critică implicită a [[langchain]]-ului din ambele unghiuri (Garry Tan și heinrich): primitives without opinions = vibes-based reliability. Skill Era dă opinia (judgment encodat); heinrich dă topologia (compoziția stratificată).
+
+Pentru Alteramens: Faber-ul e deja un skill graph implementat ([[skill-graphs]] pattern). `.claude/skills/` e plat și nestratificat — următorul pas natural e clasificarea atom/molecule/compound, filtrat prin viziunea Alteramens (encoded judgment + voice + alignment cu pillars). Vezi [[faber-as-skill-graph]].
 
 ## Non-Tech Variant: Written Offer as Skill Artifact ([[creator-shows]])
 

@@ -2,9 +2,9 @@
 title: "Skillify — Every Agent Failure Becomes Permanent Infrastructure"
 type: concept
 category: technical-playbook
-sources: [skillify-agents-same-mistakes]
-entities: [garry-tan, gbrain, hermes-agent, openclaw, langchain]
-related: [thin-harness-fat-skills, latent-vs-deterministic, encoded-judgment, skill-era, compounding-games, performance-data-loop, executable-wiki]
+sources: [skillify-agents-same-mistakes, skill-graphs-2-heinrich]
+entities: [garry-tan, gbrain, hermes-agent, openclaw, langchain, heinrich]
+related: [thin-harness-fat-skills, latent-vs-deterministic, encoded-judgment, skill-era, compounding-games, performance-data-loop, executable-wiki, atoms-molecules-compounds, skill-graphs, brain-ram-leverage]
 maturity: developing
 confidence: high
 contradictions: []
@@ -100,6 +100,36 @@ Narcis's `.claude/skills/` directory is a skill collection: `semnal-draft`, `sem
 3. **Deterministic-code gate** — for skills that currently do work in-prompt that a script could do (e.g., date parsing, URL validation, slug generation), extract scripts
 4. **Failure-to-skill pipeline** — when a skill misbehaves in a real Narcis session, make "skillify the fix" the default response
 
+## Verification at Each Composition Level (Heinrich)
+
+[[skill-graphs-2-heinrich|heinrich's atoms/molecules/compounds]] enunță explicit ce Skillify implică: **gradul de verification posibil scade pe măsură ce urci în nivel de compoziție**. Heinrich admite că reliability-testing la fiecare nivel e *the unsolved bottleneck* — singurul lucru pe care n-a rezolvat-o.
+
+Maparea celor 10 pași Skillify pe niveluri:
+
+| Skillify step | Atom | Molecule | Compound |
+|---|---|---|---|
+| 1. SKILL.md | ✓ | ✓ | ✓ |
+| 2. Deterministic code | ✓ heavy | ✓ for sub-steps | ✓ for sub-steps |
+| 3. Unit tests | ✓ exhaustive | ✓ on combinations | partial — can only test sub-pieces |
+| 4. Integration tests | ✓ | ✓ | ✓ |
+| 5. LLM evals | ✓ on output quality | ✓ on choice of atoms | ✓ on orchestration choices — but combinatorial explosion |
+| 6. Resolver trigger | ✓ | ✓ | ✓ |
+| 7. Resolver eval | ✓ | ✓ | ✓ — overlap testing critical |
+| 8. Check-resolvable + DRY | ✓ | ✓ | ✓ |
+| 9. E2E smoke | low priority | ✓ | ✓ critical — last line of defense |
+| 10. Brain filing rules | ✓ | ✓ | ✓ |
+
+**Observații:**
+- **Atoms** beneficiază maxim de Skillify — sunt aproape deterministe, deci unit tests se aplică mecanic. Dark-skill check (step 8) e critic pentru atoms care nu apar singure în resolver dar sunt chemate de molecules.
+- **Molecules** au combinatorial explosion la LLM evals (step 5) — fiecare combinație de atoms × inputs e o rută testabilă. Heinrich numește asta "molecules trebuie să cheme atoms-urile fiabil".
+- **Compounds** ating ceiling-ul de testabilitate. Skillify livrează stuctura, dar **autonomia compound-ului face ca un test exhaustiv să nu mai fie posibil**. Singura mitigation: E2E smoke + human-in-loop.
+
+> heinrich: "I imagine an autoresearch type solution might be able to solve this, but I haven't tried that yet."
+
+Asta extinde claim-ul lui Garry Tan: dacă atoms și molecules nu sunt skillified, **toate compounds-urile de deasupra moștenesc fragility**. Reliability-ul compound = product al reliability-urilor de mai jos. Un atom 95% fiabil într-un compound de 5 niveluri = 0.95^5 = ~77% reliability total.
+
+**Pentru Alteramens** — implicația practică: dacă vreodată se construiește un compound `/alteramens-weekly-loop`, tot ce e dedesubt (`/faber-ingest`, `/semnal-draft`, `/to-content`) trebuie skillified întâi. Nu se poate compune deasupra ne-verificat. Vezi [[brain-ram-leverage]] și [[faber-as-skill-graph]].
+
 ## Connections
 
 - [[thin-harness-fat-skills]] — the architecture Skillify operates inside
@@ -108,3 +138,6 @@ Narcis's `.claude/skills/` directory is a skill collection: `semnal-draft`, `sem
 - [[compounding-games]] — every bug permanently prevented = compounding reliability
 - [[performance-data-loop]] — adjacent pattern: Skillify prevents failure; performance-data-loop measures the system. Both compound.
 - [[executable-wiki]] — same shape: knowledge as a callable, testable, auditable artifact
+- [[atoms-molecules-compounds]] — modelul de stratificare unde Skillify se aplică diferențiat
+- [[skill-graphs]] — topologia knowledge-network în care Skillify previne drift și dark-skills
+- [[brain-ram-leverage]] — argumentul economic care motivează strict-ness-ul disciplinei

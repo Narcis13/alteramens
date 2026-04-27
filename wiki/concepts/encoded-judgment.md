@@ -2,9 +2,9 @@
 title: "Encoded Judgment — Skills vs Functions"
 type: concept
 category: mental-model
-sources: [skill-era-article, eric-siu-world-intelligence, skillify-agents-same-mistakes]
-entities: [alteramens, single-grain, eric-siu, garry-tan, langchain]
-related: [skill-era, judgment, leverage, agent-fleet-architecture, world-model, internal-to-product, knowledge-first-development, emergent-schema, skillify, thin-harness-fat-skills, latent-vs-deterministic]
+sources: [skill-era-article, eric-siu-world-intelligence, skillify-agents-same-mistakes, skill-graphs-2-heinrich]
+entities: [alteramens, single-grain, eric-siu, garry-tan, langchain, heinrich]
+related: [skill-era, judgment, leverage, agent-fleet-architecture, world-model, internal-to-product, knowledge-first-development, emergent-schema, skillify, thin-harness-fat-skills, latent-vs-deterministic, atoms-molecules-compounds, skill-graphs, brain-ram-leverage]
 maturity: developing
 confidence: high
 contradictions: []
@@ -68,3 +68,22 @@ API  →  Skill (encoded judgment)  →  Skillified skill (judgment + verificati
 [[skillify]] is the 10-step promotion that moves a skill from "code that happens to work today" to durable infrastructure. Inside every skill, [[latent-vs-deterministic]] splits the work correctly: judgment to the LLM, precision to code. [[thin-harness-fat-skills]] is the architecture where this all fits.
 
 **Implication for the "Where is the judgment?" filter:** the question is no longer just *whether* judgment is encoded. It's also *whether it's tested, routed, and kept alive*. An untested skill has no more moat than an API.
+
+## Judgment Bounded vs Open (Heinrich)
+
+[[skill-graphs-2-heinrich|heinrich's atoms/molecules/compounds]] adaugă o axă orthogonală pe acest concept: **gradul de judgment delegat agentului per skill**. Encoded judgment nu e binar — există un spectru.
+
+| Nivel | Tip de judgment encodat | Determinism |
+|---|---|---|
+| **Atom** | Bounded judgment — decizia e îngustă, aproape mecanică | Aproape determinist |
+| **Molecule** | Composed judgment — agentul decide *cum* să cheme atoms-urile, dar within explicit instructions | Reliable |
+| **Compound** | Open judgment — agentul orkestrează multiple molecules cu autonomie | Less deterministic by design |
+
+Asta extinde tabela de "API vs Skill" cu un al treilea pol: **API = no judgment; Atom = bounded judgment; Compound = open judgment**.
+
+**Filtrul "Where is the judgment?" se rafinează:**
+- Pentru atoms — judgment-ul e *în alegerea de scope-ul îngust și în calitatea procedurii deterministe*
+- Pentru molecules — judgment-ul e *în composition explicită* (în what order, with what fallbacks)
+- Pentru compounds — judgment-ul e *în orchestration autonomy* (când să devieze de la playbook, când să escaleze la operator)
+
+Pentru Alteramens, asta înseamnă că **fiecare skill din `.claude/skills/` ar trebui să aibă un nivel declarat** — și judgment-ul encodat trebuie evaluat *la nivelul respectiv*. Un atom "judgment-ful" e suspicious (probabil are scope prea larg). Un compound fără judgment e degenerate (probabil e doar molecule renamed). Vezi [[atoms-molecules-compounds]] și [[faber-as-skill-graph]].

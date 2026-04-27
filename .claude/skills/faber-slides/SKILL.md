@@ -1,5 +1,6 @@
 ---
 name: faber-slides
+composition_level: molecule
 description: |
   Autonomously generate animated HTML slide decks from Faber wiki pages, vault documents, or recent
   /faber-query / /faber-ingest output. Infers content, style, length, and language from context —

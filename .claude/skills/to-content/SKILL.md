@@ -1,5 +1,6 @@
 ---
 name: to-content
+composition_level: molecule
 description: |
   Turn a topic, idea, draft, or vault/wiki page into five ready-to-publish content pieces — a YouTube
   script, a LinkedIn post, a Substack newsletter issue, an X thread, and an SEO-optimized blog article

@@ -1,5 +1,6 @@
 ---
 name: faber-query
+composition_level: molecule
 description: |
   Query the Faber wiki for accumulated knowledge — by topic, by date, by activity. Reads the index,
   finds relevant pages and log events, synthesizes an answer with citations. Can file good answers
