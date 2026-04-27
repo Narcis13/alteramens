@@ -493,3 +493,17 @@ Chronological record of wiki operations. Append-only.
 - Concepts involved: 8 (skill-era, encoded-judgment, thin-harness-fat-skills, atoms-molecules-compounds, skill-graphs, brain-ram-leverage, executable-wiki, knowledge-first-development)
 - Syntheses involved: 9 (marketing-skills-catalog, faber-as-skill-graph, plus 7 *-framework-alteramens)
 - Alignment: 2 entries — skill-era-craftsmanship: reinforces, ai-agents-for-solo-builders: reinforces
+
+## [2026-04-27] weekly-loop | Plan 2026-W18 (first compound run)
+- Cadence: 7 posts queued, distribution P1=3 / P2=2 / P3=2
+- Slots: Tue Apr 28 19:30, Wed Apr 29 19:30, Thu Apr 30 19:30, Fri May 01 19:30, Sat May 02 19:30, Sun May 03 19:30, Mon May 04 19:30 (all Europe/Bucharest)
+- Seeds used: S001, S002, S003 (P1), S006, S007 (P2), S009, S010 (P3) — remaining inbox: S004, S008
+- Last week close: no 2026-W17 file — first compound run, no prior-week measurement
+- Baseline shipped (last 28d, type=published): 1 post total (S005 / Turbo Pascal). Two `published/` files still `status: ready` — staging mismatch noted, not a real publish.
+- Generation cost: ~240s, 0 user overrides (--fast mode, defaults accepted)
+- Inbox health pre-run: P1=4, P2=4, P3=2 — fast mode validated
+- Bias decision: lean P1 (3 slots) per week's Faber evidence (skill-engineering MOC, active-skills MOC, composition_level tagging, Skill Graphs 2.0 ingest = heavy AI-craft signal) and P1 inbox depth
+- Rotation rule: P1-P2-P3-P1-P2-P3-P1 — all pillars covered, no consecutive duplicates
+- Reply quota set: 4/posting day (~28/week) via `/semnal-reply` against `targets.md`
+- Artifact: `workshop/x-queue/weeks/2026-W18.md` + 7 files in `workshop/x-queue/ready/`
+- Composition_level: this is the first invocation of a compound-tagged skill — measurement of the experiment begins now (target evaluation at week 4)
