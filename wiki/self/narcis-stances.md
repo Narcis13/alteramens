@@ -89,6 +89,8 @@ stances:
 
 Poziții declarate pe sub-probleme concrete. Fiecare stance e **confruntabil** prin log — `/faber-mirror` poate detecta drift între stance și comportament.
 
+> Reciprocă: [[claude]] (jurnal de echipaj) sincronizează propriile heuristici cu stance-urile de aici. Drift-ul stance ↔ heuristică e flagged de `/faber-lint`.
+
 ## Shipping > perfecționare
 
 Reafirmat la fiecare sesiune. Contra-forța directă pentru [[narcis-constraints#amanare-postarea|slăbiciunea amânării]]. Orice sistem personal trebuie să atace friction-ul de shipping, nu să adauge cool features.

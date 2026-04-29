@@ -15,7 +15,7 @@ applications: ["strategies/social-media-plan.md"]
 
 Taking business risks under your own name. It gives you skin in the game and is how you build reputation.
 
-> "Embrace accountability, and take business risks under your own name. Society will reward you with responsibility, equity, and leverage." — Naval
+> "Embrace accountability, and take business risks under your own name. Society will reward you with responsibility, equity, and leverage." — [[naval-ravikant|Naval]]
 
 ## The Double Edge
 

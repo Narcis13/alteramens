@@ -13,7 +13,7 @@ applications: ["MANIFEST.md"]
 
 # Compounding Games — Play Long-Term
 
-> "All the returns in life, whether in wealth, relationships, or knowledge, come from compound interest." — Naval
+> "All the returns in life, whether in wealth, relationships, or knowledge, come from compound interest." — [[naval-ravikant|Naval]]
 
 ## The Principle
 

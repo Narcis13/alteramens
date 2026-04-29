@@ -709,6 +709,11 @@ def extract_wikilinks(prose: str) -> list[dict]:
         else:
             target = raw_target
 
+        # Skip fragment-only links like [[#section|label]] — they point to an
+        # in-page anchor, not another page, so they should not appear as phantom.
+        if not target:
+            continue
+
         is_vault = 1 if "/" in target else 0
         results.append({"target": target, "display_text": display, "is_vault_link": is_vault})
     return results

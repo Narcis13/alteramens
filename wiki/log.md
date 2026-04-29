@@ -507,3 +507,11 @@ Chronological record of wiki operations. Append-only.
 - Reply quota set: 4/posting day (~28/week) via `/semnal-reply` against `targets.md`
 - Artifact: `workshop/x-queue/weeks/2026-W18.md` + 7 files in `workshop/x-queue/ready/`
 - Composition_level: this is the first invocation of a compound-tagged skill — measurement of the experiment begins now (target evaluation at week 4)
+
+## [2026-04-29] lint | Health Check
+- Issues: 1 high, 7 medium, 16 low
+- High: 1 phantom (`narcis-stances` → empty target, line 142 — fragment-only `[[#judgment-encodat--funcționalitate-mecanică|judgment-over-functionality]]`); parser does not strip `#anchors`
+- Medium: 4 orphans (`claude` agent + 3 syntheses: crm-real-estate-exclusive-launch, dev-native-marketing-stack-alteramens, nbrain-market-intelligence); 3 zero-backlink pages (`naval-ravikant`, `dri-with-agents`, `anaf`)
+- Low: 16 thin pages (1 source each — fine for seeds), 0 stale concepts (wiki alive — last_touched <30d everywhere)
+- Temporal layer: 0 log mismatches, 0 phantom log refs, 0 orphaned ingest events
+- Suggestions: 4 (link naval-ravikant from the 4 pillars; reconnect `claude` agent page; resolve/downgrade orphan syntheses; fix or downgrade narcis-stances anchor link)

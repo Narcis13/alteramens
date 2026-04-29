@@ -28,7 +28,7 @@ Getting bigger outcomes from the same input. The mechanism that turns specific k
 
 ## Permissionless Leverage in Practice
 
-> "If you can't code, write books and blogs, record videos and podcasts." — Naval
+> "If you can't code, write books and blogs, record videos and podcasts." — [[naval-ravikant|Naval]]
 
 For Alteramens:
 - **Code leverage:** 10 projects, each potentially serving thousands

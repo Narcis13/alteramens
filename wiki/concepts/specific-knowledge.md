@@ -53,13 +53,13 @@ The brainstorm on 2026-04-07 (see [[brainstorm-ai-tutor-medicina]]) surfaced a s
 - **Romanian education context** → insider knowledge of meditation market, parent expectations, admission norms
 - **Personal stake** → his son [[mihai-brindusescu]] is a 2027 candidate, providing live feedback no focus group can match
 
-This intersection is rare. It enables the AI tutor for Carol Davila admission product as a [[bounded-problem-wedge]] no foreign competitor can casually enter. Same Naval principle as the accounting case: specific knowledge IS the moat.
+This intersection is rare. It enables the AI tutor for Carol Davila admission product as a [[bounded-problem-wedge]] no foreign competitor can casually enter. Same [[naval-ravikant|Naval]] principle as the accounting case: specific knowledge IS the moat.
 
 ## Third Angle: Agent-Native Founder Opportunity
 
 The [[pat-walls-agent-first-1t-thread]] thread reframes specific knowledge as the **moat in the agent-native era**: *"The code is the easy part. Knowing that a property manager spends 14 hours a week on lease renewals is the insight worth $100M."*
 
-This is the same Naval principle re-expressed for the current cycle: when LLMs compress execution, vertical operator fluency becomes *more* valuable, not less. The concrete founder-level instantiation lives in [[vertical-operator-edge]], which should be read as the cycle-specific application of specific knowledge. Both Alteramens intersections (Romanian accounting, Romanian healthcare IT) qualify as operator-edge candidates for [[agent-native-startup]] wedges.
+This is the same [[naval-ravikant|Naval]] principle re-expressed for the current cycle: when LLMs compress execution, vertical operator fluency becomes *more* valuable, not less. The concrete founder-level instantiation lives in [[vertical-operator-edge]], which should be read as the cycle-specific application of specific knowledge. Both Alteramens intersections (Romanian accounting, Romanian healthcare IT) qualify as operator-edge candidates for [[agent-native-startup]] wedges.
 
 ## See Also
 

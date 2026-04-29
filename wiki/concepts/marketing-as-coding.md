@@ -167,3 +167,7 @@ Pentru Narcis (developer + AI-augmented + 1K MRR target + timp limitat) reframe-
 - **Maturity: seed** — concept proaspăt, sursă unică, neaplicat încă în vault
 - **Promote la `developing`** când: există un `/marketing` folder real într-un proiect Alteramens (probabil [[projects/altera-os|Altera OS]] sau viitorul subproiect cu MRR target)
 - **Promote la `mature`** când: 3+ campanii shipped din repo cu hypothesis + retro documentate + revenue impact măsurat
+
+## Sinteze derivate
+
+- [[dev-native-marketing-stack-alteramens]] — operationalizează reframe-ul peste cele 8 framework-uri marketing existente; arhitectură concretă (growth repo + 8 sub-foldere + ritual săptămânal) pentru solo dev cu 1K MRR target

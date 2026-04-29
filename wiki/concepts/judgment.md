@@ -17,7 +17,7 @@ Wisdom applied to external problems. Knowing the long-term consequences of your 
 
 ## Why Judgment Matters Most
 
-> "Judgment is making decisions. Leverage magnifies the consequences of those decisions. In an age of infinite leverage, judgment becomes the most important skill." — Naval
+> "Judgment is making decisions. Leverage magnifies the consequences of those decisions. In an age of infinite leverage, judgment becomes the most important skill." — [[naval-ravikant|Naval]]
 
 Most people optimize for speed. But direction matters more. A fast runner going the wrong way loses to a slow walker going the right way.
 

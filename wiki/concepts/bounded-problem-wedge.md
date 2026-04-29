@@ -67,3 +67,7 @@ Whenever a founder says "platform," ask which bounded problem comes first. The p
 - [[distribution-over-product]] — bounded problems have natural distribution channels
 - [[kill-fast]] — bounded problems have clear kill criteria
 - [[specific-knowledge]] — the founder's specific knowledge often points to the right wedge
+
+## Worked Examples
+
+- [[crm-real-estate-exclusive-launch]] — applies the bounded-wedge filter to a vertical SaaS for real estate agents on exclusive mandate (specific buyer, specific contract type, specific willingness to pay)

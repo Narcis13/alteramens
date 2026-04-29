@@ -13,7 +13,7 @@ applications: ["MANIFEST.md", "CLAUDE.md", "workshop/drafts/agentic-business-pla
 
 # Productize Yourself
 
-Naval Ravikant's meta-framework for building wealth without luck. The synthesis formula:
+[[naval-ravikant|Naval Ravikant]]'s meta-framework for building wealth without luck. The synthesis formula:
 
 > **Productize** = Specific Knowledge + Leverage
 > **Yourself** = Uniqueness + Accountability

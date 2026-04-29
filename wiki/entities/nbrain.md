@@ -40,3 +40,7 @@ Built on [[workscript]] engine (75% ready). Migrations to PostgreSQL/NextJS defe
 ## Strategic Position
 
 This is where [[specific-knowledge]] meets [[leverage]] meets [[accountability]]. Narcis's dual background (economist + developer) + wife's client access = unfair advantages that compound.
+
+## Market Intelligence
+
+See [[nbrain-market-intelligence]] for the consolidated view: confirmed pain (wife interview Jan 2026), pricing assumptions, validation gaps, and what to ask in the next 2-3 client demos.
