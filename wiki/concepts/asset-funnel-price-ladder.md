@@ -98,7 +98,7 @@ Marketingul spune: "3-6 luni."
 - **[[google-doc-offer]]** — doc-ul e asset-ul care închide HT. Fără doc, ladder-ul rupe la top.
 - **[[lead-lifecycle-funnel]]** — asset-funnel e specific pentru creator economy, lead-lifecycle-funnel e cadrul general pentru SaaS (subscriber → MQL → SQL → buyer → advocate). Se completează.
 - **[[good-better-best-pricing]]** — asset-funnel NU e same cu good-better-best. Good-better-best oferă 3 tiers simultan pentru același decision. Asset-funnel oferă tiers **temporal** — în trepte de commitment crescător.
-- **[[productize-yourself]]** — cele 4 trepte sunt toate productizări ale aceluiași Specific Knowledge la diferite intensități (free = introducere, micro = applied template, mid = cohort, HT = 1:1).
+- **[[productize-yourself]]** — cele 4 trepte sunt toate productizări ale aceluiași [[specific-knowledge]] la diferite intensități (free = introducere, micro = applied template, mid = cohort, HT = 1:1).
 - **[[internal-to-product]]** — ladder-ul e **explicitly documented model**: Swipe Bank → $97 Notion template. 30-idea list → $49 prompt pack. Playbook → $997 course. Products emerge din tools-ul folosit în delivery.
 - **[[bootcamp-pricing]]** — mid-tier cohort workshop aplică bootcamp pricing (time-bounded package).
 

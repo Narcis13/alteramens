@@ -17,7 +17,7 @@ Category-defining enterprise CRM. In [[pat-walls-agent-first-1t-thread]] cited a
 
 ## Why It Matters Here
 
-Salesforce is the archetype Pat Walls uses to illustrate the [[headless-saas-thesis]]. The argument is not that Salesforce disappears — it's that its *interface layer* disappears, replaced by agents that call its APIs directly. Salesforce becomes "just the database."
+Salesforce is the archetype [[pat-walls]] uses to illustrate the [[headless-saas-thesis]]. The argument is not that Salesforce disappears — it's that its *interface layer* disappears, replaced by agents that call its APIs directly. Salesforce becomes "just the database."
 
 The implication: the entire implementation-services industry around Salesforce (consultants, admins, integrators) gets compressed into software. See [[agent-replaces-implementation]].
 

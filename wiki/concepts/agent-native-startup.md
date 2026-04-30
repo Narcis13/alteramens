@@ -29,7 +29,7 @@ A new category of company where **the agent is the product** and SaaS platforms 
 
 ## Where It Comes From
 
-Thesis articulated in [[pat-walls-agent-first-1t-thread]]: "A new category of 'agent-native' startups emerges that treats Salesforce, HubSpot, Workday, etc. as dumb backends. The startup IS the agent. The SaaS is just the database."
+Thesis articulated in [[pat-walls-agent-first-1t-thread]]: "A new category of 'agent-native' startups emerges that treats [[salesforce]], [[hubspot]], [[workday]], etc. as dumb backends. The startup IS the agent. The SaaS is just the database."
 
 This sits at the intersection of four existing concepts:
 - [[skill-era]] — execution is cheap, judgment is scarce
@@ -59,7 +59,7 @@ If all five hold, an ex-operator with code fluency (or a partner with it) can bu
 
 ## Connection to Alteramens
 
-[[nbrain-concept]] is already designed on this structural inversion: Romanian accounting agent that sits on top of the shared client data, not another dashboard. The Pat Walls thread validates this shape.
+[[nbrain-concept]] is already designed on this structural inversion: Romanian accounting agent that sits on top of the shared client data, not another dashboard. The [[pat-walls]] thread validates this shape.
 
 Open question: is [[nbrain-concept]] *truly* agent-native (no dashboard), or a hybrid (conversational surface over a traditional DB)? Worth pressure-testing during the next product decision.
 

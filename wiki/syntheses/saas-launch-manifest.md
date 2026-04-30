@@ -158,7 +158,7 @@ Fiecare săptămână trebuie să producă ceva vizibil: un feature, un email tr
 
 ## VI. Moat-ul tău — ce nu poate fi copiat
 
-### Specific Knowledge [[productize-yourself]]
+### [[specific-knowledge]] [[productize-yourself]]
 
 - 10 ani în contabilitate
 - Soție expert contabil cu 20 clienți (= user research gratis)

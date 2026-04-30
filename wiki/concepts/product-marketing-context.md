@@ -69,7 +69,7 @@ Acesta este [[encoded-judgment]] recursiv: un skill al cărui output devine inpu
 | Skill | Cum folosește contextul |
 |---|---|
 | `copywriting` | Tone, verbatim, value props, obiecții |
-| `page-cro` | Aha moment, personas, goals |
+| `page-cro` | [[aha-moment]], personas, goals |
 | `customer-research` | Sare peste întrebările deja acoperite |
 | `pricing-strategy` | ICP, alternative, value delivered |
 | `launch-strategy` | Audience, owned channels existente, goals |

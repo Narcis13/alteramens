@@ -66,7 +66,7 @@ Cât costă efectiv?
 |---|---|---|
 | Per user/seat | Collaboration tools | Slack, Notion |
 | Per usage | Variable consumption | AWS, Twilio |
-| Per feature | Modular products | HubSpot add-ons |
+| Per feature | Modular products | [[hubspot]] add-ons |
 | Per contact/record | CRM, email tools | Mailchimp |
 | Per transaction | Payments, marketplaces | Stripe |
 | Flat fee | Simple products | Basecamp |
@@ -140,7 +140,7 @@ Identifici ce **features** clienții value most pentru tier packaging:
 
 - **Solo + timp limitat**: nu poți face 50 de interviuri Van Westendorp. Folosește 5–10 interviuri + watering hole mining (comp reviews) ca proxy
 - **Next best alternative** pentru produsele Alteramens (nbrAIn, etc.) e rareori zero — de obicei e Excel + ChatGPT manual sau un competitor local cu UX prost. Asta ancorează **floor-ul** tău
-- **[[productize-yourself]]**: prețul care exprimă specific knowledge + judgment diferențiat nu concurează pe costul de a livra. Concurează pe valoarea percepută a expertizei encodate
+- **[[productize-yourself]]**: prețul care exprimă [[specific-knowledge]] + judgment diferențiat nu concurează pe costul de a livra. Concurează pe valoarea percepută a expertizei encodate
 
 ## Anti-patterns
 

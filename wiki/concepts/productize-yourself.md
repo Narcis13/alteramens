@@ -35,8 +35,8 @@ These four compound together. Specific knowledge gives you something valuable. L
 | Pillar | Alteramens Application |
 |--------|----------------------|
 | Specific Knowledge | Economist + developer + Romanian accounting expertise |
-| Leverage | Code (10 projects) + Content (building in public) |
-| Judgment | Revenue > vanity, validate before build, kill fast |
+| Leverage | Code (10 projects) + Content ([[building-in-public]]) |
+| Judgment | Revenue > vanity, [[validate-before-build]], kill fast |
 | Accountability | Personal brand (nbrAIn), public building |
 
 ## Decision Filter

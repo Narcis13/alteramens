@@ -67,7 +67,7 @@ Exemplu:
 
 ## Legătură cu filozofia Alteramens
 
-- **[[productize-yourself]]**: când te "productizezi", trebuie să identifici ce job faci pentru audiența ta specifică (judgment + specific knowledge, aplicate la un job concret)
+- **[[productize-yourself]]**: când te "productizezi", trebuie să identifici ce job faci pentru audiența ta specifică (judgment + [[specific-knowledge]], aplicate la un job concret)
 - **[[validate-before-build]]**: validarea reală e "există job neacoperit pe care oameni îl angajează imperfect acum?" — nu "există market pentru idee"
 - **[[aha-moment]]**: aha moment-ul e momentul în care job-ul e completat prima oară prin produsul tău
 

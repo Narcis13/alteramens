@@ -44,12 +44,12 @@ Per [[bounded-problem-wedge]], răspunde la fiecare într-o propoziție:
 
 1. **Cine cumpără?** — Agent individual / broker mic (1–5 agenți) care vinde cu mandat exclusiv (nu "listing deschis")
 2. **De ce acum?** — Imobiliare.ro organic reach scade; agenții exclusivi nu au tool dedicat metodologiei lor
-3. **Ce înlocuiește?** — Excel + WhatsApp + Imoapp + calendar Google sau HubSpot adaptat manual
+3. **Ce înlocuiește?** — Excel + WhatsApp + Imoapp + calendar Google sau [[hubspot]] adaptat manual
 4. **Cât plătește azi?** — Imoapp ~€30-50/lună, HubSpot Starter €20/user, comision split 50% din 2-4% din preț proprietate
 5. **Cum arată succesul?** — Proprietăți listate → vândute în <X zile la ≥Y% din preț cerut (binar)
 6. **Scope de conținut?** — Pipeline seller finite (prospectare → pitch → mandat → marketing → ofertă → închidere)
 
-**Anti-pattern:** "CRM pentru toți agenții" = compete cu HubSpot, Salesforce, Imoapp, KW Command.
+**Anti-pattern:** "CRM pentru toți agenții" = compete cu HubSpot, [[salesforce]], Imoapp, KW Command.
 
 ---
 

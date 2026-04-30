@@ -37,7 +37,7 @@ Each collaborator = a Claude Code skill or agent with its own repo. Infrastructu
 
 ## Connection to Existing Concepts
 
-This is [[leverage]] applied to operations — not code leverage or content leverage, but **agent leverage.** Extends the [[agent-fleet-architecture]] pattern from [[eric-siu]]'s Single Grain case.
+This is [[leverage]] applied to operations — not code leverage or content leverage, but **agent leverage.** Extends the [[agent-fleet-architecture]] pattern from [[eric-siu]]'s [[single-grain]] case.
 
 Differs from agent-fleet-architecture in emphasis: Severino's pattern is more accessible (no local hardware, no custom AI infra) — it's Claude Code skills + SaaS tools. Lower barrier to entry, same leverage thesis.
 

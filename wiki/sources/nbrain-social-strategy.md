@@ -35,7 +35,7 @@ Go-to-market strategy for the nbrAIn brand. Covers positioning, platform choice,
 **Not:** "Developer who makes SaaS"
 **Yes:** "The economist who automates accounting with AI"
 
-Narrative: 10 years in accounting → saw how accountants struggle → building AI that gives them time back → building in public.
+Narrative: 10 years in accounting → saw how accountants struggle → building AI that gives them time back → [[building-in-public]].
 
 ## Content Strategy
 

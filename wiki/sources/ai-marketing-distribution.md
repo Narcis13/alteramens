@@ -20,7 +20,7 @@ confidence: medium
 
 # Making $$ with AI Marketing — 7 Distribution Strategies
 
-Thread from The Startup Ideas Podcast (@startupideaspod), 2026-03-30.
+Thread from The [[startup-ideas-podcast]] (@startupideaspod), 2026-03-30.
 
 ## Core Thesis
 

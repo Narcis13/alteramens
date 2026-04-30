@@ -97,7 +97,7 @@ If all four fail, the "vertical" is a guess, not an edge — either find a partn
 
 > "The horizontal SaaS giants are exposed. The vertical specialists who own a specific industry's workflow, data, and relationships are not. A general-purpose project management tool is dead. A construction-specific platform that owns the permitting workflow, the inspector network, and the regulatory data is not. Going deep into one industry beats going broad across ten."
 
-Same argument this page has been making — now framed as a Naval-grade capital-allocation call rather than just a Pat Walls founder thesis. The combined signal is strong: **horizontal SaaS is structurally dead; vertical operators with agent leverage are structurally favored**. See [[pure-software-uninvestable]] for the capital-markets framing.
+Same argument this page has been making — now framed as a Naval-grade capital-allocation call rather than just a [[pat-walls]] founder thesis. The combined signal is strong: **horizontal SaaS is structurally dead; vertical operators with agent leverage are structurally favored**. See [[pure-software-uninvestable]] for the capital-markets framing.
 
 For Narcis specifically, the [[eighteen-month-window]] frame says the time to productize one of the two operator-edge verticals (healthcare IT, Romanian accounting) is *this year*, not someday. Combined with [[solo-founder-with-agent-velocity]], the playbook is: pick one vertical, build the agent-native wedge, own the audience while the wedge ships.
 

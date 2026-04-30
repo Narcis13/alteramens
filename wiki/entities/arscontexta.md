@@ -30,7 +30,7 @@ Numele e cheie: *ars* (artă) + *contexta* (context). Plug-in-ul nu e o tool car
 
 ## Dovadă a tezei skill-graphs
 
-[[arscontexta]] e **proof-of-work** pentru articolul lui heinrich: nu doar argumentează că skill graphs funcționează la scară, ci livrează unul de 249 fișiere care funcționează ca distribuibil. Asta-l alătură categorial cu artefacte ca [[gbrain]] (al lui Garry Tan) — skill collection + framework, nu doar idee.
+[[arscontexta]] e **proof-of-work** pentru articolul lui heinrich: nu doar argumentează că skill graphs funcționează la scară, ci livrează unul de 249 fișiere care funcționează ca distribuibil. Asta-l alătură categorial cu artefacte ca [[gbrain]] (al lui [[garry-tan]]) — skill collection + framework, nu doar idee.
 
 ## Comparativ cu Faber
 

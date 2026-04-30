@@ -51,7 +51,7 @@ Full lifecycle-ul canonical ([[lead-lifecycle-funnel]]) are 7 stages. Alteramens
 
 ### Principle 2: AI-augmented scoring, not dumbed down scoring
 
-Full [[fit-plus-engagement-scoring]] poate fi un spreadsheet (nu Salesforce workflow). Dar **trebuie să existe** — și AI poate înlocui munca manuală de scoring.
+Full [[fit-plus-engagement-scoring]] poate fi un spreadsheet (nu [[salesforce]] workflow). Dar **trebuie să existe** — și AI poate înlocui munca manuală de scoring.
 
 **Minimal Alteramens scoring model**:
 
@@ -243,7 +243,7 @@ Cluster 8 **închide buclele** începute de celelalte clustere:
 ## Cum se leagă de filosofia Alteramens
 
 - **[[skill-era]]**: Cluster 8 e profound example de skill era pentru small teams. Un "senior RevOps mind" e acum invocabil via skills. Poți opera ca o companie cu 20 angajați în revenue operations, ca persoană solo + AI.
-- **[[productize-yourself]]**: Specific knowledge (Romanian fiscal + healthcare IT + AI-augmented dev) × leverage (engineering as marketing + automation) × judgment (scoring models, tracking plans) × accountability (revenue loop). All four pillars visible în Cluster 8.
+- **[[productize-yourself]]**: [[specific-knowledge]] (Romanian fiscal + healthcare IT + AI-augmented dev) × leverage (engineering as marketing + automation) × judgment (scoring models, tracking plans) × accountability (revenue loop). All four pillars visible în Cluster 8.
 - **[[compounding-games]]**: LTV:CAC >3:1 e compounding. Closed-won patterns update scoring (compounding learning). Engineering-as-marketing tools compoundează backlinks. Loop-ul întreg e un compounding game.
 - **[[distribution-over-product]]**: Engineering-as-marketing + competitor content = distribution primitives. Fără ele, chiar și un produs bun stagnează.
 - **[[validate-before-build]]**: Scoring model validates înainte de rep-intensive sales. Tool scorecard validates înainte de tool build. Tracking plan validates înainte de implement.

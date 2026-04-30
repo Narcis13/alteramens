@@ -80,7 +80,7 @@ Fiecare commit = progress. Fiecare merge la `main` = experiment shipped.
 ### 3. "Shiny features" trap → weaponized
 
 Developer-ii adoră să polish-eze. Canalizează asta în **product-led growth features care SUNT marketing**:
-- Viral invite system → referral loop **e literalmente cod**
+- Viral invite system → [[referral-loop]] **e literalmente cod**
 - Onboarding 3× mai bun convertește mai mult ca orice ad
 - Public roadmap + changelog = content recurrent făcut din produs
 

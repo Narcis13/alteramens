@@ -54,7 +54,7 @@ The human is freed from *authoring friction* but retains *editorial control*.
 
 1. **No publish primitive in the tool** — the system can open the compose window, pre-fill text, or push a notification; it cannot call the post API
 2. **Review gate before queue → scheduled** — moving from `ready/` to `scheduled/` requires explicit human action
-3. **Manual confirmation on Typefully/Hypefury bridges** — if third-party scheduling is used, it must be gated behind a "confirm & send" step the human performs
+3. **Manual confirmation on [[typefully]]/Hypefury bridges** — if third-party scheduling is used, it must be gated behind a "confirm & send" step the human performs
 4. **Audit log** — every published post has a provenance record: which seed, which draft variant, which human action confirmed it
 5. **Kill switch** — one command to halt any scheduled posts pending review
 

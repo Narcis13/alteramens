@@ -143,7 +143,7 @@ Implicație pentru Alteramens: orice advisory offer pe care Narcis îl lansează
 
 Adoptat după ingest-ul [[skill-graphs-2-heinrich]]. Operationalizare a stance-ului [[#judgment-encodat--funcționalitate-mecanică|judgment-over-functionality]] — nu e suficient ca un skill să encodeze judgment; **trebuie să declare la ce nivel îl encodează**. Un skill fără nivel = un skill fără contract de reliability.
 
-Cele trei niveluri (heinrich, [[atoms-molecules-compounds]]):
+Cele trei niveluri ([[heinrich]], [[atoms-molecules-compounds]]):
 - **Atom** — primitive single-purpose, aproape determinist, no inter-skill calls
 - **Molecule** — chain de 2-10 atoms cu instrucțiuni explicite when/how
 - **Compound** — orchestrator multi-molecule cu autonomie reală

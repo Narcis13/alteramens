@@ -120,7 +120,7 @@ Skill engineering nu trăiește izolat. Conexiunile care contează:
 - [[productize-yourself]] (Naval) — leverage-ul personal e ce face skill engineering relevant pentru solo operatori; brain RAM e mecanismul, productize yourself e meta-frame-ul
 - [[leverage]] — concept umbrelă; brain RAM și encoded judgment sunt mecanisme specifice
 - [[executable-wiki]] — același shape (LLM-maintained structured knowledge agentul consumă); Faber e instanță
-- [[agent-fleet-architecture]] (Eric Siu) — analog org-scale: specialist agents cu propriile skills; thin-harness-fat-skills aplicat la nivel de companie
+- [[agent-fleet-architecture]] ([[eric-siu]]) — analog org-scale: specialist agents cu propriile skills; thin-harness-fat-skills aplicat la nivel de companie
 - [[google-doc-offer]] — varianta non-tech a thin-harness-fat-skills: skill = Google Doc cu judgment cristalizat, distribuit via URL; vezi [[skill-era]] §"Non-Tech Variant"
 
 ## Open questions (din [[faber-as-skill-graph]])

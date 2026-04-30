@@ -19,7 +19,7 @@ Poziționare succintă: **"Microsoft Access for the agent era."**
 
 ## De ce categorie nouă
 
-[[agent-native-startup]] și [[headless-saas-thesis]] converg pe aceeași strategie: alegi **un vertical îngust**, wrap-uiești **incumbent-ul** cu un agent, vinzi outcome-based. E strategia dominantă a playbook-ului Pat Walls.
+[[agent-native-startup]] și [[headless-saas-thesis]] converg pe aceeași strategie: alegi **un vertical îngust**, wrap-uiești **incumbent-ul** cu un agent, vinzi outcome-based. E strategia dominantă a playbook-ului [[pat-walls]].
 
 Dar există un spațiu neacoperit:
 - SMB-uri / departamente fără un incumbent SaaS dominant de wrap-uit

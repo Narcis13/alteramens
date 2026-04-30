@@ -73,7 +73,7 @@ Vezi [[brain-ram-leverage]]: argumentul economic spune că **brain RAM-ul operat
 
 ## Mapare peste arhitectura existentă
 
-[[thin-harness-fat-skills]] (al lui Garry Tan) e un model orthogonal — descrie **arhitectura unui skill** (markdown procedure + deterministic script + resolver entry). Atoms / molecules / compounds descrie **cum se aranjează multiple skills** unele față de altele.
+[[thin-harness-fat-skills]] (al lui [[garry-tan]]) e un model orthogonal — descrie **arhitectura unui skill** (markdown procedure + deterministic script + resolver entry). Atoms / molecules / compounds descrie **cum se aranjează multiple skills** unele față de altele.
 
 Compatibilitate:
 - Un atom e un fat skill cu un singur scop și fără call-uri către alte skills

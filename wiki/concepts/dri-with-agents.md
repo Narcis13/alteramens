@@ -35,7 +35,7 @@ The organization gets smarter from every project, including failures.
 
 ## Practical Application
 
-Eric Siu's advice: pick your top three business goals, create a DRI for each, assign agents, set a deadline, measure. Any company can steal this immediately.
+[[eric-siu]]'s advice: pick your top three business goals, create a DRI for each, assign agents, set a deadline, measure. Any company can steal this immediately.
 
 ## Relevance to Alteramens
 

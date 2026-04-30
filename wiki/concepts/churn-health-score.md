@@ -110,7 +110,7 @@ Cu un health score sistem funcțional:
 
 ## Legătura cu Alteramens
 
-Pentru un solo builder cu 10h/săptămână, health score-ul complet e **Fază 3** (nu Fază 1). Dunning stack primul, cancel flow al doilea, health score-ul doar când ai ≥50-100 users care să justifice instrumentarea.
+Pentru un solo builder cu 10h/săptămână, health score-ul complet e **Fază 3** (nu Fază 1). [[dunning-stack]] primul, cancel flow al doilea, health score-ul doar când ai ≥50-100 users care să justifice instrumentarea.
 
 **Pentru nbrAIn / BunBase**: când aceste produse ajung la MRR $5K+, setup-ul unui health score minim (3 signale: login, feature usage, billing page visits) devine ROI pozitiv.
 

@@ -93,7 +93,7 @@ All three pillars below pass all three tests (validated 2026-04-21).
 **Voice register:** **spicy** dominates. Specific observation > generic critique. Name the unsexy thing (ANAF report, Excel reconciliation, hospital procurement form). Abstraction kills the angle.
 
 **Cross-references:**
-- [[productize-yourself]] — specific knowledge from access
+- [[productize-yourself]] — [[specific-knowledge]] from access
 - [[skill-era]] — the unsexy is where encoded judgment scales
 
 ---

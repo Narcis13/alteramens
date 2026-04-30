@@ -24,7 +24,7 @@ Transform ideas into profitable products through extreme determination, discipli
 ## Philosophical Foundation
 
 Two theses guide all decisions:
-1. **[[productize-yourself]]** — Naval's framework: specific knowledge + leverage + judgment + accountability
+1. **[[productize-yourself]]** — Naval's framework: [[specific-knowledge]] + leverage + judgment + accountability
 2. **[[skill-era]]** — LLMs compress execution → judgment becomes valuable → expertise as infrastructure
 
 ## Current Portfolio

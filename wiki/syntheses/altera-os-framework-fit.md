@@ -59,11 +59,11 @@ Observație: spec-ul este un Frankensyn — aproape întreg framework-ul Alteram
 
 [[agent-native-startup]] e explicit: *"there is no UI-first product the agent supplements — the agent IS the entire offering."* Altera OS are **Admin UI React 19 co-egal cu chat panel**. Spec-ul D6 menționează "Dual: Admin UI + chat embedded."
 
-Conceptul wiki numește explicit anti-pattern-ul: *"chatbot supplementing UI."* Păstrabil doar dacă spec-ul admite că e **"hybrid operational platform"**, nu agent-native în sensul Pat Walls. Altfel e pretenție + arhitectură divergente.
+Conceptul wiki numește explicit anti-pattern-ul: *"chatbot supplementing UI."* Păstrabil doar dacă spec-ul admite că e **"hybrid operational platform"**, nu agent-native în sensul [[pat-walls]]. Altfel e pretenție + arhitectură divergente.
 
 ### Fisura 2 — Rebuilduiește în loc să wrap-uiască
 
-[[headless-saas-thesis]] e direcția câștigătoare: wrap the incumbent (SAGA, Workday, sisteme spital existente). Altera OS construiește `altera.db` de la zero, împletind 6 module în jurul unei DB proprii.
+[[headless-saas-thesis]] e direcția câștigătoare: wrap the incumbent (SAGA, [[workday]], sisteme spital existente). Altera OS construiește `altera.db` de la zero, împletind 6 module în jurul unei DB proprii.
 
 Pentru spitalul Pitești e justificabil (nu există incumbent SaaS puternic local). Dar **pentru Phase 3 productization** la alte SMB-uri, argumentul "de ce nu folosiți ce aveți + agent wrapper" va veni tare din partea oricărui prospect care deja rulează SIUI / Hipocrate / Medic-Info / soluții ERP locale.
 
@@ -90,7 +90,7 @@ Phase 3 zice "Stripe adapter, tenant subscription, usage metering". Nu există i
 ## Tensiuni cu disciplina framework-ului
 
 ### [[bounded-problem-wedge]] vs scope
-MVP real = 1 use-case (raport trimestrial). Build plan = 14 packages + 2 UIs + CLI + binary + Docker. Conceptul wiki spune clar: *"narrow beats generic."* Altera OS pariază pe **platformă-primul**, wedge-al-doilea. Risc de antipattern "platform-before-wedge" (vezi istoria Salesforce vs. Siebel, Airtable vs. 100 Access clones).
+MVP real = 1 use-case (raport trimestrial). Build plan = 14 packages + 2 UIs + CLI + binary + Docker. Conceptul wiki spune clar: *"narrow beats generic."* Altera OS pariază pe **platformă-primul**, wedge-al-doilea. Risc de antipattern "platform-before-wedge" (vezi istoria [[salesforce]] vs. Siebel, Airtable vs. 100 Access clones).
 
 Contra-argument: la scala 1 operator + Claude Code, timpul suplimentar de a construi 14 packages vs. 1 nu e 14x — e mai degrabă 2-3x pentru că judgment-ul și DB-ul sunt share-uite. Deci scope-ul poate fi apărabil dacă și numai dacă platforma e cu adevărat unified (vezi [[ai-native-operational-platform]]).
 

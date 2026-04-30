@@ -84,7 +84,7 @@ Every Alteramens project, present and future, gets evaluated against this filter
 
 Acceptable answers:
 - **Distribution** (audience, owned channels, content authority)
-- **Vertical operator edge** (specific knowledge in healthcare/accounting that 2-person teams without operator fluency can't fake)
+- **Vertical operator edge** ([[specific-knowledge]] in healthcare/accounting that 2-person teams without operator fluency can't fake)
 - **Encoded judgment as compounding asset** (Faber wiki itself, skill files, decision frameworks)
 - **Data flywheel** (per-user longitudinal models, accumulated context)
 

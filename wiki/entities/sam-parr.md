@@ -13,7 +13,7 @@ status: active
 
 # Sam Parr
 
-Founder of The Hustle (acquired by HubSpot) and co-host of "My First Million." Cited in [[pat-walls-agent-first-1t-thread]] as one of the founders who already understands that the media layer IS the distribution layer for the next wave of startups.
+Founder of The Hustle (acquired by [[hubspot]]) and co-host of "My First Million." Cited in [[pat-walls-agent-first-1t-thread]] as one of the founders who already understands that the media layer IS the distribution layer for the next wave of startups.
 
 ## Relevance
 

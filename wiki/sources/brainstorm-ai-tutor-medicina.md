@@ -99,7 +99,7 @@ Three explicit confirmations from Narcis:
 
 Long validation cycle. Cannot sell to 2027 cohort until summer 2026. Proof that it works arrives July 2027. This collides with Narcis's stated 1K MRR / 6-month goal. Two honorable paths:
 - **A:** Accept this is an 18-24 month horizon project, decouple from MRR goal, play compounding, Mihai is proof point.
-- **B:** 30% of time on this, 70% on something that ships and sells now (Skills, devtools), use this as specific knowledge vehicle and 18-month plan B.
+- **B:** 30% of time on this, 70% on something that ships and sells now (Skills, devtools), use this as [[specific-knowledge]] vehicle and 18-month plan B.
 
 Decision deferred — but flagged as the most important question, more important than SaaS-vs-Electron.
 

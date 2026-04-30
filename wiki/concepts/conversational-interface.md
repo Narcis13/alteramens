@@ -20,7 +20,7 @@ The paradigm shift from rigid forms and preset reports to natural language inter
 Users (especially non-technical ones like accountants and SME owners) don't want to learn complex software interfaces. They want to ask questions and get answers.
 
 **Old:** Fill form → Generate report → Interpret results
-**New:** Ask "How much do I owe ANAF?" → Get answer with context
+**New:** Ask "How much do I owe [[anaf|ANAF]]?" → Get answer with context
 
 ## Why This Is a Differentiator for nbrAIn
 

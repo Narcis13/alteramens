@@ -27,7 +27,7 @@ alignment:
 
 [[naval-apple-dead-saas-next-18-months]] delivered the sharpest single-source articulation of a thesis Alteramens has been operating under for over a year:
 
-> "Pure software is uninvestable. Full stop." — Naval Ravikant
+> "Pure software is uninvestable. Full stop." — [[naval-ravikant]]
 
 The synthesis question is not *whether* Alteramens agrees — it does, by construction. The question is **where the strategy is already correctly positioned, where it's underdeveloped, and what concretely changes given the [[eighteen-month-window]] frame.**
 
@@ -49,7 +49,7 @@ Audience: Narcis. Register: manifest piece — load-bearing for upcoming strateg
 
 Almost every element of the manifest already maps to a Naval frame:
 
-- *Skill Era + Productize Yourself* (the foundation in `CLAUDE.md` / `MANIFEST.md`) **is** Naval's thesis decomposed into builder-language.
+- *Skill Era + [[productize-yourself]]* (the foundation in `CLAUDE.md` / `MANIFEST.md`) **is** Naval's thesis decomposed into builder-language.
 - *Faber as compounding asset* **is** the [[data-compounding-moat]] applied to the operator's own knowledge.
 - *Vertical operator edges* (healthcare IT, Romanian accounting) **are** [[vertical-operator-edge]] candidates Naval-grade durable.
 - *Solo by constraint* **is** [[solo-founder-with-agent-velocity]] before the term existed.
@@ -87,7 +87,7 @@ From memory: Faber abstracted as a distributable framework for non-technical bui
 - **Encoded judgment as product** — the wiki structure encodes Narcis's judgment about how knowledge should compound. ✅ [[skill-era]].
 - **Permissionless distribution** — Claude Code skill ecosystem + Web wizard. ✅ [[mcp-as-distribution]] / [[distribution-over-product]].
 - **Compounding asset for users** — every user's wiki compounds individually. ✅ [[data-compounding-moat]] per-user variant.
-- **Vertical-agnostic** — works for any specific knowledge domain. 🟡 Could be sharper if positioned for one initial vertical (e.g., "Faber for solo consultants" or "Faber for IT teams").
+- **Vertical-agnostic** — works for any [[specific-knowledge]] domain. 🟡 Could be sharper if positioned for one initial vertical (e.g., "Faber for solo consultants" or "Faber for IT teams").
 
 **Recommendation worth pressure-testing**: ship Faber-the-product as the agent-native flagship for the 18-month window. Use it as proof the thesis works, then layer the vertical-specific products underneath the framework.
 
@@ -103,6 +103,6 @@ If this synthesis is correct, three things should happen in the next quarter:
 
 1. **A flagship product ships publicly** — Faber-the-framework or a vertical agent-native wedge. With distribution attached.
 2. **Distribution cadence becomes daily** — `/semnal-draft` + weekly loop graduate from "infrastructure exists" to "shipped 5x/week."
-3. **The next major source ingested either confirms or sharpens this synthesis** — watch for Naval, Pat Walls, Pieter Levels, or capital-allocator follow-ons. Update this page as a `developing → mature` synthesis when 2-3 confirmations land.
+3. **The next major source ingested either confirms or sharpens this synthesis** — watch for Naval, [[pat-walls]], Pieter Levels, or capital-allocator follow-ons. Update this page as a `developing → mature` synthesis when 2-3 confirmations land.
 
 The wiki's job from here is to **track whether reality matches the synthesis**, not to re-state the strategy. Strategy is settled. Execution is the test.

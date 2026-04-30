@@ -13,11 +13,11 @@ maturity: developing
 
 # The Alteramens Thesis — Why This Works
 
-A synthesis of how Naval's "Productize Yourself" and the "Skill Era" thesis combine into the Alteramens strategy.
+A synthesis of how Naval's "[[productize-yourself]]" and the "Skill Era" thesis combine into the Alteramens strategy.
 
 ## The Convergence
 
-Naval says: **Specific Knowledge + Leverage + Judgment + Accountability = Wealth.**
+Naval says: **[[specific-knowledge]] + Leverage + Judgment + Accountability = Wealth.**
 The Skill Era says: **Judgment is the scarce resource. Encode it as skills. Distribute through agent workflows.**
 
 Alteramens sits at the intersection:
@@ -73,7 +73,7 @@ The game is worth playing long-term. The specific knowledge is real. The leverag
 [[eric-siu]]'s implementation of [[ai-native-org-design]] at [[single-grain]] validates the Alteramens thesis from the practitioner side:
 
 - **Compounding is real but painful:** Month 1-2 felt like going backwards. Month 3+ the flywheel started. This confirms [[compounding-games]] — the early pain is the price of entry, not a signal to quit.
-- **[[internal-to-product]] works:** Single Grain's internal AI system became Single Brain, a product for clients. The same path applies to Alteramens — anything built internally that proves its value can be productized.
+- **[[internal-to-product]] works:** Single Grain's internal AI system became [[single-brain]], a product for clients. The same path applies to Alteramens — anything built internally that proves its value can be productized.
 - **The moat is data, not tech:** [[data-compounding-moat]] — competitors can copy tech but not months of proprietary context. For Alteramens, specific knowledge about Romanian accounting/healthcare compounding in Faber creates the same defensibility.
 - **Small teams win:** Single Grain moved faster than Block (6,000 people). Size is a disadvantage when the leverage comes from AI agents + proprietary context. This is the Skill Era thesis in practice.
 - **The gap between theory and implementation is the opportunity:** Most companies will read Dorsey's essay and do nothing. The companies that actually implement — whether Single Grain at agency scale or Alteramens at builder scale — capture the value.

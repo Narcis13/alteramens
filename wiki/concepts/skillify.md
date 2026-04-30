@@ -63,7 +63,7 @@ The defining pattern: **prototype in conversation → see it work → say "skill
 
 Garry's examples from daily use:
 - "can you remember this as a webhook skill and skillify it" → after a one-hour OAuth webhook integration
-- "we should remember this as a skill whenever anything in openclaw needs a headless browser... skillify it!"
+- "we should remember this as a skill whenever anything in [[openclaw]] needs a headless browser... skillify it!"
 - "whenever you send me a link you have to curl it yourself to make sure the endpoint is open and the tunnel works. skillify it!"
 - "make a skill, make it deterministic to check these kinds of things" → for calendar double-booking
 
@@ -124,7 +124,7 @@ Maparea celor 10 pași Skillify pe niveluri:
 - **Molecules** au combinatorial explosion la LLM evals (step 5) — fiecare combinație de atoms × inputs e o rută testabilă. Heinrich numește asta "molecules trebuie să cheme atoms-urile fiabil".
 - **Compounds** ating ceiling-ul de testabilitate. Skillify livrează stuctura, dar **autonomia compound-ului face ca un test exhaustiv să nu mai fie posibil**. Singura mitigation: E2E smoke + human-in-loop.
 
-> heinrich: "I imagine an autoresearch type solution might be able to solve this, but I haven't tried that yet."
+> [[heinrich]]: "I imagine an autoresearch type solution might be able to solve this, but I haven't tried that yet."
 
 Asta extinde claim-ul lui Garry Tan: dacă atoms și molecules nu sunt skillified, **toate compounds-urile de deasupra moștenesc fragility**. Reliability-ul compound = product al reliability-urilor de mai jos. Un atom 95% fiabil într-un compound de 5 niveluri = 0.95^5 = ~77% reliability total.
 

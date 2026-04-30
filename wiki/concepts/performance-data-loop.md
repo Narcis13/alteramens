@@ -137,7 +137,7 @@ Pentru un solo builder cu [[encoded-judgment|judgment]] limitat la propria exper
 **Proprietățile compounding-ului**:
 1. Pattern-urile din luna 1 rămân aplicabile în luna 12 (knowledge doesn't depreciate la ritm uniform)
 2. Pattern-urile devin **prior knowledge** pentru experimentele viitoare → confidence scores mai mari → sample sizes mai mici pentru același lift detectat → velocity-ul creste
-3. Playbook-ul e **specific knowledge** în sensul [[productize-yourself|Naval]] — nu poate fi copiat de competitorii care n-au datele
+3. Playbook-ul e **[[specific-knowledge]]** în sensul [[productize-yourself|Naval]] — nu poate fi copiat de competitorii care n-au datele
 
 ## Aplicații dincolo de paid acquisition
 

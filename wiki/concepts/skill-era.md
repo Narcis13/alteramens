@@ -71,13 +71,13 @@ The [[ai-marketing-distribution]] source articulates a practical consequence: in
 
 Complementary strategies like [[answer-engine-optimization]] and [[programmatic-seo]] extend this: be what AI cites (content distribution) and generate pages at scale (search distribution). All three are permissionless [[leverage]] plays.
 
-## Founder-Opportunity Angle (Pat Walls)
+## Founder-Opportunity Angle ([[pat-walls]])
 
 [[pat-walls-agent-first-1t-thread]] translates the Skill Era thesis into a founder playbook: the winning startups in the next cycle are **agent-native** ([[agent-native-startup]]) — the agent IS the product, incumbent SaaS platforms become dumb backends, per-seat pricing gives way to [[outcome-based-pricing]], and the moat is vertical operator fluency ([[vertical-operator-edge]]) plus owned audience ([[media-plus-agents-distribution]]).
 
 This doesn't change the underlying Skill Era thesis — it operationalizes it for small-team founders choosing what to build in 2026.
 
-## Skill-Era Reliability: The Missing Discipline (Garry Tan)
+## Skill-Era Reliability: The Missing Discipline ([[garry-tan]])
 
 [[skillify-agents-same-mistakes|Garry Tan's Skillify essay]] adds the testing-and-compounding layer the Skill Era needs to actually work at production scale. His indictment of [[langchain]]'s $160M/three-year arc — "pieces but not a practice" — is directly consistent with the "encoded judgment is the moat" claim: primitives without opinionated workflows produce vibes-based reliability that decays at complexity.
 
@@ -100,7 +100,7 @@ Trei primitive noi care intră pe pagina asta:
 - [[skill-graphs]] — forma corectă a unei rețele de skills. Wikilinks-în-proză + YAML descriptions + MOCs + index ca entry point. Progressive disclosure: index → descriptions → links → sections → full content.
 - [[brain-ram-leverage]] — argumentul economic. Resursa scarce a solo operator-ului agentic e brain RAM, nu coding speed. 5 compounds în paralel = 500 atomic units. Ăsta e Skill Era operationalizat la nivel de operator individual.
 
-Critică implicită a [[langchain]]-ului din ambele unghiuri (Garry Tan și heinrich): primitives without opinions = vibes-based reliability. Skill Era dă opinia (judgment encodat); heinrich dă topologia (compoziția stratificată).
+Critică implicită a [[langchain]]-ului din ambele unghiuri (Garry Tan și [[heinrich]]): primitives without opinions = vibes-based reliability. Skill Era dă opinia (judgment encodat); heinrich dă topologia (compoziția stratificată).
 
 Pentru Alteramens: Faber-ul e deja un skill graph implementat ([[skill-graphs]] pattern). `.claude/skills/` e plat și nestratificat — următorul pas natural e clasificarea atom/molecule/compound, filtrat prin viziunea Alteramens (encoded judgment + voice + alignment cu pillars). Vezi [[faber-as-skill-graph]].
 

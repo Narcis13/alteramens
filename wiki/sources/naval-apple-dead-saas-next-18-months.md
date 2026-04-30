@@ -73,7 +73,7 @@ The argument why "most SaaS are already dead":
 - The remaining 20% (custom integrations, enterprise sales motion, compliance stack) is **real friction, but not a moat** — and friction gets compressed by every next-generation agent shipping each quarter.
 - Concrete benchmarks invoked:
   - Adobe paid **$20B for Figma** because Figma was structurally hard to build. Solo developers now ship 70%-of-Figma in months.
-  - **Salesforce, Workday, ServiceNow, Atlassian, Asana** — every one is now a candidate for replacement by AI-native alternatives built by teams smaller than their HR department.
+  - **[[salesforce]], [[workday]], ServiceNow, Atlassian, Asana** — every one is now a candidate for replacement by AI-native alternatives built by teams smaller than their HR department.
 
 If the honest answer to "what's our moat?" is "our product is just better" → **70-90% valuation compression on next round.**
 

@@ -13,7 +13,7 @@ status: active
 
 # Eric Siu
 
-CEO of [[single-grain]], a marketing agency rebuilding itself around AI agents. One of the first to publicly document implementing Jack Dorsey's "From Hierarchy to Intelligence" framework at a real company.
+CEO of [[single-grain]], a marketing agency rebuilding itself around AI agents. One of the first to publicly document implementing [[jack-dorsey]]'s "From Hierarchy to Intelligence" framework at a real company.
 
 ## Relevance
 

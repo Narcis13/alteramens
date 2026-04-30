@@ -172,7 +172,7 @@ Cele 3 skill-uri sunt ceea ce face compounding-ul posibil pentru un solo builder
 ### Velocity → compounding
 Cu 12-16 experimente/lună × 20-30% win rate → 2.5-5 winners/lună → 30-60 patterns validate în 12 luni. Fiecare pattern reutilizabil în contexte viitoare.
 
-Asta e **nu doar viteză — e compounding-ul [[encoded-judgment|judgment-ului]] tău specific**. Playbook-ul devine **specific knowledge** ([[productize-yourself|Naval]]) — derivat din data proprie, imposibil de copiat.
+Asta e **nu doar viteză — e compounding-ul [[encoded-judgment|judgment-ului]] tău specific**. Playbook-ul devine **[[specific-knowledge]]** ([[productize-yourself|Naval]]) — derivat din data proprie, imposibil de copiat.
 
 ### Meta-recursivitate: skills-urile care generează skills
 Pe măsură ce playbook-ul se maturizează, pattern-urile încep să arate ca noi skill-uri candidate:

@@ -53,7 +53,7 @@ Dacă răspunsul la 1 e "nu" și la 2-4 e "da", câmpul ar trebui eliminat sau a
 - **signup-flow-cro**: prioritizarea câmpurilor (Essential / Often needed / Deferrable) e o aplicație directă
 - **form-cro**: regula 3/4-6/7+ vine de aici
 - **popup-cro**: frecvența și trigger-ul popup-urilor contează ca fricțiune — popup-uri agresive reduc conversia pe întreaga pagină
-- **onboarding-cro**: fiecare pas între signup și aha moment e fricțiune; "Do, don't show" e o anti-friction tactic
+- **onboarding-cro**: fiecare pas între signup și [[aha-moment]] e fricțiune; "Do, don't show" e o anti-friction tactic
 - **paywall-upgrade-cro**: steps de la paywall la payment; pre-fill, minimizarea pașilor
 
 ## Legătura cu Alteramens

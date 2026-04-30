@@ -30,7 +30,7 @@ The dashboard is retained for edge cases, auditing, and holdouts — but it's no
 
 ## The 18-Month Timeline
 
-Pat Walls' thread claims this shift completes in 18 months. Commentary:
+[[pat-walls]]' thread claims this shift completes in 18 months. Commentary:
 
 - **Directionally correct.** The pressure is real: any SaaS that doesn't expose clean APIs loses enterprise deals to one that does.
 - **Calendar-optimistic.** Regulated verticals (healthcare, banking, defense) will lag. Legacy products with bad APIs will lag. Realistic spread: 18 months for the obvious winners, 5+ years for the laggards.

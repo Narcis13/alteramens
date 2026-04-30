@@ -30,4 +30,4 @@ Concrete case study of a non-technical person (marketing background) achieving m
 
 - Company: Strategy Sprints (strategiesprints.com)
 - Public GitHub: github.com/simonthesalesbooster (20+ repos, 63 commits — each repo = one collaborator skill)
-- Stack: Claude Code + Obsidian + Granola + Notion + Hunter.io
+- Stack: Claude Code + Obsidian + Granola + Notion + [[hunter-io|Hunter.io]]

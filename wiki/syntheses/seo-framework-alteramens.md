@@ -148,7 +148,7 @@ Oricare decizie SEO evaluează prin ambele lentile:
 
 ### [[skill-era|Skill era]] aplicat la SEO
 - Cele 5 skill-uri SUNT [[encoded-judgment]] — invocabile prin `/<skill>`, nu reinventezi roata
-- Fiecare skill aplicat pe un proiect real încorporează specific knowledge-ul tău (IT/healthcare/Romania) în output
+- Fiecare skill aplicat pe un proiect real încorporează [[specific-knowledge]]-ul tău (IT/healthcare/Romania) în output
 - Output-ul poate deveni, iterativ, sursă pentru concepts noi în wiki (ex: "pattern X funcționează bine în B2B healthcare RO")
 
 ### [[validate-before-build]] ca și filtre

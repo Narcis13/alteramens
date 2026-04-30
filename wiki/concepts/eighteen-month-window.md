@@ -58,7 +58,7 @@ The thesis still holds at 24 or 36 months. **Don't anchor on the stopwatch; anch
 
 This window is the **agent-era version of [[compounding-games]]**: pick the long-term game and don't interrupt the process — but the *clock* on which game still produces compounding has accelerated. The patient game (build over 5 years) only works if the moat compounds faster than AI commoditizes the underlying execution.
 
-It also operationalizes [[productize-yourself]] urgency: the four pillars (specific knowledge, leverage, judgment, accountability) all benefit from earlier action because the underlying tools (LLMs) keep getting cheaper and stronger — early movers compound their judgment encoding while late movers face commoditized tooling against incumbents who started earlier.
+It also operationalizes [[productize-yourself]] urgency: the four pillars ([[specific-knowledge]], leverage, judgment, accountability) all benefit from earlier action because the underlying tools (LLMs) keep getting cheaper and stronger — early movers compound their judgment encoding while late movers face commoditized tooling against incumbents who started earlier.
 
 ## Implication for Alteramens (April 2026)
 

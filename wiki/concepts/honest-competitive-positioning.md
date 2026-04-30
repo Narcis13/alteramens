@@ -166,7 +166,7 @@ Când ești underdog (ca Alteramens), tentația e să trash-uiești. Pattern-ul 
 Honesty = counter-intuitively, mai eficient ca under-dog.
 
 ### Honest positioning exemples
-- "X e superior pentru [teams peste 50 persoane cu Salesforce deja integrated]. Noi suntem better pentru [5–20 person Romanian teams who want local compliance built-in]."
+- "X e superior pentru [teams peste 50 persoane cu [[salesforce]] deja integrated]. Noi suntem better pentru [5–20 person Romanian teams who want local compliance built-in]."
 - "Y are integrations pe care noi nu le avem încă [list]. Dacă ai nevoie de astea today, Y e better call."
 - "Noi suntem mai scump decât Z. Aici e de ce credem că merit: [specific outcomes]. Dar dacă budget e constraint-ul primar, Z e OK choice."
 

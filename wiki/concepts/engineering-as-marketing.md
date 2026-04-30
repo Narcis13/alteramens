@@ -15,7 +15,7 @@ applications: []
 
 **Build something useful. Give it away. Let it do distribution for you.** Engineering as marketing = folosirea capacității de a construi software ca un canal de distribuție, în loc să pariezi exclusiv pe ads, content, și outreach tradițional.
 
-Asta e pattern-ul din spatele HubSpot's Website Grader, Moz's keyword tools, Shopify's business name generator, Zapier's template library, și o mie alte tools care aduc traffic, links, leads, și brand awareness gratis.
+Asta e pattern-ul din spatele [[hubspot]]'s Website Grader, Moz's keyword tools, Shopify's business name generator, Zapier's template library, și o mie alte tools care aduc traffic, links, leads, și brand awareness gratis.
 
 ## De ce funcționează
 

@@ -69,7 +69,7 @@ API  →  Skill (encoded judgment)  →  Skillified skill (judgment + verificati
 
 **Implication for the "Where is the judgment?" filter:** the question is no longer just *whether* judgment is encoded. It's also *whether it's tested, routed, and kept alive*. An untested skill has no more moat than an API.
 
-## Judgment Bounded vs Open (Heinrich)
+## Judgment Bounded vs Open ([[heinrich]])
 
 [[skill-graphs-2-heinrich|heinrich's atoms/molecules/compounds]] adaugă o axă orthogonală pe acest concept: **gradul de judgment delegat agentului per skill**. Encoded judgment nu e binar — există un spectru.
 

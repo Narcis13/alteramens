@@ -201,7 +201,7 @@ Ingestul ca suite permite:
 ## Cum se leagă de filosofia Alteramens
 
 - **[[skill-era]]**: Analytics tracking plans + lead scoring models + objection handling docs = **judgment encodat**. Un senior revops mindset compressed in a skill. Scoring model nu e code, e *judgment encodat cu threshold-uri*.
-- **[[productize-yourself]]**: Objection handling docs și buyer persona cards sunt *specific knowledge encoded for leverage* — reprezentanții noi pot accesa judgment-ul senior immediately.
+- **[[productize-yourself]]**: Objection handling docs și buyer persona cards sunt *[[specific-knowledge]] encoded for leverage* — reprezentanții noi pot accesa judgment-ul senior immediately.
 - **[[distribution-over-product]]**: Free tools (engineering-as-marketing) sunt distribuție permissionless la scale; competitor-alternatives pagini captează search intent competitiv. Ambele = distribution care compoundează.
 - **[[compounding-games]]**: LTV:CAC >3:1 măsoară explicit dacă economic engine-ul compoundează. Speed-to-lead <5min compoundează pentru că alertarea automată câștigă competiția pentru atenția lead-ului în fereastra de 5min.
 - **[[validate-before-build]]**: Free-tool-strategy scorecard-ul validates înainte de build — 8 factori × 1–5, threshold 25+ for strong. Tracking plan-ul validates post-launch — definești events INAINTE să implementezi.

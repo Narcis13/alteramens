@@ -161,7 +161,7 @@ Cluster-ul 6 e diferit de Clusters 1–5 pe un plan critic: nu face execuție, f
 ## Cum se leagă de filosofia Alteramens
 
 - **[[skill-era]]**: `product-marketing-context` e pattern-ul skill-era aplicat intern — un skill al cărui output e input pentru toate celelalte skills. Expertiză ca infrastructură partajată.
-- **[[productize-yourself]]**: value-based pricing + good-better-best operaționalizează "specific knowledge + judgment" ca preț diferit de cost. Prețul exprimă judgment-ul, nu costul de a livra.
+- **[[productize-yourself]]**: value-based pricing + good-better-best operaționalizează "[[specific-knowledge]] + judgment" ca preț diferit de cost. Prețul exprimă judgment-ul, nu costul de a livra.
 - **[[distribution-over-product]]**: ORB framework e arhitectura de distribuție; fără Owned nu există compounding; fără Borrowed nu există shortcut de atenție când n-ai audiență.
 - **[[validate-before-build]]**: customer-research (mode 2, digital watering hole) e metoda de validare înainte de cod. JTBD e framework-ul de validare corectă ("există job real neacoperit?").
 - **[[compounding-games]]**: launching again and again + ORB owned channels = compounding. One-shot launches nu se califică.

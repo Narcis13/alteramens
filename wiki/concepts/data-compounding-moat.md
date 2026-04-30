@@ -40,7 +40,7 @@ A competitor cannot:
 
 ## Connection to Compounding Games
 
-This is [[compounding-games]] applied to data. Naval says don't interrupt the compounding process. Eric Siu says the same: the pain of months 1-2 is real, but quitting resets the clock. The companies that push through operate at fundamentally different speed.
+This is [[compounding-games]] applied to data. Naval says don't interrupt the compounding process. [[eric-siu]] says the same: the pain of months 1-2 is real, but quitting resets the clock. The companies that push through operate at fundamentally different speed.
 
 ## The "Boring Moat" Problem
 

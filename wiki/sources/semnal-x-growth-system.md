@@ -79,7 +79,7 @@ Skill `/semnal-draft`:
 ### Review & Queue (week 1)
 - `semnal queue` — list `ready/`
 - `semnal schedule <slug> <time>` — move to `scheduled/`
-- **Does not post autonomously.** Generates a macOS notification at scheduled time with copy-paste-ready text + post-creation link. Optional future: Typefully/Hypefury bridge for real scheduling — but always with manual confirmation.
+- **Does not post autonomously.** Generates a macOS notification at scheduled time with copy-paste-ready text + post-creation link. Optional future: [[typefully]]/Hypefury bridge for real scheduling — but always with manual confirmation.
 
 ### Reply Radar (weeks 2-3)
 - Chrome extension scans timeline while Narcis is on X

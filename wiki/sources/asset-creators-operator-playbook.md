@@ -222,7 +222,7 @@ Coaching-ul generează:
 
 ## Contradicții și tensiuni cu wiki-ul
 
-- **Vs. [[productize-yourself]]:** sursa spune "coaching ≠ business-ul, produsele sunt business-ul". Framework-ul Naval zice că productize-yourself include **both** specific knowledge productized + delivery medium. Playbook-ul sursă clarifică mai practic: coaching-ul e *access*-ul care finanțează building-ul produselor scalabile. Nu contradicție reală, ci scalare practică.
+- **Vs. [[productize-yourself]]:** sursa spune "coaching ≠ business-ul, produsele sunt business-ul". Framework-ul Naval zice că productize-yourself include **both** [[specific-knowledge]] productized + delivery medium. Playbook-ul sursă clarifică mai practic: coaching-ul e *access*-ul care finanțează building-ul produselor scalabile. Nu contradicție reală, ci scalare practică.
 
 - **Vs. pilonul "AI agents for solo builders"** (vezi [[narcis-pillars]]): sursa refuză explicit "AI creator agent launched în ultimele 6 luni" — "wait 18 months". E un push-back sănătos: pilionul e adevărat strategic, dar tool choice-ul e conservator tactic. Nu contradicție pillar-level, ci calibrare de timing.
 

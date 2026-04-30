@@ -174,7 +174,7 @@ Aici e cheia care transformă acquisition plătită dintr-un cost continuu într
 
 **Matematica compounding-ului**: 6 experimente/lună × 25% win rate = 1.5 winners/lună. În 12 luni: 18 patterns validated. Fiecare pattern reutilizat salvează ore și îmbunătățește baseline-ul viitor. Baseline-ul mai bun înseamnă teste viitoare mai bune (sample size mai mic la același lift).
 
-**Implicația pentru Alteramens**: playbook-ul de experimente devine **specific knowledge** în sensul [[productize-yourself|Naval]]: cunoaștere care nu poate fi copiată pentru că e derivată din date proprii. Competitorii cu bugete mai mari nu au pattern-urile tale. Asta e moat-ul solo builder-ului care respectă disciplina experimentală: **timpul îți devine aliat, nu constraint**.
+**Implicația pentru Alteramens**: playbook-ul de experimente devine **[[specific-knowledge]]** în sensul [[productize-yourself|Naval]]: cunoaștere care nu poate fi copiată pentru că e derivată din date proprii. Competitorii cu bugete mai mari nu au pattern-urile tale. Asta e moat-ul solo builder-ului care respectă disciplina experimentală: **timpul îți devine aliat, nu constraint**.
 
 Vezi [[paid-acquisition-framework-alteramens]] pentru aplicare cu buget $0 de start.
 

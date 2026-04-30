@@ -81,7 +81,7 @@ Playbook-ul [[creator-shows]] refuză explicit Notion și landing pages pentru a
 ## Relația cu alte concepte
 
 - **[[encoded-judgment]]** — doc-ul e judgment-ul coach-ului despre cum să poziționezi într-o nișă, cristalizat în 1,500 cuvinte. Nu template swap-uit cu variabile.
-- **[[productize-yourself]]** — doc-ul E productizarea: Specific Knowledge + Leverage (URL shareable) + Judgment (positioning) + Accountability (un preț, un nume).
+- **[[productize-yourself]]** — doc-ul E productizarea: [[specific-knowledge]] + Leverage (URL shareable) + Judgment (positioning) + Accountability (un preț, un nume).
 - **[[skill-era]]** — exact pattern-ul "craftsman cu audience mică vinde judgment"; doc-ul e skill-ul cristalizat în format distribuibil.
 - **[[asset-funnel-price-ladder]]** — doc-ul e tip-ul funnel-ului (HT $1-3K/mo). Email sequence-ul după micro offer se termină cu "check the Google Doc".
 - **[[distribution-over-product]]** — URL-ul ca asset distribuibil. Fiecare canal de distribuție (X post, newsletter, DM, podcast mention) drive-uie la același doc.

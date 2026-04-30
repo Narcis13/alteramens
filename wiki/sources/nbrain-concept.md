@@ -20,7 +20,7 @@ key_claims:
 confidence: high
 ---
 
-# nbrAIn — Agentic Business Platform
+# [[nbrain|nbrAIn — Agentic Business Platform]]
 
 The primary revenue candidate for Alteramens. A B2B SaaS targeting Romanian accountants and SME entrepreneurs with a conversational AI interface. Source: [[workshop/drafts/agentic-business-platform|Concept note]].
 

@@ -74,7 +74,7 @@ Obiectiv: **activare maximă, feedback manual**.
 1. **Welcome email single** (nu sequence de 7) — "bun venit, iată primul pas, reply dacă blocat"
 2. **Contact founder direct** pentru fiecare signup (în primele 24-48h) — primești VoC, dezambiguuezi friction
 3. **NU churn flow** — ai 5 customers, tratezi manual fiecare
-4. **NU referral program** — nu ai încă aha moment definit
+4. **NU referral program** — nu ai încă [[aha-moment]] definit
 
 **Skills**: `/email-sequence` pentru welcome email, dar scurt. Manual retention.
 

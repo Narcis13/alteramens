@@ -24,7 +24,7 @@ Phase 3: Productize → sell to others who want the same system
 Phase 4: Compound → each client deployment feeds back learnings
 ```
 
-## Single Grain Example
+## [[single-grain]] Example
 
 Old agency model: sell services, deliver services.
 New model: sell the intelligence layer ([[single-brain]]) that makes services 10x more effective, and the services come with it.

@@ -87,7 +87,7 @@ What's missing (the [[skillify]] discipline):
 
 These are mechanical improvements that preserve the existing architecture. The architecture is already correct; the verification layer is the gap.
 
-## Atoms / Molecules / Compounds Mapping (Heinrich)
+## Atoms / Molecules / Compounds Mapping ([[heinrich]])
 
 [[skill-graphs-2-heinrich|heinrich's compositional model]] e ortogonal pe thin-harness-fat-skills, nu competitiv. Garry răspunde la *arhitectura unui skill*. Heinrich răspunde la *cum se așază mai multe skills împreună*.
 

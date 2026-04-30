@@ -47,7 +47,7 @@ Each agent queries the same [[world-model]]. The coordinator resolves conflicts 
 
 ## Consolidation Trend
 
-Eric Siu notes that as models improve, the trend is toward fewer, more capable agents. One agent with the right context can replace several specialists. The fleet architecture may be a transitional pattern that makes sense now but consolidates over time.
+[[eric-siu]] notes that as models improve, the trend is toward fewer, more capable agents. One agent with the right context can replace several specialists. The fleet architecture may be a transitional pattern that makes sense now but consolidates over time.
 
 ## Relevance
 

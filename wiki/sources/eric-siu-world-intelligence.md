@@ -19,9 +19,9 @@ key_claims:
 confidence: high
 ---
 
-# How to Practically Deploy Jack Dorsey's 'World Intelligence' Today
+# How to Practically Deploy [[jack-dorsey]]'s 'World Intelligence' Today
 
-Eric Siu's implementation report on running an AI-native company, mapping Jack Dorsey & Roelof Botha's "From Hierarchy to Intelligence" essay (April 1, 2026) to real operations at Single Grain over 4 months.
+[[eric-siu]]'s implementation report on running an AI-native company, mapping Jack Dorsey & Roelof Botha's "From Hierarchy to Intelligence" essay (April 1, 2026) to real operations at [[single-grain]] over 4 months.
 
 ## Context
 
@@ -38,7 +38,7 @@ Dorsey and Botha published a framework for AI-native organizations that got 5M v
 
 **Hardware stack:** Mac Mini M4 (CEO agent + crons), DGX Spark GB10 (local inference, team agents, vector DB), Mac Studio Ultra (client agent fleets, overflow). Local inference cuts costs ~70% vs cloud APIs.
 
-**Single Brain:** Unified vector DB ingesting all company data every 15 minutes — Slack, CRM, Gong transcripts, GA4, GSC, docs, financials. Every agent queries the same brain.
+**[[single-brain]]:** Unified vector DB ingesting all company data every 15 minutes — Slack, CRM, Gong transcripts, GA4, GSC, docs, financials. Every agent queries the same brain.
 
 **Agent fleet:** Alfred (CEO ops), Arrow (sales), Oracle (SEO), Flash (content), Cyborg (recruiting). World Agent coordinates across all. AutoResearch + AutoGrowth run continuously.
 

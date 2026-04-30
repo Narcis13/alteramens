@@ -63,10 +63,10 @@ Both pass all four operator-edge tests (weekly calendar of practitioner, 5+ peop
 
 ### Agent-native product: nBrain is already shaped right
 
-[[nbrain-concept]] is designed as a conversational agent over shared client data, not as another accounting dashboard. Structurally it IS the pattern Pat Walls describes:
+[[nbrain-concept]] is designed as a conversational agent over shared client data, not as another accounting dashboard. Structurally it IS the pattern [[pat-walls]] describes:
 - No dashboard-first thinking ✓
 - Agent as the interface ✓
-- Incumbent accounting backends (SAGA, CielInfo, ANAF) as data sources ✓
+- Incumbent accounting backends (SAGA, CielInfo, [[anaf|ANAF]]) as data sources ✓
 - Workflow ownership (monthly close, deadline tracking, client questions) ✓
 
 The gap: nBrain currently plans against a traditional DB rather than wrapping existing Romanian accounting systems. Worth revisiting — is the true agent-native play to *wrap SAGA* rather than replace it?

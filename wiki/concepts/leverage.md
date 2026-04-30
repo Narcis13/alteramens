@@ -13,7 +13,7 @@ applications: ["CLAUDE.md", "MANIFEST.md"]
 
 # Leverage — Force Multipliers
 
-Getting bigger outcomes from the same input. The mechanism that turns specific knowledge into wealth at scale.
+Getting bigger outcomes from the same input. The mechanism that turns [[specific-knowledge]] into wealth at scale.
 
 ## Four Types
 
@@ -32,7 +32,7 @@ Getting bigger outcomes from the same input. The mechanism that turns specific k
 
 For Alteramens:
 - **Code leverage:** 10 projects, each potentially serving thousands
-- **Content leverage:** Building in public, skills for AI agents
+- **Content leverage:** [[building-in-public]], skills for AI agents
 - **AI leverage (new):** Claude Code as force multiplier — projects that would take months become weeks
 
 ## The Skill Era Extension

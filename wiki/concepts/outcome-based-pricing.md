@@ -86,7 +86,7 @@ The pure "only pay when revenue hits the account" model is a rhetorical endpoint
 
 [[nbrain-concept]] currently plans flat 50 EUR/month. The thread challenges this:
 - Could nBrain price on **hours-saved-for-accountant**? (Measurable if we track firm throughput before/after.)
-- Could nBrain price on **ANAF deadlines never missed**? (Outcome the accountant cares about.)
+- Could nBrain price on **[[anaf|ANAF]] deadlines never missed**? (Outcome the accountant cares about.)
 - Could nBrain price on **new clients the accountant takes on because time was freed**? (Growth-tied outcome.)
 
 Probable first step: keep flat pricing for speed-to-revenue, but **design the measurement infrastructure** from day one so outcome-based pricing is a switchable pricing axis later. This is cheap to add early, expensive to add late.

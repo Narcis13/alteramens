@@ -43,7 +43,7 @@ AI makes template generation and data enrichment trivial. What used to require a
 
 ## For Alteramens
 
-High relevance for any SaaS or tool product. A builder with specific knowledge + AI can create programmatic content that encodes [[encoded-judgment]] — not just keyword-stuffed pages, but genuinely useful reference material that ranks AND serves users.
+High relevance for any SaaS or tool product. A builder with [[specific-knowledge]] + AI can create programmatic content that encodes [[encoded-judgment]] — not just keyword-stuffed pages, but genuinely useful reference material that ranks AND serves users.
 
 Potential application: comparison pages, integration guides, or playbook generators for dev tools or healthcare IT.
 

@@ -82,7 +82,7 @@ Pentru 1K MRR target cu small-team operations, lifecycle-ul se simplifică:
 - **Customer** → paid subscription
 - **Evangelist** → referrals + testimonials
 
-**Simplification for small team**: poți colapsa Lead și MQL dacă volumul e mic — dar **scorecard-ul de fit/engagement trebuie să existe** chiar dacă merge într-un spreadsheet, nu într-un Salesforce workflow complex.
+**Simplification for small team**: poți colapsa Lead și MQL dacă volumul e mic — dar **scorecard-ul de fit/engagement trebuie să existe** chiar dacă merge într-un spreadsheet, nu într-un [[salesforce]] workflow complex.
 
 **SLA-uri pentru small team**:
 - MQL alert: push la telefon (nu depinzi de CRM)

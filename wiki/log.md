@@ -527,4 +527,15 @@ Chronological record of wiki operations. Append-only.
 - Guided ingest: yes (manifest piece angle, all 4 new concepts approved, Apple as entity, both stance candidates surfaced for Phase 5, synthesis approved, zero images)
 - Alignment: 9 entries — ai-agents-for-solo-builders: reinforces ×4 (source + 3 concepts + synthesis), skill-era-craftsmanship: reinforces ×4 (source + 3 concepts + synthesis), building-as-51yo-from-ro-public-hospital: reinforces ×3 (source + 1 concept + synthesis)
 - Stance candidates: 2 surfaced — distribution-over-product-difficulty, vertical-depth-over-horizontal-generality (presented in Phase 5 report — Narcis decision pending)
-- **Totals: 1 sources, 2 entities, 4 concepts = 1 + 2 + 4 = 7 new + 6 updated (1 entity + 5 concepts) + 1 synthesis**
+- **Totals: 1 source, 1 entity, 4 concepts, 1 synthesis = 7 new + 6 updated (1 entity + 5 concepts)**
+
+## [2026-04-30] lint | Health Check
+- Issues: 1 high, 2 medium, 2 low
+- Suggestions: 25 missing-wikilink candidates
+
+## [2026-04-30] build | Lint Resolution Pass
+- Fixed log mismatch #42 totals (Naval ingest: "2 entities" → "1 entity, 1 synthesis"; corrected math)
+- Wrapped 96 missing wikilinks across 50+ pages (auto-pass + case-insensitive pass + manual ANAF)
+- Wikilinks: 2054 → 2151 (+97)
+- Remaining (won't-fix): 1 zero-backlink concept (`dri-with-agents` — newly created, no natural mentions elsewhere); 2 missing-link false positives (already-linked variants in prose / code-block mentions); 15 thin pages (need new sources, content-side work)
+- All phantoms, orphans, log mismatches, stale concepts: 0

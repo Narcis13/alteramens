@@ -22,9 +22,9 @@ key_claims:
 confidence: high
 ---
 
-# Productize Yourself — Naval's 10 Ideas on Getting Rich
+# [[productize-yourself]] — Naval's 10 Ideas on Getting Rich
 
-Summary of Naval Ravikant's framework as curated by Stijn Noorman. Source: Twitter/X thread, saved in vault as [[../Foundation|Foundation]].
+Summary of [[naval-ravikant]]'s framework as curated by Stijn Noorman. Source: Twitter/X thread, saved in vault as [[../Foundation|Foundation]].
 
 ## Core Thesis
 
@@ -35,7 +35,7 @@ Naval's framework for getting rich (without luck) distills to one phrase: **"Pro
 ### 1. Play Compounding Games
 Pick an industry, craft, and people for the long term. Every direction change interrupts compounding. Growth is slow at first, then accelerates. The key is not to interrupt the process.
 
-### 2. Specific Knowledge
+### 2. [[specific-knowledge]]
 Knowledge you can't be trained for. If society can train you, it can replace you. Found by pursuing talents, passions, and curiosity — not what's hot. Building it feels like play to you, looks like work to others.
 
 ### 3. Build Leverage

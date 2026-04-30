@@ -110,7 +110,7 @@ Asta-i **viziunea proprie** care filtrează heinrich — el optimizează pentru 
 
 ### Pattern-ul AGENTS.md / resolver pentru `.claude/skills/`
 
-Heinrich (și Garry Tan, prin [[thin-harness-fat-skills]]) presupun un **resolver** (AGENTS.md) care rutează intent → skill. Claude Code deja face asta implicit prin descriptions. Dar **nu e auditat**.
+Heinrich (și [[garry-tan]], prin [[thin-harness-fat-skills]]) presupun un **resolver** (AGENTS.md) care rutează intent → skill. Claude Code deja face asta implicit prin descriptions. Dar **nu e auditat**.
 
 Întrebări nerezolvate:
 - Există dark skills? (skill-uri în `.claude/skills/` care nu se invocă niciodată pentru că triggerul nu e clar)
@@ -125,7 +125,7 @@ Asta-i exact ce livrează [[skillify]] (Garry Tan) ca disciplină. Aplicabilă m
 
 Faber stochează knowledge **declarativ** — pagini citibile, agentul citește. `.claude/skills/` stochează knowledge **executabil** — proceduri pe care agentul rulează. Întrebarea: **trebuie să fie două graph-uri separate sau unul singur?**
 
-Heinrich nu separă. arscontexta = un singur skill graph care servește ambele scopuri.
+Heinrich nu separă. [[arscontexta]] = un singur skill graph care servește ambele scopuri.
 
 Faber + `.claude/skills/` = două graph-uri care se ating dar nu se traversează. Wikilinks din pagini Faber pot pointa spre skill files? Nu prin design.
 

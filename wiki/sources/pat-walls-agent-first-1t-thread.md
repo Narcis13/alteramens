@@ -41,8 +41,8 @@ A manifesto-style thread (attributed to [[pat-walls]], host of [[startup-ideas-p
 
 The thread lays out the shift as eight consecutive claims, each reinforcing the next:
 
-1. **Every SaaS goes headless in 18 months.** Salesforce is the canary. The rest follow because they have no choice — enterprise buyers will demand API-first access so agents can orchestrate work without dashboards.
-2. **Agent-native startups emerge as a new category.** They treat Salesforce / HubSpot / Workday as *dumb backends*. The startup IS the agent. The SaaS is just the database. See [[agent-native-startup]] and [[headless-saas-thesis]].
+1. **Every SaaS goes headless in 18 months.** [[salesforce]] is the canary. The rest follow because they have no choice — enterprise buyers will demand API-first access so agents can orchestrate work without dashboards.
+2. **Agent-native startups emerge as a new category.** They treat Salesforce / [[hubspot]] / [[workday]] as *dumb backends*. The startup IS the agent. The SaaS is just the database. See [[agent-native-startup]] and [[headless-saas-thesis]].
 3. **Consulting/services compress into software.** Implementation teams, sales engineers, and professional-services orgs (the huge tax around enterprise SaaS) collapse because the agent does the implementation. See [[agent-replaces-implementation]].
 4. **Outcome-based pricing becomes default.** Per-seat makes no sense when the "seat" is an agent making 10,000 API calls a minute. You pay when revenue hits your account. See [[outcome-based-pricing]].
 5. **Ex-operators win.** "Knowing that a property manager spends 14 hours/week on lease renewals is the insight worth $100M." Code is the easy part now — domain workflow fluency is the moat. See [[vertical-operator-edge]] and the overlap with [[specific-knowledge]].
