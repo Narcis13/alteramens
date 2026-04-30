@@ -539,3 +539,17 @@ Chronological record of wiki operations. Append-only.
 - Wikilinks: 2054 → 2151 (+97)
 - Remaining (won't-fix): 1 zero-backlink concept (`dri-with-agents` — newly created, no natural mentions elsewhere); 2 missing-link false positives (already-linked variants in prose / code-block mentions); 15 thin pages (need new sources, content-side work)
 - All phantoms, orphans, log mismatches, stale concepts: 0
+
+## [2026-04-30] query → synthesis | Semnal vs SuperX strategic analysis
+- Question: din perspectiva wiki, analiză strategică + tehnică pe superx.so + alternative + ultrathink dacă putem construi cu ce avem deja (voice unitară, stances, judgment encodat)
+- Synthesis created: semnal-vs-superx-strategic-analysis
+- Entities created: superx
+- Sources consulted: semnal-x-growth-system, asset-creators-operator-playbook, naval-apple-dead-saas-next-18-months
+- Concepts involved: 16 (human-in-loop-publishing, voice-preservation, dogfood-as-content, capture-at-source, x-content-pillars, content-pillars, friction-cost, authentic-creation, productize-yourself, skill-era, distribution-over-product, compounding-games, building-in-public, asset-funnel-price-ladder, scientific-content-split, compose-skills-by-level)
+- Self-context applied: 10 stances + 3 pillars + 8 voice_rules + 3 constraints loaded; SuperX features mapped against organic-growth-no-shortcuts, judgment-over-functionality, romglish-authentic-over-sterilized-english
+- Verdict: 6/9 SuperX features = direct violation of an active stance; SuperX = literally anti-Semnal positioning
+- Wedge identified: voice_rules + self_stances + pillars as first-class data — structurally impossible for SuperX-style SaaS to replicate at $39/mo scale
+- Build queue surfaced: capture Chrome ext, sweet-spot radar, /semnal-reflect, personal viral library, pilon coverage detector, notification-only scheduler — all PRD §5.* items, none auto-post
+- Refuse list crystallized: Auto-RT, Auto-DM, Auto-Plug, Auto-Delete, scraped viral library, engagement pods (incl. soft variants)
+- Risk flagged: meta-building trap — 5+ posts/week first, tooling after; tooling is subordinate to shipping (per [[narcis-commitments]] master metric)
+- Alignment: 3 entries — ai-agents-for-solo-builders: reinforces, skill-era-craftsmanship: reinforces, building-as-51yo-from-ro-public-hospital: reinforces
