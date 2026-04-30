@@ -2,9 +2,9 @@
 title: "Data Compounding Moat — Proprietary Context as Defensibility"
 type: concept
 category: competitive-intel
-sources: [eric-siu-world-intelligence, brainstorm-ai-tutor-medicina]
-entities: [single-grain, single-brain]
-related: [compounding-games, world-model, ai-native-org-design, skill-era, longitudinal-user-model]
+sources: [eric-siu-world-intelligence, brainstorm-ai-tutor-medicina, naval-apple-dead-saas-next-18-months]
+entities: [single-grain, single-brain, naval-ravikant]
+related: [compounding-games, world-model, ai-native-org-design, skill-era, longitudinal-user-model, pure-software-uninvestable, eighteen-month-window]
 maturity: developing
 confidence: high
 contradictions: []
@@ -59,3 +59,13 @@ The data compounding moat does not have to operate at the company level. It can 
 In the AI tutor for Carol Davila admission product (see [[brainstorm-ai-tutor-medicina]]), this is the central moat. After 4-6 months a student's longitudinal model contains things the student does not know about themselves. Migrating to a competitor means losing that calibration — switching cost is structural, not contractual.
 
 The mechanism is identical to the company-level version: months of accumulated context cannot be fast-forwarded. The difference is the unit (one user instead of one company) and the consequence (per-user switching cost instead of per-company defensibility).
+
+## Naval Validation (2026-04)
+
+[[naval-apple-dead-saas-next-18-months]] places **data flywheels in the explicit moat taxonomy** of what survives the AI-collapse of pure software:
+
+> "Tesla's autopilot data. Bloomberg's terminal data. The data compounds. Software wrappers around commodity data do not."
+
+Naval's framing sharpens the test: **does your product generate unique data with every user interaction?** If yes, you have something AI can't copy. If your product is a UI on top of public APIs, you don't. Same conclusion this page already argued — now backed by the most credible capital allocator in the industry.
+
+This is also why the [[eighteen-month-window]] is real but **the data flywheel doesn't shorten with it**. The founders who already started accumulating proprietary context in 2024-2025 are months ahead and the gap widens. Starting a data flywheel in month 12 of the window is not "behind"; it's "already lost." See [[pure-software-uninvestable]] for the capital-markets framing of why.

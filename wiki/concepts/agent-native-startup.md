@@ -2,9 +2,9 @@
 title: "Agent-Native Startup — The Startup IS the Agent"
 type: concept
 category: pattern
-sources: [pat-walls-agent-first-1t-thread]
-entities: [pat-walls, salesforce, hubspot, workday]
-related: [headless-saas-thesis, outcome-based-pricing, vertical-operator-edge, agent-replaces-implementation, media-plus-agents-distribution, skill-era, mcp-as-distribution, ai-native-org-design, agent-fleet-architecture]
+sources: [pat-walls-agent-first-1t-thread, naval-apple-dead-saas-next-18-months]
+entities: [pat-walls, salesforce, hubspot, workday, naval-ravikant]
+related: [headless-saas-thesis, outcome-based-pricing, vertical-operator-edge, agent-replaces-implementation, media-plus-agents-distribution, skill-era, mcp-as-distribution, ai-native-org-design, agent-fleet-architecture, solo-founder-with-agent-velocity, pure-software-uninvestable, eighteen-month-window, interface-commoditization]
 maturity: seed
 confidence: high
 contradictions: []
@@ -74,3 +74,16 @@ Open question: is [[nbrain-concept]] *truly* agent-native (no dashboard), or a h
 - Regulatory: which verticals will fight back hardest against "no human in the loop"? Healthcare and finance likely resist longer than real estate or e-commerce.
 - Lock-in: what stops the incumbent SaaS from adding its own agent layer and cutting you out?
 - Attribution: if the agent replaces the UX entirely, how do incumbents measure engagement to detect displacement?
+
+## Naval Validation (2026-04)
+
+[[naval-apple-dead-saas-next-18-months]] supplies the **operator-side counterpart** to this product-side concept: [[solo-founder-with-agent-velocity]] — a 1-person company with the velocity of a 50-person team, where agents own the implementation loop and the founder gates quality.
+
+The two concepts compose:
+
+- **Agent-Native Startup** (this page) — *what is the company offering?* The agent IS the product; SaaS is the dumb backend.
+- **[[solo-founder-with-agent-velocity]]** — *how is the company operated?* The agent IS the team; the founder gates quality.
+
+A company can be one without the other (agent-native product run by a 20-person team; or solo founder running a traditional SaaS with agent dev velocity). The Alteramens bet is **both** — agent-native products built by agent-velocity solo operations.
+
+[[interface-commoditization]] is the underlying force that makes the structural inversion possible: when UIs generate themselves, the dashboard-first incumbent loses its grip on the user, and the agent-native upstart inherits the workflow without ever building one.

@@ -2,9 +2,9 @@
 title: "Distribution Over Product — Access Beats Quality"
 type: concept
 category: mental-model
-sources: [ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread]
-entities: [pat-walls, sam-parr, roy-lee]
-related: [validate-before-build, leverage, skill-era, programmatic-seo, answer-engine-optimization, mcp-as-distribution, viral-artifacts, deliver-dont-promise, media-plus-agents-distribution, agent-native-startup]
+sources: [ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread, naval-apple-dead-saas-next-18-months]
+entities: [pat-walls, sam-parr, roy-lee, naval-ravikant]
+related: [validate-before-build, leverage, skill-era, programmatic-seo, answer-engine-optimization, mcp-as-distribution, viral-artifacts, deliver-dont-promise, media-plus-agents-distribution, agent-native-startup, pure-software-uninvestable, eighteen-month-window, solo-founder-with-agent-velocity]
 maturity: developing
 confidence: high
 contradictions: []
@@ -44,3 +44,13 @@ This doesn't mean product doesn't matter — it means product alone isn't enough
 [[pat-walls-agent-first-1t-thread]] takes this thesis further: when agents + APIs make building trivial, distribution collapses into audience + brand. The founder's media surface becomes the permanent moat because product moats get commoditized.
 
 See [[media-plus-agents-distribution]] for the founder-level expression. The through-line: each wave reduces the cost of building; each wave raises the premium on owned distribution. The last wave rewarded pretty UIs on ugly data; this wave rewards smart agents on exposed APIs — and both waves reward whoever already owned the audience.
+
+## Naval Sharpening (2026-04)
+
+[[naval-apple-dead-saas-next-18-months]] crystallizes this thesis into a single line that's now the cleanest articulation in the wiki:
+
+> "Marketing IS the product now. The product is downstream of attention."
+
+In Naval's moat taxonomy from the same source, **distribution leads the list of durable defenses left** (alongside network effects, data flywheels, hardware integration, brand/community, regulatory depth, vertical depth). The article frames audience, email list, community, and reputation as the only AI-uncopyable assets — software is going to zero, but attention is structurally scarce.
+
+The implication for [[eighteen-month-window]] founders: distribution is **months of compounding work, not a launch-week sprint**. The founders who reposition first capture survivors' market share precisely because they spent the prior 12-18 months building distribution while peers were still optimizing product. See [[solo-founder-with-agent-velocity]] for the operator-level shape — the founder owns distribution personally; agents handle implementation.

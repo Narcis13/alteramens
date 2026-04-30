@@ -2,13 +2,13 @@
 title: "The Skill Era — From Pipes to Patterns"
 type: concept
 category: mental-model
-sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread, skillify-agents-same-mistakes, asset-creators-operator-playbook, skill-graphs-2-heinrich]
-entities: [alteramens, single-grain, eric-siu, block-inc, pat-walls, garry-tan, gbrain, hermes-agent, openclaw, langchain, creator-shows, heinrich, arscontexta]
-related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army, knowledge-first-development, ambient-computation, executable-wiki, agent-native-startup, vertical-operator-edge, headless-saas-thesis, outcome-based-pricing, skillify, thin-harness-fat-skills, latent-vs-deterministic, google-doc-offer, atoms-molecules-compounds, skill-graphs, brain-ram-leverage]
+sources: [skill-era-article, naval-framework, eric-siu-world-intelligence, ai-marketing-distribution, severino-claude-sales-system, pat-walls-agent-first-1t-thread, skillify-agents-same-mistakes, asset-creators-operator-playbook, skill-graphs-2-heinrich, naval-apple-dead-saas-next-18-months]
+entities: [alteramens, single-grain, eric-siu, block-inc, pat-walls, garry-tan, gbrain, hermes-agent, openclaw, langchain, creator-shows, heinrich, arscontexta, naval-ravikant, apple-inc]
+related: [encoded-judgment, leverage, productize-yourself, ai-native-org-design, world-model, internal-to-product, mcp-as-distribution, distribution-over-product, ai-collaborator-army, knowledge-first-development, ambient-computation, executable-wiki, agent-native-startup, vertical-operator-edge, headless-saas-thesis, outcome-based-pricing, skillify, thin-harness-fat-skills, latent-vs-deterministic, google-doc-offer, atoms-molecules-compounds, skill-graphs, brain-ram-leverage, pure-software-uninvestable, solo-founder-with-agent-velocity, interface-commoditization, eighteen-month-window]
 maturity: mature
 confidence: high
 contradictions: []
-applications: ["CLAUDE.md", "workshop/drafts/Articol interesant.md"]
+applications: ["CLAUDE.md", "workshop/drafts/Articol interesant.md", "MANIFEST.md"]
 ---
 
 # The Skill Era — From Pipes to Patterns
@@ -114,3 +114,16 @@ Pentru Alteramens: Faber-ul e deja un skill graph implementat ([[skill-graphs]] 
 - Compounding = 2-4 rewrites până first sale, apoi skill-ul devine asset recurent pentru ani
 
 Asta extinde teza Skill Era dincolo de `.claude/skills/` și MCP servers: **orice document care encodează judgment cristalizat și e distribuibil via URL e un skill în sensul larg**. Pentru solo operators non-tech, Google Doc e distribuția — nu dashboard, nu deck, nu landing page.
+
+## Naval's Capital-Markets Verdict (2026-04)
+
+[[naval-apple-dead-saas-next-18-months]] supplies the **strongest single-source validation** of the Skill Era thesis to date — and from the most credible capital allocator in the industry. Naval's verdict — "pure software is uninvestable, full stop" — is the **capital-markets translation** of what this page has been saying:
+
+- Skill Era says: *value moves from APIs (functionality) to skills (judgment)*.
+- [[pure-software-uninvestable]] says: *therefore capital priced into difficulty-of-execution is mispriced; capital priced into uncopyable judgment / distribution / data is correctly priced*.
+
+Same insight, two registers — one for builders (this page), one for allocators ([[pure-software-uninvestable]]).
+
+Naval's bullish frame is also load-bearing here: [[solo-founder-with-agent-velocity]] is the **operator-level expression** of Skill Era — not just "skills as infrastructure," but "the founder + agent fleet as the operating org." Combined with [[interface-commoditization]] ([[apple-inc|Apple]]'s structural exposure) and [[eighteen-month-window]] (the timing pressure), this is no longer hypothesis; it's the default operating reality the rest of the industry is catching up to.
+
+Naval's own line says it cleanly: *"The only thing standing between you and a real business now is whether you have something to say, the taste to know what good looks like, and the discipline to ship it."* That's Skill Era restated as a Naval call.

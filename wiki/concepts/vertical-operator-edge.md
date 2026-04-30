@@ -2,9 +2,9 @@
 title: "Vertical Operator Edge — Domain Fluency as the Moat"
 type: concept
 category: mental-model
-sources: [pat-walls-agent-first-1t-thread, naval-framework, brainstorm-ai-tutor-medicina]
-entities: [pat-walls]
-related: [specific-knowledge, agent-native-startup, bounded-problem-wedge, productize-yourself, authentic-creation, voice-of-customer, jobs-to-be-done]
+sources: [pat-walls-agent-first-1t-thread, naval-framework, brainstorm-ai-tutor-medicina, naval-apple-dead-saas-next-18-months]
+entities: [pat-walls, naval-ravikant]
+related: [specific-knowledge, agent-native-startup, bounded-problem-wedge, productize-yourself, authentic-creation, voice-of-customer, jobs-to-be-done, pure-software-uninvestable, eighteen-month-window, solo-founder-with-agent-velocity]
 maturity: developing
 confidence: high
 contradictions: []
@@ -90,6 +90,16 @@ If all four fail, the "vertical" is a guess, not an edge — either find a partn
 - **Skimming a subreddit for ideas you don't understand.** Produces [[bounded-problem-wedge]] candidates, not operator edges.
 - **Building for a vertical you read about** (property management without having managed property). The 14-hour-lease-renewal insight is not in a blog post; it's in the person who did it.
 - **Letting the vertical knowledge stay tacit.** Operators must externalize judgment so agents can encode it. See [[encoded-judgment]].
+
+## Naval Confirmation (2026-04)
+
+[[naval-apple-dead-saas-next-18-months]] adds vertical depth to the **explicit list of moats that survive the AI-collapse of pure software**:
+
+> "The horizontal SaaS giants are exposed. The vertical specialists who own a specific industry's workflow, data, and relationships are not. A general-purpose project management tool is dead. A construction-specific platform that owns the permitting workflow, the inspector network, and the regulatory data is not. Going deep into one industry beats going broad across ten."
+
+Same argument this page has been making — now framed as a Naval-grade capital-allocation call rather than just a Pat Walls founder thesis. The combined signal is strong: **horizontal SaaS is structurally dead; vertical operators with agent leverage are structurally favored**. See [[pure-software-uninvestable]] for the capital-markets framing.
+
+For Narcis specifically, the [[eighteen-month-window]] frame says the time to productize one of the two operator-edge verticals (healthcare IT, Romanian accounting) is *this year*, not someday. Combined with [[solo-founder-with-agent-velocity]], the playbook is: pick one vertical, build the agent-native wedge, own the audience while the wedge ships.
 
 ## Open Questions
 

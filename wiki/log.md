@@ -515,3 +515,16 @@ Chronological record of wiki operations. Append-only.
 - Low: 16 thin pages (1 source each — fine for seeds), 0 stale concepts (wiki alive — last_touched <30d everywhere)
 - Temporal layer: 0 log mismatches, 0 phantom log refs, 0 orphaned ingest events
 - Suggestions: 4 (link naval-ravikant from the 4 pillars; reconnect `claude` agent page; resolve/downgrade orphan syntheses; fix or downgrade narcis-stances anchor link)
+
+## [2026-04-30] ingest | Naval — Apple dead, SaaS next, 18mo
+- Source: /Users/narcisbrindusescu/DEV/alteramens/Clippings/Naval Ravikant Apple is dead, SaaS is next, you have 18 months.md
+- Source page created: naval-apple-dead-saas-next-18-months
+- Entities created: apple-inc
+- Entities updated: naval-ravikant (added 2026-04 verdict section, new quotes, +4 related concepts, +new source)
+- Concepts created: pure-software-uninvestable, eighteen-month-window, solo-founder-with-agent-velocity, interface-commoditization
+- Concepts updated: skill-era (Naval capital-markets verdict section), distribution-over-product (Naval sharpening section), data-compounding-moat (Naval validation section), vertical-operator-edge (Naval confirmation section), agent-native-startup (Naval validation + composition with solo-founder-with-agent-velocity)
+- Synthesis created: naval-thesis-vs-alteramens
+- Guided ingest: yes (manifest piece angle, all 4 new concepts approved, Apple as entity, both stance candidates surfaced for Phase 5, synthesis approved, zero images)
+- Alignment: 9 entries — ai-agents-for-solo-builders: reinforces ×4 (source + 3 concepts + synthesis), skill-era-craftsmanship: reinforces ×4 (source + 3 concepts + synthesis), building-as-51yo-from-ro-public-hospital: reinforces ×3 (source + 1 concept + synthesis)
+- Stance candidates: 2 surfaced — distribution-over-product-difficulty, vertical-depth-over-horizontal-generality (presented in Phase 5 report — Narcis decision pending)
+- **Totals: 1 sources, 2 entities, 4 concepts = 1 + 2 + 4 = 7 new + 6 updated (1 entity + 5 concepts) + 1 synthesis**
