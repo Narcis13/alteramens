@@ -4,7 +4,7 @@ type: concept
 category: decision-framework
 sources: [asset-creators-operator-playbook]
 entities: [typefully, creator-shows]
-related: [x-content-pillars, content-pillars, hypothesis-driven-experimentation, performance-data-loop, google-doc-offer, building-in-public, authentic-creation]
+related: [x-content-pillars, content-pillars, hypothesis-driven-experimentation, performance-data-loop, google-doc-offer, building-in-public, authentic-creation, reply-as-distribution]
 maturity: seed
 confidence: high
 contradictions: []
@@ -95,6 +95,29 @@ Asta e [[compounding-games]] aplicat la content: fiecare săptămână îmbogă�
 - Sâmbătă review ca practică obligatorie — 15 minute pentru a decide ce repostezi peste 3 săptămâni
 
 **Counter-force directă pentru [[narcis-constraints|slăbiciunea amânării postării]]:** 70% growth = presiune mai mică pe "trebuie să fie deep/technical". Poți ship mai repede un growth post decât un competence post.
+
+## Disambiguare: 70/30 ≠ 70/30
+
+Atenție — există **două ratio-uri 70/30 distincte** în wiki, ușor de confundat:
+
+| Ratio | Axă | Type A | Type B | Sursă |
+|---|---|---|---|---|
+| **Acest concept** | Tip de original-post | 70% growth content | 30% competence content | [[asset-creators-operator-playbook]] |
+| **[[reply-as-distribution]]** | Surface (reply vs original) | 70% replies pe alții | 30% original posts | [[reply-guy-growth-engine-framework]] |
+
+Cele două **nu sunt alternative** — sunt independente și se pot stiva: 70% effort pe replies (per [[reply-as-distribution]]), iar 30%-ul de original posts se mai sparge intern 70/30 growth/competence (acest concept). Decision-ul e separat la fiecare nivel.
+
+**Stack-ul complet pentru sub-10k:**
+
+```
+100% effort
+├── 70% replies (Value Amplifier mindset, target 2-10x size, 15-60 min strike)
+└── 30% original posts
+     ├── 70% growth-tuned (broad-appeal hooks, no CTA)
+     └── 30% competence-tuned (narrow, technical, soft CTA → google-doc-offer)
+```
+
+Acesta e un stack potențial, nu un decret. Adoptă-l doar dacă măsurătorile (vezi [[reply-as-distribution]] tracked rates + sheet-ul săptămânal de aici) îl confirmă pe terenul tău.
 
 ## Limitări recunoscute
 

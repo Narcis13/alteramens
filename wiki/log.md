@@ -553,3 +553,17 @@ Chronological record of wiki operations. Append-only.
 - Refuse list crystallized: Auto-RT, Auto-DM, Auto-Plug, Auto-Delete, scraped viral library, engagement pods (incl. soft variants)
 - Risk flagged: meta-building trap — 5+ posts/week first, tooling after; tooling is subordinate to shipping (per [[narcis-commitments]] master metric)
 - Alignment: 3 entries — ai-agents-for-solo-builders: reinforces, skill-era-craftsmanship: reinforces, building-as-51yo-from-ro-public-hospital: reinforces
+
+## [2026-05-05] ingest | Reply Guy → Growth Engine Framework (UltraThink Edition)
+- Source: conversation:2026-05-05 (pasted text, undated, Grok-coded advisory)
+- Source page created: reply-guy-growth-engine-framework
+- Entities created: grok-ai
+- Concepts created: value-amplifier-mindset, reply-as-distribution, value-amplifier-template
+- Concepts updated: encoded-judgment (added Grok co-pilot as social exemplar + new source/entities/related), scientific-content-split (added 70/30 disambiguation section vs reply-as-distribution + related cross-link)
+- Synthesis: deferred (per Narcis — write only after position taken on organic-growth-no-shortcuts tension)
+- Self-context applied: 3 active pillars + 11 stances + voice_rules loaded; tension surfaced on organic-growth-no-shortcuts (mixed: reinforces no-bots clause, tensions let-content-speak spirit)
+- Alignment: 4 entries — skill-era-craftsmanship: reinforces ×3 (source + value-amplifier-mindset + value-amplifier-template), ai-agents-for-solo-builders: reinforces ×1 (source). reply-as-distribution intentionally left without alignment — concept is mostly tactical, no non-neutral pillar relation.
+- Stance candidates: 3 surfaced — (1) on x-reply-leverage-vs-original-posts: "Pentru sub-10k followers, replies > original posts as distribution"; (2) on x-reply-target-selection: "Reply only to accounts 2-10x size in exact niche"; (3) on x-early-reply-window: "First 15-60 min as algo-push window". All deferred for Narcis's call; not auto-added to narcis-stances.md.
+- Guided ingest: yes (Narcis approved all extraction + scope decisions)
+- Application surface flagged: /semnal-reply skill upgrade candidate — atom (template) + molecule (variant generation) + compound (full daily session with target list and tracking) all materially specified
+- **Totals: 1 source, 1 entity, 3 concepts = 5 new + 2 updated**

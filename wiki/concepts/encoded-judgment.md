@@ -2,9 +2,9 @@
 title: "Encoded Judgment — Skills vs Functions"
 type: concept
 category: mental-model
-sources: [skill-era-article, eric-siu-world-intelligence, skillify-agents-same-mistakes, skill-graphs-2-heinrich]
-entities: [alteramens, single-grain, eric-siu, garry-tan, langchain, heinrich]
-related: [skill-era, judgment, leverage, agent-fleet-architecture, world-model, internal-to-product, knowledge-first-development, emergent-schema, skillify, thin-harness-fat-skills, latent-vs-deterministic, atoms-molecules-compounds, skill-graphs, brain-ram-leverage]
+sources: [skill-era-article, eric-siu-world-intelligence, skillify-agents-same-mistakes, skill-graphs-2-heinrich, reply-guy-growth-engine-framework]
+entities: [alteramens, single-grain, eric-siu, garry-tan, langchain, heinrich, grok-ai]
+related: [skill-era, judgment, leverage, agent-fleet-architecture, world-model, internal-to-product, knowledge-first-development, emergent-schema, skillify, thin-harness-fat-skills, latent-vs-deterministic, atoms-molecules-compounds, skill-graphs, brain-ram-leverage, value-amplifier-mindset, value-amplifier-template]
 maturity: developing
 confidence: high
 contradictions: []
@@ -87,3 +87,16 @@ Asta extinde tabela de "API vs Skill" cu un al treilea pol: **API = no judgment;
 - Pentru compounds — judgment-ul e *în orchestration autonomy* (când să devieze de la playbook, când să escaleze la operator)
 
 Pentru Alteramens, asta înseamnă că **fiecare skill din `.claude/skills/` ar trebui să aibă un nivel declarat** — și judgment-ul encodat trebuie evaluat *la nivelul respectiv*. Un atom "judgment-ful" e suspicious (probabil are scope prea larg). Un compound fără judgment e degenerate (probabil e doar molecule renamed). Vezi [[atoms-molecules-compounds]] și [[faber-as-skill-graph]].
+
+## Encoded Judgment în Social — Grok Co-Pilot Prompts
+
+[[reply-guy-growth-engine-framework]] aduce un exemplar instructiv pentru concept: trei prompt-uri ([[grok-ai|Grok]] Fast Reply Generator, UltraThink Deep Dive, Batch Mode) care nu execută o funcție mecanică ("write a reply") ci **encodează procedura unui operator de reply** — gate de mindset ([[value-amplifier-mindset]]), template structural ([[value-amplifier-template]]), engagement-hook discipline.
+
+Asta confirmă filtrul "Where is the judgment?" pe terenul social-media:
+
+- **API echivalent** — "given a tweet, generate 3 replies." No opinion. Just text.
+- **Skill-level** — "given a tweet + brand voice, run the Value Amplifier 4-question gate; if it passes, generate 3 variants slot-mapped (counter / story / reframe), each enforcing 2-3 sentence cap and ending with an engagement hook." Opinion. Procedure.
+
+Diferența nu e cosmetică — e diferența între un tool care produce content slop și unul care produce distribution. Aceleași model-uri în spate, judgment-ul diferit la suprafață.
+
+**Implicație pentru Alteramens:** [[.claude/skills/semnal-reply/SKILL.md|/semnal-reply]] e candidat direct să încorporeze acest pattern — atom-ul ([[value-amplifier-template]]) e deja crystallized; molecula (variant generation) și compound-ul (full daily reply session cu target list și tracking) sunt deasupra.
