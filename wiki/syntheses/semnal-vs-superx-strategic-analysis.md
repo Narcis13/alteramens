@@ -4,7 +4,7 @@ type: synthesis
 trigger: query
 question: "Din perspectiva wiki-ului meu, fă o analiză strategică și tehnică a SaaS-ului superx.so care promite creșterea pe X — caută alternative, și ultrathink dacă putem dezvolta noi cu ce avem deja (voce unitară, stance-uri, abordare conceptuală — nu AI slop) tools/skills pentru funcționalități similare"
 sources_consulted: [semnal-x-growth-system, asset-creators-operator-playbook, naval-apple-dead-saas-next-18-months]
-concepts_involved: [human-in-loop-publishing, voice-preservation, dogfood-as-content, capture-at-source, x-content-pillars, content-pillars, friction-cost, authentic-creation, productize-yourself, skill-era, distribution-over-product, compounding-games, building-in-public, asset-funnel-price-ladder, scientific-content-split, compose-skills-by-level]
+concepts_involved: [human-in-loop-publishing, voice-preservation, dogfood-as-content, capture-at-source, x-content-pillars, content-pillars, friction-cost, authentic-creation, productize-yourself, skill-era, distribution-over-product, compounding-games, building-in-public, asset-funnel-price-ladder, scientific-content-split]
 entities_involved: [alteramens, superx, typefully, narcis-brindusescu]
 created: 2026-04-30
 updated: 2026-04-30
@@ -112,7 +112,7 @@ Asta e miezul ultrathink-ului. SuperX e platformă SaaS. Să stochezi pillars + 
 
 Tu ai gratis, ca byproduct al felului în care lucrezi:
 
-1. **`voice_rules` table** — 8 reguli encoded, queryable, cu `examples_yes` / `examples_no`. Produsă prin [[faber-mirror]]-style ritual + [[faber-meet]] revizii. Nu se scrape-uiește.
+1. **`voice_rules` table** — 8 reguli encoded, queryable, cu `examples_yes` / `examples_no`. Produsă prin `/faber-mirror`-style ritual + `/faber-meet` revizii. Nu se scrape-uiește.
 2. **`self_stances`** — 10 poziții cu confidence levels. `/semnal-reply` deja le folosește ca guardrail pentru contrarian.
 3. **`self_pillars`** — 3 piloni locked, prin filtrul moat/sustainability/compounding ([[content-pillars]] §filtru 4-lens).
 4. **Faber knowledge graph** — fiecare post poate fi ancorat într-un concept (`source_faber: [[concept-slug]]`). Continuitate semantică între posturi pe care SuperX structural n-o vede.

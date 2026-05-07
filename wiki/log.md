@@ -545,7 +545,8 @@ Chronological record of wiki operations. Append-only.
 - Synthesis created: semnal-vs-superx-strategic-analysis
 - Entities created: superx
 - Sources consulted: semnal-x-growth-system, asset-creators-operator-playbook, naval-apple-dead-saas-next-18-months
-- Concepts involved: 16 (human-in-loop-publishing, voice-preservation, dogfood-as-content, capture-at-source, x-content-pillars, content-pillars, friction-cost, authentic-creation, productize-yourself, skill-era, distribution-over-product, compounding-games, building-in-public, asset-funnel-price-ladder, scientific-content-split, compose-skills-by-level)
+- Concepts involved: 15 (human-in-loop-publishing, voice-preservation, dogfood-as-content, capture-at-source, x-content-pillars, content-pillars, friction-cost, authentic-creation, productize-yourself, skill-era, distribution-over-product, compounding-games, building-in-public, asset-funnel-price-ladder, scientific-content-split)
+- Stances involved: compose-skills-by-level (not a concept page — it's a stance in narcis-stances.md)
 - Self-context applied: 10 stances + 3 pillars + 8 voice_rules + 3 constraints loaded; SuperX features mapped against organic-growth-no-shortcuts, judgment-over-functionality, romglish-authentic-over-sterilized-english
 - Verdict: 6/9 SuperX features = direct violation of an active stance; SuperX = literally anti-Semnal positioning
 - Wedge identified: voice_rules + self_stances + pillars as first-class data — structurally impossible for SuperX-style SaaS to replicate at $39/mo scale
