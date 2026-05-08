@@ -568,3 +568,34 @@ Chronological record of wiki operations. Append-only.
 - Guided ingest: yes (Narcis approved all extraction + scope decisions)
 - Application surface flagged: /semnal-reply skill upgrade candidate — atom (template) + molecule (variant generation) + compound (full daily session with target list and tracking) all materially specified
 - **Totals: 1 source, 1 entity, 3 concepts = 5 new + 2 updated**
+
+## [2026-05-08] query → synthesis | Kanwas vs Faber — Parallel Theses, Different Wedges
+
+- Query: "Research complete pe Kanwas SaaS (kanwas.ai + repo kanwas-ai/kanwas) și juxtapunere peste Alteramens/Faber — similitudini, diferențe, ce să furăm pentru SaaS push"
+- Sources consulted: 0 (live web research, not yet ingested as source pages — Kanwas landing + GitHub repo + docs/SYSTEM_OVERVIEW.md fetched)
+- Concepts involved: 8 (encoded-judgment, data-compounding-moat, distribution-over-product, executable-wiki, bounded-problem-wedge, skill-era, productize-yourself, leverage)
+- Entities involved: 1 (alteramens)
+- Synthesis created: kanwas-vs-faber-analysis
+- Vault doc created: workshop/drafts/kanwas-juxtapunere.md
+- Self-context applied: 3 active pillars + stances + voice loaded; postpone-publishing weakness explicitly confronted with empirical data (Kanwas opened public repo 2026-04-22, day after Narcis locked framework-vision; 543⭐ in 16 days vs Faber zero public artifacts)
+- Alignment: 2 entries on synthesis — ai-agents-for-solo-builders: reinforces, skill-era-craftsmanship: reinforces
+- Key strategic finding: Kanwas validates the context-as-moat thesis externally (543⭐ in 16d) but does NOT touch self-as-data + confrontation loop. Faber wedge intact, time-boxed at 6-12 months.
+- Top 10 ideas to steal surfaced and prioritized by leverage/effort (Tier 1: framing/showcase/public-repo-now; Tier 2: timeline UI / CLI sync / read-only canvas; Tier 3: hosted Faber.app / execenv / shared-boards / use-case templates)
+- Open questions surfaced: hosted-vs-P7 contradiction; open-source day-1 vs support load solo; multiplayer ever-or-never; /semnal-* core vs marketplace
+- **Totals: 0 sources, 0 entities, 0 concepts = 1 new (synthesis) + 0 updated**
+
+## [2026-05-08] ingest | Kanwas Competitive Teardown
+
+- Source: https://kanwas.ai/ + https://github.com/kanwas-ai/kanwas + docs/SYSTEM_OVERVIEW.md (consolidated)
+- Source page created: kanwas-competitive-teardown
+- Entities created: kanwas
+- Entities updated: alteramens (added kanwas to related_entities)
+- Concepts created: context-graph-as-meme, open-core-day-one-distribution, agent-eventful-runtime, crdt-shared-execution-substrate
+- Synthesis updated: kanwas-vs-faber-analysis (sources_consulted + entities_involved + concepts_involved frontmatter populated; previously created 2026-05-08 as query → synthesis without sources)
+- Vault doc: workshop/drafts/kanwas-juxtapunere.md (created earlier same day, now anchored to source)
+- Self-context applied: 3 active pillars + 11 stances + voice loaded
+- Alignment: 6 entries — skill-era-craftsmanship: reinforces ×4 (source, context-graph-as-meme, open-core-day-one-distribution, [synthesis already aligned]); building-as-51yo-from-ro-public-hospital: reinforces ×2 (source, open-core-day-one-distribution); ai-agents-for-solo-builders: reinforces ×1 (agent-eventful-runtime). Note: ai-agents-for-solo-builders deliberately NOT marked on source-level — Kanwas targets teams, not solo, so its team-mode existence neither reinforces nor contradicts the solo-builder pilon.
+- Stance candidates: 2 surfaced — (1) on product-topology-team-vs-solo: "Team-mode and solo-mode of the same context-as-moat thesis are non-substitutable; build for opposite axes — don't compete head-to-head"; (2) on hosted-vs-local-first-philosophy: "Local-first and hosted-as-first-class are non-contradictory when API costs flow to user (BYO key) and markdown remains source-of-truth — re-frame P7 from 'cloud-optional' to 'cloud-as-first-class with portability'". Both DEFERRED for Narcis's call — not auto-added to narcis-stances.md.
+- Application surface flagged: 4 concrete actions for framework-vision update — (a) rewrite one-liner with "personal context graph + built-in confrontation"; (b) public repo github.com/narcis13/faber this week with framework-vision as README; (c) re-open P7 decision before Faza 4; (d) plan visual canvas as read-only navigation layer (not BlockNote competitor)
+- Guided ingest: yes (Narcis approved consolidated form, slug, and 4 concept candidates upfront)
+- **Totals: 1 source, 1 entity, 4 concepts = 6 new + 2 updated**
