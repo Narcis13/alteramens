@@ -568,3 +568,34 @@ Chronological record of wiki operations. Append-only.
 - Guided ingest: yes (Narcis approved all extraction + scope decisions)
 - Application surface flagged: /semnal-reply skill upgrade candidate — atom (template) + molecule (variant generation) + compound (full daily session with target list and tracking) all materially specified
 - **Totals: 1 source, 1 entity, 3 concepts = 5 new + 2 updated**
+
+## [2026-05-12] query → synthesis | Growth-positioned tweet set 2026-05 W20 (28 tweets)
+- Question: 28 tweets (4/day × 7 days) for @13_narcissus, positioned for X growth, aligned with niche (relentless solo builder, anti-hustle, tool-first, Pareto, cost-aware, no-quit) and the 10 high-engagement themes in the indie hacker / solopreneur conversation
+- Synthesis created: growth-tweet-set-2026-05-w20
+- Sources consulted: semnal-x-growth-system, naval-apple-dead-saas-next-18-months, pat-walls-agent-first-1t-thread, reply-guy-growth-engine-framework
+- Concepts involved: 18 (voice-preservation, authentic-creation, human-in-loop-publishing, distribution-over-product, media-plus-agents-distribution, reply-as-distribution, compounding-games, leverage, skill-era, encoded-judgment, engineering-as-marketing, dogfood-as-content, building-in-public, friction-cost, value-amplifier-mindset, deliver-dont-promise, productize-yourself, specific-knowledge)
+- Stances involved: judgment-over-functionality, shipping-over-perfection, organic-growth-no-shortcuts, pragmatic-over-elegant (referenced in synthesis; these are stances in narcis-stances.md, not concept pages)
+- Entities involved: naval-ravikant, pat-walls
+- Self-context applied: 3 active pillars + 11 stances + 8 voice_rules + 3 constraints; voice rules locked tweet style (short sentences, hard claims, no emojis, no corporate hedging, first-person, concrete numbers, Romglish only when natural)
+- Structure: 4 tweets/day × 7 days = 28; days mapped 1-7 to lens / build-in-public / tool-sprawl-Pareto / AI-vs-slopware / hospital-51-Romania / distribution / compounding
+- Theme coverage: all 10 input themes covered (matrix in synthesis); distribution + tool-sprawl get full days as highest niche-fit
+- Growth positioning: hook days (1,4,6) contrarian/quotable; specificity days (3,5) concrete numbers ($40, 30 lines, 08-15, 47 weeks); identity days (2,7) brand-binding; reply-bait opens #13, #17, #21
+- Anti-slop discipline: human-in-loop publishing enforced — every tweet hand-pressed, no auto-anything (matches organic-growth-no-shortcuts stance)
+- Risks flagged: #17 gatekeeping risk; #9 depends on Stratus shipped + $40 verifiable; Romglish underused (EN-dominant to match account texture); pillar-alignment-check passed
+- Alignment: 3 entries — skill-era-craftsmanship: reinforces, ai-agents-for-solo-builders: reinforces, building-as-51yo-from-ro-public-hospital: reinforces
+- Application surface: feeds /semnal-draft when ready; engagement per tweet should be logged in workshop and winning angles promoted to x-content-pillars
+
+## [2026-05-12] lint | Health Check
+- Issues: 0 high (after fix), 1 medium, 16 low (down from 2 high before fix)
+- Phantoms: 0 broken wikilinks
+- Phantom log refs: 2 found (judgment-over-functionality, permissionless-leverage) — both originated in same-day synthesis frontmatter; fixed by replacing permissionless-leverage → leverage and moving judgment-over-functionality from concepts_involved → stances note. Synthesis page + log entry edited.
+- Log mismatches: 0
+- Orphaned ingest/seed events: 0
+- Orphans: 1 (growth-tweet-set-2026-05-w20 — expected, just created; will gain backlinks when referenced from x-content-pillars or workshop tracking notes)
+- Thin pages: 16 entity/concept with ≤1 source — mostly seed-maturity pages awaiting second source; no immediate action
+- Stale concepts: 24 pages untouched 30+ days, max 37 days. Healthy for a young wiki; flag if it crosses 60 days without /faber-ingest of related material
+- Maturity distribution: 11 mature, 36 developing, 63 seed (110 concepts total) — pipeline healthy
+- Confidence distribution: high-dominant (108 high vs 32 medium) — no low-confidence orphans
+- Dashboard: 210 pages total (110 concept, 42 entity, 25 source, 24 synthesis, 6 self, 2 moc, 1 agent)
+- No contradictions surfaced; no claim conflicts detected via fts_claims
+- Action items: none urgent. Suggestion: next /faber-seed pass could target the 24 stale concepts to refresh recency, or skip if material doesn't warrant it
