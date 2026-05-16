@@ -665,3 +665,11 @@ Chronological record of wiki operations. Append-only.
 - Alignment: synthesis gains `building-as-51yo-from-ro-public-hospital: reinforces`; `identity-first-storage` concept declares `skill-era-craftsmanship: reinforces` + `ai-agents-for-solo-builders: reinforces`. Existing 2 reinforces on synthesis preserved.
 - Stance candidates: 3 surfaced — open-protocols-over-vendor-apis-for-personal-data, identity-first-over-notes-first-storage, validate-before-code-for-ambitious-bets — awaiting Narcis confirmation
 - **Totals: 0 sources, 12 entities, 7 concepts = 19 new + 9 updated**
+
+## [2026-05-16] build | Stance adoption from Personal Context Agent ingest
+- Source: wiki/syntheses/personal-context-agent.md
+- Self-pages updated: narcis-stances (3 stance-uri noi)
+- Stances added: open-protocols-over-vendor-apis-for-personal-data (medium), identity-first-over-notes-first-storage (medium), validate-before-code-for-ambitious-bets (medium)
+- Reasoning: all 3 surfaced in Phase 3b of the Personal Context Agent ingest; Narcis accepted all 3
+- Tension note: `validate-before-code-for-ambitious-bets` calibrates (does NOT contradict) `bias-for-action` + `shipping-over-perfection` — scope-conditional only
+- **Totals: 0 sources, 0 entities, 0 concepts = 0 new + 0 updated**

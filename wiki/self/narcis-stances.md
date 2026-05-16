@@ -5,7 +5,7 @@ subtype: stances
 status: active
 maturity: developing
 created: 2026-04-22
-updated: 2026-04-27
+updated: 2026-05-16
 stances:
   - slug: shipping-over-perfection
     on_topic: delivery cadence
@@ -83,6 +83,30 @@ stances:
     created: 2026-04-27
     last_reaffirmed: 2026-04-27
     source: skill-graphs-2-heinrich
+  - slug: open-protocols-over-vendor-apis-for-personal-data
+    on_topic: distribution infrastructure for personal-data systems
+    position: "Protocoale publice (MCP-style) > API-uri vendor-proprietare pentru personal-data infrastructure. Fără standard public, ești captiv într-un vendor — strategic, nu opțional."
+    confidence: medium
+    status: active
+    created: 2026-05-16
+    last_reaffirmed: 2026-05-16
+    source: personal-context-agent
+  - slug: identity-first-over-notes-first-storage
+    on_topic: personal data architecture
+    position: "Identity-first > notes-first pentru sisteme de context personal. Identity, Role, Goal, State, Stance sunt entity types de prim rang, nu mențiuni incidentale în note."
+    confidence: medium
+    status: active
+    created: 2026-05-16
+    last_reaffirmed: 2026-05-16
+    source: personal-context-agent
+  - slug: validate-before-code-for-ambitious-bets
+    on_topic: decision making on non-trivial systems
+    position: "Pentru pariuri ambițioase (sistem cu protocol, multi-tenant, mobile-native), validate 5+ conversații înainte de orice cod. Bias for action rămâne, calibrat la scop — small bets ship fast; big bets validate first."
+    confidence: medium
+    status: active
+    created: 2026-05-16
+    last_reaffirmed: 2026-05-16
+    source: personal-context-agent
 ---
 
 # Stance-uri active
@@ -153,3 +177,43 @@ Implicație pentru `.claude/skills/`: fiecare SKILL.md ar trebui să declare `co
 Filtrul Alteramens (peste heinrich): un compound merită construit doar dacă (1) encodează judgment Alteramens, nu generic, (2) reduce brain RAM-ul, nu doar înmulțește output, (3) e voice-aware, (4) e aliniat cu un pillar activ. Vezi [[faber-as-skill-graph]] și [[brain-ram-leverage]].
 
 **Când NU se aplică:** scripts one-off care nu sunt skills (ex: un bash util în `scripts/`). Stance-ul vorbește despre skills agentic, nu cod în general.
+
+## Open protocols > vendor APIs pentru personal-data infrastructure *(adăugat 2026-05-16, confidence: medium)*
+
+Adoptat după ingest-ul [[personal-context-agent]]. Premisă strategică: pentru sisteme care țin *date personale* compounding (memory, context, identity model), protocolul public e *strategic*, nu opțional. Fără standard public, ești captiv într-un vendor — *„poate dezamăgești OpenAI Memories peste 6 luni, dar nu poți migra cu tine."*
+
+Aplicabil concret la:
+- [[personal-context-agent-project|Personal Context Agent]] adoptă [[mcp-protocol|MCP]] ca layer 1 distribution.
+- Orice viitor sistem Alteramens care stochează date *despre user* (vs date despre lume — vezi [[executable-wiki|Faber pattern]]) trece prin protocol public.
+
+**Când NU se aplică:** experimente interne, prototype-uri, sisteme one-shot. Stance-ul e despre infrastructură care se vrea durabilă și portabilă.
+
+## Identity-first > notes-first storage *(adăugat 2026-05-16, confidence: medium)*
+
+Adoptat după ingest-ul [[personal-context-agent]]. Pentru sisteme de context personal, primitivele de stocare trebuie să fie entități tipizate (Person, Role, Goal, State, Stance) — nu note din care identitatea se infera. Notes-first ([[mem-ai]], [[notion]], [[tana]], [[anytype]], [[logseq]]) face inferența probabilistă din content textual. Identity-first face inferența un SQL JOIN.
+
+Implicație arhitecturală: schema înainte de UI. Decay și authority sunt câmpuri tipizate, nu cum se citește textul. Multi-tenancy e un `user_id`, nu o re-arhitecturare.
+
+Vezi [[identity-first-storage]] pentru pattern-ul complet și [[twelve-layers-of-context]] pentru ontologie.
+
+**Când NU se aplică:** notebook personal nestructurat ([[obsidian|Obsidian]] pentru drafturi, vault Alteramens). Identity-first e pentru *agent-readable user model*, nu pentru *human-writeable workspace*. Cele două coexistă — vezi [[inverted-polarity-sister-system]].
+
+## Validate înainte de cod, pentru pariuri ambițioase *(adăugat 2026-05-16, confidence: medium)*
+
+Adoptat după ingest-ul [[personal-context-agent]]. Calibrare critică pentru [[#bias-pentru-acțiune|bias-for-action]] și [[#shipping--perfecționare|shipping > perfection]] — *small bets ship fast; big bets validate first*.
+
+Definiție pariu ambițios:
+- Sistem cu protocol propriu (multi-agent, cross-vendor)
+- Multi-tenant din ziua zero (schema decisions hard-to-reverse)
+- Mobile-native (build cost mare, UI lock-in)
+- Multi-luni de muncă, nu zile
+- Categorie nouă (nu „yet another tool in known category")
+
+Pentru astfel de pariuri: **5+ conversații cu utilizatori reali** înainte de prima linie de cod. Întrebări precum *„ce context regretezi că trebuie să-l reexplici la fiecare conversație? Ai plăti $X/lună ca să scapi de asta?"* trebuie să dea răspunsuri *înainte* ca arhitectura să fie locked in.
+
+**Când NU se aplică:**
+- Experimente / prototypes (build first, fail cheap)
+- Skills și tools în domenii deja validate (CRO, SEO, content) — acolo bias-for-action rămâne neclintit
+- Lucruri pe care le construiești pentru tine fără ambiție comercială (build whenever)
+
+Stance-ul nu contrazice bias-for-action; îl scoate din pilot automat pentru cazurile unde reversal-ul ar costa luni de muncă.
