@@ -630,3 +630,38 @@ Chronological record of wiki operations. Append-only.
 - Dashboard: 210 pages total (110 concept, 42 entity, 25 source, 24 synthesis, 6 self, 2 moc, 1 agent)
 - No contradictions surfaced; no claim conflicts detected via fts_claims
 - Action items: none urgent. Suggestion: next /faber-seed pass could target the 24 stale concepts to refresh recency, or skip if material doesn't warrant it
+
+## [2026-05-16] lint | Health Check
+- Issues: 0 high, 3 medium, 3 low
+- Suggestions: 2
+- Phantoms: 0 | Orphans: 2 (recent syntheses) | Thin pages: 16 (10 concept, 6 entity)
+- Log mismatches: 0 | Orphaned ingest events: 0
+- 1 phantom log ref: `live-web-research` (consulted) in entry 47 (Kanwas vs Faber, 2026-05-08) — parser false positive on "0 sources consulted (live web research, not yet ingested)" prose
+- 57 concepts/entities stale (>30d, oldest 41d back to seed pass)
+- Backlink-poor: `dri-with-agents` (0 backlinks); 11 pages with ≤2 inbound
+- Dashboard: 217 pages (114 concept, 43 entity, 26 source, 25 synthesis, 6 self, 2 moc, 1 agent)
+- Suggestions: (a) reword entry 47 to avoid slug-like phrase in "Sources consulted:" line; (b) cross-link `dri-with-agents` from agent-fleet-architecture or ai-collaborator-army to drop zero-backlink status
+
+## [2026-05-16] build | Personal Context Agent foundation synthesis
+- Trigger: brainstorm session on "context" as abstract concept + viziune produs (cloud + mobile, accesibil oricărui agent AI)
+- Query: "Ce este 'context' filozofic, și cum implementăm un agent care creează / întreține / compound-ează un context personal accesibil din orice agent AI?"
+- Synthesis created: personal-context-agent
+- Concepts involved: 10 (productize-yourself, specific-knowledge, leverage, encoded-judgment, knowledge-first-development, brain-ram-leverage, judgment, context-aware-interrupt, context-graph-as-meme, product-marketing-context)
+- Structure: 11 părți — definiție de lucru + lineage filozofic (Wittgenstein/Heidegger/Bateson/Polanyi/Clark/Gadamer) + decompoziție 12 straturi (identity/temporal/spatial/goals/knowledge/relational/resources/constraints/state/history/aesthetic/epistemic) + 8 cross-cutting properties + 6 mecanici de compounding + 10 tensiuni nerezolvate + tabel diferențiere Faber + blueprint architectural (12 entity types, SQLite schema, 8 skills, MCP+REST protocol, distribuție local-first/cloud) + tabel competitiv (vs OpenAI Memories, Anthropic auto-memory, Mem.ai, Rewind, Notion etc) + alignment Alteramens + 11 open questions + next steps
+- Decizii de framing locked: start personal → productize | sistem soră Faber | echilibrat filozofic-architectural | SQLite-as-source-of-truth (inversiune voluntară față de Faber MD-as-source-of-truth)
+- Cea mai bună întrebare pentru validare: "dacă ar exista azi un buton 'agentul ăsta știe deja cine ești', ce ai vrea să știe primul lucru?"
+- Next step recomandat: #validate cu 3-5 conversații înainte de orice cod
+- Alignment: 2 entries — skill-era-craftsmanship: reinforces, ai-agents-for-solo-builders: reinforces
+- **Totals: 0 sources, 0 entities, 0 concepts, 1 synthesis = 1 new + 0 updated**
+
+## [2026-05-16] ingest | Personal Context Agent — extracting concepts & entities from foundation synthesis
+- Source: wiki/syntheses/personal-context-agent.md
+- Guided ingest: yes — Narcis approved all 7 concepts, all 12 entities, project slug `personal-context-agent-project`, all 3 stance candidates surfaced
+- Concepts created: twelve-layers-of-context, identity-first-storage, declared-vs-observed-gap, context-decay-heuristics, frame-problem-retrieval, authority-decay-compounding, inverted-polarity-sister-system
+- Concepts updated: productize-yourself, encoded-judgment, context-aware-interrupt, context-graph-as-meme, product-marketing-context, knowledge-first-development, brain-ram-leverage
+- Entities created: personal-context-agent-project, mcp-protocol, mem-ai, rewind-ai, limitless-ai, tana, anytype, logseq, notion, obsidian, dex, clay
+- Entities updated: alteramens
+- Synthesis updated: personal-context-agent
+- Alignment: synthesis gains `building-as-51yo-from-ro-public-hospital: reinforces`; `identity-first-storage` concept declares `skill-era-craftsmanship: reinforces` + `ai-agents-for-solo-builders: reinforces`. Existing 2 reinforces on synthesis preserved.
+- Stance candidates: 3 surfaced — open-protocols-over-vendor-apis-for-personal-data, identity-first-over-notes-first-storage, validate-before-code-for-ambitious-bets — awaiting Narcis confirmation
+- **Totals: 0 sources, 12 entities, 7 concepts = 19 new + 9 updated**

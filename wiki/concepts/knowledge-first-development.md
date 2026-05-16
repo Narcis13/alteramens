@@ -4,7 +4,7 @@ type: concept
 category: methodology
 sources: []
 entities: [alteramens]
-related: [executable-wiki, world-model, internal-to-product, validate-before-build, emergent-schema, skill-era, encoded-judgment, compounding-games]
+related: [executable-wiki, world-model, internal-to-product, validate-before-build, emergent-schema, skill-era, encoded-judgment, compounding-games, declared-vs-observed-gap, identity-first-storage, frame-problem-retrieval]
 maturity: seed
 confidence: medium
 contradictions: []

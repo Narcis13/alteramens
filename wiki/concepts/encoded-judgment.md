@@ -3,8 +3,8 @@ title: "Encoded Judgment — Skills vs Functions"
 type: concept
 category: mental-model
 sources: [skill-era-article, eric-siu-world-intelligence, skillify-agents-same-mistakes, skill-graphs-2-heinrich, reply-guy-growth-engine-framework]
-entities: [alteramens, single-grain, eric-siu, garry-tan, langchain, heinrich, grok-ai]
-related: [skill-era, judgment, leverage, agent-fleet-architecture, world-model, internal-to-product, knowledge-first-development, emergent-schema, skillify, thin-harness-fat-skills, latent-vs-deterministic, atoms-molecules-compounds, skill-graphs, brain-ram-leverage, value-amplifier-mindset, value-amplifier-template]
+entities: [alteramens, single-grain, eric-siu, garry-tan, langchain, heinrich, grok-ai, personal-context-agent-project]
+related: [skill-era, judgment, leverage, agent-fleet-architecture, world-model, internal-to-product, knowledge-first-development, emergent-schema, skillify, thin-harness-fat-skills, latent-vs-deterministic, atoms-molecules-compounds, skill-graphs, brain-ram-leverage, value-amplifier-mindset, value-amplifier-template, identity-first-storage, authority-decay-compounding]
 maturity: developing
 confidence: high
 contradictions: []

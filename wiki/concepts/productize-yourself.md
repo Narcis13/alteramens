@@ -3,8 +3,8 @@ title: "Productize Yourself"
 type: concept
 category: mental-model
 sources: [naval-framework, asset-creators-operator-playbook]
-entities: [naval-ravikant, alteramens, creator-shows]
-related: [specific-knowledge, leverage, judgment, accountability, compounding-games, authentic-creation, google-doc-offer, asset-funnel-price-ladder, annual-prepay-cash-flow]
+entities: [naval-ravikant, alteramens, creator-shows, personal-context-agent-project]
+related: [specific-knowledge, leverage, judgment, accountability, compounding-games, authentic-creation, google-doc-offer, asset-funnel-price-ladder, annual-prepay-cash-flow, identity-first-storage]
 maturity: mature
 confidence: high
 contradictions: []

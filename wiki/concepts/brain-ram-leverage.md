@@ -4,7 +4,7 @@ type: concept
 category: mental-model
 sources: [skill-graphs-2-heinrich]
 entities: [heinrich]
-related: [atoms-molecules-compounds, skill-graphs, leverage, productize-yourself, ai-collaborator-army, agent-fleet-architecture, encoded-judgment, skill-era]
+related: [atoms-molecules-compounds, skill-graphs, leverage, productize-yourself, ai-collaborator-army, agent-fleet-architecture, encoded-judgment, skill-era, twelve-layers-of-context, frame-problem-retrieval]
 maturity: seed
 confidence: high
 contradictions: []

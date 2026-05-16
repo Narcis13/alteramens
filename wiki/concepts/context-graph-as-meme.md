@@ -4,7 +4,7 @@ type: concept
 category: pattern
 sources: [kanwas-competitive-teardown]
 entities: [kanwas, alteramens]
-related: [executable-wiki, data-compounding-moat, encoded-judgment, distribution-over-product]
+related: [executable-wiki, data-compounding-moat, encoded-judgment, distribution-over-product, twelve-layers-of-context, identity-first-storage, inverted-polarity-sister-system]
 maturity: seed
 confidence: medium
 contradictions: []

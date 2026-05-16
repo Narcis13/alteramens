@@ -4,7 +4,7 @@ type: concept
 category: pattern
 sources: [cro-skills-suite]
 entities: []
-related: [aha-moment, escape-hatch-principle, value-before-ask, friction-cost]
+related: [aha-moment, escape-hatch-principle, value-before-ask, friction-cost, twelve-layers-of-context, frame-problem-retrieval, identity-first-storage]
 maturity: developing
 confidence: high
 contradictions: []

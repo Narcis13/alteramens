@@ -4,7 +4,7 @@ type: concept
 category: pattern
 sources: [strategy-foundations-skills-suite]
 entities: [alteramens]
-related: [encoded-judgment, specific-knowledge, voice-of-customer, jobs-to-be-done]
+related: [encoded-judgment, specific-knowledge, voice-of-customer, jobs-to-be-done, twelve-layers-of-context, identity-first-storage]
 maturity: seed
 confidence: high
 contradictions: []
