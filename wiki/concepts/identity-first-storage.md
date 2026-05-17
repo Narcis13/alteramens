@@ -4,7 +4,7 @@ type: concept
 category: pattern
 sources: []
 entities: [personal-context-agent-project, mem-ai, notion, tana, anytype, obsidian, logseq, rewind-ai, limitless-ai]
-related: [twelve-layers-of-context, authority-decay-compounding, encoded-judgment, knowledge-first-development, product-marketing-context, executable-wiki, inverted-polarity-sister-system]
+related: [twelve-layers-of-context, authority-decay-compounding, encoded-judgment, knowledge-first-development, product-marketing-context, executable-wiki, inverted-polarity-sister-system, entity-types-to-layers-mapping]
 maturity: seed
 confidence: medium
 contradictions: []

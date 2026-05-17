@@ -6,7 +6,7 @@ aliases: ["Personal Context Agent", "PCA"]
 first_seen: personal-context-agent
 sources: []
 related_entities: [alteramens, mcp-protocol, mem-ai, notion, tana, anytype, obsidian, logseq, rewind-ai, limitless-ai, dex, clay]
-related_concepts: [twelve-layers-of-context, identity-first-storage, declared-vs-observed-gap, context-decay-heuristics, frame-problem-retrieval, authority-decay-compounding, inverted-polarity-sister-system, productize-yourself, encoded-judgment, leverage, mcp-as-distribution, executable-wiki]
+related_concepts: [twelve-layers-of-context, identity-first-storage, declared-vs-observed-gap, context-decay-heuristics, frame-problem-retrieval, authority-decay-compounding, inverted-polarity-sister-system, productize-yourself, encoded-judgment, leverage, mcp-as-distribution, executable-wiki, entity-types-to-layers-mapping]
 vault_refs: ["wiki/syntheses/personal-context-agent.md"]
 status: active
 ---
@@ -40,11 +40,12 @@ Un singur tool MCP — `get_self_summary` — returnează identity + active role
 ## Architectural pillars
 
 1. [[twelve-layers-of-context]] — ontologia de 12 straturi peste care entity types se aplică
-2. [[identity-first-storage]] — Identity, Role, Goal, State, Stance ca cetățeni de prim rang
-3. [[authority-decay-compounding]] — perechea care face sistemul să compound-eze, nu să devină noise
-4. [[context-decay-heuristics]] — TTL per strat, re-validation cadence
-5. [[declared-vs-observed-gap]] — corrective compounding ca disciplină
-6. [[frame-problem-retrieval]] — critical path pentru `get_relevant_context`
+2. [[entity-types-to-layers-mapping]] — maparea v0.1 → v0.2 entity types ↔ straturi (Self split, Place adăugat, Project/Source ca primitive transversale)
+3. [[identity-first-storage]] — Self, Role, Goal, State, Stance ca cetățeni de prim rang
+4. [[authority-decay-compounding]] — perechea care face sistemul să compound-eze, nu să devină noise
+5. [[context-decay-heuristics]] — TTL per strat, re-validation cadence
+6. [[declared-vs-observed-gap]] — corrective compounding ca disciplină
+7. [[frame-problem-retrieval]] — critical path pentru `get_relevant_context`
 
 ## Open questions
 

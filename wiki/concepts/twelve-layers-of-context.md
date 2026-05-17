@@ -4,7 +4,7 @@ type: concept
 category: mental-model
 sources: []
 entities: [personal-context-agent-project]
-related: [identity-first-storage, declared-vs-observed-gap, context-decay-heuristics, authority-decay-compounding, frame-problem-retrieval, context-aware-interrupt, context-graph-as-meme, product-marketing-context, brain-ram-leverage]
+related: [identity-first-storage, declared-vs-observed-gap, context-decay-heuristics, authority-decay-compounding, frame-problem-retrieval, context-aware-interrupt, context-graph-as-meme, product-marketing-context, brain-ram-leverage, entity-types-to-layers-mapping]
 maturity: seed
 confidence: medium
 contradictions: []
@@ -57,6 +57,8 @@ Each layer has its own:
 - **Retrieval relevance** — vezi [[frame-problem-retrieval]]
 
 Asta înseamnă că schema de stocare nu poate fi „un singur user profile" cu câmpuri plate. Trebuie să fie entity types tipizate, cu axe meta separate, cu view-uri diferite per strat.
+
+Pentru maparea concretă entity-types ↔ straturi (v0.1 observat → v0.2 propus, cu split Self/Person și introducerea Place pentru Spatial), vezi [[entity-types-to-layers-mapping]].
 
 ## Related primitives
 

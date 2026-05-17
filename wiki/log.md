@@ -673,3 +673,13 @@ Chronological record of wiki operations. Append-only.
 - Reasoning: all 3 surfaced in Phase 3b of the Personal Context Agent ingest; Narcis accepted all 3
 - Tension note: `validate-before-code-for-ambitious-bets` calibrates (does NOT contradict) `bias-for-action` + `shipping-over-perfection` — scope-conditional only
 - **Totals: 0 sources, 0 entities, 0 concepts = 0 new + 0 updated**
+
+## [2026-05-17] build | Entity types v0.2 — maparea pe cele 12 straturi
+- Source: conversation:2026-05-17 (question: cum se muleaza Entity types draft v0.1 pe cele 12 straturi)
+- Concepts created: entity-types-to-layers-mapping
+- Concepts updated: twelve-layers-of-context (added pointer to new mapping), identity-first-storage (related list)
+- Synthesis updated: personal-context-agent (Partea VII rewritten with v0.2 entity types; SQL schema comments + views updated; Open Question #2 annotated)
+- Entities updated: personal-context-agent-project (architectural pillars now reference mapping as #2)
+- Key decision in v0.2: Person split into Self (singleton) + Person (others only); Place added as entity for Spatial layer; Project + Source re-classified as transversal primitives (not entity types); 11 of 12 layers now map 1:1 to a single entity type (Temporal stays an axis, not an entity)
+- Open question deliberate: Place merită entity dedicat în MVP sau câmp pe State? Validare prin observație în prima săptămână de capture
+- **Totals: 0 sources, 0 entities, 1 concepts = 1 new + 3 updated**

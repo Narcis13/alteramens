@@ -4,10 +4,10 @@ type: synthesis
 trigger: insight
 question: "Ce este 'context' filozofic, și cum implementăm un agent care creează / întreține / compound-ează un context personal accesibil din orice agent AI (cloud + mobil)?"
 sources_consulted: []
-concepts_involved: [productize-yourself, specific-knowledge, leverage, encoded-judgment, knowledge-first-development, brain-ram-leverage, judgment, context-aware-interrupt, context-graph-as-meme, product-marketing-context, twelve-layers-of-context, identity-first-storage, declared-vs-observed-gap, context-decay-heuristics, frame-problem-retrieval, authority-decay-compounding, inverted-polarity-sister-system]
+concepts_involved: [productize-yourself, specific-knowledge, leverage, encoded-judgment, knowledge-first-development, brain-ram-leverage, judgment, context-aware-interrupt, context-graph-as-meme, product-marketing-context, twelve-layers-of-context, identity-first-storage, declared-vs-observed-gap, context-decay-heuristics, frame-problem-retrieval, authority-decay-compounding, inverted-polarity-sister-system, entity-types-to-layers-mapping]
 entities_involved: [personal-context-agent-project, mcp-protocol, mem-ai, rewind-ai, limitless-ai, tana, anytype, logseq, notion, obsidian, dex, clay, alteramens]
 created: 2026-05-16
-updated: 2026-05-16
+updated: 2026-05-17
 maturity: draft
 alignment:
   - pillar: skill-era-craftsmanship
@@ -185,34 +185,47 @@ User-ul a cerut explicit: sister system, dar **toată informația stocată în S
 
 Nu e plan final; e schiță pe care să iterăm. Toate numele sunt provisional.
 
-### Entity types (draft v0.1)
+### Entity types (v0.2 — mulate pe cele 12 straturi)
 
-Core types (fiecare cu schema proprie pe `attrs`):
+> **Schimbare față de v0.1:** entity types nu se mulează 1:1 pe straturi în v0.1. v0.2 face maparea aproape 1:1 prin trei mișcări: **Self** se separă de Person, **Place** apare pentru layer Spatial, **Project** și **Source** sunt re-clasificate ca primitive transversale (nu straturi). Vezi [[entity-types-to-layers-mapping]] pentru analiza completă (v0.1 mapping observat, diagnostic, justificări v0.2).
 
-- **Person** — user-ul + alți oameni relevanți (relații, cine contează).
-- **Role** — un rol al user-ului (admin spital, builder, părinte, student); temporal, poate fi paused/active.
-- **Goal** — obiectiv cu timeframe, status, parent, success criteria.
-- **Project** — proiect activ; sub-context cu propriile primitive (poate avea propriul scope).
-- **State** — snapshot temporal (energy, mood, location, focus). Volatile, TTL scurt.
-- **Knowledge** — ce știe (skill, domain, depth, source).
-- **Constraint** — limitare (timp, etică, contract, capacitate).
-- **Preference** — gust, voice, aesthetic, register.
-- **Resource** — tool, subscription, asset, access.
-- **Stance** — declarație tare cu motivație (echivalentul Faber stances).
-- **Event** — append-only log (orice schimbare).
-- **Source** — citation pentru un fapt (conversation_id, URL, file).
+**Core types — unul per strat:**
 
-Primitive transversale:
-- **Link** — relație tipizată între două entități (person × goal, role × project, ...).
-- **Annotation** — atașează note libere la orice entity.
+| # | Strat | Entity type | Schema highlights |
+|---|---|---|---|
+| 1 | Identity | **Self** *(singleton)* | Pillars, voice, narativă de sine. Un singur rând per user |
+| 2 | Temporal | *(axă, nu entity)* | Implicit prin `created_at`, `expires_at`, `occurred_at` |
+| 3 | Spatial | **Place** | Locuri fizice/digitale recurente (hospital, home, on-the-road). Linkat din State |
+| 4 | Goals | **Goal** | Timeframe, status, parent, success criteria |
+| 5 | Knowledge | **Knowledge** | Skill, domain, depth |
+| 6 | Relational | **Person** *(doar alții)* | Cine contează: familie, colegi, clienți, mentori, audiență |
+| 7 | Resources | **Resource** | Tool, subscription, asset, access |
+| 8 | Constraints | **Constraint** | Timp, etică, contract, capacitate |
+| 9 | State | **State** | Mood, energie, focus. Volatile, TTL scurt. Linkează la Place |
+| 10 | History | **Event** | Append-only delta log |
+| 11 | Aesthetic | **Preference** | Gust, voice, aesthetic, register |
+| 12 | Epistemic | **Stance** | Declarație tare cu motivație (echivalentul Faber stances) |
+
+Plus **Role** ca entity *cross-cutting* (un Role e o "fațetă" activă a Self, paused/active temporal; nu un strat, ci un mod de a feliateste alte straturi prin `scope`).
+
+**Primitive transversale (infrastructure, nu straturi):**
+- **Link** — relație tipizată între două entități (self × role, role × project, ...).
+- **Annotation** — note libere atașate la orice entity.
 - **Tag** — categorizare liberă (slug-uri kebab-case).
+- **Source** *(re-clasificat din v0.1)* — citation pentru orice fapt (conversation_id, URL, file). Atașabil prin link la orice entity, nu doar Knowledge.
+- **Project** *(re-clasificat din v0.1)* — scope-container / namespace. Apare ca `scope = 'project:X'` peste alte entități, nu ca tip de drept.
+
+**De ce v0.2 (rezumat):** v0.1 avea Person cu double-duty (self vs alții), Project ca tip dar comportându-se ca scope, și Source competind artificial cu Knowledge. v0.2 curăță maparea: 11 din 12 straturi au exact un entity type (Temporal rămâne axă), iar primitivele transversale au rol clar separat. View-urile SQL devin triviale — `v_current_self` = `SELECT * FROM entities WHERE type='self'` (singleton), `v_active_places`, `v_active_goals` etc. cad direct pe câte un tip.
+
+**Open question deschisă deliberat:** Place merită entity dedicat în MVP sau rămâne câmp pe State? Decizie via observație în prima săptămână de capture (vezi [[entity-types-to-layers-mapping]] secțiunea finală).
 
 ### Schema SQLite (sketch — nu producție)
 
 ```sql
 CREATE TABLE entities (
   id           TEXT PRIMARY KEY,        -- ulid sau uuid
-  type         TEXT NOT NULL,           -- person, role, goal, ...
+  type         TEXT NOT NULL,           -- self, person, role, place, goal, state, knowledge, constraint, preference, resource, stance, event
+                                        -- (v0.2: Project and Source live in their own tables — primitives, not entity types)
   title        TEXT NOT NULL,
   body         TEXT,                    -- markdown narrative
   status       TEXT DEFAULT 'active',   -- active | archived | invalidated
@@ -261,13 +274,14 @@ CREATE VIRTUAL TABLE fts_entities USING fts5(
   title, body, content='entities'
 );
 
--- Views (intenție, nu DDL complet)
--- v_current_self       — snapshot identity layer
+-- Views (intenție, nu DDL complet) — v0.2
+-- v_current_self       — SELECT * FROM entities WHERE type='self' (singleton)
 -- v_active_roles
 -- v_active_goals
--- v_active_projects
--- v_recent_state       — ultimele entries State
--- v_authority_gap      — items unde declared ≠ observed
+-- v_active_places      — locuri fizice/digitale active (Spatial layer)
+-- v_active_projects    — scope-uri active (din projects table, nu entities)
+-- v_recent_state       — ultimele entries State (cu Place linkat)
+-- v_authority_gap      — items unde declared (Self / Stance) ≠ observed (Event log)
 -- v_stale_entities     — expires_at < now() sau no-touch în 30+ zile
 -- v_load_bearing       — items pentru "what's reliably true about me"
 ```
@@ -342,7 +356,7 @@ CREATE VIRTUAL TABLE fts_entities USING fts5(
 ## Partea X — Open questions (decizii încă deschise)
 
 1. **Nume.** Persona, Anchor, Cocon, Aether, Plinta, Sigil, Vade, Atlas, Lume, Loam? Naming → product positioning.
-2. **Schema rigidity.** Câte entity types fixe (~12 propuse) vs JSON pe attrs? Trade-off queryability vs flexibility.
+2. **Schema rigidity.** Câte entity types fixe vs JSON pe attrs? Trade-off queryability vs flexibility. *(Update 2026-05-17: v0.2 are 12 core types — unul per strat, plus Role cross-cutting și 5 primitive transversale. Vezi [[entity-types-to-layers-mapping]]. Decizie deschisă: Place merită entity dedicat în MVP sau rămâne câmp pe State?)*
 3. **Authority disambiguation UI.** Cum marchezi *declared* vs *observed* la write time fără să devină friction?
 4. **Decay heuristics.** TTL per tip (State: 7d, Goal: until-status-change, Role: 90d, Constraint: until-invalidated)? Sau learned per user?
 5. **Frame problem retrieval.** Embedding similarity? Tag filtering? Graph traversal? Hybrid? `get_relevant_context` e critical path — calitatea ei face/sparge produsul.
