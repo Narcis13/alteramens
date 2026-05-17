@@ -7,6 +7,8 @@
     "pca-mcp-server": "./src/index.ts"
   },
   "dependencies": {
-    "@pca/core": "workspace:*"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@pca/core": "workspace:*",
+    "zod": "^3.23.8"
   }
 }

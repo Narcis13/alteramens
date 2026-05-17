@@ -1,0 +1,120 @@
+// Build an McpServer wired to a given Store. Exported as a factory so tests
+// can construct it with a temp store and (optionally) drive it via the SDK's
+// in-memory transport.
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { Store } from "@pca/core";
+import {
+  HandlerError,
+  confirmEntity,
+  getRelevantContext,
+  getSelfSummary,
+  listActive,
+  recordObservation,
+  updateEntity,
+} from "./handlers.ts";
+import {
+  TOOL_DESCRIPTIONS,
+  confirmEntityShape,
+  getRelevantContextShape,
+  getSelfSummaryShape,
+  listActiveShape,
+  recordObservationShape,
+  updateEntityShape,
+} from "./tool-defs.ts";
+
+const SERVER_NAME = "pca";
+const SERVER_VERSION = "0.0.1";
+
+export type BuildServerOptions = {
+  store: Store;
+  actor?: string;
+};
+
+export function buildServer({ store, actor }: BuildServerOptions): McpServer {
+  const writer = actor ?? "mcp:unknown";
+  const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION });
+
+  server.registerTool(
+    "get_self_summary",
+    {
+      description: TOOL_DESCRIPTIONS.get_self_summary,
+      inputSchema: getSelfSummaryShape,
+    },
+    (input) => wrap(() => getSelfSummary(store, input)),
+  );
+
+  server.registerTool(
+    "get_relevant_context",
+    {
+      description: TOOL_DESCRIPTIONS.get_relevant_context,
+      inputSchema: getRelevantContextShape,
+    },
+    (input) => wrap(() => getRelevantContext(store, input)),
+  );
+
+  server.registerTool(
+    "record_observation",
+    {
+      description: TOOL_DESCRIPTIONS.record_observation,
+      inputSchema: recordObservationShape,
+    },
+    (input) => wrap(() => recordObservation(store, input, writer)),
+  );
+
+  server.registerTool(
+    "update_entity",
+    {
+      description: TOOL_DESCRIPTIONS.update_entity,
+      inputSchema: updateEntityShape,
+    },
+    (input) => wrap(() => updateEntity(store, input, writer)),
+  );
+
+  server.registerTool(
+    "confirm_entity",
+    {
+      description: TOOL_DESCRIPTIONS.confirm_entity,
+      inputSchema: confirmEntityShape,
+    },
+    (input) => wrap(() => confirmEntity(store, input, writer)),
+  );
+
+  server.registerTool(
+    "list_active",
+    {
+      description: TOOL_DESCRIPTIONS.list_active,
+      inputSchema: listActiveShape,
+    },
+    (input) => wrap(() => listActive(store, input)),
+  );
+
+  return server;
+}
+
+// Envelope all handler results into MCP's { content, structuredContent, isError? }
+// shape. Errors caught here so the client sees a tool error rather than a
+// transport error.
+function wrap<T>(fn: () => T): {
+  content: Array<{ type: "text"; text: string }>;
+  structuredContent?: Record<string, unknown>;
+  isError?: boolean;
+} {
+  try {
+    const result = fn();
+    return {
+      content: [{ type: "text", text: JSON.stringify(result) }],
+      structuredContent: result as unknown as Record<string, unknown>,
+    };
+  } catch (e) {
+    const message =
+      e instanceof HandlerError
+        ? `${e.code}: ${e.message}`
+        : e instanceof Error
+          ? e.message
+          : String(e);
+    return {
+      content: [{ type: "text", text: message }],
+      isError: true,
+    };
+  }
+}
