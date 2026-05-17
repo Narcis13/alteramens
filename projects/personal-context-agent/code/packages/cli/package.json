@@ -1,0 +1,13 @@
+{
+  "name": "@pca/cli",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "ctx": "./src/ctx.ts",
+    "pca": "./src/pca.ts"
+  },
+  "dependencies": {
+    "@pca/core": "workspace:*"
+  }
+}
