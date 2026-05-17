@@ -1,165 +1,206 @@
 ---
-title: "Personal Context Agent — PRD MVP v0.1"
+title: "Personal Context Agent — PRD MVP v0.3"
 project: personal-context-agent
-status: mvp-draft
-version: 0.1
+status: mvp-locked
+version: 0.3
 created: 2026-05-17
+updated: 2026-05-17
 authors: [Narcis Brindusescu, Claude]
 horizon: 2-3 weekend-uri pentru MVP funcțional (demo loop), 4-6 weekend-uri pentru hardening
 working_name: PCA (Personal Context Agent — codename, ne-ratificat)
-stack: TypeScript + SQLite (local) + MCP TS SDK + `ctx` CLI
+stack: TypeScript + SQLite (local) + MCP TS SDK + `/ctx-add` Claude Code skill + read-only `ctx` CLI
+changelog:
+  v0.3 (2026-05-17): Major refactor — toate cele 12 entity types din synthesis v0.2 + capture mutat de pe CLI pe `/ctx-add` Claude Code skill (elimină API key în CLI).
+  v0.2 (2026-05-17): Lock pe cele 7 open questions. Q5 deviation — LLM classification.
+  v0.1 (2026-05-17): Initial draft.
 ---
 
-# Personal Context Agent — PRD MVP v0.1
+# Personal Context Agent — PRD MVP v0.3
 
-> **Ce este acest document.** Specificația minimă a primei versiuni funcționale (MVP) — un MCP server TypeScript care expune Layer 1 (cele 6 tool-uri din [[wiki/syntheses/personal-context-agent|sinteza fondatoare]]) și un singur UI de capture: CLI (`ctx`). Tot ce e marcat **[Propunere]** e decizie de luat; **[Decis]** e blocat înainte de orice cod.
+> **Ce este acest document.** Specificația MVP a Personal Context Agent — un MCP server TypeScript care expune Layer 1 (6 tool-uri) către orice agent MCP-compatible, schema cu **toate cele 12 entity types** din synthesis v0.2, și o **Claude Code skill `/ctx-add`** ca singur UI de capture. PRD locked — toate deciziile arhitecturale blocate înainte de cod.
 >
-> **Ce nu este.** Nu e produs comercial, nu e multi-user, nu e cloud sync, nu e mobile, nu e API REST, nu e zero-knowledge encryption. Toate astea sunt **out of scope MVP** și apar în [[#13-out-of-scope-mvp|secțiunea 13]].
+> **Ce nu este.** Nu e produs comercial, nu e multi-user, nu e cloud sync, nu e mobile, nu e API REST, nu e zero-knowledge encryption.
 >
-> **Ancore.** Sinteza fondatoare: [[wiki/syntheses/personal-context-agent|Personal Context Agent — Decompoziție filozofică & blueprint inițial]]. Modelul de straturi: [[wiki/concepts/twelve-layers-of-context|Twelve Layers of Context]]. Maparea entity-types: [[wiki/concepts/entity-types-to-layers-mapping|Entity Types ↔ Layers v0.2]]. Polaritatea inversă față de Faber: [[wiki/concepts/inverted-polarity-sister-system|Inverted Polarity Sister System]].
+> **Două shift-uri vs v0.2:**
+> 1. **12 entity types** (nu 5) — toate cele din [[wiki/syntheses/personal-context-agent#partea-vii-blueprint-architectural-iniial|sinteză Partea VII]] și [[wiki/concepts/entity-types-to-layers-mapping|entity-types-to-layers-mapping]] v0.2.
+> 2. **Capture via Claude Code skill `/ctx-add`** (nu CLI `ctx add` cu API key). Skill-ul rulează în Claude Code, folosește LLM-ul existent pentru clasificare, apoi apelează MCP tool `record_observation`. **Zero API key în CLI.**
+>
+> **Ancore.** [[wiki/syntheses/personal-context-agent|Sinteza fondatoare]]. [[wiki/concepts/twelve-layers-of-context|Twelve Layers of Context]]. [[wiki/concepts/entity-types-to-layers-mapping|Entity Types ↔ Layers v0.2]]. [[wiki/concepts/inverted-polarity-sister-system|Inverted Polarity vs Faber]].
 
 ---
 
 ## 0. TL;DR
 
-Construim **un singur binar TypeScript** care:
-1. Pornește un **MCP server local (stdio transport)** ce expune 6 tool-uri ([[#7-functional-requirements-mcp-layer-1|secțiunea 7]]) către orice agent compatibil MCP (Claude Code, Claude Desktop, Cline, Zed, ...).
-2. Pornește un **CLI de capture** (`ctx add`, `ctx list`, `ctx confirm`, ...) — singurul UI uman din MVP.
-3. Persistă într-un singur fișier **SQLite local** (`~/.pca/store.db`), schema redusă la entity types absolut necesare ca demo-loop-ul să funcționeze.
+Construim **un sistem cu trei artefacte**:
+1. **MCP server TypeScript** (binar `pca-mcp-server`) — stdio transport, 6 tool-uri Layer 1, fără LLM, fără API key, fără rețea.
+2. **`/ctx-add` Claude Code skill** — singur UI de capture. Skill-ul folosește LLM-ul din Claude Code pentru clasificare, apoi apelează MCP tool `record_observation`. Skill-ul trăiește la `.claude/skills/ctx-add/SKILL.md` (project-scoped) sau `~/.claude/skills/ctx-add/SKILL.md` (user-scoped).
+3. **`ctx` CLI read-only** (binar `ctx`) — `list`, `show`, `summary`, `review`, `confirm`. **Nu** `add`. Plus `pca` binar pentru admin (`init`, `install-mcp`, `doctor`).
+
+**Toate 12 entity types din v0.2 prim-clasă:** `self`, `place`, `goal`, `knowledge`, `person`, `resource`, `constraint`, `state`, `event`, `preference`, `stance`, `role`. Plus 5 transversale primitives: `link`, `annotation`, `tag`, `source`, `project`.
 
 **Demo-loop pe care MVP-ul îl validează:**
 
 ```
-Narcis: ctx add "lucrez la admin spital Pitești dimineața, builder Alteramens după-amiaza"
-Narcis: ctx add "obiectiv: 1K MRR Alteramens în 6 luni" --type goal
-Narcis: ctx add "constraint: 08-15 ocupat de spital" --type constraint
-Narcis: (în Claude Code) "Cum mă recomanzi să-mi structurez săptămâna?"
-Claude: [apelează get_self_summary + list_active("goal") + list_active("constraint")]
-Claude: răspuns ancorat în rol + goal + constraint — nu generic.
+Narcis (în Claude Code): /ctx-add lucrez la admin spital Pitești dimineața, builder Alteramens după-amiaza
+Skill: [LLM reasoning] → propune type=role, attrs={schedule: "08-15", domain: "defensive"}
+Skill: confirm cu user → call MCP tool record_observation(text, type='role', attrs)
+Narcis (în Claude Code): /ctx-add obiectiv: 1K MRR Alteramens în 6 luni
+Skill: → type=goal, attrs={timeframe: "mid"}, expires_at=+90d → record_observation
+Narcis: "Cum mă recomanzi să-mi structurez săptămâna?"
+Claude: [apelează automat get_self_summary + list_active("goal") + list_active("constraint")]
+Claude: răspuns ancorat în identitate + roluri + goals + constraints — nu generic.
 ```
-
-Dacă acest loop merge end-to-end fără friction, MVP-ul e validat. Restul (mobile, cloud, multi-user, encryption) e produs comercial, nu MVP.
 
 ---
 
 ## 1. Problema (MVP scope)
 
-Sinteza fondatoare descrie problema generală pentru Personal Context Agent: agenții AI răspund generic pentru că nu au contextul utilizatorului. MVP-ul restrânge problema la **un singur use case**:
-
-> **Eu, Narcis, am nevoie ca agenții pe care îi folosesc zilnic (Claude Code în primul rând, Claude Desktop secundar) să răspundă consistent ca și cum mă cunosc — fără să le re-explic de fiecare dată cine sunt, ce fac dimineața vs după-amiaza, ce obiective am, ce constrângeri.**
+> **Eu, Narcis, am nevoie ca agenții pe care îi folosesc zilnic (Claude Code în primul rând, Claude Desktop secundar) să răspundă consistent ca și cum mă cunosc — fără să le re-explic de fiecare dată cine sunt, ce fac dimineața vs după-amiaza, ce obiective am, ce constrângeri, ce locuri îmi schimbă starea, cine contează din relațiile mele, ce resurse am la dispoziție, ce gusturi am.**
 
 Sub-probleme rezolvate de MVP:
 
-| Sub-problemă | Rezolvare MVP |
-|---|---|
-| Re-prompting plictisitor („sunt admin spital + builder...") | `get_self_summary()` returnează un punch-card consistent |
-| Goal-uri uitate când întreb agentul „pe ce să mă focusez" | `list_active("goal")` returnează doar goal-urile active |
-| Constraints nerespectate (sugestii care ignoră program de spital) | `list_active("constraint")` |
-| Capture rapid de observații („e marți, am vorbit cu X despre Y") | `ctx add` din terminal, sub 3 secunde |
-| Stale context (un goal a fost atins acum 2 luni dar e încă listat) | `confirm_entity` cu decision: still-true/no-longer-true/modify |
-
-**Ce NU rezolvă MVP:** captura ambientală automată, mobile capture, cross-device sync, multi-agent observation conflicts, advanced retrieval/embeddings, voice/aesthetic layer, declared-vs-observed mirror. Toate sunt în roadmap post-MVP.
+| Sub-problemă | Layer | Rezolvare MVP |
+|---|---|---|
+| Re-prompting plictisitor („sunt admin spital + builder...") | 1 Identity | `get_self_summary()` |
+| Sugestii care ignoră programul de spital | 8 Constraints | `list_active('constraint')` |
+| Goal-uri uitate sau stale | 4 Goals | `list_active('goal')` + decay |
+| Răspuns generic care nu știe că sunt obosit dimineața | 9 State | `list_active('state')` cu TTL scurt |
+| Nu recunoaște persoane recurente (Mihai = fiu, fiecare context diferit) | 6 Relational | `list_active('person')` |
+| Recomandări fără să știe ce skills am | 5 Knowledge | `list_active('knowledge')` |
+| Nu folosește tools/subscriptions pe care le am | 7 Resources | `list_active('resource')` |
+| Voice/aesthetic generic | 11 Aesthetic | `list_active('preference')` |
+| Răspuns argumentat la nivelul greșit (evidence vs convingere) | 12 Epistemic | `list_active('stance')` |
+| Capture rapid din Claude Code | — | `/ctx-add` skill |
+| Stale entități | — | `confirm_entity` + `ctx review --stale` |
 
 ---
 
 ## 2. Viziune (one-liner)
 
-> **Un binar TypeScript pe care îl pornești o dată, te capturi în 5 minute prin `ctx add`, și de atunci orice agent MCP-compatible răspunde ca și cum te știe — pentru că te citește.**
+> **Un MCP server local și o skill `/ctx-add` în Claude Code. Capturezi în limbaj natural, skill-ul clasifică prin LLM-ul deja activ, datele stau într-un SQLite local cu schema completă pentru cele 12 straturi de context. Orice agent MCP-compatible îți răspunde ancorat — nu generic.**
 
 ---
 
 ## 3. Wedge & non-goals
 
-### 3.1 Wedge [Decis]
+### 3.1 Wedge [Decis v0.3]
 
-- **User zero:** Narcis Brindusescu (eu, builder-ul). Single-user, single-device.
-- **Use case prim:** self-summary ancorat în Claude Code din vault-ul Alteramens.
-- **Form factor capture:** CLI (`ctx`). Niciun alt UI.
-- **Form factor server:** MCP stdio local. Nimic remote/cloud.
+- **User zero:** Narcis Brindusescu. Single-user, single-device, macOS.
+- **Use case prim:** `get_self_summary` + `list_active` ancorează răspunsurile Claude Code din vault-ul Alteramens.
+- **Capture UI unic:** `/ctx-add` Claude Code skill. Singura intrare scrisă în store.
+- **CLI:** `ctx` (read-only) + `pca` (admin). Niciun `ctx add`.
+- **MCP transport:** stdio local.
 - **Stack:** TypeScript (Node 22+), SQLite via `better-sqlite3`, MCP via `@modelcontextprotocol/sdk` TS.
-- **Persistență:** un singur fișier `~/.pca/store.db`. Niciun cloud, niciun sync, niciun cont.
-- **Multi-agent:** writes de la Claude Code și Claude Desktop, ambele citind același DB local. Concurrent writes via SQLite WAL mode (suficient pentru 1 utilizator).
+- **Persistență:** un fișier `~/.pca/store.db`.
+- **Entity types:** toate 12 prime-clasă, plus 5 primitive transversale.
+- **Zero API key în CLI sau MCP server.** LLM-ul rulează în Claude Code (deja activ).
 
 ### 3.2 Non-goals (MVP)
 
-NU livrăm în MVP — chiar dacă tentant:
+NU livrăm:
 
-1. **NU UI web/mobile/desktop GUI.** O singură interfață umană: CLI.
-2. **NU sync cloud / multi-device.** Un singur fișier DB, un singur Mac.
-3. **NU multi-user / multi-tenancy.** Hardcoded „I am Narcis".
-4. **NU encryption at rest.** SQLite plain. (Disk-level FileVault e responsabilitatea sistemului.)
-5. **NU REST API / HTTP transport pentru MCP.** Stdio only.
-6. **NU all 12 entity types din v0.2.** MVP pornește cu 5 (vezi [[#8-data-model-schema-sqlite-mvp|secțiunea 8]]).
-7. **NU embeddings / semantic search.** `get_relevant_context` folosește FTS5 + tag/type filter în MVP. Embeddings vin post-MVP.
-8. **NU declared-vs-observed mirror.** Skill-ul `/ctx-mirror` e roadmap, nu MVP.
-9. **NU import bulk din Obsidian / Apple Notes / etc.** Capture manuală only.
-10. **NU MD export.** Vine în v0.2.
-11. **NU auth / API keys / OAuth.** Local trust.
-12. **NU advanced decay heuristics.** TTL fix per tip (vezi [[#8-data-model-schema-sqlite-mvp|secțiunea 8]]).
-
-Fiecare item din lista de sus e o tentație clasică de scope-creep. Le numim aici ca să le respingem prin referință, nu prin discuție.
+1. **NU UI web/mobile/desktop GUI.**
+2. **NU sync cloud / multi-device.**
+3. **NU multi-user / multi-tenancy.**
+4. **NU encryption at rest** (FileVault e responsabilitatea OS-ului).
+5. **NU REST API / HTTP transport pentru MCP.**
+6. **NU embeddings / semantic search** — FTS5 + filtre tipizate.
+7. **NU skill `/ctx-mirror`** (declared-vs-observed audit) — roadmap.
+8. **NU import bulk din Obsidian / Apple Notes.**
+9. **NU MD export.**
+10. **NU auth.**
+11. **NU `ctx add` în CLI** — capture only via Claude Code skill.
+12. **NU API key în CLI sau MCP server.**
 
 ---
 
 ## 4. Audiență (MVP)
 
-**User zero unic:** Narcis. Toate deciziile UX se calibrează după:
-- Folosește Claude Code zilnic din `/Users/narcisbrindusescu/projects/alteramens`.
-- Lucrează pe macOS (Darwin), shell `zsh`.
-- Are deja Node + Claude Code instalate.
-- Vorbește română pentru capture, engleză pentru cod.
-- Tolerează friction tehnic mic dacă reduce timpul de capture sub 5 secunde.
-
-**Out of scope MVP:** orice alt user. Validarea produsului pentru alți ICP se face post-MVP, după ce demo-loop-ul merge pentru mine.
+User zero: Narcis. Detalii ca în v0.2 — macOS Darwin, zsh, Claude Code instalat, lucrează din `/Users/narcisbrindusescu/projects/alteramens`. Restul ICP — post-MVP.
 
 ---
 
 ## 5. User journeys (MVP)
 
-Patru journey-uri, toate dintr-un terminal `zsh`:
-
-### 5.1 Bootstrap (one-time, ~10 minute)
+### 5.1 Bootstrap (one-time, ~15 minute)
 
 ```bash
-# 1. Instalare globală
+# 1. Install global
 npm install -g @alteramens/pca
 
-# 2. Init DB la ~/.pca/store.db
-pca init
+# 2. Init DB
+pca init                      # creates ~/.pca/store.db with schema v1
 
-# 3. Capture identity inițial
-ctx add --type self "Narcis Brindusescu. Admin IT spital Pitești 08-15. Builder Alteramens după-amiaza. 51yo."
-ctx add --type role "Admin IT spital — domeniu defensiv, status quo, 08-15"
-ctx add --type role "Builder Alteramens — domeniu ofensiv, productize-yourself, după 15:00"
-ctx add --type goal "1K MRR Alteramens în 6 luni" --expires 2026-11-17
-ctx add --type constraint "08-15 ocupat de spital — no deep builder work"
-ctx add --type stance "Bias pentru acțiune; iterații mici"
+# 3. Install skill în user-scope (.claude/skills global)
+pca install-skill ctx-add     # copiază skill la ~/.claude/skills/ctx-add/SKILL.md
 
-# 4. Conectare MCP la Claude Code (edit ~/.claude/mcp.json)
-pca install-mcp claude-code
+# 4. Conectează MCP la Claude Code
+pca install-mcp claude-code   # patches ~/.claude/mcp.json
+
+# 5. Verifică
+pca doctor                    # checks: DB, MCP config, skill install, schema version
 ```
 
-### 5.2 Capture rapid (recurent, ~3 secunde)
+### 5.2 Capture (recurent, în Claude Code)
+
+```
+> /ctx-add lucrez la admin spital Pitești dimineața, builder Alteramens după-amiaza
+
+Skill analyzes the text...
+Proposed:
+  Type: role
+  Title: "Admin IT spital Pitești (dimineața) + Builder Alteramens (după-amiaza)"
+  Attrs: { schedule: "08-15 mon-fri", domain: "mixed" }
+  Authority: self-declared
+  Confidence: high
+  Reasoning: present-tense activity + schedule pattern + dual role identification
+
+Accept? [Y/n/edit/split]
+> Y
+
+✓ Saved as role (id: 01HX...)
+```
+
+### 5.3 Auto-classify cu propunere de split
+
+```
+> /ctx-add Mihai (fiul meu, 18 ani) se pregătește pentru admitere la UMF Carol Davila iulie 2027
+
+Skill analyzes...
+Proposed split (2 entities):
+  1. person: "Mihai Brindusescu" — { relation: "family/son", importance: "high" }
+  2. event: "Mihai prepares for UMF Carol Davila admission" — { related_person: "Mihai", deadline: "2027-07" }
+
+Accept all? [Y / n / pick]
+> Y
+
+✓ Saved 2 entities + 1 link (person → event: subject-of)
+```
+
+### 5.4 Read (în terminal sau Claude Code)
 
 ```bash
-ctx add "Conversație cu Mihai despre admitere — el vrea biologie XI-XII complet în iulie"
-# → Propune type, default: event. User Enter pentru confirm.
+# Terminal
+ctx list goal
+ctx show 01HX...
+ctx summary
+ctx review --stale
+
+# Sau în Claude Code (via MCP tool calls automat):
+> What goals do I have active?
+Claude: [calls list_active('goal')]
+       → 1. 1K MRR Alteramens — mid, expires 2026-08-17
+       → 2. ...
 ```
 
-### 5.3 Confirmare / decay (săptămânal, ~5 minute)
+### 5.5 Confirmare / decay (săptămânal)
 
 ```bash
 ctx review --stale
-# Listează tot ce expiră sau nu a fost atins în 30+ zile.
-# Pentru fiecare: [s]till-true / [n]o-longer-true / [m]odify / skip
-```
 
-### 5.4 Inspecție (oricând)
-
-```bash
-ctx list --type goal
-ctx show <id>
-ctx summary  # echivalentul a ce vede agentul
+[1/4] goal — "Lansez landing page PCA"
+       expires_at: 2026-04-30 (acum 17 zile)
+       [s]till-true / [n]o-longer-true / [m]odify / [k]eep stale / skip ?
 ```
 
 ---
@@ -167,134 +208,169 @@ ctx summary  # echivalentul a ce vede agentul
 ## 6. Architecture overview (MVP)
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│  Claude Code / Claude Desktop  (MCP client)                  │
-└─────────────────────────────┬────────────────────────────────┘
-                              │ MCP stdio (JSON-RPC over stdin/stdout)
-                              ▼
-┌──────────────────────────────────────────────────────────────┐
-│  pca-mcp-server  (TypeScript, Node 22+)                      │
-│  - 6 tools: get_relevant_context, record_observation,        │
-│    update_entity, confirm_entity, list_active,               │
-│    get_self_summary                                          │
-│  - shared core: src/core/store.ts                            │
-└─────────────────────────────┬────────────────────────────────┘
-                              │ better-sqlite3 (sync, in-process)
-                              ▼
-┌──────────────────────────────────────────────────────────────┐
-│  ~/.pca/store.db  (SQLite, WAL mode, FTS5 enabled)           │
-│  - entities, links, events, fts_entities, schema_migrations  │
-└─────────────────────────────▲────────────────────────────────┘
-                              │ same better-sqlite3 handle (separate process)
-                              │
-┌──────────────────────────────────────────────────────────────┐
-│  ctx CLI  (TypeScript, Node 22+, citește/scrie same DB)      │
-│  - subcomenzi: init, add, list, show, summary, review,       │
-│    confirm, install-mcp                                      │
-└──────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│  Claude Code  (user types /ctx-add ... and other prompts)            │
+│                                                                       │
+│   ┌────────────────────────────┐                                     │
+│   │  /ctx-add SKILL.md          │  (LLM reasoning happens here,      │
+│   │  - reads input text         │   no external API needed)          │
+│   │  - proposes type+attrs+TTL  │                                     │
+│   │  - confirms with user       │                                     │
+│   │  - calls MCP tool below ────┼───┐                                 │
+│   └────────────────────────────┘   │                                 │
+│                                     │                                 │
+│   Claude (during any conversation)  │                                 │
+│   automatically calls MCP tools ────┤                                 │
+│                                     │                                 │
+└─────────────────────────────────────┼─────────────────────────────────┘
+                                      │ MCP stdio (JSON-RPC)
+                                      ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│  pca-mcp-server  (TypeScript, NO LLM, NO API key)                    │
+│  Tools: get_relevant_context, record_observation, update_entity,     │
+│         confirm_entity, list_active, get_self_summary                │
+└─────────────────────────────────────┬────────────────────────────────┘
+                                      │ better-sqlite3 (sync, in-process)
+                                      ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│  ~/.pca/store.db  (SQLite, WAL mode, FTS5)                           │
+│  Entity types (12): self, place, goal, knowledge, person, resource,  │
+│    constraint, state, event, preference, stance, role                │
+│  Primitives (5): link, annotation, tag, source, project              │
+└─────────────────────────────────────▲────────────────────────────────┘
+                                      │ same DB handle (different process)
+                                      │
+┌──────────────────────────────────────────────────────────────────────┐
+│  ctx CLI  (read-only: list, show, summary, review, confirm)          │
+│  pca CLI  (admin: init, install-mcp, install-skill, doctor, migrate) │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
-**Monorepo TypeScript** (pnpm workspaces sau npm workspaces):
+**Monorepo TypeScript** (pnpm workspaces):
 
 ```
 pca/
 ├── packages/
-│   ├── core/           # store, schema, migrations, queries (shared)
-│   ├── mcp-server/     # binar pca-mcp-server (stdio)
-│   ├── cli/            # binar ctx (capture UI)
-│   └── shared-types/   # zod schemas, types comune
+│   ├── core/                          # shared store, schema, queries, zod schemas
+│   │   └── src/
+│   │       ├── store.ts               # openStore, transactions
+│   │       ├── schema/migrations/0001_initial.sql
+│   │       ├── entities/
+│   │       │   ├── self.ts            # type-specific helpers + zod
+│   │       │   ├── place.ts
+│   │       │   ├── goal.ts
+│   │       │   ├── knowledge.ts
+│   │       │   ├── person.ts
+│   │       │   ├── resource.ts
+│   │       │   ├── constraint.ts
+│   │       │   ├── state.ts
+│   │       │   ├── event.ts
+│   │       │   ├── preference.ts
+│   │       │   ├── stance.ts
+│   │       │   └── role.ts
+│   │       └── primitives/
+│   │           ├── link.ts
+│   │           ├── annotation.ts
+│   │           ├── tag.ts
+│   │           ├── source.ts
+│   │           └── project.ts
+│   ├── mcp-server/                    # pca-mcp-server binary
+│   │   └── src/
+│   │       ├── index.ts               # stdio bootstrap
+│   │       └── tools/                 # 6 tools, one file each
+│   ├── cli/                           # ctx + pca binaries
+│   │   └── src/
+│   │       ├── ctx.ts                 # read-only: list/show/summary/review/confirm
+│   │       └── pca.ts                 # admin: init/install-mcp/install-skill/doctor
+│   ├── skill-ctx-add/                 # the Claude Code skill (markdown + bash helpers)
+│   │   ├── SKILL.md
+│   │   └── classify-examples.md       # few-shot examples for the skill
+│   └── shared-types/                  # zod schemas, types comune
 ├── package.json
 ├── tsconfig.base.json
 └── pnpm-workspace.yaml
 ```
 
-**Două binare publicate (sau un singur binar cu subcomenzi):**
-
-- `pca` (admin: `init`, `install-mcp`, `migrate`, `doctor`)
-- `ctx` (capture: `add`, `list`, `show`, `summary`, `review`, `confirm`)
-- `pca-mcp-server` (invocat de MCP client, nu de user)
-
-**[Propunere]:** unificare într-un singur binar `pca` cu subcomenzi (`pca add`, `pca mcp-server`). Avantaj: un singur install. Dezavantaj: `ctx add "..."` e mai natural decât `pca add "..."`.
+**Trei artefacte distribuite:**
+- `pca` binary (admin)
+- `ctx` binary (read-only)
+- `pca-mcp-server` binary (invocat de MCP client)
+- `SKILL.md` instalat în `~/.claude/skills/ctx-add/` (copied de `pca install-skill`)
 
 ---
 
-## 7. Functional requirements — MCP Layer 1
+## 7. Functional requirements — MCP Layer 1 (6 tools)
 
-Cele 6 tool-uri expuse via MCP. Toate sunt **prim-clasă în MVP** — niciuna nu e stub. Toate input-urile validate cu `zod`; toate output-urile JSON-serializable.
+Toate 6 tool-urile pe schema completă (12 entity types). Toate input/output validate cu `zod`.
 
 ### 7.1 `get_self_summary(scope?)` — punch-card identity
 
-**Purpose:** răspunde „cine e user-ul" coerent, pentru agentul fresh fără context.
-
 **Input:**
 ```ts
-{
-  scope?: string  // 'general' (default) | 'project:X' | 'role:Y'
-}
+{ scope?: string }  // 'general' default | 'project:X' | 'role:Y'
 ```
 
 **Output:**
 ```ts
 {
-  self: { title: string, body: string, updated_at: string },
-  active_roles: Array<{ id, title, body, scope }>,
-  active_goals: Array<{ id, title, timeframe, expires_at }>,
-  active_constraints: Array<{ id, title }>,
-  recent_state?: { mood?, energy?, focus?, updated_at } | null,
+  self: { title, body, attrs: { pillars, voice_rules, narrative }, updated_at } | null,
+  active_roles: Role[],
+  active_goals: Goal[],
+  active_constraints: Constraint[],
+  recent_state: State | null,
+  top_people: Person[],          // importance='high', limit 5
+  active_stances: Stance[],
+  active_preferences: Preference[],
+  resources_summary: { count, sample: Resource[] },     // doar count + 3 sample
+  knowledge_summary: { count, sample: Knowledge[] },
+  places_summary: { count, sample: Place[] },
   last_updated: string
 }
 ```
 
-**Behavior:** SELECT statice peste view-urile `v_current_self`, `v_active_roles`, `v_active_goals`, `v_active_constraints`. Dacă `scope='project:X'`, filtrează entitățile cu `scope='project:X'` sau `scope='general'`.
+**Behavior:** SELECT peste view-uri (`v_current_self`, `v_active_roles`, etc.). Tot agregat într-un singur tool call.
 
-**Token budget:** ≤ 1500 tokens. Dacă depășește, trimite top-N per categorie cu indicator de truncare.
+**Token budget:** ≤ 2500 tokens. Sample-uri trunchiate la 3-5 items per categorie cu indicator de truncare.
 
 ---
 
-### 7.2 `get_relevant_context(query, max_items?)` — frame-problem retrieval
-
-**Purpose:** întoarce subsetul de context relevant pentru un query în limbaj natural.
+### 7.2 `get_relevant_context(query, max_items?, types?)`
 
 **Input:**
 ```ts
 {
   query: string,
-  max_items?: number,  // default 10
-  types?: Array<'self'|'role'|'goal'|'constraint'|'state'|'stance'|'event'>
+  max_items?: number,    // default 10
+  types?: Array<EntityType>,   // filter, dacă specificat
+  scope?: string
 }
 ```
 
 **Output:**
 ```ts
 {
-  items: Array<{
-    id, type, title, body, scope, authority, confidence,
-    relevance: number,  // 0..1
-    why: string         // explanation 1-liner
-  }>,
+  items: Array<{ id, type, title, body, attrs, scope, authority, confidence, expires_at, relevance, why }>,
   total_matched: number,
-  retrieval_strategy: 'fts5+type-filter'  // explicit pentru debugging
+  retrieval_strategy: 'fts5+type-filter'
 }
 ```
 
-**Behavior MVP:** FTS5 match pe `title + body`, ranking BM25, filtru pe `type` dacă specificat, filtru implicit `status='active' AND (expires_at IS NULL OR expires_at > now())`.
-
-**[Propunere] post-MVP:** embeddings (OpenAI text-embedding-3-small sau local `transformers.js`) pentru semantic match peste FTS5. Marcat explicit ca **NU în MVP** — FTS5 e suficient pentru demo-loop.
+**Behavior:** FTS5 match pe `title + body`, BM25 ranking, filtre `status='active'` și TTL. Cu `types` filter, restrânge la subset. Returnează `attrs` complet pentru type-specific reasoning în client.
 
 ---
 
-### 7.3 `record_observation(text, type?, source?)` — agentul observă ceva
-
-**Purpose:** agent capturează în store ceva dedus din conversație („Narcis a zis că e obosit").
+### 7.3 `record_observation(text, type?, attrs?, source?, scope?, expires_at?)`
 
 **Input:**
 ```ts
 {
-  text: string,
-  type?: 'self'|'role'|'goal'|'constraint'|'state'|'stance'|'event',  // default 'event'
-  source?: string,  // ex: 'claude-code:conversation-id-xyz'
-  scope?: string,   // default 'general'
-  expires_at?: string  // ISO 8601
+  text: string,                    // title + body inline (skill split-uiește înainte)
+  type?: EntityType,               // dacă lipsește: 'event' default
+  attrs?: Record<string, unknown>, // type-specific
+  source?: string,                 // 'claude-code:ctx-add' | 'claude-code:conv-id' | 'cli'
+  scope?: string,                  // 'general' default
+  expires_at?: string,             // ISO 8601, override pe TTL default
+  authority?: 'self-declared' | 'observed' | 'inferred'   // default 'observed' pentru agent calls
 }
 ```
 
@@ -302,136 +378,132 @@ Cele 6 tool-uri expuse via MCP. Toate sunt **prim-clasă în MVP** — niciuna n
 ```ts
 {
   id: string,
-  type: string,
-  status: 'created' | 'updated',
-  authority: 'observed'  // hardcoded: agent writes always 'observed'
+  type: EntityType,
+  status: 'created',
+  authority: string,
+  expires_at: string | null,
+  applied_default_ttl: boolean
 }
 ```
 
-**Behavior:** INSERT cu `authority='observed'`, `confidence='medium'`, `maturity='provisional'`. Eveniment înregistrat în `events` cu `actor=<MCP client name>`, `operation='observe'`.
+**Behavior:** INSERT cu validare zod pe `attrs` per tip. Eveniment în `events` cu `actor=<MCP client>`, `operation='observe'`.
 
-**Guard:** dacă agentul încearcă să scrie `type='self'`, refuză cu eroare clară („self e singleton; folosește `update_entity` pe self existent"). Self este self-declared only.
+**Guards:**
+- `type='self'` permis doar dacă nu există self deja active (singleton). Altfel eroare: „Self already exists. Use update_entity to modify."
+- `attrs` validate cu zod per tip; eroare clară dacă schema-ul nu match.
+- Dacă `authority='self-declared'` + actor != 'cli' + actor != 'claude-code:ctx-add' → downgrade la `observed` cu warning în event payload (only the skill + user CLI may write self-declared).
 
 ---
 
-### 7.4 `update_entity(id, changes)` — modificare directă
-
-**Purpose:** orice agent sau user vrea să modifice o entitate existentă (title, body, attrs, status, expires_at).
+### 7.4 `update_entity(id, changes)`
 
 **Input:**
 ```ts
 {
   id: string,
   changes: {
-    title?: string,
-    body?: string,
-    status?: 'active' | 'archived' | 'invalidated',
-    expires_at?: string | null,
-    attrs?: Record<string, unknown>
+    title?, body?, attrs?, status?: 'active'|'archived'|'invalidated',
+    expires_at?: string | null, scope?
   }
 }
 ```
 
 **Output:**
 ```ts
-{
-  id: string,
-  previous: { ...snapshot vechi },
-  current: { ...snapshot nou },
-  event_id: number
-}
+{ id, previous: snapshot, current: snapshot, event_id }
 ```
 
-**Behavior:** UPDATE pe rândul curent + INSERT în `events` cu `operation='update'` + payload-ul delta. Authority pe rândul updated → cea a actor-ului (agent → observed; CLI → self-declared).
+**Behavior:** UPDATE + event log. Authority pe entitate stays as-is decât dacă target era `observed/inferred` și actor face self-declared change.
 
-**Guard:** dacă `id` nu există → eroare clară. Dacă target are `authority='self-declared'` și actor e agent → permise modificările pe `attrs` și `body`, NU pe `title` (proxy pentru identitate declarată).
+**Guards:**
+- Dacă entitate are `authority='self-declared'` și actor e agent → permite update pe `attrs` și `body`, **nu** pe `title`.
+- Validare zod pe `attrs` dacă schimbat.
 
 ---
 
-### 7.5 `confirm_entity(id, decision)` — decay re-validation
-
-**Purpose:** răspunde la întrebarea „mai e adevărat că X?" — esențial pentru compounding fără noise.
+### 7.5 `confirm_entity(id, decision, modify?, note?)`
 
 **Input:**
 ```ts
 {
   id: string,
   decision: 'still-true' | 'no-longer-true' | 'modify',
-  modify?: { title?, body?, attrs? },  // doar dacă decision='modify'
+  modify?: { title?, body?, attrs? },
   note?: string
 }
 ```
 
 **Output:**
 ```ts
-{
-  id: string,
-  outcome: 'extended' | 'invalidated' | 'modified',
-  new_expires_at?: string,
-  event_id: number
-}
+{ id, outcome: 'extended'|'invalidated'|'modified', new_expires_at?, event_id }
 ```
 
 **Behavior:**
-- `still-true` → set `expires_at = now() + default_ttl(type)`, INSERT event `operation='confirm'`.
-- `no-longer-true` → set `status='invalidated'`, `invalidated_at=now()`. Soft delete; rândul rămâne pentru istorie.
-- `modify` → UPDATE cu valorile noi + extend TTL. Event `operation='confirm-modify'`.
-
-**Default TTL per tip [Propunere]:**
-
-| Type | TTL |
-|---|---|
-| `state` | 7 zile |
-| `goal` | 90 zile |
-| `role` | 180 zile |
-| `constraint` | 180 zile |
-| `stance` | nelimitat (manual confirm only) |
-| `event` | nelimitat (istorie) |
-| `self` | nelimitat |
+- `still-true` → `expires_at = now() + default_ttl(type)`, event `confirm`.
+- `no-longer-true` → `status='invalidated'`, `invalidated_at=now()`, event `invalidate`.
+- `modify` → UPDATE + extend TTL, event `confirm-modify`.
 
 ---
 
-### 7.6 `list_active(type)` — listare per tip
-
-**Purpose:** retrieval cheap, indexed, pentru cazul standard „dă-mi toate goal-urile active".
+### 7.6 `list_active(type, scope?, limit?)`
 
 **Input:**
 ```ts
 {
-  type: 'self'|'role'|'goal'|'constraint'|'state'|'stance'|'event',
+  type: EntityType,        // any of 12
   scope?: string,
-  limit?: number  // default 50
+  limit?: number           // default 50
 }
 ```
 
 **Output:**
 ```ts
-{
-  items: Array<{ id, title, body, scope, authority, confidence, expires_at, updated_at }>,
-  count: number,
-  type: string
-}
+{ items: Entity[], count, type }
 ```
 
-**Behavior:** SELECT pe view-ul corespondent `v_active_<type>`. Ordonat după `updated_at DESC`.
+**Behavior:** SELECT pe view-ul corespondent (`v_active_<type>`). Ordonat `updated_at DESC`.
 
 ---
 
-## 8. Data model — Schema SQLite (MVP)
+## 8. Data model — Schema SQLite (MVP, all 12 types)
 
-**Reducere vs synthesis v0.2:** păstrăm doar entity types absolut necesare pentru demo-loop. **5 tipuri active în MVP**: `self`, `role`, `goal`, `constraint`, `stance` + 2 utilitare: `state` (volatile, optional în MVP), `event` (auto-generat).
+### 8.1 Entity types complete
 
-**NU sunt în MVP** (vin în v0.2): `person`, `place`, `knowledge`, `resource`, `preference`. Decizia: vezi [[wiki/concepts/entity-types-to-layers-mapping|entity-types-to-layers-mapping]] secțiunea „MVP slice".
+| # | Type | Layer | TTL default | Singleton? | attrs shape |
+|---|---|---|---|---|---|
+| 1 | `self` | 1 Identity | ∞ | ✅ | `{ pillars: string[], voice_rules: string[], narrative: string }` |
+| 2 | `place` | 3 Spatial | ∞ | — | `{ kind: 'physical'\|'digital'\|'social', address?: string, recurring?: boolean }` |
+| 3 | `goal` | 4 Goals | 90d | — | `{ timeframe: 'long'\|'mid'\|'short', parent_id?: string, success_criteria?: string }` |
+| 4 | `knowledge` | 5 Knowledge | ∞ (manual confirm) | — | `{ domain: string, depth: 'novice'\|'practitioner'\|'expert', gaps?: string[] }` |
+| 5 | `person` | 6 Relational | ∞ | — | `{ relation: string, importance: 'high'\|'med'\|'low', tags?: string[] }` |
+| 6 | `resource` | 7 Resources | 180d | — | `{ kind: 'tool'\|'subscription'\|'asset'\|'access'\|'budget', cost_per_month?: number }` |
+| 7 | `constraint` | 8 Constraints | 180d | — | `{ kind: 'time'\|'ethical'\|'legal'\|'cognitive'\|'capacity', hard_or_soft: 'hard'\|'soft' }` |
+| 8 | `state` | 9 State | 7d | — | `{ mood?, energy?: 'low'\|'med'\|'high', focus?, stress?, place_id?: string }` |
+| 9 | `event` | 10 History | ∞ | — | `{ related_entity_ids?: string[] }` |
+| 10 | `preference` | 11 Aesthetic | ∞ | — | `{ register: 'voice'\|'aesthetic'\|'taste', strength?: 'mild'\|'strong' }` |
+| 11 | `stance` | 12 Epistemic | ∞ | — | `{ reason: string, evidence_sources?: string[] }` |
+| 12 | `role` | cross-cutting | 180d | — | `{ schedule?: string, domain?: 'defensive'\|'offensive'\|'mixed', priority?: number }` |
 
-### 8.1 DDL
+### 8.2 Transversale primitives (separate tables, NOT entity types)
+
+| Primitive | Table | Purpose |
+|---|---|---|
+| `link` | `links` | Relație tipizată între două entități (self↔role, role↔project, person↔event, ...) |
+| `annotation` | `annotations` | Note libere atașate la orice entity |
+| `tag` | `tags` + `entity_tags` | Categorizare liberă (kebab-case slugs) |
+| `source` | `sources` + `entity_sources` | Citation pentru orice entity (conversation_id, URL, file) |
+| `project` | `projects` | Scope-container (apare ca `scope='project:X'` pe entități) |
+
+### 8.3 DDL (Migration 0001)
 
 ```sql
--- Migration 0001 — initial schema
-
+-- ENTITY MAIN TABLE
 CREATE TABLE entities (
-  id              TEXT PRIMARY KEY,           -- ulid (lexicographic, sortable)
-  type            TEXT NOT NULL CHECK (type IN
-                    ('self','role','goal','constraint','stance','state','event')),
+  id              TEXT PRIMARY KEY,           -- ulid
+  type            TEXT NOT NULL CHECK (type IN (
+                    'self','place','goal','knowledge','person','resource',
+                    'constraint','state','event','preference','stance','role'
+                  )),
   title           TEXT NOT NULL,
   body            TEXT,
   status          TEXT NOT NULL DEFAULT 'active'
@@ -443,44 +515,102 @@ CREATE TABLE entities (
   maturity        TEXT NOT NULL DEFAULT 'provisional'
                     CHECK (maturity IN ('provisional','working','load-bearing')),
   scope           TEXT NOT NULL DEFAULT 'general',
-  source_ref      TEXT,                       -- ex: 'cli', 'claude-code:conv-xyz', 'claude-desktop:msg-abc'
-  attrs           JSON,                       -- type-specific extra fields (timeframe pe goal, mood pe state, etc.)
-  created_at      TEXT NOT NULL,              -- ISO 8601
+  source_ref      TEXT,
+  attrs           JSON,
+  created_at      TEXT NOT NULL,
   updated_at      TEXT NOT NULL,
-  expires_at      TEXT,                       -- ISO 8601, NULL = nu expiră
+  expires_at      TEXT,
   invalidated_at  TEXT
 );
 
 CREATE INDEX idx_entities_type_status ON entities(type, status);
 CREATE INDEX idx_entities_expires ON entities(expires_at) WHERE expires_at IS NOT NULL;
 CREATE INDEX idx_entities_scope ON entities(scope);
+CREATE INDEX idx_entities_updated ON entities(updated_at DESC);
 
--- Constraint: doar un singur 'self' active.
+-- Singleton constraint pe Self
 CREATE UNIQUE INDEX idx_self_singleton
   ON entities(type) WHERE type='self' AND status='active';
 
+-- EVENTS (append-only history)
 CREATE TABLE events (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   occurred_at   TEXT NOT NULL,
-  actor         TEXT NOT NULL,            -- 'cli' | 'claude-code' | 'claude-desktop' | 'system'
+  actor         TEXT NOT NULL,
   operation     TEXT NOT NULL
-                  CHECK (operation IN ('create','update','observe','invalidate','confirm','confirm-modify','expire')),
+                  CHECK (operation IN ('create','update','observe','invalidate','confirm','confirm-modify','expire','link','annotate','tag','source')),
   entity_id     TEXT REFERENCES entities(id),
+  link_id       TEXT,
+  annotation_id TEXT,
   payload       JSON,
   source_ref    TEXT
 );
-
 CREATE INDEX idx_events_entity ON events(entity_id);
 CREATE INDEX idx_events_actor_time ON events(actor, occurred_at DESC);
 
--- FTS5 full-text search peste title + body
-CREATE VIRTUAL TABLE fts_entities USING fts5(
-  title, body,
-  content='entities',
-  content_rowid='rowid'
+-- LINKS (typed relations between entities)
+CREATE TABLE links (
+  id          TEXT PRIMARY KEY,
+  src_id      TEXT NOT NULL REFERENCES entities(id),
+  dst_id      TEXT NOT NULL REFERENCES entities(id),
+  relation    TEXT NOT NULL,   -- 'works-with', 'parent-of', 'subject-of', 'located-at', ...
+  weight      REAL DEFAULT 1.0,
+  authority   TEXT NOT NULL,
+  created_at  TEXT NOT NULL,
+  invalidated_at TEXT
+);
+CREATE INDEX idx_links_src ON links(src_id);
+CREATE INDEX idx_links_dst ON links(dst_id);
+CREATE INDEX idx_links_relation ON links(relation);
+
+-- ANNOTATIONS (free notes on any entity)
+CREATE TABLE annotations (
+  id          TEXT PRIMARY KEY,
+  entity_id   TEXT NOT NULL REFERENCES entities(id),
+  body        TEXT NOT NULL,
+  authority   TEXT NOT NULL,
+  created_at  TEXT NOT NULL
+);
+CREATE INDEX idx_annotations_entity ON annotations(entity_id);
+
+-- TAGS (free categorization)
+CREATE TABLE tags (
+  slug        TEXT PRIMARY KEY,             -- kebab-case
+  description TEXT
+);
+CREATE TABLE entity_tags (
+  entity_id   TEXT NOT NULL REFERENCES entities(id),
+  tag_slug    TEXT NOT NULL REFERENCES tags(slug),
+  PRIMARY KEY (entity_id, tag_slug)
 );
 
--- Triggers pentru a menține FTS sincron
+-- SOURCES (citations: conversation_id, URL, file path)
+CREATE TABLE sources (
+  id          TEXT PRIMARY KEY,
+  kind        TEXT NOT NULL CHECK (kind IN ('conversation','url','file','other')),
+  identifier  TEXT NOT NULL,                -- conv-id / URL / file path
+  excerpt     TEXT,
+  created_at  TEXT NOT NULL
+);
+CREATE TABLE entity_sources (
+  entity_id   TEXT NOT NULL REFERENCES entities(id),
+  source_id   TEXT NOT NULL REFERENCES sources(id),
+  PRIMARY KEY (entity_id, source_id)
+);
+
+-- PROJECTS (scope container)
+CREATE TABLE projects (
+  slug        TEXT PRIMARY KEY,             -- 'alteramens', 'pca', ...
+  title       TEXT NOT NULL,
+  description TEXT,
+  status      TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','archived')),
+  created_at  TEXT NOT NULL
+);
+
+-- FTS5 over entities (title + body)
+CREATE VIRTUAL TABLE fts_entities USING fts5(
+  title, body, content='entities', content_rowid='rowid'
+);
 CREATE TRIGGER entities_ai AFTER INSERT ON entities BEGIN
   INSERT INTO fts_entities(rowid, title, body) VALUES (new.rowid, new.title, new.body);
 END;
@@ -492,109 +622,249 @@ CREATE TRIGGER entities_au AFTER UPDATE ON entities BEGIN
   INSERT INTO fts_entities(rowid, title, body) VALUES (new.rowid, new.title, new.body);
 END;
 
--- Schema versioning
-CREATE TABLE schema_migrations (
-  version INTEGER PRIMARY KEY,
-  applied_at TEXT NOT NULL
-);
+-- Schema migrations
+CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
 INSERT INTO schema_migrations(version, applied_at) VALUES (1, datetime('now'));
 
--- Views
+-- VIEWS (one per active type, plus utility)
 CREATE VIEW v_current_self AS
   SELECT * FROM entities WHERE type='self' AND status='active' LIMIT 1;
 
-CREATE VIEW v_active_roles AS
-  SELECT * FROM entities WHERE type='role' AND status='active'
+-- Generic active-per-type view template:
+-- (in code we generate these for: place, goal, knowledge, person, resource,
+--  constraint, state, event, preference, stance, role)
+CREATE VIEW v_active_places AS SELECT * FROM entities
+  WHERE type='place' AND status='active'
     AND (expires_at IS NULL OR expires_at > datetime('now'))
   ORDER BY updated_at DESC;
 
-CREATE VIEW v_active_goals AS
-  SELECT * FROM entities WHERE type='goal' AND status='active'
+CREATE VIEW v_active_goals AS SELECT * FROM entities
+  WHERE type='goal' AND status='active'
     AND (expires_at IS NULL OR expires_at > datetime('now'))
   ORDER BY updated_at DESC;
 
-CREATE VIEW v_active_constraints AS
-  SELECT * FROM entities WHERE type='constraint' AND status='active'
+CREATE VIEW v_active_knowledge AS SELECT * FROM entities
+  WHERE type='knowledge' AND status='active'
+  ORDER BY updated_at DESC;
+
+CREATE VIEW v_active_persons AS SELECT * FROM entities
+  WHERE type='person' AND status='active'
+  ORDER BY json_extract(attrs,'$.importance') DESC, updated_at DESC;
+
+CREATE VIEW v_active_resources AS SELECT * FROM entities
+  WHERE type='resource' AND status='active'
     AND (expires_at IS NULL OR expires_at > datetime('now'))
   ORDER BY updated_at DESC;
 
-CREATE VIEW v_active_stances AS
-  SELECT * FROM entities WHERE type='stance' AND status='active'
+CREATE VIEW v_active_constraints AS SELECT * FROM entities
+  WHERE type='constraint' AND status='active'
+    AND (expires_at IS NULL OR expires_at > datetime('now'))
   ORDER BY updated_at DESC;
 
-CREATE VIEW v_recent_state AS
-  SELECT * FROM entities WHERE type='state' AND status='active'
-  ORDER BY updated_at DESC LIMIT 1;
+CREATE VIEW v_active_states AS SELECT * FROM entities
+  WHERE type='state' AND status='active'
+    AND (expires_at IS NULL OR expires_at > datetime('now'))
+  ORDER BY updated_at DESC LIMIT 5;
 
-CREATE VIEW v_stale_entities AS
-  SELECT * FROM entities WHERE status='active'
+CREATE VIEW v_recent_state AS SELECT * FROM v_active_states LIMIT 1;
+
+CREATE VIEW v_active_events AS SELECT * FROM entities
+  WHERE type='event' AND status='active'
+  ORDER BY updated_at DESC;
+
+CREATE VIEW v_active_preferences AS SELECT * FROM entities
+  WHERE type='preference' AND status='active'
+  ORDER BY updated_at DESC;
+
+CREATE VIEW v_active_stances AS SELECT * FROM entities
+  WHERE type='stance' AND status='active'
+  ORDER BY updated_at DESC;
+
+CREATE VIEW v_active_roles AS SELECT * FROM entities
+  WHERE type='role' AND status='active'
+    AND (expires_at IS NULL OR expires_at > datetime('now'))
+  ORDER BY updated_at DESC;
+
+CREATE VIEW v_stale_entities AS SELECT * FROM entities
+  WHERE status='active'
     AND ((expires_at IS NOT NULL AND expires_at < datetime('now'))
-      OR (expires_at IS NULL AND julianday('now') - julianday(updated_at) > 30));
+      OR (expires_at IS NULL AND julianday('now') - julianday(updated_at) > 90));
 ```
 
-### 8.2 Decizii implicite
+### 8.4 PRAGMAs (set la openStore)
 
-- **PRAGMA `journal_mode=WAL`** la deschidere — permite citiri concurente între CLI și MCP server.
-- **PRAGMA `foreign_keys=ON`** — events.entity_id referențiat.
-- **PRAGMA `synchronous=NORMAL`** — performanță decentă fără pierderi în caz de crash.
-- **ULID pentru `id`** — sortable lexicographic, generabil fără collision check (`@kdrnp/ulidx` sau `ulidx` în npm).
-
-### 8.3 attrs JSON per tip [Propunere]
-
-```jsonc
-// goal
-{ "timeframe": "long|mid|short", "parent_id": "<id>"?, "success_criteria": "..."? }
-
-// constraint
-{ "kind": "time|ethical|legal|cognitive|capacity", "hard_or_soft": "hard|soft" }
-
-// state
-{ "mood": "...", "energy": "low|med|high", "focus": "..." }
-
-// role
-{ "schedule": "08-15 mon-fri" | string, "domain": "defensive|offensive" }
-
-// stance
-{ "reason": "...", "evidence_sources": ["..."] }
-```
-
-Schema attrs nu e validată la nivel SQL — validare la nivel TS prin zod în `packages/core/src/schemas/`.
+- `journal_mode=WAL` — concurrent readers
+- `foreign_keys=ON`
+- `synchronous=NORMAL`
+- `busy_timeout=5000`
 
 ---
 
-## 9. MCP server — detalii implementare
+## 9. `/ctx-add` Claude Code skill — spec completă
 
-### 9.1 Stack
+### 9.1 Locație
 
-- **`@modelcontextprotocol/sdk`** (TypeScript, latest) — server side.
-- **`better-sqlite3`** — synchronous client, zero boilerplate.
-- **`zod`** — input validation pentru toate tool-urile.
-- **`ulidx`** — ID generation.
+- **Install target:** `~/.claude/skills/ctx-add/SKILL.md` (user-scoped, disponibil din orice proiect).
+- **Source-of-truth:** `packages/skill-ctx-add/SKILL.md` în monorepo.
+- **Install method:** `pca install-skill ctx-add` copiază SKILL.md la `~/.claude/skills/ctx-add/`.
 
-### 9.2 Transport
+### 9.2 SKILL.md format (sketch)
 
-**Stdio only.** Servere MCP locale rulează ca subprocess pornit de MCP client (Claude Code, Claude Desktop). Comunicare prin stdin/stdout cu newline-delimited JSON-RPC.
+```markdown
+---
+name: ctx-add
+composition_level: molecule
+description: |
+  Capture an observation into the Personal Context Agent store, with automatic
+  classification across the 12 context layers (self, place, goal, knowledge,
+  person, resource, constraint, state, event, preference, stance, role).
+  Use when the user types /ctx-add followed by raw text, or says "capture this
+  to context", "ține minte că", "remember that I...".
+---
 
-**NU în MVP:** HTTP/SSE transport, WebSocket transport, remote MCP.
+# /ctx-add — Personal Context Agent capture
 
-### 9.3 Lifecycle
+You are the capture handler for the Personal Context Agent. The user gives you
+raw text; you classify it into one of the 12 entity types, extract type-specific
+attrs, and call the MCP tool `record_observation` to persist it.
 
-```ts
-// packages/mcp-server/src/index.ts (sketch)
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { openStore } from '@pca/core';
+## Step 1 — Read context
 
-const store = openStore(process.env.PCA_DB ?? '~/.pca/store.db');
-const server = new Server({ name: 'pca', version: '0.1.0' }, { capabilities: { tools: {} } });
+Check that the MCP server `pca` is connected. If not, instruct user to run
+`pca install-mcp claude-code` and retry.
 
-// Register 6 tools (vezi secțiunea 7)
-server.setRequestHandler(...);
+## Step 2 — Classify
 
-await server.connect(new StdioServerTransport());
+Read the input text. Decide the entity type using the table below (full schema
+in `~/.pca/docs/entity-types.md`):
+
+[table of 12 types with anchor question + examples per type]
+
+If the text contains multiple distinct facts, propose a **split** into multiple
+entities + the links between them.
+
+## Step 3 — Extract attrs
+
+Per chosen type, fill the attrs schema:
+
+[per-type attrs schema with examples]
+
+Default authority: `self-declared` if user wrote it as a fact about themselves,
+`observed` if you inferred it from context. Default confidence: `high` if
+explicit, `medium` if interpretation, `low` if uncertain.
+
+## Step 4 — Confirm
+
+Show the user:
+- Type (with reasoning 1-liner)
+- Title (≤ 80 chars)
+- Attrs (formatted)
+- Suggested TTL (from default per type)
+- Detected links to existing entities (if any)
+
+Ask: `Accept? [Y/n/edit/split]`
+
+## Step 5 — Persist
+
+Call MCP tool `record_observation` with the structured payload.
+If split: multiple `record_observation` calls + link creation via... [link
+flow defined below].
+
+## Step 6 — Confirmation message
+
+Tell the user what was saved with the new entity id(s).
+
+## Edge cases
+
+- Self type: only one allowed. If exists, propose `update_entity` instead.
+- Empty input: prompt the user for what to capture.
+- Multi-language: classify in any language; titles in user's language; attrs
+  enum values in English (canonical).
+- Reject if user input looks like a question (`?` at end + no claim) — that's a
+  query, not a capture.
 ```
 
-### 9.4 Install în Claude Code
+### 9.3 Token cost
+
+Skill runs entirely inside Claude Code conversation — uses tokens of current
+context window. Typical cost per `/ctx-add` invocation: ~500-1500 tokens
+(classification reasoning + confirmation flow). **No external API key required.**
+
+### 9.4 Failure modes
+
+- MCP server not connected → skill aborts with clear instruction.
+- `record_observation` returns error (singleton conflict, validation fail) → skill shows error + asks user how to proceed.
+- User says „no" la confirm → skill doesn't persist anything.
+
+### 9.5 Alternative invocation triggers
+
+Skill description includes these triggers (Claude will auto-route):
+- `/ctx-add ...`
+- „capture this to context"
+- „ține minte că ..."
+- „remember that I ..."
+- „save to PCA ..."
+
+---
+
+## 10. `ctx` CLI (read-only) + `pca` CLI (admin)
+
+### 10.1 `ctx` subcomenzi (NO `add`)
+
+```
+ctx list <type> [--scope SCOPE] [--limit N] [--stale]
+ctx show <id>
+ctx summary [--scope SCOPE]
+ctx review [--stale] [--type TYPE]
+ctx confirm <id> [--still-true | --no-longer-true | --modify]
+ctx export [--format json|md] [--output FILE]   # post-MVP optional
+ctx help
+```
+
+**Performance target:** < 100ms per command (cold start Node + SQLite read).
+
+### 10.2 `pca` subcomenzi (admin)
+
+```
+pca init                            # create ~/.pca/store.db
+pca install-mcp [client]            # patches MCP config (claude-code, claude-desktop)
+pca install-skill <name>            # copies skill from package to ~/.claude/skills/
+pca migrate                         # run pending schema migrations
+pca doctor                          # health checks
+pca version
+```
+
+**`pca doctor` checks:**
+- `~/.pca/store.db` exists, writable, schema version current
+- `~/.claude/mcp.json` has `pca` server configured
+- `~/.claude/skills/ctx-add/SKILL.md` exists
+- `pca-mcp-server` binary is in PATH
+- 0 stale entities count vs > 0 (warn if accumulated)
+
+### 10.3 Stack
+
+- **`commander`** — argument parsing
+- **`@inquirer/prompts`** — interactive review loop
+- **`picocolors`** — colored output
+- **`ulidx`** — ID generation
+- **`zod`** — schema validation
+
+---
+
+## 11. MCP server — detalii implementare
+
+### 11.1 Stack
+
+- **`@modelcontextprotocol/sdk`** — TypeScript SDK (latest stable)
+- **`better-sqlite3`** — sync DB client
+- **`zod`** — input validation
+- **`ulidx`** — ID generation
+
+### 11.2 Transport
+
+Stdio only.
+
+### 11.3 Install în Claude Code
 
 `pca install-mcp claude-code` patches `~/.claude/mcp.json`:
 
@@ -609,171 +879,144 @@ await server.connect(new StdioServerTransport());
 }
 ```
 
-**[Propunere]:** comanda `pca install-mcp claude-desktop` patches `~/Library/Application Support/Claude/claude_desktop_config.json` similar.
+### 11.4 Tool descriptions (prescriptive, locked v0.2 Q7)
 
-### 9.5 Logging & observability
+Examples:
 
-- Toate tool calls logged în `events` table cu `actor=<MCP client>`, `operation=<tool name>`.
-- Stderr log (file `~/.pca/logs/mcp-server.log`) pentru debugging — niciodată stdout, ar coruptui JSON-RPC.
-- `pca doctor` rulează self-checks (DB writable, schema curentă, MCP config valid).
+**`get_self_summary`:**
+> Returns a structured summary of the user's identity, active roles, goals,
+> constraints, recent state, top people, active stances and preferences.
+> **IMPORTANT: Call this at the start of any conversation where you need to
+> give the user personalized advice, recommendations, or planning suggestions.**
+> Cheap (~10ms), idempotent. Always call before generating opinionated content
+> about the user's work, schedule, or decisions.
 
----
+**`list_active`:**
+> Returns all active entities of a given type for the user. Use when you need a
+> specific slice (e.g., all current goals, all current constraints, recent
+> state). Cheaper and more targeted than `get_self_summary` when you only need
+> one dimension.
 
-## 10. CLI `ctx` — UI de capture
+### 11.5 Logging
 
-### 10.1 Subcomenzi
-
-```
-ctx add <text> [--type TYPE] [--scope SCOPE] [--expires DATE] [--note NOTE]
-ctx list [--type TYPE] [--scope SCOPE] [--limit N]
-ctx show <id>
-ctx summary [--scope SCOPE]
-ctx review [--stale] [--type TYPE]
-ctx confirm <id> [--still-true | --no-longer-true | --modify]
-ctx help
-```
-
-### 10.2 Comportament `ctx add`
-
-Dacă `--type` lipsește, propune tipul prin **heuristică simplă** (regex/keyword), NU LLM:
-
-| Pattern în text | Type propus |
-|---|---|
-| „obiectiv", „target", „want to", „plan to" | goal |
-| „nu pot", „nu vreau", „nu am voie", „limit" | constraint |
-| „obosit", „energizat", „mood", „azi mă simt" | state |
-| „cred că", „believe", „pentru mine X înseamnă" | stance |
-| „sunt admin", „rolul meu", „job" | role |
-| (default) | event |
-
-User confirmă cu Enter sau override cu `n` → menu.
-
-### 10.3 Interactive review (`ctx review --stale`)
-
-```
-[1/3] Goal — „Lansez landing page Personal Context Agent"
-       expires_at: 2026-04-30 (acum 17 zile)
-       [s]till-true / [n]o-longer-true / [m]odify / [k]eep stale / skip ?
-```
-
-### 10.4 Stack
-
-- **`commander`** — argument parsing.
-- **`@clack/prompts`** sau **`@inquirer/prompts`** — prompt UI interactive (review loop).
-- **`picocolors`** — output coloured fără overhead.
-
-### 10.5 Performanță
-
-Target: `ctx add "..."` < 200ms wall-clock (cold start Node + SQLite write).
+- All tool calls logged to `events` table.
+- Stderr only for technical logs (never stdout — corrupts JSON-RPC).
+- `~/.pca/logs/mcp-server.log` rotated daily.
 
 ---
 
-## 11. Demo / success criteria
+## 12. Demo / success criteria
 
-**MVP e validat când toate următoarele sunt adevărate:**
+MVP e validat când TOATE sunt true:
 
-1. ✅ Pe Mac-ul lui Narcis, `pca init && ctx add ...` funcționează fără edge cases vizibile timp de 7 zile consecutive.
-2. ✅ MCP server-ul răspunde sub 50ms la `get_self_summary` cu un DB de 100 entitati.
-3. ✅ În Claude Code, o întrebare gen „cum mă recomanzi să-mi structurez săptămâna" produce un răspuns care **citează măcar 2 entități** din store (verificabil prin events log: tool calls `get_self_summary` + `list_active('goal')`).
-4. ✅ Demo-loop-ul end-to-end (capture → întreabă agentul → primește răspuns ancorat) durează sub 60 secunde din cold start.
-5. ✅ `ctx review --stale` rulat săptămânal duce la cel puțin un `confirm` action în 4 săptămâni consecutive (proof că decay-ul nu e ornamental).
+1. ✅ `pca init && pca install-skill ctx-add && pca install-mcp claude-code && pca doctor` rulează curat pe Mac-ul lui Narcis.
+2. ✅ În Claude Code, `/ctx-add lucrez la admin spital Pitești ...` clasifică corect ca `role` și creează entitate în <5 sec end-to-end.
+3. ✅ După capture-uri pentru toate 12 layers (10-15 entități), o întrebare gen „cum mă recomanzi să-mi structurez săptămâna" în Claude Code produce răspuns care citează **≥ 5 entități din ≥ 3 tipuri diferite** (verificabil via events log).
+4. ✅ `get_self_summary` returnează sub 100ms cu DB de 100 entități.
+5. ✅ `ctx review --stale` rulat săptămânal duce la ≥ 1 confirm action în 4 săptămâni consecutive.
+6. ✅ Niciun API key necesar pentru `pca`/`ctx`/`pca-mcp-server`. Skill-ul folosește doar tokens-ul Claude Code curent.
+7. ✅ Zero crashes în 7 zile de uz zilnic.
 
-**Anti-success criteria** (semnale că MVP-ul e greșit):
+**Anti-success criteria:**
 
-- ❌ Narcis nu mai folosește `ctx add` după 2 săptămâni → friction prea mare sau valoare prea mică.
-- ❌ Claude Code returnează răspunsuri identice cu/fără PCA conectat → store-ul nu informează agentul.
-- ❌ DB-ul crește peste 100MB în prima lună → captura e inflaționară, nu disciplinată.
+- ❌ `/ctx-add` clasifică consistent wrong (>30% override la confirm) → skill prompt necesită rework.
+- ❌ Skill nu poate vorbi cu MCP server-ul → install flow broken.
+- ❌ DB peste 50MB în prima lună → capture inflaționară.
+- ❌ Narcis nu folosește `/ctx-add` după 2 săptămâni → friction sau valoare insuficientă.
 
 ---
 
-## 12. Risks & mitigations
+## 13. Risks & mitigations
 
-| Risc | Probabilitate | Impact | Mitigare MVP |
+| Risc | P | Impact | Mitigare |
 |---|---|---|---|
-| MCP TS SDK schimbă API în 0.x | medie | mediu | pin la versiune; expun `pca doctor` ca prim line de defense |
-| Concurrent writes corup DB | mică | mare | WAL mode + retry on `SQLITE_BUSY` cu exponential backoff |
-| FTS5 returnează irelevant pentru intent | medie | mediu | acceptă tradeoff în MVP; embeddings post-MVP |
-| User uită să `confirm` → store stale | mare | mediu | `pca doctor` arată count entități stale; `ctx review --stale` ca obicei săptămânal |
-| MCP client nu apelează tool-urile (LLM ignoră) | medie | mare | tool descriptions explicite + onboarding doc cu prompt-uri sample care obligă agent să apeleze |
-| Schema migration pe DB existing | mică | mare | `schema_migrations` table + check la `openStore`; ref-uire DB înainte de migrate |
-| Capture friction > 3s → abandonment | medie | mare | benchmark `ctx add` la fiecare PR; target sub 200ms |
+| MCP TS SDK API instabil (0.x) | medie | mediu | pin la versiune; `pca doctor` verifică compatibility |
+| Concurrent writes corup DB | mică | mare | WAL + busy_timeout=5s + retry pe SQLITE_BUSY |
+| Skill clasifică wrong consistent | medie | mare | few-shot examples în SKILL.md; iterare după prima săptămână |
+| Skill nu e invocat (Claude nu detectează) | medie | mare | descriere prescriptivă cu multe triggers; `composition_level: molecule` |
+| FTS5 returnează irelevant | medie | mediu | acceptăm; embeddings post-MVP |
+| User uită `ctx review` → store stale | mare | mediu | `pca doctor` arată count stale; weekly review prompt în Claude Code |
+| LLM client ignoră MCP tools (LLM bug) | mică | mare | tool descriptions prescriptive (Q7 locked); fallback `ctx summary` în terminal |
+| Schema migration breaking pe DB existing | mică | mare | `schema_migrations` table + backup auto înainte de migrate |
+| Skill split de date complexe ratează linkurile | medie | mediu | acceptăm; user poate face link manual via `ctx` (post-MVP) |
+| 12 entity types overwhelm (user confuz) | medie | mediu | onboarding doc + few-shot la prima utilizare |
 
 ---
 
-## 13. Out of scope MVP
-
-Re-iterare pentru claritate, organizată după valuri:
+## 14. Out of scope MVP
 
 ### Val 2 (post-MVP, post-validare demo-loop)
-- Mobile/web UI (Next.js + PWA peste același store, sync via libsql)
-- Skill `/ctx-mirror` (declared vs observed audit, async cu Faber events log)
-- MD export
-- Embeddings pentru `get_relevant_context`
-- Cele 5 entity types restante (`person`, `place`, `knowledge`, `resource`, `preference`)
+- Skill `/ctx-mirror` — declared vs observed audit
+- Skill `/ctx-link` — manual link creation
+- Skill `/ctx-query` — search wrapper peste `get_relevant_context`
+- `ctx export --format md` — markdown backup
 - Bulk import (Obsidian, Apple Notes)
+- Embeddings retrieval
 
 ### Val 3 (productizare)
 - Multi-user / multi-tenancy
-- Cloud sync (libsql/Turso, CRDT pentru collaboration)
-- Encryption at-rest (client-side key, zero-knowledge opt-in)
-- REST API + auth (API keys, OAuth)
-- Sharing scopes (sub-context shared cu un agent / alt user)
-- Hosted SaaS
+- Cloud sync (libsql/Turso)
+- Encryption at-rest
+- REST API + auth
+- Mobile/web clients
+- Sharing scopes
 
 ### Val 4 (advanced)
-- Multi-agent observation conflict resolution semantic
+- Multi-agent conflict resolution semantic
+- Captură ambientală (Rewind-style opt-in)
+- GDPR right-to-be-forgotten cu audit trail
 - Frame-problem retrieval cu intent classifier
-- Captură ambientală (Rewind-style, opt-in)
-- Right-to-be-forgotten cu tombstones + audit trail GDPR
 
 ---
 
-## 14. Open questions (de rezolvat în primul weekend)
+## 15. Open questions (LOCKED v0.3)
 
-1. **Un binar sau două?** `pca` + `ctx` separat sau unificat (`pca add`, `pca mcp-server`)? Vot inițial: separat — `ctx` e gestul de zi cu zi, merită binar dedicat.
-2. **`ctx` global install vs npx?** Global = friction zero recurent. NPX = friction zero la install. Vot inițial: global, cu fallback documentat la npx.
-3. **DB path default** `~/.pca/store.db` vs `~/Library/Application Support/PCA/store.db` (macOS convention)? Vot inițial: `~/.pca/` — vizibil în `ls -la`, ușor de backup.
-4. **TTL defaults — ok?** State 7d, Goal 90d, Role 180d, Constraint 180d. Calibrare în 4 săptămâni de uz, nu acum.
-5. **Heuristica de type-propose pe `ctx add` — keyword sau LLM call?** Vot inițial: keyword pentru MVP (zero latency, zero cost). LLM-classification post-MVP.
-6. **`scope='general'` vs `scope='project:alteramens'` ca default?** Vot inițial: general — la fel ca skill-urile Faber (CLAUDE.md general, project-specific opt-in).
-7. **MCP tool descriptions — cât de prescriptive?** Trebuie să fie suficient de clare încât Claude/GPT să apeleze get_self_summary la conversation start fără prompt explicit. Calibrare empirică în primul weekend.
+Toate cele 7 din v0.2 rămân locked. Două noi din v0.3:
+
+1. **Q1 [Decis] — Două binare:** `pca` + `ctx`.
+2. **Q2 [Decis] — Global npm install.**
+3. **Q3 [Decis] — DB path `~/.pca/store.db`.**
+4. **Q4 [Decis] — TTL defaults:** State 7d, Goal 90d, Role/Constraint 180d, Resource 180d, Stance/Preference/Knowledge/Person/Place/Self/Event ∞.
+5. **Q5 [REVIZUIT v0.3] — Classification location:** **mutat din CLI în Claude Code skill `/ctx-add`**. Zero API key în CLI/MCP server. Skill folosește LLM-ul Claude Code curent.
+6. **Q6 [Decis] — Scope default `general`.**
+7. **Q7 [Decis] — Tool descriptions prescriptive.**
+8. **Q8 [NEW v0.3, Decis] — All 12 entity types prim-clasă în MVP.** Reducerea la 5 din v0.2 e abandonată. Schema completă din start.
+9. **Q9 [NEW v0.3, Decis] — Skill location:** user-scoped (`~/.claude/skills/ctx-add/`), nu project-scoped. Funcționează din orice proiect.
 
 ---
 
-## 15. Roadmap (post-MVP, indicativ)
+## 16. Roadmap (post-MVP)
 
 | Etapă | Conținut | Estimare |
 |---|---|---|
-| **MVP v0.1** | tot ce e în acest PRD | 2-3 weekend-uri |
-| **v0.2** | Skill `/ctx-mirror`, MD export, `person` + `knowledge` entity types | 2 weekend-uri |
-| **v0.3** | Embeddings retrieval, `place` + `resource` + `preference` | 2 weekend-uri |
-| **v0.4 (productize-ready)** | Auth + multi-user + cloud sync (libsql) | 4-6 weekend-uri |
-| **v0.5 (commercial)** | Hosted SaaS, encryption, web/mobile clients | 8-12 weekend-uri |
-
-Decuplat de obiectivul 1K MRR Alteramens — PCA poate fi prim sau al doilea produs, decizie post-validare.
+| **MVP v0.1** | acest PRD | 2-3 weekend-uri |
+| **v0.2** | `/ctx-mirror`, `/ctx-link`, `ctx export` | 2 weekend-uri |
+| **v0.3** | embeddings retrieval, performance hardening | 2 weekend-uri |
+| **v0.4 productize-ready** | auth + multi-user + cloud sync | 4-6 weekend-uri |
+| **v0.5 commercial** | hosted SaaS, encryption, web/mobile | 8-12 weekend-uri |
 
 ---
 
-## 16. Cum se leagă de Alteramens
+## 17. Cum se leagă de Alteramens
 
-- **[[wiki/concepts/productize-yourself|Productize Yourself]] fit:** Construim întâi pentru Narcis (cea mai apropiată ICP testabilă). Demo-ul devine asset de marketing.
-- **[[wiki/concepts/encoded-judgment|Skill Era]] fit:** Skills cu context = skills cu judgment. PCA e infrastructura peste care skill-urile devin „skills cu judgment", nu skills generice.
-- **[[wiki/concepts/inverted-polarity-sister-system|Inverted polarity vs Faber]]:** Faber compound-ează knowledge despre lume; PCA compound-ează modelul utilizatorului. Reciclăm ~70% din pattern-uri (maturity, decay, append-only events).
-- **[[wiki/syntheses/personal-context-agent|Sinteză fondatoare]]:** acest PRD e materializarea "Partea XI — Next steps", punctul 2 (#spec) și punctul 3 (#build prototype).
-
----
-
-## 17. Next steps (concrete, acționabile)
-
-1. **Validare PRD** — citește documentul, marchează **[Propunere]** → **[Decis]** sau **[Respins]** pentru fiecare deschidere. Decideri locked înainte de orice cod.
-2. **Bootstrap repo** — `pnpm create` în `/Users/narcisbrindusescu/projects/alteramens/projects/personal-context-agent/code/`, monorepo cu cele 3 packages.
-3. **Spike #1 — MCP echo** — `pca-mcp-server` care expune un singur tool (`get_self_summary` hardcoded) și se conectează la Claude Code. Target: 2 ore.
-4. **Spike #2 — `ctx add` + DB write** — CLI cu o singură subcomandă. Target: 2 ore.
-5. **Spike #3 — demo-loop end-to-end** — concept-bridge între cele două spike-uri. Target: 1 zi.
-6. **Iterație #1** — implementare completă a celor 6 tools, schema completă, view-uri, CLI subcomenzi toate. Target: 1 weekend.
-7. **Iterație #2** — `ctx review --stale`, decay enforcement, performance benchmarks, doctor command. Target: 1 weekend.
-8. **Live test 7 zile** — eu folosesc PCA zilnic, log issues în [[projects/personal-context-agent/learnings|learnings.md]] (de creat).
+- **[[wiki/concepts/productize-yourself|Productize Yourself]]:** Build for yourself first; productize after demo-loop validates.
+- **[[wiki/concepts/encoded-judgment|Skill Era]]:** PCA = infrastructura peste care skills devin „skills cu context", nu funcții generice. `/ctx-add` în sine e un skill exemplificator pentru pattern-ul Alteramens.
+- **[[wiki/concepts/inverted-polarity-sister-system|Inverted polarity vs Faber]]:** Faber = knowledge despre lume (MD source-of-truth); PCA = knowledge despre user (SQLite source-of-truth).
 
 ---
 
-**Status:** mvp-draft v0.1. Foundation. Următorul pas natural: review acest document și răspuns la cele 7 open questions din [[#14-open-questions-de-rezolvat-in-primul-weekend|secțiunea 14]] înainte de orice linie de cod.
+## 18. Next steps (concrete, acționabile)
+
+1. **Validare PRD v0.3** — citește, semnalează deviații sau dubii. Locked = locked înainte de cod.
+2. **Bootstrap monorepo** — `pnpm` workspace în `projects/personal-context-agent/code/`, 4 packages (core, mcp-server, cli, skill-ctx-add).
+3. **Spike #1 — schema + view-uri (1 zi).** `packages/core/src/store.ts` + `0001_initial.sql` + smoke test toate 12 entity types se pot crea + view-uri merg.
+4. **Spike #2 — MCP server cu 2 tools (1 zi).** `get_self_summary` + `record_observation`. Conectat la Claude Code. Tool call manual din conversație.
+5. **Spike #3 — `/ctx-add` skill v0 (1 zi).** SKILL.md cu classification table; testare pe 10 capture-uri reale.
+6. **Iterație #1 — toate 6 tools + restul CLI subcomenzi (1 weekend).**
+7. **Iterație #2 — `pca doctor`, install-skill, install-mcp, migrate (1 weekend).**
+8. **Iterație #3 — skill polishing pe baza primei săptămâni de uz real (1 weekend).**
+9. **Live test 7 zile** — daily use, log în `learnings.md` (de creat).
+
+---
+
+**Status:** mvp-locked v0.3. Foundation completă pentru execuție. Următorul pas natural: bootstrap monorepo.
