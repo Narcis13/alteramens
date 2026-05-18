@@ -29,6 +29,49 @@ bun run packages/cli/src/pca.ts doctor
 - `~/.claude/mcp.json` — `pca` entry merged alongside existing `clipboard`; `mcp.json.bak` written.
 - Doctor: 4/4 checks pass.
 
+### Bootstrap bug discovered & fixed — 2026-05-18 (afternoon)
+
+**Symptom.** After running `install-mcp claude-code` + restart, the `pca` MCP
+server was **not** picked up by Claude Code. `claude mcp list` did not show it;
+`/ctx-add` skill aborted at Step 0 ("pca MCP server is not connected").
+
+**Root cause.** `defaultPaths().mcpConfigPath` in
+`packages/cli/src/pca-commands/util.ts` pointed at `~/.claude/mcp.json` — a
+config path that current Claude Code (Claude Code CLI ≥ recent) **does not
+read**. Confirmed empirically:
+- `~/.claude/mcp.json` containing a valid `mcpServers.pca` entry → `claude mcp list`
+  shows nothing.
+- `claude mcp add --scope user ...` writes to `~/.claude.json` top-level
+  `mcpServers` → `claude mcp list` immediately shows the entry as `✓ Connected`.
+
+So `claude mcp add` is just a JSON merge into `~/.claude.json` top-level
+`mcpServers` — structurally identical to what `installMcp()` already does. The
+function was correct; only the default path was stale.
+
+**Fix.** One-line change in `defaultPaths()`:
+`~/.claude/mcp.json` → `~/.claude.json`. All 41 CLI tests still pass since
+`installMcp()` is parametric over the path. The legacy `~/.claude/mcp.json` was
+renamed to `~/.claude/mcp.json.obsolete` for reference.
+
+**Doctor caveat.** `pca doctor` still loads `~/.claude.json` via `JSON.parse` to
+verify the entry exists — that file is ~140 KB on a long-running install, so
+parsing is fine but writes are heavier than before. Still atomic via temp +
+rename.
+
+**Future-proofing note.** Hardcoding `~/.claude.json` re-couples PCA to Claude
+Code's internal config layout. If Anthropic moves user-scope MCP storage
+elsewhere this breaks silently. A safer eventual refactor is to **shell out to
+`claude mcp add --scope user`** so Claude Code decides where to write. Deferred:
+keeps minimum-viable-fix at one line; logged here so we revisit if/when Claude
+Code changes its format.
+
+**Take-away rule for the future.** When wrapping a third-party CLI's
+configuration, prefer invoking the CLI over hand-editing its config files. Hand
+editing trades a 1-line implementation today against a silent breakage tomorrow.
+The exception: when the official CLI is itself just doing a trivial JSON merge
+(as `claude mcp add` is here), the cost difference is real and may justify the
+direct edit — but the breakage debt is still owed.
+
 **Initial observations / friction:**
 
 1. **No `pca`/`pca-mcp-server` binary in PATH.** Per PRD §5.1 the bootstrap reads `npm install -g @alteramens/pca` then `pca init ...`. In dev/monorepo mode every invocation is `bun run packages/cli/src/pca.ts <cmd>`. Workable for the live test, but ergonomics differ: long commands, must `cd` into `code/`. **Action item:** before publishing, add `package.json` `bin` entries so global install yields short commands; or document a `pca` shell function in the README that wraps `bun run`.
@@ -105,7 +148,15 @@ sqlite3 ~/.pca/store.db "SELECT occurred_at, actor, operation, entity_id FROM ev
 
 ## Open issues to fix before declaring MVP done
 
-- [ ] (populate as we go)
+- [ ] **MCP install path is brittle.** Hardcoded `~/.claude.json`. Refactor to
+      shell out to `claude mcp add --scope user` so we follow Claude Code's
+      official interface instead of mirroring its internal file. (See bootstrap
+      bug above.)
+- [ ] **`pca doctor` reads `~/.claude.json` directly.** Same brittleness as
+      above. Should use `claude mcp get pca` exit code instead.
+- [ ] **`pca install-mcp` does not warn about needed restart.** Skill is
+      hot-reloadable but MCP server is not; users will be confused when capture
+      fails on first try. Print a clear "restart Claude Code now" line on success.
 
 ---
 

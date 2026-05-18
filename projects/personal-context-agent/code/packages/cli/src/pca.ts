@@ -33,7 +33,7 @@ Usage:
 
 Common flags:
   --db PATH                           Store path (default ~/.pca/store.db)
-  --config PATH                       MCP config path (default ~/.claude/mcp.json)
+  --config PATH                       MCP config path (default ~/.claude.json)
   --skills-dir DIR                    Skills dir (default ~/.claude/skills)
   --source PATH                       Skill source SKILL.md (install-skill)
   --bin NAME                          MCP server bin name (default pca-mcp-server)

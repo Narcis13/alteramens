@@ -683,3 +683,7 @@ Chronological record of wiki operations. Append-only.
 - Key decision in v0.2: Person split into Self (singleton) + Person (others only); Place added as entity for Spatial layer; Project + Source re-classified as transversal primitives (not entity types); 11 of 12 layers now map 1:1 to a single entity type (Temporal stays an axis, not an entity)
 - Open question deliberate: Place merită entity dedicat în MVP sau câmp pe State? Validare prin observație în prima săptămână de capture
 - **Totals: 0 sources, 0 entities, 1 concepts = 1 new + 3 updated**
+
+## [2026-05-18] lint | Health Check
+- Issues: 2 high (1 phantom pair to FABER/CLAUDE.md from personal-context-agent synthesis; 1 phantom log ref `live-web-research` — known parser false positive), 3 medium (2 orphan syntheses; ~10 missing-link candidates sampled; 1 backlink-zero concept `dri-with-agents`), 2 low (25 thin pages with ≤1 source; 66 stale concepts >30 days)
+- Suggestions: link orphan syntheses (growth-tweet-set-2026-05-w20, kanwas-vs-faber-analysis) from related concepts; thicken `dri-with-agents` with backlinks; resolve FABER/CLAUDE.md phantoms by reclassifying as vault links

@@ -36,7 +36,10 @@ export type PcaPaths = {
 export function defaultPaths(home: string = homedir()): PcaPaths {
   return {
     dbPath: join(home, ".pca", "store.db"),
-    mcpConfigPath: join(home, ".claude", "mcp.json"),
+    // Claude Code reads user-scope MCP servers from ~/.claude.json top-level
+    // `mcpServers`. Confirmed empirically: `claude mcp add --scope user` writes
+    // here. Older versions used ~/.claude/mcp.json (ignored by current CLI).
+    mcpConfigPath: join(home, ".claude.json"),
     skillsDir: join(home, ".claude", "skills"),
   };
 }
