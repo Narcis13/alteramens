@@ -13,9 +13,24 @@ Implementation of the PCA MVP per `../prd-mvp.md` (v0.3).
 packages/
   core/             # @pca/core — store, schema, entity & primitive helpers (DONE)
   mcp-server/       # pca-mcp-server — stdio MCP wrapping core (DONE)
-  cli/              # ctx + pca binaries (NEXT SESSION)
-  skill-ctx-add/    # Claude Code skill (NEXT SESSION)
+  cli/              # pca admin binary (DONE) + ctx read-only binary (NEXT SESSION)
+  skill-ctx-add/    # Claude Code /ctx-add skill — SKILL.md v0 (DONE)
 ```
+
+## Admin CLI (`pca`)
+
+Subcommands:
+
+```sh
+bun run packages/cli/src/pca.ts init                  # ~/.pca/store.db
+bun run packages/cli/src/pca.ts install-mcp claude-code
+bun run packages/cli/src/pca.ts install-skill ctx-add
+bun run packages/cli/src/pca.ts doctor
+bun run packages/cli/src/pca.ts version
+```
+
+All paths can be overridden via `--db`, `--config`, `--skills-dir`, `--source`
+flags (used by the test suite to drive temp dirs).
 
 ## MCP server
 
