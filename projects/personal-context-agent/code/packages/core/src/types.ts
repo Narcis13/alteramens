@@ -114,6 +114,7 @@ export type EventRow = {
     | "confirm-modify"
     | "expire"
     | "link"
+    | "link-invalidate"
     | "annotate"
     | "tag"
     | "source";

@@ -93,6 +93,51 @@ export const listActiveShape = {
   limit: z.number().int().positive().optional(),
 };
 
+const DIRECTION = z.enum(["out", "in", "both"]);
+
+export const linkEntitiesShape = {
+  src_id: z.string().min(1).describe("Source entity id."),
+  dst_id: z.string().min(1).describe("Destination entity id."),
+  relation: z
+    .string()
+    .min(1)
+    .describe(
+      "Relation type. Canonical vocab: subgoal-of, motivated-by, collaborates-with, subject-of, located-at, caused-by, reinforces, competes-with, addresses, requires, related-to. Phase 1 logs a warning for unknown relations; Phase 2 will reject them.",
+    ),
+  weight: z
+    .number()
+    .positive()
+    .optional()
+    .describe("Strength of the link (default 1.0)."),
+  authority: AUTHORITY.optional().describe(
+    "Provenance. Default 'observed'. Use 'self-declared' only when the user stated the link explicitly; 'inferred' when deduced from side-context.",
+  ),
+};
+
+export const getNeighborsShape = {
+  entity_id: z.string().min(1).describe("Center entity id."),
+  relation: z
+    .string()
+    .optional()
+    .describe("Optional: restrict to this relation type."),
+  direction: DIRECTION.optional().describe(
+    "out = outgoing links, in = incoming, both = either side (default).",
+  ),
+  types: z
+    .array(ENTITY_TYPE_ENUM)
+    .optional()
+    .describe("Restrict neighbor entities to these types."),
+  limit: z.number().int().positive().optional().describe("Max results (default 50)."),
+};
+
+export const invalidateLinkShape = {
+  link_id: z.string().min(1).describe("Link id to invalidate."),
+  note: z
+    .string()
+    .optional()
+    .describe("Optional human-readable reason; stored in the link-invalidate event."),
+};
+
 // Prescriptive descriptions: PRD §11.4 mandates these be opinionated so the
 // LLM knows *when* to call each tool, not only *what* it does.
 
@@ -110,4 +155,10 @@ IMPORTANT: Call this at the start of any conversation where you need to give the
   confirm_entity: `Confirms whether a possibly-stale entity is still true. Decisions: 'still-true' extends the TTL; 'no-longer-true' invalidates; 'modify' updates fields and extends TTL. Use when an entity's expiry is near or has passed and you want to refresh the user's record without re-creating it.`,
 
   list_active: `Returns all active+unexpired entities of a given type for the user. Cheaper and more targeted than get_self_summary when you only need one dimension (e.g., all current goals or all active constraints). Ordered by recency, except 'person' which is ordered by importance.`,
+
+  link_entities: `Creates a typed link between two entities. Use to make explicit a relationship the user stated (or that you inferred with high confidence) — for example "goal X is a subgoal of Y", "person A collaborates on goal B", "stance C reinforces self". Always prefer over hiding relations in entity body text. Both entities must already exist and be active. Returns the new link id.`,
+
+  get_neighbors: `Returns entities directly linked to a given entity, with the link metadata. Use when answering "who is involved in X?", "what does goal Y require?", "what reinforces stance Z?". Cheaper than FTS for known-id traversal. Output includes the role ("out" if the center is the src, "in" if it is the dst).`,
+
+  invalidate_link: `Marks a link as no-longer-true. Use when a relationship explicitly ended ("Mihai is no longer collaborating on X"). Append-only: the row stays, only invalidated_at is set, and a 'link-invalidate' event is logged.`,
 } as const;

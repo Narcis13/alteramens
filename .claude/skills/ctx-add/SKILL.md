@@ -158,7 +158,50 @@ Show the user the split; let them accept all, pick a subset, or override.
 - **Two resources/tools in one input** → one `resource` entity per item,
   with shared `tags` if related.
 - **Person + event/state about them** → person + event/state, with a
-  link (currently proposal-only until link MCP lands).
+  `subject-of` link from person to event/state.
+
+## Step 2.5 — Canonical link relations
+
+When you propose links in Step 2, the `relation` field MUST be one of the 11
+names below. The MCP server validates against this registry and rejects anything
+else with `UNKNOWN_RELATION`. **Never invent new names** like `relates-to`,
+`connected-with`, `see-also`, `links-to`, `is-a`, `part-of`, `depends-on`, etc.
+If the existing vocabulary doesn't fit, use `related-to` (the explicit fallback);
+do not bend a closer-sounding relation past its allowed pairs.
+
+| Relation | Dir | Allowed `src.type → dst.type` | Semantics |
+|---|---|---|---|
+| `subgoal-of` | A → B | `goal → goal` | A is part of B (A advances B). **Acyclic.** |
+| `motivated-by` | A → B | `{goal, event, state, role} → {stance, constraint, knowledge}` | A exists because of B. |
+| `collaborates-with` | A ↔ B | `{person, self} × {person, goal}` | A and B work together. **Symmetric — store one direction only.** |
+| `subject-of` | A → B | `person → {event, goal}` | A is who/what B is about. |
+| `located-at` | A → B | `{event, role, state} → place` | Physical / digital location. |
+| `caused-by` | A → B | `{state, event} → {event, role, place, person}` | A appeared because of B. |
+| `reinforces` | A → B | `{stance, preference, role} → {stance, self}` | A strengthens B. |
+| `competes-with` | A ↔ B | `{goal, stance, role} × {goal, stance, role}` | Tension between A and B. **Symmetric.** |
+| `addresses` | A → B | `{goal, role} → {constraint, knowledge, event}` | A tries to resolve B. |
+| `requires` | A → B | `{goal, role} → {resource, knowledge, person, place}` | A depends on B. |
+| `related-to` | A ↔ B | `* × *` | **Low-information fallback.** Queries deprioritize it. Use sparingly. |
+
+Rules:
+
+- **Pair check before proposing.** `subgoal-of` between a goal and a person is
+  `BAD_PAIR` and will be rejected. When the pair doesn't match, drop the link
+  rather than mislabel the relation. `related-to` is the only relation that
+  accepts any (src, dst) pair.
+- **Symmetric relations** (`collaborates-with`, `competes-with`, `related-to`):
+  pick one direction and propose it once. Don't propose both `A → B` and
+  `B → A` — querying treats them as equivalent.
+- **`subgoal-of` is acyclic.** If you'd be creating a loop (`A subgoal-of B`
+  while `B subgoal-of A` already exists), drop the link. The server returns
+  `WOULD_CYCLE`.
+- **Don't link everything.** A split with N entities doesn't need to be a
+  complete graph. Propose only links the user stated explicitly, or that you'd
+  be confident defending if asked "why this link?". Surplus links bury signal
+  in `get_self_summary.key_links`.
+- **Authority follows source.** Relation literally in the input → `self-declared`.
+  Relation derived from side-context (per Step 0.5b) → `inferred`. Anything
+  else → `observed`. See Step 5b for the persistence call.
 
 ## Step 3 — Extract attrs per type
 
@@ -241,6 +284,8 @@ Then ask: `Accept? [Y/n/edit/split]`
 
 ## Step 5 — Persist via MCP
 
+### 5a — Entities
+
 Call the `pca` MCP server tool `record_observation` with:
 
 ```ts
@@ -254,23 +299,75 @@ Call the `pca` MCP server tool `record_observation` with:
 }
 ```
 
-For splits, call `record_observation` once per entity. If the user accepted
-links: link creation is **not yet exposed** as an MCP tool — note in the
-summary that "the link `<src> → <dst>` was proposed but not persisted (manual
-link writing lands in a later session)".
+For splits, call `record_observation` once per entity, in the order they
+appeared in the Step 2 proposal. Keep a local table `positionToId` mapping the
+proposed positions (1, 2, 3, ...) to the real entity ids returned by each call.
 
 On error from the server:
 - `BAD_ATTRS` → attrs schema mismatch; show the message, fix, retry.
 - `SINGLETON_CONFLICT` (only for `type: "self"`) → tell the user a `self` already
   exists, and propose calling `update_entity` instead via a follow-up message.
-- Anything else → surface the raw error and stop.
+- Anything else — surface the raw error and stop. Do NOT proceed to link
+  persistence if any entity insert failed: links would dangle.
+
+### 5b — Links
+
+For every link the user accepted in Step 2, call the `pca` MCP tool
+`link_entities`:
+
+```ts
+{
+  src_id:    positionToId[<src position>],
+  dst_id:    positionToId[<dst position>],
+  relation:  <canonical relation>,
+  authority: <"self-declared" | "observed" | "inferred">,
+  // weight: optional; omit to use server default (1.0)
+}
+```
+
+If a link references an entity from a previous session (one you found via a
+prior `get_relevant_context` or `list_active` call rather than created in this
+capture), use that entity's existing id directly instead of `positionToId`.
+
+Pick `authority` deterministically (read together with Step 0.5b):
+
+- `self-declared` — the user stated the relation explicitly in the input
+  ("Mihai is my son", "I work with Razvan on Alteramens").
+- `inferred` — you derived the link from side-context, not from a literal
+  statement in the input (e.g. you concluded a goal `reinforces` an existing
+  stance you found via `get_relevant_context`).
+- `observed` — default for everything else (the relation is obvious from the
+  bundle the user just confirmed, but it wasn't a literal claim).
+
+The `relation` string MUST come from the canonical vocabulary defined in
+Step 2.5. The server rejects anything else with `UNKNOWN_RELATION`,
+`BAD_PAIR`, or `WOULD_CYCLE`.
+
+On error from the server:
+- `NOT_FOUND` / `INACTIVE_ENTITY` → log it, skip that link, continue with the
+  rest. Report skipped links in Step 6.
+- `UNKNOWN_RELATION` / `BAD_PAIR` / `WOULD_CYCLE` → this is a skill bug, not a
+  user issue. Drop the link, surface the failing (src, dst, relation) tuple in
+  the summary so you can fix the Step 2 proposal next time.
+- Anything else — surface the raw error and stop reporting links, but keep the
+  entities that succeeded in 5a.
 
 ## Step 6 — Confirmation
 
-After all calls succeed, print one line per entity:
+After all calls succeed, print one line per entity, then one line per link:
 
 ```
 ✓ Saved <type> #<id-prefix>... "<title>"
+✓ Saved <type> #<id-prefix>... "<title>"
+✓ Linked <relation>: #<src-prefix>... → #<dst-prefix>...
+```
+
+Use a 10-char id prefix (matches the format the user already sees from `ctx`
+CLI output). If any link was skipped because a referenced entity was missing
+or inactive, append:
+
+```
+⚠ Skipped link <relation>: <reason>
 ```
 
 Append a one-line tip if the user has captured **fewer than 3 entities total**

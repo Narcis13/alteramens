@@ -36,7 +36,74 @@ capture?" and stop.
 If the input ends with `?` and contains no declarative claim, treat it as a
 query, not a capture, and ask the user to rephrase as a statement.
 
+## Step 0.5a — Read before write
+
+After preflight passes, *always*:
+
+1. If the classification candidate is `self`, call `get_self_summary` first.
+   If a `self` exists, render a side-by-side diff:
+   ```
+   Existing self:               Proposed change:
+     narrative: "..."             narrative: "..."
+     pillars:   [a, b, c]         pillars:   [a, b, d]
+     voice:     [...]             voice:     [...]
+   ```
+   Then ask: `[r]eplace narrative / [m]erge arrays / [a]bort`.
+   Arrays don't auto-merge — if user picks `m`, fetch current value and
+   pass the union. Do NOT proceed to Step 1 with a fresh-create proposal.
+2. If the candidate is `knowledge`, `resource`, `person`, or `place`, call
+   `get_relevant_context` with the extracted `domain`/`title` as query. If a
+   match exists, propose `update_entity` instead of create.
+3. If the candidate is `event` and the text names a person, project, or place,
+   call `get_relevant_context` to populate `related_entity_ids`.
+4. If the candidate is `stance`, call `get_self_summary` and compare against
+   existing `self.pillars`. If the new stance duplicates or contradicts a
+   pillar, surface that in the Reasoning line so the user can choose between
+   `add stance`, `promote to pillar`, or `abort`.
+5. If the input references a vague place ("în centru", "la birou", "la
+   cafenea") with no canonical name, prompt **once**: "Which one? Give the
+   canonical name so future captures can link to it." Cache the answer for
+   the rest of the session.
+6. Resolve all relative date expressions ("azi", "săptămâna trecută",
+   "iulie 2027") to absolute ISO dates. Show the resolved date in the
+   proposal block.
+
+## Step 0.5b — Input fidelity rule (BEFORE classifying)
+
+Persist only claims that are **literally in the user's input text**. Side
+context — `CLAUDE.md`, prior memory (`MEMORY.md` and linked files), the working
+directory, `get_self_summary` output — may help you *interpret* the input or
+detect duplicates (per Step 0.5a), but it must NEVER inject facts the user
+didn't state into the entities you save.
+
+If side context suggests a useful enrichment, propose it as a **separate
+entity** in the Step 2 split, marked:
+  - `authority: inferred`
+  - `confidence: medium` (or lower)
+  - Explicit flag in the proposal: "_not in your input — accept?_"
+
+Never merge inferred content into a `self-declared` entity, including the
+`self` singleton's `narrative` / `pillars` / `voice_rules`.
+
+Concrete check before each `record_observation` call: diff every claim in
+`text` / `title` / `attrs` against the literal user input. Anything not
+present is either dropped, or extracted as a separate inferred entity.
+
 ## Step 1 — Classify
+
+### Decision rules (apply before picking a type)
+
+- **Role vs constraint**: input names a *position/identity while doing X*
+  (volunteer, admin, parent-on-school-run) → `role`. Input names a *blocker
+  or window* with no identity ("no meetings before 09:00") → `constraint`.
+- **Stance vs preference**: input contains "cred că" / "I believe" /
+  "I think" / "in my opinion" / "părerea mea" / "consider că" / any
+  reason-clause → `stance`. Input is taste-only ("prefer dark UI",
+  "îmi place X") → `preference`.
+- **Place vs event**: a *destination you go to* → `place`. A *thing that
+  happened* → `event`. If both, propose a split (Step 2).
+- **State vs event**: "azi sunt X" / "right now I'm Y" → `state` (short TTL).
+  "yesterday I X" → `event`.
 
 Pick exactly one of these 12 entity types (or propose a multi-entity split,
 see Step 2):
@@ -72,9 +139,69 @@ entities + the links between them. Example:
 > Proposed split:
 >   1. **person**: "Mihai Brindusescu" — attrs: `{ relation: "family/son", importance: "high" }`
 >   2. **event**: "Mihai prepares for UMF Carol Davila admission" — attrs: `{}`, expires_at: "2027-07-31"
->   3. **link**: person(1) → event(2), relation: "subject-of"
+>   3. **place**: "UMF Carol Davila" — attrs: `{ kind: "physical" }`
+>   4. **link**: person(1) → event(2), relation: "subject-of"
+>   5. **link**: event(2) → place(3), relation: "located-at"
 
 Show the user the split; let them accept all, pick a subset, or override.
+
+### Split triggers (apply mechanically, even when input reads as "one fact")
+
+- **Named location/institution in a role, event, or state** → propose a
+  companion `place` entity. Don't bury the location in `title` only.
+  Example: "Miercurea sunt voluntar la centrul de bătrâni din Pitești" →
+  role + place split, link `role → place` (located-at).
+- **Destination + cadence** → split into `place` + `preference`.
+  Example: "Publicăm pe Substack-ul Alteramens săptămânal, joi dimineața"
+  → place ("Substack Alteramens", kind: digital) + preference
+  ("Weekly Thursday AM publishing cadence", register: voice).
+- **Two resources/tools in one input** → one `resource` entity per item,
+  with shared `tags` if related.
+- **Person + event/state about them** → person + event/state, with a
+  `subject-of` link from person to event/state.
+
+## Step 2.5 — Canonical link relations
+
+When you propose links in Step 2, the `relation` field MUST be one of the 11
+names below. The MCP server validates against this registry and rejects anything
+else with `UNKNOWN_RELATION`. **Never invent new names** like `relates-to`,
+`connected-with`, `see-also`, `links-to`, `is-a`, `part-of`, `depends-on`, etc.
+If the existing vocabulary doesn't fit, use `related-to` (the explicit fallback);
+do not bend a closer-sounding relation past its allowed pairs.
+
+| Relation | Dir | Allowed `src.type → dst.type` | Semantics |
+|---|---|---|---|
+| `subgoal-of` | A → B | `goal → goal` | A is part of B (A advances B). **Acyclic.** |
+| `motivated-by` | A → B | `{goal, event, state, role} → {stance, constraint, knowledge}` | A exists because of B. |
+| `collaborates-with` | A ↔ B | `{person, self} × {person, goal}` | A and B work together. **Symmetric — store one direction only.** |
+| `subject-of` | A → B | `person → {event, goal}` | A is who/what B is about. |
+| `located-at` | A → B | `{event, role, state} → place` | Physical / digital location. |
+| `caused-by` | A → B | `{state, event} → {event, role, place, person}` | A appeared because of B. |
+| `reinforces` | A → B | `{stance, preference, role} → {stance, self}` | A strengthens B. |
+| `competes-with` | A ↔ B | `{goal, stance, role} × {goal, stance, role}` | Tension between A and B. **Symmetric.** |
+| `addresses` | A → B | `{goal, role} → {constraint, knowledge, event}` | A tries to resolve B. |
+| `requires` | A → B | `{goal, role} → {resource, knowledge, person, place}` | A depends on B. |
+| `related-to` | A ↔ B | `* × *` | **Low-information fallback.** Queries deprioritize it. Use sparingly. |
+
+Rules:
+
+- **Pair check before proposing.** `subgoal-of` between a goal and a person is
+  `BAD_PAIR` and will be rejected. When the pair doesn't match, drop the link
+  rather than mislabel the relation. `related-to` is the only relation that
+  accepts any (src, dst) pair.
+- **Symmetric relations** (`collaborates-with`, `competes-with`, `related-to`):
+  pick one direction and propose it once. Don't propose both `A → B` and
+  `B → A` — querying treats them as equivalent.
+- **`subgoal-of` is acyclic.** If you'd be creating a loop (`A subgoal-of B`
+  while `B subgoal-of A` already exists), drop the link. The server returns
+  `WOULD_CYCLE`.
+- **Don't link everything.** A split with N entities doesn't need to be a
+  complete graph. Propose only links the user stated explicitly, or that you'd
+  be confident defending if asked "why this link?". Surplus links bury signal
+  in `get_self_summary.key_links`.
+- **Authority follows source.** Relation literally in the input → `self-declared`.
+  Relation derived from side-context (per Step 0.5b) → `inferred`. Anything
+  else → `observed`. See Step 5b for the persistence call.
 
 ## Step 3 — Extract attrs per type
 
@@ -84,26 +211,55 @@ Per chosen type, fill the strict attrs schema below. Unknown keys are
 - `self`: `{ pillars: string[], voice_rules: string[], narrative: string }`
 - `place`: `{ kind: "physical"|"digital"|"social", address?: string, recurring?: boolean }`
 - `goal`: `{ timeframe: "long"|"mid"|"short", parent_id?: string, success_criteria?: string }`
+  Boundaries: `short ≤ 90d`, `mid = 90d–18mo`, `long > 18mo`.
+  If `success_criteria` contains a money amount, currency is required
+  ("1K MRR USD", not "1K MRR").
 - `knowledge`: `{ domain: string, depth: "novice"|"practitioner"|"expert", gaps?: string[] }`
+  Romanian colloquial qualifiers calibrate as follows (default to lower bound,
+  flag confidence as `medium`):
+  - "abia mă descurc" / "habar n-am" / "începător" → `novice`
+  - "mă descurc" / "așa și așa" / "mediocru" → `novice` (medium confidence —
+    user may mean practitioner; ask if it matters)
+  - "știu bine" / "sunt OK la" → `practitioner`
+  - "expert" / "stăpânesc" / "fac din somn" → `expert`
 - `person`: `{ relation: string, importance: "high"|"med"|"low", tags?: string[] }`
-- `resource`: `{ kind: "tool"|"subscription"|"asset"|"access"|"budget", cost_per_month?: number }`
+- `resource`: `{ kind: "tool"|"subscription"|"asset"|"access"|"budget", cost_per_month?: number, tags?: string[] }`
+  If cost is unknown, *omit* the key and note "cost: unknown" in title.
+  Do not fabricate a number.
 - `constraint`: `{ kind: "time"|"ethical"|"legal"|"cognitive"|"capacity", hard_or_soft: "hard"|"soft" }`
 - `state`: `{ mood?: string, energy?: "low"|"med"|"high", focus?: string, stress?: string, place_id?: string }`
+  Fill *every* applicable key, not just the most obvious. If a cause is
+  named ("după gardă"), append to title in parens until a `cause` field
+  lands server-side.
 - `event`: `{ related_entity_ids?: string[] }`
 - `preference`: `{ register: "voice"|"aesthetic"|"taste", strength?: "mild"|"strong" }`
 - `stance`: `{ reason: string, evidence_sources?: string[] }`
-- `role`: `{ schedule?: string, domain?: "defensive"|"offensive"|"mixed", priority?: number }`
+- `role`: `{ schedule?: string, domain?: "defensive"|"offensive"|"mixed"|"civic"|"care"|"creative"|"family", priority?: number }`
 
-Heuristics for `authority`:
-- User wrote a first-person fact ("eu sunt X", "lucrez la Y") → `self-declared`
-- You inferred from indirect context → `observed`
-- You derived from another entity → `inferred`
+Heuristics for `authority` (read together with Step 0.5b):
+- Claim is **literally** in the user's input → `self-declared`
+- Claim came from side context (CLAUDE.md, memory, working dir) → `inferred`,
+  AND must be a separate entity, never merged into a `self-declared` one
+- Claim is something you noticed about the user during conversation
+  (tone, behavior, patterns) → `observed`
 
-Default `confidence`: `high` if explicit, `medium` if interpretation, `low` if you're guessing.
+Default `confidence`: `high` only when explicit and verbatim; `medium` if you
+reworded or interpreted; `low` if any guessing involved.
+
+## Step 3.5 — Clarify before proposing
+
+If any required attr cannot be filled faithfully from the input (e.g.
+`stance.reason` is implicit, `goal` lacks currency, `state` lacks cause),
+ask **one** clarifying question before showing the Step 4 proposal block.
+Do not surface a half-filled or fabricated proposal.
 
 ## Step 4 — Confirm with the user
 
-Show this block, one entity per row when there is a split:
+Show this block, one entity per row when there is a split.
+
+Only render `Resolved-dates`, `Existing-match`, and `Link-warnings` lines
+when their value is non-empty. Skip them silently otherwise to keep the
+proposal block tight.
 
 ```
 Proposed:
@@ -113,6 +269,9 @@ Proposed:
   Authority:  <self-declared|observed|inferred>
   Confidence: <low|medium|high>
   TTL:        <none | "+7d" | "+90d" | "+180d" | explicit ISO date>
+  Resolved-dates: <only if relative dates were rewritten>
+  Existing-match: <only if get_relevant_context returned a hit>
+  Link-warnings: <only if a proposed link will not persist>
   Reasoning:  <one line — why this type, why these attrs>
 ```
 
@@ -124,6 +283,8 @@ Then ask: `Accept? [Y/n/edit/split]`
 - `split` → invite user to describe the desired split, then loop back to Step 2.
 
 ## Step 5 — Persist via MCP
+
+### 5a — Entities
 
 Call the `pca` MCP server tool `record_observation` with:
 
@@ -138,23 +299,75 @@ Call the `pca` MCP server tool `record_observation` with:
 }
 ```
 
-For splits, call `record_observation` once per entity. If the user accepted
-links: link creation is **not yet exposed** as an MCP tool — note in the
-summary that "the link `<src> → <dst>` was proposed but not persisted (manual
-link writing lands in a later session)".
+For splits, call `record_observation` once per entity, in the order they
+appeared in the Step 2 proposal. Keep a local table `positionToId` mapping the
+proposed positions (1, 2, 3, ...) to the real entity ids returned by each call.
 
 On error from the server:
 - `BAD_ATTRS` → attrs schema mismatch; show the message, fix, retry.
 - `SINGLETON_CONFLICT` (only for `type: "self"`) → tell the user a `self` already
   exists, and propose calling `update_entity` instead via a follow-up message.
-- Anything else → surface the raw error and stop.
+- Anything else — surface the raw error and stop. Do NOT proceed to link
+  persistence if any entity insert failed: links would dangle.
+
+### 5b — Links
+
+For every link the user accepted in Step 2, call the `pca` MCP tool
+`link_entities`:
+
+```ts
+{
+  src_id:    positionToId[<src position>],
+  dst_id:    positionToId[<dst position>],
+  relation:  <canonical relation>,
+  authority: <"self-declared" | "observed" | "inferred">,
+  // weight: optional; omit to use server default (1.0)
+}
+```
+
+If a link references an entity from a previous session (one you found via a
+prior `get_relevant_context` or `list_active` call rather than created in this
+capture), use that entity's existing id directly instead of `positionToId`.
+
+Pick `authority` deterministically (read together with Step 0.5b):
+
+- `self-declared` — the user stated the relation explicitly in the input
+  ("Mihai is my son", "I work with Razvan on Alteramens").
+- `inferred` — you derived the link from side-context, not from a literal
+  statement in the input (e.g. you concluded a goal `reinforces` an existing
+  stance you found via `get_relevant_context`).
+- `observed` — default for everything else (the relation is obvious from the
+  bundle the user just confirmed, but it wasn't a literal claim).
+
+The `relation` string MUST come from the canonical vocabulary defined in
+Step 2.5. The server rejects anything else with `UNKNOWN_RELATION`,
+`BAD_PAIR`, or `WOULD_CYCLE`.
+
+On error from the server:
+- `NOT_FOUND` / `INACTIVE_ENTITY` → log it, skip that link, continue with the
+  rest. Report skipped links in Step 6.
+- `UNKNOWN_RELATION` / `BAD_PAIR` / `WOULD_CYCLE` → this is a skill bug, not a
+  user issue. Drop the link, surface the failing (src, dst, relation) tuple in
+  the summary so you can fix the Step 2 proposal next time.
+- Anything else — surface the raw error and stop reporting links, but keep the
+  entities that succeeded in 5a.
 
 ## Step 6 — Confirmation
 
-After all calls succeed, print one line per entity:
+After all calls succeed, print one line per entity, then one line per link:
 
 ```
 ✓ Saved <type> #<id-prefix>... "<title>"
+✓ Saved <type> #<id-prefix>... "<title>"
+✓ Linked <relation>: #<src-prefix>... → #<dst-prefix>...
+```
+
+Use a 10-char id prefix (matches the format the user already sees from `ctx`
+CLI output). If any link was skipped because a referenced entity was missing
+or inactive, append:
+
+```
+⚠ Skipped link <relation>: <reason>
 ```
 
 Append a one-line tip if the user has captured **fewer than 3 entities total**
@@ -173,5 +386,10 @@ people first — that's the highest-leverage seed."
   Y" → entity type is `event`, attrs may reference related entities by id if
   you've called `get_relevant_context` to find them. Do NOT auto-link unless
   the user agrees.
-- **State with no expiry hint**: default TTL 7d applies; warn the user it'll
-  decay unless re-confirmed.
+- **State with no expiry hint**: default TTL 7d applies. But if the text
+  starts with "azi" / "today" / "right now", TTL drops to 36h.
+- **Array attrs (gaps, pillars, voice_rules, tags)**: `update_entity`
+  *replaces* the array, does not merge. To add to an array, fetch current
+  value first and pass the combined list.
+- **Vendor/provider names**: no dedicated field. Encode in title:
+  "Claude Code Max (Anthropic)".

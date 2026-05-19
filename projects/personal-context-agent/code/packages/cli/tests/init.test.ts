@@ -27,14 +27,14 @@ describe("init", () => {
     expect(existsSync(dbPath)).toBe(true);
   });
 
-  test("DB is opened with schema v1 applied", () => {
+  test("DB is opened with latest schema applied", () => {
     initStore({ dbPath });
     const store = openStore(dbPath);
     const row = store.db
       .prepare("SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1")
       .get() as { version: number } | null;
     store.close();
-    expect(row?.version).toBe(1);
+    expect(row?.version).toBe(2);
   });
 
   test("idempotent: rerunning on existing DB reports already-exists, leaves DB intact", () => {

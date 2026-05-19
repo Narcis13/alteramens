@@ -6,8 +6,11 @@ import type { Store } from "@pca/core";
 import {
   HandlerError,
   confirmEntity,
+  getNeighbors,
   getRelevantContext,
   getSelfSummary,
+  invalidateLink,
+  linkEntities,
   listActive,
   recordObservation,
   updateEntity,
@@ -15,8 +18,11 @@ import {
 import {
   TOOL_DESCRIPTIONS,
   confirmEntityShape,
+  getNeighborsShape,
   getRelevantContextShape,
   getSelfSummaryShape,
+  invalidateLinkShape,
+  linkEntitiesShape,
   listActiveShape,
   recordObservationShape,
   updateEntityShape,
@@ -86,6 +92,33 @@ export function buildServer({ store, actor }: BuildServerOptions): McpServer {
       inputSchema: listActiveShape,
     },
     (input) => wrap(() => listActive(store, input)),
+  );
+
+  server.registerTool(
+    "link_entities",
+    {
+      description: TOOL_DESCRIPTIONS.link_entities,
+      inputSchema: linkEntitiesShape,
+    },
+    (input) => wrap(() => linkEntities(store, input, writer)),
+  );
+
+  server.registerTool(
+    "get_neighbors",
+    {
+      description: TOOL_DESCRIPTIONS.get_neighbors,
+      inputSchema: getNeighborsShape,
+    },
+    (input) => wrap(() => getNeighbors(store, input)),
+  );
+
+  server.registerTool(
+    "invalidate_link",
+    {
+      description: TOOL_DESCRIPTIONS.invalidate_link,
+      inputSchema: invalidateLinkShape,
+    },
+    (input) => wrap(() => invalidateLink(store, input, writer)),
   );
 
   return server;

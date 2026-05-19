@@ -5,8 +5,11 @@ import { type Store } from "@pca/core";
 import {
   HandlerError,
   confirmEntity,
+  getNeighbors,
   getRelevantContext,
   getSelfSummary,
+  invalidateLink,
+  linkEntities,
   listActive,
   recordObservation,
   updateEntity,
@@ -43,6 +46,7 @@ describe("get_self_summary", () => {
     expect(r.resources_summary).toEqual({ count: 0, sample: [] });
     expect(r.knowledge_summary).toEqual({ count: 0, sample: [] });
     expect(r.places_summary).toEqual({ count: 0, sample: [] });
+    expect(r.key_links).toEqual([]);
     expect(r.last_updated).toBeNull();
   });
 
@@ -113,6 +117,295 @@ describe("get_self_summary", () => {
     getSelfSummary(store, {});
     const elapsed = performance.now() - start;
     expect(elapsed).toBeLessThan(50);
+  });
+
+  test("key_links: surfaces links touching self / goals / people / constraints", () => {
+    store.createEntity(
+      {
+        type: "self",
+        title: "Narcis",
+        attrs: { pillars: ["build"], voice_rules: [], narrative: "n" },
+      },
+      ACTOR,
+    );
+    const goal = store.createEntity(
+      { type: "goal", title: "Ship", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const wife = store.createEntity(
+      {
+        type: "person",
+        title: "Wife",
+        attrs: { relation: "wife", importance: "high" },
+      },
+      ACTOR,
+    );
+    const constraint = store.createEntity(
+      {
+        type: "constraint",
+        title: "Hospital hours",
+        attrs: { kind: "time", hard_or_soft: "hard" },
+      },
+      ACTOR,
+    );
+    const orphanGoal = store.createEntity(
+      { type: "goal", title: "Orphan", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const orphanPerson = store.createEntity(
+      {
+        type: "person",
+        title: "Stranger",
+        attrs: { relation: "other", importance: "low" },
+      },
+      ACTOR,
+    );
+
+    // Touches goal + person — should appear.
+    linkEntities(
+      store,
+      { src_id: goal.id, dst_id: wife.id, relation: "collaborates-with" },
+      ACTOR,
+    );
+    // Touches goal + constraint — should appear.
+    linkEntities(
+      store,
+      { src_id: goal.id, dst_id: constraint.id, relation: "addresses" },
+      ACTOR,
+    );
+    // Both endpoints are unrelated to anchors after invalidation below.
+    linkEntities(
+      store,
+      { src_id: orphanGoal.id, dst_id: orphanPerson.id, relation: "collaborates-with" },
+      ACTOR,
+    );
+
+    // Remove orphanGoal/orphanPerson from anchor sets so that their link is not surfaced.
+    store.invalidateEntity(orphanGoal.id, ACTOR);
+    store.invalidateEntity(orphanPerson.id, ACTOR);
+
+    const r = getSelfSummary(store, {});
+    expect(r.key_links.length).toBe(2);
+    const relations = r.key_links.map((kl) => kl.link.relation).sort();
+    expect(relations).toEqual(["addresses", "collaborates-with"]);
+    // Light projection — no body on endpoints.
+    const sample = r.key_links[0]!;
+    expect(sample.src).toHaveProperty("title");
+    expect(sample.src).not.toHaveProperty("body");
+    expect(sample.dst).toHaveProperty("type");
+  });
+
+  test("key_links: dedupes a single link reachable from both endpoints", () => {
+    const goal = store.createEntity(
+      { type: "goal", title: "G", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const wife = store.createEntity(
+      {
+        type: "person",
+        title: "Wife",
+        attrs: { relation: "wife", importance: "high" },
+      },
+      ACTOR,
+    );
+    linkEntities(
+      store,
+      { src_id: goal.id, dst_id: wife.id, relation: "collaborates-with" },
+      ACTOR,
+    );
+
+    const r = getSelfSummary(store, {});
+    // Both goal AND wife are anchors, but the single link must appear once.
+    expect(r.key_links).toHaveLength(1);
+  });
+
+  test("key_links: drops `related-to` once 6+ high-signal links exist", () => {
+    const self = store.createEntity(
+      {
+        type: "self",
+        title: "Me",
+        attrs: { pillars: [], voice_rules: [], narrative: "n" },
+      },
+      ACTOR,
+    );
+    // 6 high-signal links: self → 6 distinct stances via `reinforces`.
+    for (let i = 0; i < 6; i++) {
+      const stance = store.createEntity(
+        {
+          type: "stance",
+          title: `stance-${i}`,
+          attrs: { reason: "x" },
+        },
+        ACTOR,
+      );
+      // reinforces: stance → self
+      linkEntities(
+        store,
+        { src_id: stance.id, dst_id: self.id, relation: "reinforces" },
+        ACTOR,
+      );
+    }
+    // One low-signal `related-to` from a goal to a knowledge.
+    const goal = store.createEntity(
+      { type: "goal", title: "G", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const knowledge = store.createEntity(
+      {
+        type: "knowledge",
+        title: "K",
+        attrs: { domain: "x", depth: "novice" },
+      },
+      ACTOR,
+    );
+    linkEntities(
+      store,
+      { src_id: goal.id, dst_id: knowledge.id, relation: "related-to" },
+      ACTOR,
+    );
+
+    const r = getSelfSummary(store, {});
+    const hasRelatedTo = r.key_links.some((kl) => kl.link.relation === "related-to");
+    expect(hasRelatedTo).toBe(false);
+    // All surviving entries should be the high-signal `reinforces`.
+    expect(r.key_links.every((kl) => kl.link.relation === "reinforces")).toBe(true);
+  });
+
+  test("key_links: keeps `related-to` when high-signal pool is small", () => {
+    const goal = store.createEntity(
+      { type: "goal", title: "G", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const place = store.createEntity(
+      { type: "place", title: "Hospital", attrs: { kind: "physical" } },
+      ACTOR,
+    );
+    linkEntities(
+      store,
+      { src_id: goal.id, dst_id: place.id, relation: "related-to" },
+      ACTOR,
+    );
+
+    const r = getSelfSummary(store, {});
+    expect(r.key_links).toHaveLength(1);
+    expect(r.key_links[0]!.link.relation).toBe("related-to");
+  });
+
+  test("key_links: respects keyLinksLimit cap", () => {
+    const self = store.createEntity(
+      {
+        type: "self",
+        title: "Me",
+        attrs: { pillars: [], voice_rules: [], narrative: "n" },
+      },
+      ACTOR,
+    );
+    for (let i = 0; i < 4; i++) {
+      const stance = store.createEntity(
+        {
+          type: "stance",
+          title: `s-${i}`,
+          attrs: { reason: "x" },
+        },
+        ACTOR,
+      );
+      linkEntities(
+        store,
+        { src_id: stance.id, dst_id: self.id, relation: "reinforces" },
+        ACTOR,
+      );
+    }
+    const r = getSelfSummary(store, {}, { keyLinksLimit: 2 });
+    expect(r.key_links).toHaveLength(2);
+  });
+
+  test("key_links: includeKeyLinks=false skips the slot entirely", () => {
+    const goal = store.createEntity(
+      { type: "goal", title: "G", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const wife = store.createEntity(
+      {
+        type: "person",
+        title: "Wife",
+        attrs: { relation: "wife", importance: "high" },
+      },
+      ACTOR,
+    );
+    linkEntities(
+      store,
+      { src_id: goal.id, dst_id: wife.id, relation: "collaborates-with" },
+      ACTOR,
+    );
+    const r = getSelfSummary(store, {}, { includeKeyLinks: false });
+    expect(r.key_links).toEqual([]);
+  });
+
+  test("key_links: ranks by weight DESC then created_at DESC", () => {
+    const self = store.createEntity(
+      {
+        type: "self",
+        title: "Me",
+        attrs: { pillars: [], voice_rules: [], narrative: "n" },
+      },
+      ACTOR,
+    );
+    const sLow = store.createEntity(
+      {
+        type: "stance",
+        title: "low",
+        attrs: { reason: "x" },
+      },
+      ACTOR,
+    );
+    const sHigh = store.createEntity(
+      {
+        type: "stance",
+        title: "high",
+        attrs: { reason: "y" },
+      },
+      ACTOR,
+    );
+    // Create the weight=0.2 link first, weight=0.9 link second — recency would
+    // favor the second; weight should still dominate.
+    linkEntities(
+      store,
+      { src_id: sLow.id, dst_id: self.id, relation: "reinforces", weight: 0.2 },
+      ACTOR,
+    );
+    linkEntities(
+      store,
+      { src_id: sHigh.id, dst_id: self.id, relation: "reinforces", weight: 0.9 },
+      ACTOR,
+    );
+
+    const r = getSelfSummary(store, {});
+    expect(r.key_links[0]!.link.weight).toBe(0.9);
+    expect(r.key_links[1]!.link.weight).toBe(0.2);
+  });
+
+  test("key_links: excludes invalidated links", () => {
+    const goal = store.createEntity(
+      { type: "goal", title: "G", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const wife = store.createEntity(
+      {
+        type: "person",
+        title: "Wife",
+        attrs: { relation: "wife", importance: "high" },
+      },
+      ACTOR,
+    );
+    const link = linkEntities(
+      store,
+      { src_id: goal.id, dst_id: wife.id, relation: "collaborates-with" },
+      ACTOR,
+    );
+    invalidateLink(store, { link_id: link.id }, ACTOR);
+
+    const r = getSelfSummary(store, {});
+    expect(r.key_links).toEqual([]);
   });
 });
 
@@ -486,5 +779,426 @@ describe("list_active", () => {
     );
     const r = listActive(store, { type: "goal" });
     expect(r.items.map((e) => e.title)).toEqual(["fresh"]);
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// link_entities
+// ────────────────────────────────────────────────────────────────────────────
+
+describe("link_entities", () => {
+  test("creates a link between two active entities", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const b = store.createEntity(
+      { type: "goal", title: "B", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const link = linkEntities(
+      store,
+      { src_id: a.id, dst_id: b.id, relation: "subgoal-of" },
+      ACTOR,
+    );
+    expect(link.id).toBeString();
+    expect(link.src_id).toBe(a.id);
+    expect(link.dst_id).toBe(b.id);
+    expect(link.relation).toBe("subgoal-of");
+    expect(link.weight).toBe(1.0);
+    expect(link.authority).toBe("observed");
+    expect(link.invalidated_at).toBeNull();
+  });
+
+  test("rejects when src does not exist (NOT_FOUND)", () => {
+    const b = store.createEntity(
+      { type: "goal", title: "B", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    let err: unknown;
+    try {
+      linkEntities(
+        store,
+        { src_id: "missing", dst_id: b.id, relation: "subgoal-of" },
+        ACTOR,
+      );
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(HandlerError);
+    expect((err as HandlerError).code).toBe("NOT_FOUND");
+  });
+
+  test("rejects when dst does not exist (NOT_FOUND)", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    let err: unknown;
+    try {
+      linkEntities(
+        store,
+        { src_id: a.id, dst_id: "missing", relation: "subgoal-of" },
+        ACTOR,
+      );
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(HandlerError);
+    expect((err as HandlerError).code).toBe("NOT_FOUND");
+  });
+
+  test("rejects when src is invalidated (INACTIVE_ENTITY)", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const b = store.createEntity(
+      { type: "goal", title: "B", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    store.invalidateEntity(a.id, ACTOR);
+    let err: unknown;
+    try {
+      linkEntities(
+        store,
+        { src_id: a.id, dst_id: b.id, relation: "subgoal-of" },
+        ACTOR,
+      );
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(HandlerError);
+    expect((err as HandlerError).code).toBe("INACTIVE_ENTITY");
+  });
+
+  test("rejects when dst is invalidated (INACTIVE_ENTITY)", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const b = store.createEntity(
+      { type: "goal", title: "B", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    store.invalidateEntity(b.id, ACTOR);
+    let err: unknown;
+    try {
+      linkEntities(
+        store,
+        { src_id: a.id, dst_id: b.id, relation: "subgoal-of" },
+        ACTOR,
+      );
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(HandlerError);
+    expect((err as HandlerError).code).toBe("INACTIVE_ENTITY");
+  });
+
+  test("rejects self-link (BAD_INPUT)", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    let err: unknown;
+    try {
+      linkEntities(
+        store,
+        { src_id: a.id, dst_id: a.id, relation: "related-to" },
+        ACTOR,
+      );
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(HandlerError);
+    expect((err as HandlerError).code).toBe("BAD_INPUT");
+  });
+
+  test("unknown relation is rejected (UNKNOWN_RELATION)", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const b = store.createEntity(
+      { type: "goal", title: "B", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    let err: unknown;
+    try {
+      linkEntities(
+        store,
+        { src_id: a.id, dst_id: b.id, relation: "made-up-relation" },
+        ACTOR,
+      );
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(HandlerError);
+    expect((err as HandlerError).code).toBe("UNKNOWN_RELATION");
+  });
+
+  test("disallowed pair is rejected (BAD_PAIR)", () => {
+    const goal = store.createEntity(
+      { type: "goal", title: "G", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const place = store.createEntity(
+      { type: "place", title: "Cafe", attrs: { kind: "physical" } },
+      ACTOR,
+    );
+    let err: unknown;
+    try {
+      linkEntities(
+        store,
+        { src_id: goal.id, dst_id: place.id, relation: "subgoal-of" },
+        ACTOR,
+      );
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(HandlerError);
+    expect((err as HandlerError).code).toBe("BAD_PAIR");
+  });
+
+  test("symmetric relations accept reversed pair direction", () => {
+    const goal = store.createEntity(
+      { type: "goal", title: "Ship", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const wife = store.createEntity(
+      { type: "person", title: "Wife", attrs: { relation: "wife", importance: "high" } },
+      ACTOR,
+    );
+    // Spec lists (person, goal) — try (goal, person) which should still pass
+    // because collaborates-with is symmetric.
+    const link = linkEntities(
+      store,
+      { src_id: goal.id, dst_id: wife.id, relation: "collaborates-with" },
+      ACTOR,
+    );
+    expect(link.relation).toBe("collaborates-with");
+  });
+
+  test("acyclic relation refuses a would-be cycle (WOULD_CYCLE)", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const b = store.createEntity(
+      { type: "goal", title: "B", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const c = store.createEntity(
+      { type: "goal", title: "C", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    linkEntities(store, { src_id: a.id, dst_id: b.id, relation: "subgoal-of" }, ACTOR);
+    linkEntities(store, { src_id: b.id, dst_id: c.id, relation: "subgoal-of" }, ACTOR);
+    let err: unknown;
+    try {
+      linkEntities(
+        store,
+        { src_id: c.id, dst_id: a.id, relation: "subgoal-of" },
+        ACTOR,
+      );
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(HandlerError);
+    expect((err as HandlerError).code).toBe("WOULD_CYCLE");
+  });
+
+  test("`related-to` accepts any pair (fallback)", () => {
+    const goal = store.createEntity(
+      { type: "goal", title: "G", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const place = store.createEntity(
+      { type: "place", title: "Hospital", attrs: { kind: "physical" } },
+      ACTOR,
+    );
+    const link = linkEntities(
+      store,
+      { src_id: goal.id, dst_id: place.id, relation: "related-to" },
+      ACTOR,
+    );
+    expect(link.relation).toBe("related-to");
+  });
+
+  test("authority + weight are passed through", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const b = store.createEntity(
+      { type: "person", title: "Wife", attrs: { relation: "wife", importance: "high" } },
+      ACTOR,
+    );
+    const link = linkEntities(
+      store,
+      {
+        src_id: a.id,
+        dst_id: b.id,
+        relation: "collaborates-with",
+        weight: 0.5,
+        authority: "self-declared",
+      },
+      ACTOR,
+    );
+    expect(link.weight).toBe(0.5);
+    expect(link.authority).toBe("self-declared");
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// get_neighbors
+// ────────────────────────────────────────────────────────────────────────────
+
+describe("get_neighbors", () => {
+  test("returns role='out' for outgoing and 'in' for incoming", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const b = store.createEntity(
+      { type: "goal", title: "B", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const c = store.createEntity(
+      { type: "goal", title: "C", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    linkEntities(store, { src_id: a.id, dst_id: b.id, relation: "subgoal-of" }, ACTOR);
+    linkEntities(store, { src_id: c.id, dst_id: a.id, relation: "subgoal-of" }, ACTOR);
+
+    const r = getNeighbors(store, { entity_id: a.id });
+    expect(r.center.id).toBe(a.id);
+    expect(r.neighbors).toHaveLength(2);
+
+    const out = r.neighbors.find((n) => n.entity.id === b.id);
+    const inn = r.neighbors.find((n) => n.entity.id === c.id);
+    expect(out?.role).toBe("out");
+    expect(inn?.role).toBe("in");
+  });
+
+  test("direction='out' filters to outgoing only", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const b = store.createEntity(
+      { type: "goal", title: "B", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const c = store.createEntity(
+      { type: "goal", title: "C", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    linkEntities(store, { src_id: a.id, dst_id: b.id, relation: "subgoal-of" }, ACTOR);
+    linkEntities(store, { src_id: c.id, dst_id: a.id, relation: "subgoal-of" }, ACTOR);
+
+    const r = getNeighbors(store, { entity_id: a.id, direction: "out" });
+    expect(r.neighbors).toHaveLength(1);
+    expect(r.neighbors[0]!.entity.id).toBe(b.id);
+    expect(r.neighbors[0]!.role).toBe("out");
+  });
+
+  test("types filter narrows neighbor entity types", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const goalB = store.createEntity(
+      { type: "goal", title: "B", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const person = store.createEntity(
+      { type: "person", title: "P", attrs: { relation: "friend", importance: "med" } },
+      ACTOR,
+    );
+    linkEntities(store, { src_id: a.id, dst_id: goalB.id, relation: "subgoal-of" }, ACTOR);
+    linkEntities(
+      store,
+      { src_id: a.id, dst_id: person.id, relation: "collaborates-with" },
+      ACTOR,
+    );
+
+    const r = getNeighbors(store, { entity_id: a.id, types: ["person"] });
+    expect(r.neighbors).toHaveLength(1);
+    expect(r.neighbors[0]!.entity.type).toBe("person");
+  });
+
+  test("excludes invalidated neighbor entities", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const b = store.createEntity(
+      { type: "goal", title: "B", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    linkEntities(store, { src_id: a.id, dst_id: b.id, relation: "subgoal-of" }, ACTOR);
+    store.invalidateEntity(b.id, ACTOR);
+
+    const r = getNeighbors(store, { entity_id: a.id });
+    expect(r.neighbors).toEqual([]);
+  });
+
+  test("NOT_FOUND on missing center entity", () => {
+    let err: unknown;
+    try {
+      getNeighbors(store, { entity_id: "missing" });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(HandlerError);
+    expect((err as HandlerError).code).toBe("NOT_FOUND");
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// invalidate_link
+// ────────────────────────────────────────────────────────────────────────────
+
+describe("invalidate_link", () => {
+  test("happy path: sets invalidated_at and logs link-invalidate event", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "A", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const b = store.createEntity(
+      { type: "goal", title: "B", attrs: { timeframe: "short" } },
+      ACTOR,
+    );
+    const link = linkEntities(
+      store,
+      { src_id: a.id, dst_id: b.id, relation: "subgoal-of" },
+      ACTOR,
+    );
+
+    const r = invalidateLink(store, { link_id: link.id, note: "no longer true" }, ACTOR);
+    expect(r.id).toBe(link.id);
+    expect(typeof r.invalidated_at).toBe("string");
+
+    const after = store.listLinks({ entityId: a.id, includeInvalidated: true });
+    const target = after.find((l) => l.id === link.id);
+    expect(target?.invalidated_at).not.toBeNull();
+
+    const events = store.listEvents();
+    const invalidateEvents = events.filter((e) => e.operation === "link-invalidate");
+    expect(invalidateEvents.length).toBeGreaterThan(0);
+    expect(invalidateEvents.at(-1)?.link_id).toBe(link.id);
+  });
+
+  test("NOT_FOUND on missing link id", () => {
+    let err: unknown;
+    try {
+      invalidateLink(store, { link_id: "missing" }, ACTOR);
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(HandlerError);
+    expect((err as HandlerError).code).toBe("NOT_FOUND");
   });
 });

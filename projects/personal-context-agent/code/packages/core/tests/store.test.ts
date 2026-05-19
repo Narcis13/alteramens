@@ -18,11 +18,11 @@ afterEach(() => cleanup?.());
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("schema migration", () => {
-  test("applies migration 0001 and records it", () => {
+  test("applies all migrations and records them", () => {
     const row = store.db
       .prepare("SELECT version FROM schema_migrations ORDER BY version")
       .all() as Array<{ version: number }>;
-    expect(row.map((r) => r.version)).toEqual([1]);
+    expect(row.map((r) => r.version)).toEqual([1, 2]);
   });
 
   test("is idempotent (re-opening does not re-apply)", () => {
@@ -36,8 +36,8 @@ describe("schema migration", () => {
     const after = t.store.db
       .prepare("SELECT count(*) as c FROM schema_migrations")
       .get() as { c: number };
-    expect(before.c).toBe(1);
-    expect(after.c).toBe(1);
+    expect(before.c).toBe(2);
+    expect(after.c).toBe(2);
     t.cleanup();
     // Restore module-level store so afterEach can clean up
     const restored = withTempStore();
@@ -623,5 +623,299 @@ describe("primitives", () => {
     };
     expect(row.title).toBe("PCA");
     expect(row.description).toBe("MVP build");
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// Link read API: listLinks, getNeighbors, invalidateLink
+// ────────────────────────────────────────────────────────────────────────────
+
+describe("link read API", () => {
+  function seedTriangle() {
+    const person = store.createEntity(
+      {
+        type: "person",
+        title: "Mihai",
+        attrs: { relation: "son", importance: "high" },
+      },
+      "test",
+    );
+    const event = store.createEntity(
+      { type: "event", title: "UMF exam", attrs: {} },
+      "test",
+    );
+    const goal = store.createEntity(
+      {
+        type: "goal",
+        title: "Support UMF prep",
+        attrs: { timeframe: "mid" },
+      },
+      "test",
+    );
+    const lPersonEvent = store.createLink(
+      { src_id: person.id, dst_id: event.id, relation: "subject-of" },
+      "test",
+    );
+    const lGoalPerson = store.createLink(
+      { src_id: goal.id, dst_id: person.id, relation: "collaborates-with" },
+      "test",
+    );
+    return { person, event, goal, lPersonEvent, lGoalPerson };
+  }
+
+  test("listLinks returns links in both directions for an entity", () => {
+    const { person, lPersonEvent, lGoalPerson } = seedTriangle();
+    const links = store.listLinks({ entityId: person.id });
+    const ids = links.map((l) => l.id).sort();
+    expect(ids).toEqual([lPersonEvent.id, lGoalPerson.id].sort());
+  });
+
+  test("listLinks direction='out' returns only outgoing", () => {
+    const { person, lPersonEvent } = seedTriangle();
+    const links = store.listLinks({ entityId: person.id, direction: "out" });
+    expect(links.map((l) => l.id)).toEqual([lPersonEvent.id]);
+  });
+
+  test("listLinks direction='in' returns only incoming", () => {
+    const { person, lGoalPerson } = seedTriangle();
+    const links = store.listLinks({ entityId: person.id, direction: "in" });
+    expect(links.map((l) => l.id)).toEqual([lGoalPerson.id]);
+  });
+
+  test("listLinks filters by relation", () => {
+    const { person, lPersonEvent } = seedTriangle();
+    const links = store.listLinks({
+      entityId: person.id,
+      relation: "subject-of",
+    });
+    expect(links.map((l) => l.id)).toEqual([lPersonEvent.id]);
+  });
+
+  test("listLinks excludes invalidated by default; includeInvalidated returns them", () => {
+    const { person, lPersonEvent } = seedTriangle();
+    store.invalidateLink(lPersonEvent.id, "test");
+    const without = store.listLinks({ entityId: person.id });
+    expect(without.map((l) => l.id)).not.toContain(lPersonEvent.id);
+    const withInvalid = store.listLinks({
+      entityId: person.id,
+      includeInvalidated: true,
+    });
+    expect(withInvalid.map((l) => l.id)).toContain(lPersonEvent.id);
+  });
+
+  test("listLinks respects limit", () => {
+    const { person, event } = seedTriangle();
+    store.createLink(
+      { src_id: person.id, dst_id: event.id, relation: "related-to" },
+      "test",
+    );
+    const links = store.listLinks({ entityId: person.id, limit: 1 });
+    expect(links).toHaveLength(1);
+  });
+
+  test("getNeighbors returns role 'out' / 'in' correctly for direction='both'", () => {
+    const { person, event, goal } = seedTriangle();
+    const neighbors = store.getNeighbors(person.id);
+    const byId = new Map(neighbors.map((n) => [n.entity.id, n]));
+    expect(byId.get(event.id)?.role).toBe("out");
+    expect(byId.get(goal.id)?.role).toBe("in");
+  });
+
+  test("getNeighbors filters by types", () => {
+    const { person, event } = seedTriangle();
+    const neighbors = store.getNeighbors(person.id, { types: ["event"] });
+    expect(neighbors).toHaveLength(1);
+    expect(neighbors[0]!.entity.id).toBe(event.id);
+  });
+
+  test("getNeighbors excludes invalidated neighbor entities", () => {
+    const { person, event } = seedTriangle();
+    store.invalidateEntity(event.id, "test");
+    const neighbors = store.getNeighbors(person.id);
+    expect(neighbors.map((n) => n.entity.id)).not.toContain(event.id);
+  });
+
+  test("getNeighbors excludes invalidated links", () => {
+    const { person, event, lPersonEvent } = seedTriangle();
+    store.invalidateLink(lPersonEvent.id, "test");
+    const neighbors = store.getNeighbors(person.id);
+    expect(neighbors.map((n) => n.entity.id)).not.toContain(event.id);
+  });
+
+  test("getNeighbors filters by relation", () => {
+    const { person, event } = seedTriangle();
+    const onlySubject = store.getNeighbors(person.id, { relation: "subject-of" });
+    expect(onlySubject).toHaveLength(1);
+    expect(onlySubject[0]!.entity.id).toBe(event.id);
+  });
+
+  test("invalidateLink sets timestamp and emits link-invalidate event", () => {
+    const { lPersonEvent } = seedTriangle();
+    const before = lPersonEvent.invalidated_at;
+    const updated = store.invalidateLink(lPersonEvent.id, "test", "ended");
+    expect(before).toBeNull();
+    expect(updated.invalidated_at).not.toBeNull();
+    const ev = store
+      .listEvents()
+      .filter((e) => e.operation === "link-invalidate");
+    expect(ev).toHaveLength(1);
+    expect(ev[0]!.link_id).toBe(lPersonEvent.id);
+    expect(ev[0]!.payload).toEqual({ note: "ended" });
+  });
+
+  test("invalidateLink throws NOT_FOUND for missing id", () => {
+    let err: unknown;
+    try {
+      store.invalidateLink("nope", "test");
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(StoreError);
+    expect((err as StoreError).code).toBe("NOT_FOUND");
+  });
+
+  test("invalidateLink is a no-op when already invalidated (no extra event)", () => {
+    const { lPersonEvent } = seedTriangle();
+    store.invalidateLink(lPersonEvent.id, "test");
+    store.invalidateLink(lPersonEvent.id, "test");
+    const ev = store
+      .listEvents()
+      .filter((e) => e.operation === "link-invalidate");
+    expect(ev).toHaveLength(1);
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// Phase 3 — cascade invalidation
+// ────────────────────────────────────────────────────────────────────────────
+
+describe("invalidateEntity cascade (Phase 3)", () => {
+  test("invalidating an entity cascades to all its links and emits link-invalidate events", () => {
+    const goal = store.createEntity(
+      { type: "goal", title: "Hub", attrs: { timeframe: "mid" } },
+      "test",
+    );
+    const a = store.createEntity(
+      { type: "knowledge", title: "k1", attrs: { domain: "x", depth: "novice" } },
+      "test",
+    );
+    const b = store.createEntity(
+      { type: "knowledge", title: "k2", attrs: { domain: "x", depth: "novice" } },
+      "test",
+    );
+    const c = store.createEntity(
+      { type: "knowledge", title: "k3", attrs: { domain: "x", depth: "novice" } },
+      "test",
+    );
+    const l1 = store.createLink(
+      { src_id: goal.id, dst_id: a.id, relation: "addresses" },
+      "test",
+    );
+    const l2 = store.createLink(
+      { src_id: goal.id, dst_id: b.id, relation: "addresses" },
+      "test",
+    );
+    const l3 = store.createLink(
+      { src_id: goal.id, dst_id: c.id, relation: "addresses" },
+      "test",
+    );
+
+    store.invalidateEntity(goal.id, "test", "outgrown");
+
+    for (const id of [l1.id, l2.id, l3.id]) {
+      const row = store.db
+        .prepare("SELECT invalidated_at FROM links WHERE id = ?")
+        .get(id) as { invalidated_at: string | null };
+      expect(row.invalidated_at).not.toBeNull();
+    }
+
+    const cascadeEvents = store
+      .listEvents()
+      .filter(
+        (e) =>
+          e.operation === "link-invalidate" &&
+          (e.payload as { reason?: string } | null)?.reason === "cascade",
+      );
+    expect(cascadeEvents).toHaveLength(3);
+    for (const ev of cascadeEvents) {
+      const payload = ev.payload as {
+        reason: string;
+        entity_id: string;
+        note?: string;
+      };
+      expect(payload.entity_id).toBe(goal.id);
+      expect(payload.note).toBe("outgrown");
+    }
+  });
+
+  test("cascade respects already-invalidated links (no double-invalidate event)", () => {
+    const a = store.createEntity(
+      { type: "goal", title: "g1", attrs: { timeframe: "mid" } },
+      "test",
+    );
+    const b = store.createEntity(
+      { type: "goal", title: "g2", attrs: { timeframe: "mid" } },
+      "test",
+    );
+    const link = store.createLink(
+      { src_id: a.id, dst_id: b.id, relation: "subgoal-of" },
+      "test",
+    );
+    store.invalidateLink(link.id, "test", "ended");
+
+    store.invalidateEntity(a.id, "test");
+
+    const linkInvalidateEvents = store
+      .listEvents()
+      .filter((e) => e.operation === "link-invalidate" && e.link_id === link.id);
+    expect(linkInvalidateEvents).toHaveLength(1);
+    const payload = linkInvalidateEvents[0]!.payload as { note?: string };
+    expect(payload.note).toBe("ended");
+  });
+
+  test("cascade triggers regardless of role (src or dst)", () => {
+    const target = store.createEntity(
+      { type: "person", title: "Hub", attrs: { relation: "x", importance: "high" } },
+      "test",
+    );
+    const outNeighbor = store.createEntity(
+      { type: "goal", title: "g", attrs: { timeframe: "mid" } },
+      "test",
+    );
+    const inNeighbor = store.createEntity(
+      { type: "event", title: "ev", attrs: {} },
+      "test",
+    );
+    const outLink = store.createLink(
+      { src_id: target.id, dst_id: outNeighbor.id, relation: "collaborates-with" },
+      "test",
+    );
+    const inLink = store.createLink(
+      { src_id: target.id, dst_id: inNeighbor.id, relation: "subject-of" },
+      "test",
+    );
+
+    store.invalidateEntity(target.id, "test");
+
+    const outRow = store.db
+      .prepare("SELECT invalidated_at FROM links WHERE id = ?")
+      .get(outLink.id) as { invalidated_at: string | null };
+    const inRow = store.db
+      .prepare("SELECT invalidated_at FROM links WHERE id = ?")
+      .get(inLink.id) as { invalidated_at: string | null };
+    expect(outRow.invalidated_at).not.toBeNull();
+    expect(inRow.invalidated_at).not.toBeNull();
+  });
+
+  test("cascade is silent when entity has no links", () => {
+    const e = store.createEntity(
+      { type: "goal", title: "Lonely", attrs: { timeframe: "short" } },
+      "test",
+    );
+    store.invalidateEntity(e.id, "test");
+    const cascadeEvents = store
+      .listEvents()
+      .filter((ev) => ev.operation === "link-invalidate");
+    expect(cascadeEvents).toHaveLength(0);
   });
 });

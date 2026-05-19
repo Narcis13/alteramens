@@ -5,10 +5,22 @@
 import {
   ENTITY_TYPES,
   StoreError,
+  getRelationSpec,
+  isCyclic,
+  validateLinkPair,
   type Entity,
   type EntityType,
+  type Link,
   type Store,
 } from "@pca/core";
+
+// key_links projection: skip body to keep summary payload small.
+export type KeyLinkEndpoint = { id: string; type: EntityType; title: string };
+export type KeyLink = {
+  link: Link;
+  src: KeyLinkEndpoint;
+  dst: KeyLinkEndpoint;
+};
 
 // ── Input shapes (validated upstream by SDK via zod) ───────────────────────────
 
@@ -61,6 +73,27 @@ export type ListActiveInput = {
   limit?: number;
 };
 
+export type LinkEntitiesInput = {
+  src_id: string;
+  dst_id: string;
+  relation: string;
+  weight?: number;
+  authority?: "self-declared" | "observed" | "inferred";
+};
+
+export type GetNeighborsInput = {
+  entity_id: string;
+  relation?: string;
+  direction?: "out" | "in" | "both";
+  types?: EntityType[];
+  limit?: number;
+};
+
+export type InvalidateLinkInput = {
+  link_id: string;
+  note?: string;
+};
+
 // ── Output shapes ─────────────────────────────────────────────────────────────
 
 export type SelfSummary = {
@@ -75,6 +108,7 @@ export type SelfSummary = {
   resources_summary: { count: number; sample: Entity[] };
   knowledge_summary: { count: number; sample: Entity[] };
   places_summary: { count: number; sample: Entity[] };
+  key_links: KeyLink[];
   last_updated: string | null;
 };
 
@@ -111,6 +145,18 @@ export type ListActiveResult = {
   items: Entity[];
 };
 
+export type LinkEntitiesResult = Link;
+
+export type GetNeighborsResult = {
+  center: Entity;
+  neighbors: Array<{ entity: Entity; link: Link; role: "out" | "in" }>;
+};
+
+export type InvalidateLinkResult = {
+  id: string;
+  invalidated_at: string;
+};
+
 // ── Error helpers ──────────────────────────────────────────────────────────────
 
 export class HandlerError extends Error {
@@ -137,10 +183,17 @@ function rethrow(e: unknown): never {
 export function getSelfSummary(
   store: Store,
   _input: GetSelfSummaryInput,
-  opts?: { sampleSize?: number; topPeopleLimit?: number },
+  opts?: {
+    sampleSize?: number;
+    topPeopleLimit?: number;
+    keyLinksLimit?: number;
+    includeKeyLinks?: boolean;
+  },
 ): SelfSummary {
   const sampleSize = opts?.sampleSize ?? 3;
   const topPeopleLimit = opts?.topPeopleLimit ?? 5;
+  const keyLinksLimit = opts?.keyLinksLimit ?? 10;
+  const includeKeyLinks = opts?.includeKeyLinks ?? true;
 
   const self = store.getCurrentSelf();
   const active_roles = store.listActive("role");
@@ -155,6 +208,16 @@ export function getSelfSummary(
   const resources = store.listActive("resource");
   const knowledge = store.listActive("knowledge");
   const places = store.listActive("place");
+
+  const key_links = includeKeyLinks
+    ? computeKeyLinks(store, {
+        self,
+        active_goals,
+        top_people,
+        active_constraints,
+        limit: keyLinksLimit,
+      })
+    : [];
 
   const lastUpdatedCandidates = [
     self?.updated_at,
@@ -180,8 +243,77 @@ export function getSelfSummary(
     resources_summary: { count: resources.length, sample: resources.slice(0, sampleSize) },
     knowledge_summary: { count: knowledge.length, sample: knowledge.slice(0, sampleSize) },
     places_summary: { count: places.length, sample: places.slice(0, sampleSize) },
+    key_links,
     last_updated,
   };
+}
+
+/**
+ * Compute the `key_links` slot for get_self_summary (plan-linking.md §4 Step 2.2).
+ *
+ * Collects links touching identity-anchor entities (self, active goals, top
+ * people, active constraints), deduplicates by link id, drops `related-to` /
+ * other `lowInformation` relations when at least 5 higher-signal links exist,
+ * ranks by weight DESC then created_at DESC, caps at `limit`, and projects
+ * src+dst to {id, type, title} so the payload stays small.
+ */
+function computeKeyLinks(
+  store: Store,
+  args: {
+    self: Entity | null;
+    active_goals: Entity[];
+    top_people: Entity[];
+    active_constraints: Entity[];
+    limit: number;
+  },
+): KeyLink[] {
+  const anchorIds: string[] = [];
+  if (args.self) anchorIds.push(args.self.id);
+  for (const g of args.active_goals) anchorIds.push(g.id);
+  for (const p of args.top_people) anchorIds.push(p.id);
+  for (const c of args.active_constraints) anchorIds.push(c.id);
+  if (anchorIds.length === 0) return [];
+
+  const seen = new Map<string, Link>();
+  for (const id of anchorIds) {
+    for (const link of store.listLinks({ entityId: id, limit: 200 })) {
+      if (!seen.has(link.id)) seen.set(link.id, link);
+    }
+  }
+  if (seen.size === 0) return [];
+
+  const all = [...seen.values()];
+  const highSignal = all.filter((l) => !getRelationSpec(l.relation)?.lowInformation);
+  const lowSignal = all.filter((l) => getRelationSpec(l.relation)?.lowInformation);
+  const pool = highSignal.length > 5 ? highSignal : [...highSignal, ...lowSignal];
+
+  pool.sort((a, b) => {
+    if (b.weight !== a.weight) return b.weight - a.weight;
+    return b.created_at.localeCompare(a.created_at);
+  });
+
+  const top = pool.slice(0, args.limit);
+
+  // Hydrate endpoint titles. Cache reads — same entity may appear on both
+  // sides of multiple links.
+  const entityCache = new Map<string, Entity | null>();
+  const getCached = (id: string): Entity | null => {
+    if (!entityCache.has(id)) entityCache.set(id, store.getEntity(id));
+    return entityCache.get(id) ?? null;
+  };
+
+  const hydrated: KeyLink[] = [];
+  for (const link of top) {
+    const src = getCached(link.src_id);
+    const dst = getCached(link.dst_id);
+    if (!src || !dst) continue; // dangling — skip rather than 500
+    hydrated.push({
+      link,
+      src: { id: src.id, type: src.type, title: src.title },
+      dst: { id: dst.id, type: dst.type, title: dst.title },
+    });
+  }
+  return hydrated;
 }
 
 /**
@@ -304,6 +436,118 @@ export function listActive(
     limit: input.limit,
   });
   return { type: input.type, count: items.length, items };
+}
+
+/**
+ * link_entities — create a typed link between two entities.
+ *
+ * Phase 2 validation (plan-linking.md §4 Step 2.1):
+ *   • both entities exist + active
+ *   • relation present in canonical registry → UNKNOWN_RELATION
+ *   • (src.type, dst.type) allowed by relation spec → BAD_PAIR
+ *   • acyclic relations refuse cycles → WOULD_CYCLE
+ */
+export function linkEntities(
+  store: Store,
+  input: LinkEntitiesInput,
+  actor: string,
+): LinkEntitiesResult {
+  if (input.src_id === input.dst_id) {
+    throw new HandlerError(
+      "src_id and dst_id must be different",
+      "BAD_INPUT",
+    );
+  }
+
+  const spec = getRelationSpec(input.relation);
+  if (!spec) {
+    throw new HandlerError(
+      `Unknown relation '${input.relation}'. Use the canonical vocabulary (see RELATIONS registry).`,
+      "UNKNOWN_RELATION",
+    );
+  }
+
+  const src = store.getEntity(input.src_id);
+  if (!src) throw new HandlerError(`Source entity not found: ${input.src_id}`, "NOT_FOUND");
+  if (src.status !== "active")
+    throw new HandlerError(
+      `Source entity is not active: ${input.src_id} (status=${src.status})`,
+      "INACTIVE_ENTITY",
+    );
+
+  const dst = store.getEntity(input.dst_id);
+  if (!dst) throw new HandlerError(`Destination entity not found: ${input.dst_id}`, "NOT_FOUND");
+  if (dst.status !== "active")
+    throw new HandlerError(
+      `Destination entity is not active: ${input.dst_id} (status=${dst.status})`,
+      "INACTIVE_ENTITY",
+    );
+
+  const pair = validateLinkPair(input.relation, src.type, dst.type);
+  if (!pair.ok) {
+    throw new HandlerError(pair.reason, "BAD_PAIR");
+  }
+
+  if (spec.acyclic && isCyclic(store, input.src_id, input.dst_id, input.relation)) {
+    throw new HandlerError(
+      `Creating ${input.relation} ${input.src_id} → ${input.dst_id} would introduce a cycle.`,
+      "WOULD_CYCLE",
+    );
+  }
+
+  try {
+    return store.createLink(
+      {
+        src_id: input.src_id,
+        dst_id: input.dst_id,
+        relation: input.relation,
+        weight: input.weight,
+        authority: input.authority,
+      },
+      actor,
+    );
+  } catch (e) {
+    rethrow(e);
+  }
+}
+
+/**
+ * get_neighbors — directly-linked entities for a given id, with link metadata.
+ */
+export function getNeighbors(
+  store: Store,
+  input: GetNeighborsInput,
+): GetNeighborsResult {
+  const center = store.getEntity(input.entity_id);
+  if (!center)
+    throw new HandlerError(`Entity not found: ${input.entity_id}`, "NOT_FOUND");
+
+  const neighbors = store.getNeighbors(input.entity_id, {
+    relation: input.relation,
+    direction: input.direction,
+    types: input.types,
+    limit: input.limit,
+  });
+  return { center, neighbors };
+}
+
+/**
+ * invalidate_link — mark a link as no-longer-true (append-only).
+ */
+export function invalidateLink(
+  store: Store,
+  input: InvalidateLinkInput,
+  actor: string,
+): InvalidateLinkResult {
+  try {
+    const link = store.invalidateLink(input.link_id, actor, input.note);
+    return {
+      id: link.id,
+      invalidated_at: link.invalidated_at!,
+    };
+  } catch (e) {
+    rethrow(e);
+  }
 }
 
 // ── Internal ──────────────────────────────────────────────────────────────────

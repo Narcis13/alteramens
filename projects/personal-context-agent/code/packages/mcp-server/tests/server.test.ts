@@ -35,14 +35,17 @@ afterEach(async () => {
 });
 
 describe("MCP server (via InMemoryTransport)", () => {
-  test("listTools advertises all 6 PCA tools with descriptions", async () => {
+  test("listTools advertises all 9 PCA tools with descriptions", async () => {
     const result = await client.listTools();
     const names = result.tools.map((t) => t.name).sort();
     expect(names).toEqual(
       [
         "confirm_entity",
+        "get_neighbors",
         "get_relevant_context",
         "get_self_summary",
+        "invalidate_link",
+        "link_entities",
         "list_active",
         "record_observation",
         "update_entity",

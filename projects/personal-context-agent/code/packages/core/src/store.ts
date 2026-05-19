@@ -64,6 +64,43 @@ type EntityRow = {
 
 type RawEventRow = Omit<EventRow, "payload"> & { payload: string | null };
 
+type LinkRow = {
+  id: string;
+  src_id: string;
+  dst_id: string;
+  relation: string;
+  weight: number;
+  authority: string;
+  created_at: string;
+  invalidated_at: string | null;
+};
+
+type NeighborRow = {
+  l_id: string;
+  l_src_id: string;
+  l_dst_id: string;
+  l_relation: string;
+  l_weight: number;
+  l_authority: string;
+  l_created_at: string;
+  l_invalidated_at: string | null;
+  e_id: string;
+  e_type: EntityType;
+  e_title: string;
+  e_body: string | null;
+  e_status: string;
+  e_authority: string;
+  e_confidence: string;
+  e_maturity: string;
+  e_scope: string;
+  e_source_ref: string | null;
+  e_attrs: string | null;
+  e_created_at: string;
+  e_updated_at: string;
+  e_expires_at: string | null;
+  e_invalidated_at: string | null;
+};
+
 export type Store = ReturnType<typeof openStore>;
 
 export function openStore(dbPath: string) {
@@ -194,6 +231,26 @@ export function openStore(dbPath: string) {
       `UPDATE entities SET status='invalidated', invalidated_at=?, updated_at=? WHERE id=?`,
     ).run(now, now, id);
     logEvent({ actor, operation: "invalidate", entity_id: id, payload: { note } });
+
+    // Cascade: any non-invalidated link touching this entity becomes invalid too.
+    // Phase 3 Step 3.1: only `invalidated` cascades. An `archived` transition
+    // leaves links intact — archive is a soft "out of rotation" state, not a
+    // truth-revocation.
+    const affected = db
+      .prepare(
+        `UPDATE links SET invalidated_at = ?
+           WHERE (src_id = ? OR dst_id = ?) AND invalidated_at IS NULL
+         RETURNING id`,
+      )
+      .all(now, id, id) as Array<{ id: string }>;
+    for (const link of affected) {
+      logEvent({
+        actor,
+        operation: "link-invalidate",
+        link_id: link.id,
+        payload: { reason: "cascade", entity_id: id, note },
+      });
+    }
     return getEntity(id)!;
   }
 
@@ -358,6 +415,178 @@ export function openStore(dbPath: string) {
     };
   }
 
+  function listLinks(opts?: {
+    entityId?: string;
+    relation?: string;
+    direction?: "out" | "in" | "both";
+    includeInvalidated?: boolean;
+    limit?: number;
+  }): Link[] {
+    const limit = opts?.limit ?? 50;
+    const includeInvalidated = opts?.includeInvalidated ?? false;
+    const where: string[] = [];
+    const params: unknown[] = [];
+
+    if (opts?.entityId) {
+      const direction = opts.direction ?? "both";
+      if (direction === "out") {
+        where.push("src_id = ?");
+        params.push(opts.entityId);
+      } else if (direction === "in") {
+        where.push("dst_id = ?");
+        params.push(opts.entityId);
+      } else {
+        where.push("(src_id = ? OR dst_id = ?)");
+        params.push(opts.entityId, opts.entityId);
+      }
+    }
+    if (!includeInvalidated) {
+      where.push("invalidated_at IS NULL");
+    }
+    if (opts?.relation) {
+      where.push("relation = ?");
+      params.push(opts.relation);
+    }
+
+    const whereSql = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
+    const sql = `SELECT * FROM links ${whereSql} ORDER BY created_at DESC LIMIT ?`;
+    params.push(limit);
+    const rows = db.prepare(sql).all(...(params as never[])) as LinkRow[];
+    return rows.map(rowToLink);
+  }
+
+  function getNeighbors(
+    id: string,
+    opts?: {
+      relation?: string;
+      direction?: "out" | "in" | "both";
+      types?: EntityType[];
+      limit?: number;
+    },
+  ): Array<{ entity: Entity; link: Link; role: "out" | "in" }> {
+    const limit = opts?.limit ?? 50;
+    const direction = opts?.direction ?? "both";
+
+    const linkCols = [
+      "l.id AS l_id",
+      "l.src_id AS l_src_id",
+      "l.dst_id AS l_dst_id",
+      "l.relation AS l_relation",
+      "l.weight AS l_weight",
+      "l.authority AS l_authority",
+      "l.created_at AS l_created_at",
+      "l.invalidated_at AS l_invalidated_at",
+    ].join(", ");
+    const entityCols = [
+      "e.id AS e_id",
+      "e.type AS e_type",
+      "e.title AS e_title",
+      "e.body AS e_body",
+      "e.status AS e_status",
+      "e.authority AS e_authority",
+      "e.confidence AS e_confidence",
+      "e.maturity AS e_maturity",
+      "e.scope AS e_scope",
+      "e.source_ref AS e_source_ref",
+      "e.attrs AS e_attrs",
+      "e.created_at AS e_created_at",
+      "e.updated_at AS e_updated_at",
+      "e.expires_at AS e_expires_at",
+      "e.invalidated_at AS e_invalidated_at",
+    ].join(", ");
+
+    const where: string[] = ["l.invalidated_at IS NULL"];
+    const params: unknown[] = [];
+    let neighborExpr: string;
+    let directionFilter: string;
+
+    if (direction === "out") {
+      neighborExpr = "l.dst_id";
+      directionFilter = "l.src_id = ?";
+      params.push(id);
+    } else if (direction === "in") {
+      neighborExpr = "l.src_id";
+      directionFilter = "l.dst_id = ?";
+      params.push(id);
+    } else {
+      neighborExpr = "CASE WHEN l.src_id = ? THEN l.dst_id ELSE l.src_id END";
+      directionFilter = "(l.src_id = ? OR l.dst_id = ?)";
+      params.push(id, id, id);
+    }
+    where.push(directionFilter);
+    where.push("e.status = 'active'");
+    where.push("(e.expires_at IS NULL OR e.expires_at > datetime('now'))");
+
+    if (opts?.relation) {
+      where.push("l.relation = ?");
+      params.push(opts.relation);
+    }
+    if (opts?.types && opts.types.length > 0) {
+      where.push(`e.type IN (${opts.types.map(() => "?").join(",")})`);
+      params.push(...opts.types);
+    }
+    params.push(limit);
+
+    const sql = `
+      SELECT ${linkCols}, ${entityCols}
+      FROM links l
+      JOIN entities e ON e.id = ${neighborExpr}
+      WHERE ${where.join(" AND ")}
+      ORDER BY l.created_at DESC
+      LIMIT ?
+    `;
+    const rows = db.prepare(sql).all(...(params as never[])) as NeighborRow[];
+    return rows.map((r) => {
+      const link = rowToLink({
+        id: r.l_id,
+        src_id: r.l_src_id,
+        dst_id: r.l_dst_id,
+        relation: r.l_relation,
+        weight: r.l_weight,
+        authority: r.l_authority,
+        created_at: r.l_created_at,
+        invalidated_at: r.l_invalidated_at,
+      });
+      const entity = rowToEntity({
+        id: r.e_id,
+        type: r.e_type,
+        title: r.e_title,
+        body: r.e_body,
+        status: r.e_status,
+        authority: r.e_authority,
+        confidence: r.e_confidence,
+        maturity: r.e_maturity,
+        scope: r.e_scope,
+        source_ref: r.e_source_ref,
+        attrs: r.e_attrs,
+        created_at: r.e_created_at,
+        updated_at: r.e_updated_at,
+        expires_at: r.e_expires_at,
+        invalidated_at: r.e_invalidated_at,
+      });
+      const role: "out" | "in" = link.src_id === id ? "out" : "in";
+      return { entity, link, role };
+    });
+  }
+
+  function invalidateLink(linkId: string, actor: string, note?: string): Link {
+    const existing = db
+      .prepare("SELECT * FROM links WHERE id = ?")
+      .get(linkId) as LinkRow | null;
+    if (!existing) throw new StoreError(`Link not found: ${linkId}`, "NOT_FOUND");
+    if (existing.invalidated_at) return rowToLink(existing);
+
+    const now = nowIso();
+    db.prepare("UPDATE links SET invalidated_at = ? WHERE id = ?").run(now, linkId);
+    logEvent({
+      actor,
+      operation: "link-invalidate",
+      link_id: linkId,
+      payload: { note },
+    });
+    return rowToLink({ ...existing, invalidated_at: now });
+  }
+
   function createAnnotation(
     args: { entity_id: string; body: string; authority?: Authority },
     actor: string,
@@ -458,6 +687,9 @@ export function openStore(dbPath: string) {
     listEvents,
     listStale,
     createLink,
+    listLinks,
+    getNeighbors,
+    invalidateLink,
     createAnnotation,
     tagEntity,
     createSource,
@@ -477,6 +709,19 @@ function addDays(iso: string, days: number): string {
   const d = new Date(iso);
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString();
+}
+
+function rowToLink(r: LinkRow): Link {
+  return {
+    id: r.id,
+    src_id: r.src_id,
+    dst_id: r.dst_id,
+    relation: r.relation,
+    weight: r.weight,
+    authority: r.authority as Authority,
+    created_at: r.created_at,
+    invalidated_at: r.invalidated_at,
+  };
 }
 
 function rowToEntity(r: EntityRow): Entity {
