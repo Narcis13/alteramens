@@ -1,0 +1,1635 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Personal Context Agent — the memory every agent forgets</title>
+<meta name="description" content="A local-first, structured memory store that gives any AI agent a faithful answer to: what do you know about me?" />
+
+<style>
+/* ─────────────────────────────────────────────────────────────────────────
+   PCA — overview page
+   Editorial, warm, structured. No external deps.
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* paper */
+  --cream:        #fbf7ee;
+  --cream-deep:   #f3ead8;
+  --cream-line:   #e6dcc6;
+
+  /* ink */
+  --ink:          #1a1814;
+  --ink-soft:     #3f3a32;
+  --muted:        #7a7268;
+  --faint:        #a89e8e;
+
+  /* category palette */
+  --rust:         #b54a2c;  /* identity   — self */
+  --gold:         #b8881d;  /* intention  — goal, role */
+  --sage:         #4f7044;  /* capability — knowledge, resource */
+  --blue:         #2f5d7a;  /* relationship — person, place */
+  --plum:         #6d3358;  /* situation  — state, event, constraint */
+  --teal:         #226363;  /* belief     — stance, preference */
+
+  /* meta */
+  --green-ok:     #4a7848;
+  --orange-warn:  #c87123;
+
+  --max:          1180px;
+  --gutter:       clamp(20px, 4vw, 56px);
+
+  --r-sm: 3px;
+  --r:    4px;
+  --r-lg: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+}
+
+.serif { font-family: "Iowan Old Style", "Palatino Linotype", "Cambria", Georgia, serif; }
+.mono  { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 0.86em; }
+
+/* ───────── scaffold ───────── */
+.wrap {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+section { padding: 84px 0; border-top: 1px solid var(--cream-line); }
+section:first-of-type { border-top: 0; }
+
+h1, h2, h3, h4 {
+  font-family: "Iowan Old Style", "Palatino Linotype", "Cambria", Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  color: var(--ink);
+}
+h1 { font-size: clamp(2.6rem, 5vw, 4.2rem); line-height: 1.02; }
+h2 { font-size: clamp(1.9rem, 3.3vw, 2.6rem); line-height: 1.1; margin-bottom: 14px; }
+h3 { font-size: 1.25rem; line-height: 1.25; }
+h4 { font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif; font-weight: 600; }
+
+p { color: var(--ink-soft); max-width: 68ch; }
+p + p { margin-top: 14px; }
+
+a { color: var(--rust); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--ink); }
+
+ul, ol { padding-left: 1.2em; color: var(--ink-soft); max-width: 68ch; }
+li + li { margin-top: 6px; }
+
+code {
+  font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.88em;
+  background: var(--cream-deep);
+  padding: 1px 6px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--cream-line);
+}
+
+pre {
+  background: #1a1814;
+  color: #f3ead8;
+  padding: 22px 24px;
+  border-radius: var(--r);
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.6;
+  border: 1px solid #0d0c0a;
+}
+pre code { background: transparent; border: 0; padding: 0; color: inherit; }
+.kw   { color: #e9a847; }
+.str  { color: #c1d191; }
+.cmt  { color: #7a7268; font-style: italic; }
+.var  { color: #d9b6d8; }
+.num  { color: #f3c884; }
+
+/* ───────── nav strip ───────── */
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(251, 247, 238, 0.92);
+  backdrop-filter: saturate(140%) blur(6px);
+  -webkit-backdrop-filter: saturate(140%) blur(6px);
+  border-bottom: 1px solid var(--cream-line);
+}
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; padding-bottom: 14px; }
+.brand { display: flex; gap: 12px; align-items: center; font-weight: 600; letter-spacing: -0.01em; }
+.brand .mark {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, var(--rust), #7a3018 70%);
+  box-shadow: 0 0 0 3px var(--cream), 0 0 0 4px var(--cream-line);
+}
+.topbar nav { display: flex; gap: 22px; font-size: 14px; }
+.topbar nav a { color: var(--ink-soft); text-decoration: none; }
+.topbar nav a:hover { color: var(--rust); }
+@media (max-width: 760px) { .topbar nav { display: none; } }
+
+/* ───────── hero ───────── */
+.hero { padding: 96px 0 80px; }
+.eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rust);
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.hero p.lead {
+  font-size: clamp(1.05rem, 1.7vw, 1.3rem);
+  color: var(--ink-soft);
+  max-width: 60ch;
+  margin-top: 24px;
+}
+.hero .meta {
+  margin-top: 36px;
+  display: flex; flex-wrap: wrap; gap: 10px 24px;
+  font-size: 13px;
+  color: var(--muted);
+  font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+}
+.hero .meta span::before { content: "·"; margin-right: 8px; color: var(--faint); }
+.hero .meta span:first-child::before { content: ""; margin: 0; }
+.honest {
+  margin-top: 36px;
+  padding: 16px 20px;
+  border-left: 3px solid var(--orange-warn);
+  background: rgba(200, 113, 35, 0.06);
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  max-width: 64ch;
+}
+.honest strong { color: var(--orange-warn); }
+
+/* ───────── generic blocks ───────── */
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 56px;
+  align-items: start;
+}
+@media (max-width: 880px) { .intro-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+.cap { font-size: 13px; color: var(--muted); letter-spacing: 0.04em; margin-top: 10px; }
+
+/* table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  margin-top: 20px;
+}
+th, td {
+  text-align: left;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--cream-line);
+  vertical-align: top;
+}
+th {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--cream-deep);
+}
+tbody tr:hover { background: rgba(184, 136, 29, 0.04); }
+td .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11.5px; font-family: "JetBrains Mono", "SF Mono", Menlo, monospace; }
+
+/* category pills */
+.pill.identity     { background: rgba(181, 74, 44, 0.13);  color: var(--rust); }
+.pill.intention    { background: rgba(184, 136, 29, 0.15); color: var(--gold); }
+.pill.capability   { background: rgba(79, 112, 68, 0.15);  color: var(--sage); }
+.pill.relationship { background: rgba(47, 93, 122, 0.13);  color: var(--blue); }
+.pill.situation    { background: rgba(109, 51, 88, 0.13);  color: var(--plum); }
+.pill.belief       { background: rgba(34, 99, 99, 0.13);   color: var(--teal); }
+.pill.never        { background: var(--cream-deep); color: var(--muted); }
+.pill.ttl          { background: rgba(200, 113, 35, 0.1); color: var(--orange-warn); }
+
+/* split layout */
+.split2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+@media (max-width: 880px) { .split2 { grid-template-columns: 1fr; } }
+
+/* compare cards (before/after) */
+.compare {
+  border: 1px solid var(--cream-line);
+  background: var(--cream-deep);
+  border-radius: var(--r);
+  padding: 26px 28px;
+  position: relative;
+}
+.compare.bad  { background: #f1ecde; }
+.compare.good { background: #ece5d4; box-shadow: 0 8px 22px -14px rgba(26, 24, 20, 0.18); border-color: rgba(79, 112, 68, 0.3); }
+.compare .tag {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+  font-weight: 600; margin-bottom: 14px;
+}
+.compare.good .tag { color: var(--sage); }
+.compare .chat {
+  font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13.5px; line-height: 1.65; color: var(--ink-soft);
+}
+.compare .chat .who { color: var(--ink); font-weight: 600; }
+.compare .chat .you { color: var(--rust); }
+.compare .chat .agent { color: var(--blue); }
+.compare .summary {
+  margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--cream-line);
+  font-size: 13.5px; color: var(--muted);
+}
+
+/* persona tabs */
+.persona-tabs {
+  display: flex; gap: 0; border-bottom: 2px solid var(--cream-line); margin-top: 32px;
+  flex-wrap: wrap;
+}
+.persona-tabs button {
+  background: transparent; border: 0; padding: 12px 20px;
+  font-family: inherit; font-size: 14.5px; font-weight: 600;
+  color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.01em;
+}
+.persona-tabs button:hover { color: var(--ink); }
+.persona-tabs button.active { color: var(--ink); border-bottom-color: var(--rust); }
+
+.persona-body {
+  margin-top: 28px;
+  padding: 30px 32px;
+  background: var(--cream-deep);
+  border-radius: var(--r);
+  border: 1px solid var(--cream-line);
+}
+.persona-body[hidden] { display: none; }
+.persona-body h3 { margin-bottom: 6px; }
+.persona-body .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 18px; font-style: italic; }
+.persona-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 30px; margin-top: 12px; }
+@media (max-width: 760px) { .persona-grid { grid-template-columns: 1fr; } }
+.persona-entry {
+  background: var(--cream);
+  border: 1px solid var(--cream-line);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  font-size: 14.5px;
+}
+.persona-entry .layer { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+.persona-entry .label { font-weight: 600; margin: 2px 0 4px; color: var(--ink); }
+.persona-entry .note { color: var(--muted); font-size: 13.5px; }
+.persona-link {
+  margin-top: 22px;
+  padding: 14px 16px;
+  background: rgba(184, 136, 29, 0.08);
+  border-radius: var(--r);
+  font-size: 14px;
+  color: var(--ink-soft);
+  border-left: 3px solid var(--gold);
+}
+.persona-payoff {
+  margin-top: 20px;
+  font-size: 14.5px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.persona-payoff strong { color: var(--rust); }
+
+/* differentiators */
+.angles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin-top: 36px; }
+@media (max-width: 760px) { .angles { grid-template-columns: 1fr; } }
+.angle {
+  border: 1px solid var(--cream-line);
+  padding: 26px 28px;
+  background: var(--cream);
+  border-radius: var(--r);
+  position: relative;
+  overflow: hidden;
+}
+.angle::before {
+  content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+  background: var(--rust);
+}
+.angle.a2::before { background: var(--blue); }
+.angle.a3::before { background: var(--sage); }
+.angle.a4::before { background: var(--gold); }
+.angle.a5::before { background: var(--teal); }
+.angle .num { font-family: "Iowan Old Style", Georgia, serif; font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+.angle h3 { margin-bottom: 8px; }
+.angle p { font-size: 14.5px; }
+.angle .ex {
+  margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--cream-line);
+  font-size: 13.5px; color: var(--muted); font-style: italic;
+}
+
+/* roadmap */
+.arc {
+  margin-top: 30px;
+  padding: 22px 26px;
+  border-radius: var(--r);
+  background: var(--cream-deep);
+  border: 1px solid var(--cream-line);
+}
+.arc h3 { display: flex; align-items: baseline; gap: 12px; }
+.arc h3 .num { font-family: "Iowan Old Style", Georgia, serif; font-size: 1.6rem; color: var(--muted); }
+.arc .when {
+  font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--rust); font-weight: 600;
+}
+.arc.now    { border-left: 4px solid var(--green-ok); }
+.arc.soon   { border-left: 4px solid var(--gold); }
+.arc.future { border-left: 4px solid var(--blue); opacity: 0.9; }
+.arc ul { margin-top: 12px; }
+
+/* stack diagram (architecture) */
+.stack {
+  display: grid; gap: 4px; max-width: 580px; margin-top: 24px;
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace; font-size: 13px;
+}
+.stack > div {
+  padding: 14px 18px;
+  background: var(--cream-deep);
+  border: 1px solid var(--cream-line);
+  border-radius: var(--r);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.stack .label { font-weight: 600; color: var(--ink); }
+.stack .what { color: var(--muted); font-size: 12px; }
+.stack .l1 { background: rgba(181, 74, 44, 0.08); border-color: rgba(181, 74, 44, 0.2); }
+.stack .l2 { background: rgba(184, 136, 29, 0.08); border-color: rgba(184, 136, 29, 0.2); }
+.stack .l3 { background: rgba(79, 112, 68, 0.08); border-color: rgba(79, 112, 68, 0.2); }
+.stack .l4 { background: rgba(47, 93, 122, 0.08); border-color: rgba(47, 93, 122, 0.2); }
+.stack .l5 { background: rgba(34, 99, 99, 0.08); border-color: rgba(34, 99, 99, 0.2); }
+
+/* footer */
+footer {
+  margin-top: 80px;
+  padding: 48px 0 60px;
+  border-top: 1px solid var(--cream-line);
+  font-size: 13px;
+  color: var(--muted);
+}
+footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
+footer code { font-size: 12.5px; }
+
+/* small helpers */
+.callout {
+  margin: 32px 0;
+  padding: 22px 26px;
+  border-left: 3px solid var(--rust);
+  background: rgba(181, 74, 44, 0.05);
+  border-radius: 0 var(--r) var(--r) 0;
+}
+.callout p { max-width: none; }
+.callout .h { font-weight: 600; color: var(--ink); margin-bottom: 4px; font-family: inherit; }
+
+.pull {
+  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  line-height: 1.3;
+  color: var(--ink);
+  margin: 40px 0;
+  padding-left: 22px;
+  border-left: 4px solid var(--rust);
+  max-width: 56ch;
+}
+.pull cite { display: block; margin-top: 12px; font-size: 0.65em; color: var(--muted); font-style: normal; letter-spacing: 0.04em; }
+
+/* svg containers */
+.svg-frame {
+  margin: 32px 0 12px;
+  padding: 24px;
+  background: var(--cream-deep);
+  border: 1px solid var(--cream-line);
+  border-radius: var(--r);
+}
+.svg-frame svg { width: 100%; height: auto; display: block; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ topbar ═══════════════════════════════ -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"></span>
+      <span>Personal Context Agent</span>
+    </div>
+    <nav>
+      <a href="#problem">The problem</a>
+      <a href="#layers">12 layers</a>
+      <a href="#graph">Relations</a>
+      <a href="#flow">Capture</a>
+      <a href="#fit">Who it fits</a>
+      <a href="#angles">Why it works</a>
+      <a href="#roadmap">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════ hero ═══════════════════════════════ -->
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Built for the Skill Era · An Alteramens experiment</div>
+    <h1>The context every<br/>agent forgets,<br/>finally remembered.</h1>
+    <p class="lead">
+      Personal Context Agent is a local-first, structured memory store that gives any AI agent
+      a faithful, queryable answer to the one question they should always be asking:
+      <em>what do you actually know about me?</em>
+    </p>
+
+    <div class="meta">
+      <span>Local-first</span>
+      <span>9 MCP tools</span>
+      <span>12 typed layers of context</span>
+      <span>11 canonical relations</span>
+      <span>SQLite + Bun + TypeScript</span>
+      <span>Open architecture</span>
+    </div>
+
+    <div class="honest">
+      <strong>Honest status, May&nbsp;2026:</strong> Foundation shipped — schema, MCP server, capture skill,
+      link hygiene. Next step is not more features. It's running the validating demo loop
+      with real captures on real workdays. Read on for the full picture.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ the problem ═══════════════════════════════ -->
+<section id="problem">
+  <div class="wrap">
+    <h4>The problem</h4>
+    <h2>Every conversation starts at zero.</h2>
+    <div class="intro-grid">
+      <div>
+        <p>
+          The most expensive thing about working with an AI agent today is not the inference cost.
+          It's the cost of <em>re-establishing context</em> every single conversation.
+        </p>
+        <p>
+          Who are you. What you're working on. Who's on your team. What time you're available.
+          What you refuse to do. What you already tried. What you learned from that. What you
+          decided last Friday.
+        </p>
+        <p>
+          Without a place to put it, this context lives in your head — and dies the moment
+          a conversation ends. Each new session, the agent starts blind again.
+        </p>
+        <p>
+          A notes app doesn't fix this. A notes app is for <em>you</em>. The agent can't read it,
+          can't reason over it, can't tell what's still true. The problem isn't storage. It's
+          <em>structure</em>.
+        </p>
+      </div>
+
+      <div class="split2">
+        <div class="compare bad">
+          <div class="tag">Without context</div>
+          <div class="chat">
+            <span class="who you">You:</span> Help me plan my week to ship the MVP.<br/><br/>
+            <span class="who agent">Claude:</span> Sure. Quick questions first:<br/>
+            &nbsp;&nbsp;1. Timezone?<br/>
+            &nbsp;&nbsp;2. Hours/day you can work on this?<br/>
+            &nbsp;&nbsp;3. What does "MVP" mean here?<br/>
+            &nbsp;&nbsp;4. Anyone helping you?<br/>
+            &nbsp;&nbsp;5. Hard deadlines or constraints?<br/>
+            <span class="cmt">…5 turns later, the plan finally starts.</span>
+          </div>
+          <div class="summary">Every session, the same warm-up. Friction tax on a person who already explained this last Tuesday.</div>
+        </div>
+
+        <div class="compare good">
+          <div class="tag">With PCA</div>
+          <div class="chat">
+            <span class="who you">You:</span> Help me plan my week to ship the MVP.<br/><br/>
+            <span class="who agent">Claude:</span> <span class="cmt">[reads get_self_summary]</span><br/>
+            Given the hospital&nbsp;8–15 block, Razvan free Tue/Thu evenings,<br/>
+            and your stance against scope-creep, here's a 5-day plan focused<br/>
+            on the link-hygiene pass and demo loop. Mon: …
+          </div>
+          <div class="summary">The agent already knows the constraints, collaborators, and stances. The conversation starts where it should: the actual question.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ the 12 layers ═══════════════════════════════ -->
+<section id="layers">
+  <div class="wrap">
+    <h4>An anatomy of context</h4>
+    <h2>Twelve layers, six categories.</h2>
+    <p>
+      PCA decomposes "what an agent should know about you" into twelve typed layers, grouped into
+      six categories. Each layer has its own shape, its own validation, and its own
+      <em>epistemic decay rate</em> — because moods change in days, goals shift in months, and
+      identity changes in years.
+    </p>
+
+    <div class="svg-frame" aria-label="Twelve layers of personal context arranged by category">
+      <!-- SVG: Anatomy of context — 6 category rows, 12 layers as cards -->
+      <svg viewBox="0 0 1100 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="anatomyTitle">
+        <title id="anatomyTitle">Anatomy of context: six categories containing twelve layers</title>
+        <defs>
+          <style>
+            .cat-label { font: 600 11px -apple-system, Segoe UI, Inter, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; fill: #7a7268; }
+            .layer-name { font: 600 18px Iowan Old Style, Palatino Linotype, Cambria, Georgia, serif; }
+            .layer-def  { font: 13px -apple-system, Segoe UI, Inter, sans-serif; fill: #3f3a32; }
+            .ttl-badge  { font: 600 10px JetBrains Mono, SF Mono, Menlo, monospace; fill: #fff; }
+          </style>
+        </defs>
+
+        <!-- horizontal divider lines -->
+        <g stroke="#e6dcc6" stroke-width="1">
+          <line x1="20"   y1="115"  x2="1080" y2="115" />
+          <line x1="20"   y1="215"  x2="1080" y2="215" />
+          <line x1="20"   y1="335"  x2="1080" y2="335" />
+          <line x1="20"   y1="455"  x2="1080" y2="455" />
+          <line x1="20"   y1="595"  x2="1080" y2="595" />
+        </g>
+
+        <!-- title strip -->
+        <text class="cat-label" x="20" y="36" fill="#1a1814" style="font-size:13px; letter-spacing:0.18em;">YOU (the operator)</text>
+        <text x="20" y="68" style="font: 600 22px Iowan Old Style, Georgia, serif; fill:#1a1814;">The center every layer orbits.</text>
+        <line x1="20" y1="92" x2="1080" y2="92" stroke="#b54a2c" stroke-width="2" />
+
+        <!-- ═══════ row 1: Identity ═══════ -->
+        <text class="cat-label" x="20" y="148">Identity · who you are at the core</text>
+        <g transform="translate(20, 160)">
+          <rect width="320" height="42" fill="rgba(181,74,44,0.08)" stroke="rgba(181,74,44,0.3)" rx="3"/>
+          <text class="layer-name" x="16" y="20" fill="#b54a2c">self</text>
+          <text class="layer-def"  x="16" y="35">narrative · pillars · voice rules</text>
+          <rect x="270" y="10" width="40" height="20" rx="10" fill="#7a7268"/>
+          <text class="ttl-badge" x="278" y="24">never</text>
+        </g>
+        <text class="layer-def" x="370" y="180" font-style="italic" fill="#7a7268">Singleton. One coherent description of you, updated as you evolve.</text>
+
+        <!-- ═══════ row 2: Intention ═══════ -->
+        <text class="cat-label" x="20" y="248">Intention · what you're aiming at, what hat you wear</text>
+        <g transform="translate(20, 260)">
+          <rect width="320" height="58" fill="rgba(184,136,29,0.08)" stroke="rgba(184,136,29,0.3)" rx="3"/>
+          <text class="layer-name" x="16" y="22" fill="#b8881d">goal</text>
+          <text class="layer-def"  x="16" y="40">aim with timeframe + success criteria</text>
+          <text class="layer-def"  x="16" y="54" fill="#7a7268">timeframe: short / mid / long</text>
+          <rect x="266" y="14" width="44" height="20" rx="10" fill="#c87123"/>
+          <text class="ttl-badge" x="276" y="28">90 d</text>
+        </g>
+        <g transform="translate(360, 260)">
+          <rect width="320" height="58" fill="rgba(184,136,29,0.08)" stroke="rgba(184,136,29,0.3)" rx="3"/>
+          <text class="layer-name" x="16" y="22" fill="#b8881d">role</text>
+          <text class="layer-def"  x="16" y="40">identity in context + schedule</text>
+          <text class="layer-def"  x="16" y="54" fill="#7a7268">e.g. parent, founder, hospital admin</text>
+          <rect x="266" y="14" width="44" height="20" rx="10" fill="#c87123"/>
+          <text class="ttl-badge" x="274" y="28">180 d</text>
+        </g>
+
+        <!-- ═══════ row 3: Capability ═══════ -->
+        <text class="cat-label" x="20" y="368">Capability · what you can do, what you have</text>
+        <g transform="translate(20, 380)">
+          <rect width="320" height="58" fill="rgba(79,112,68,0.08)" stroke="rgba(79,112,68,0.3)" rx="3"/>
+          <text class="layer-name" x="16" y="22" fill="#4f7044">knowledge</text>
+          <text class="layer-def"  x="16" y="40">skill or expertise area + depth</text>
+          <text class="layer-def"  x="16" y="54" fill="#7a7268">novice / practitioner / expert</text>
+          <rect x="270" y="14" width="40" height="20" rx="10" fill="#7a7268"/>
+          <text class="ttl-badge" x="278" y="28">never</text>
+        </g>
+        <g transform="translate(360, 380)">
+          <rect width="320" height="58" fill="rgba(79,112,68,0.08)" stroke="rgba(79,112,68,0.3)" rx="3"/>
+          <text class="layer-name" x="16" y="22" fill="#4f7044">resource</text>
+          <text class="layer-def"  x="16" y="40">tool, subscription, asset, access, budget</text>
+          <text class="layer-def"  x="16" y="54" fill="#7a7268">often has a cost field</text>
+          <rect x="266" y="14" width="44" height="20" rx="10" fill="#c87123"/>
+          <text class="ttl-badge" x="274" y="28">180 d</text>
+        </g>
+
+        <!-- ═══════ row 4: Relationship ═══════ -->
+        <text class="cat-label" x="20" y="488">Relationship · who and where</text>
+        <g transform="translate(20, 500)">
+          <rect width="320" height="58" fill="rgba(47,93,122,0.08)" stroke="rgba(47,93,122,0.3)" rx="3"/>
+          <text class="layer-name" x="16" y="22" fill="#2f5d7a">person</text>
+          <text class="layer-def"  x="16" y="40">someone who matters to you + relation</text>
+          <text class="layer-def"  x="16" y="54" fill="#7a7268">importance: high / med / low</text>
+          <rect x="270" y="14" width="40" height="20" rx="10" fill="#7a7268"/>
+          <text class="ttl-badge" x="278" y="28">never</text>
+        </g>
+        <g transform="translate(360, 500)">
+          <rect width="320" height="58" fill="rgba(47,93,122,0.08)" stroke="rgba(47,93,122,0.3)" rx="3"/>
+          <text class="layer-name" x="16" y="22" fill="#2f5d7a">place</text>
+          <text class="layer-def"  x="16" y="40">a physical, digital, or social location</text>
+          <text class="layer-def"  x="16" y="54" fill="#7a7268">e.g. office, GitHub repo, family</text>
+          <rect x="270" y="14" width="40" height="20" rx="10" fill="#7a7268"/>
+          <text class="ttl-badge" x="278" y="28">never</text>
+        </g>
+
+        <!-- ═══════ row 5: Situation ═══════ -->
+        <text class="cat-label" x="20" y="628">Situation · now, past, blockers</text>
+        <g transform="translate(20, 640)">
+          <rect width="208" height="58" fill="rgba(109,51,88,0.08)" stroke="rgba(109,51,88,0.3)" rx="3"/>
+          <text class="layer-name" x="14" y="22" fill="#6d3358">state</text>
+          <text class="layer-def"  x="14" y="40">mood, energy, focus right now</text>
+          <text class="layer-def"  x="14" y="54" fill="#7a7268">decays fast</text>
+          <rect x="158" y="14" width="44" height="20" rx="10" fill="#c87123"/>
+          <text class="ttl-badge" x="172" y="28">7 d</text>
+        </g>
+        <g transform="translate(248, 640)">
+          <rect width="208" height="58" fill="rgba(109,51,88,0.08)" stroke="rgba(109,51,88,0.3)" rx="3"/>
+          <text class="layer-name" x="14" y="22" fill="#6d3358">event</text>
+          <text class="layer-def"  x="14" y="40">something that happened (past tense)</text>
+          <text class="layer-def"  x="14" y="54" fill="#7a7268">timestamped, linked to actors</text>
+          <rect x="158" y="14" width="40" height="20" rx="10" fill="#7a7268"/>
+          <text class="ttl-badge" x="166" y="28">never</text>
+        </g>
+        <g transform="translate(476, 640)">
+          <rect width="208" height="58" fill="rgba(109,51,88,0.08)" stroke="rgba(109,51,88,0.3)" rx="3"/>
+          <text class="layer-name" x="14" y="22" fill="#6d3358">constraint</text>
+          <text class="layer-def"  x="14" y="40">a real blocker or boundary</text>
+          <text class="layer-def"  x="14" y="54" fill="#7a7268">time / ethical / legal / cognitive</text>
+          <rect x="158" y="14" width="44" height="20" rx="10" fill="#c87123"/>
+          <text class="ttl-badge" x="172" y="28">180 d</text>
+        </g>
+
+        <!-- ═══════ row 6: Belief ═══════ (rendered to the right of row 1-2 for vertical balance) -->
+        <g transform="translate(720, 160)">
+          <text class="cat-label" x="0" y="-12">Belief &amp; taste</text>
+          <rect width="340" height="68" fill="rgba(34,99,99,0.08)" stroke="rgba(34,99,99,0.3)" rx="3"/>
+          <text class="layer-name" x="16" y="24" fill="#226363">stance</text>
+          <text class="layer-def"  x="16" y="42">a belief + reason</text>
+          <text class="layer-def"  x="16" y="58" fill="#7a7268">includes <tspan font-family="JetBrains Mono, monospace">evidence_sources[]</tspan></text>
+          <rect x="290" y="16" width="40" height="20" rx="10" fill="#7a7268"/>
+          <text class="ttl-badge" x="298" y="30">never</text>
+        </g>
+        <g transform="translate(720, 260)">
+          <rect width="340" height="68" fill="rgba(34,99,99,0.08)" stroke="rgba(34,99,99,0.3)" rx="3"/>
+          <text class="layer-name" x="16" y="24" fill="#226363">preference</text>
+          <text class="layer-def"  x="16" y="42">an aesthetic, taste, or voice rule</text>
+          <text class="layer-def"  x="16" y="58" fill="#7a7268">register: voice / aesthetic / taste</text>
+          <rect x="290" y="16" width="40" height="20" rx="10" fill="#7a7268"/>
+          <text class="ttl-badge" x="298" y="30">never</text>
+        </g>
+
+        <!-- Annotation: TTL meaning -->
+        <g transform="translate(720, 380)">
+          <text class="cat-label" x="0" y="-12">Why the badges?</text>
+          <rect width="340" height="200" fill="#fbf7ee" stroke="#e6dcc6" rx="3"/>
+          <text class="layer-def" x="16" y="24" style="font-weight:600;">Time-to-live ≠ deletion.</text>
+          <text class="layer-def" x="16" y="46">When an entity passes its TTL it becomes</text>
+          <text class="layer-def" x="16" y="62"><tspan font-family="JetBrains Mono, monospace">stale</tspan>. Stale entities surface in <tspan font-family="JetBrains Mono, monospace">ctx review</tspan>.</text>
+          <text class="layer-def" x="16" y="86">You confirm: still true → extend.</text>
+          <text class="layer-def" x="16" y="104">No longer true → invalidate (cascade).</text>
+          <text class="layer-def" x="16" y="122">Modify → update + extend.</text>
+          <text class="layer-def" x="16" y="150" fill="#7a7268" font-style="italic">A goal you set 90 days ago is not</text>
+          <text class="layer-def" x="16" y="166" fill="#7a7268" font-style="italic">assumed to still be your goal.</text>
+          <text class="layer-def" x="16" y="182" fill="#7a7268" font-style="italic">You re-affirm it, or it sleeps.</text>
+        </g>
+
+      </svg>
+    </div>
+    <div class="cap">Each layer has a typed schema, a default time-to-live, and its own SQL view. Twelve cleanly separated facets of "what an agent should know" — no overflow, no confusion.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ the relations graph ═══════════════════════════════ -->
+<section id="graph">
+  <div class="wrap">
+    <h4>Context becomes a graph</h4>
+    <h2>Eleven canonical relations.</h2>
+    <p>
+      Twelve layers of facts would still be a flat list. What makes PCA different is that the facts
+      <em>connect</em>. Each link is directed, typed against an allow-list, and validated for cycles
+      and pair compatibility. The vocabulary is deliberately small — eleven relations cover every
+      structural connection an agent needs.
+    </p>
+
+    <div class="svg-frame" aria-label="A worked example: a graph slice for a student preparing for an exam">
+      <!-- SVG: example graph for a student -->
+      <svg viewBox="0 0 1000 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="graphTitle">
+        <title id="graphTitle">Worked example — a graph slice from a student's context</title>
+        <defs>
+          <style>
+            .node-text { font: 600 13px -apple-system, Segoe UI, Inter, sans-serif; fill: #1a1814; }
+            .node-sub  { font: 10.5px JetBrains Mono, SF Mono, Menlo, monospace; fill: #7a7268; letter-spacing: 0.04em; }
+            .edge-label { font: 600 11px JetBrains Mono, SF Mono, Menlo, monospace; fill: #3f3a32; }
+            .edge { fill: none; stroke: #7a7268; stroke-width: 1.4; }
+          </style>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#7a7268"/>
+          </marker>
+          <marker id="arrow-rust" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#b54a2c"/>
+          </marker>
+        </defs>
+
+        <!-- caption -->
+        <text x="20" y="28" style="font: 600 13px -apple-system; fill:#7a7268; letter-spacing:0.14em; text-transform:uppercase;">STUDENT · MID-SEMESTER</text>
+        <text x="20" y="52" style="font: 600 18px Iowan Old Style, Georgia, serif; fill:#1a1814;">A slice of Maria's context — seven entities, six relations.</text>
+
+        <!-- edges first (so nodes draw on top) -->
+        <!-- self ← reinforces ← stance -->
+        <path class="edge" d="M 500,210 C 500,170 500,140 500,120" marker-end="url(#arrow)"/>
+        <text class="edge-label" x="510" y="170">reinforces</text>
+
+        <!-- goal "pass calculus" → subgoal-of → "apply to PhD" -->
+        <path class="edge" d="M 240,170 C 340,140 580,140 700,170" marker-end="url(#arrow)"/>
+        <text class="edge-label" x="430" y="138">subgoal-of</text>
+
+        <!-- "Apply to PhD" → motivated-by → stance -->
+        <path class="edge" d="M 720,200 C 660,160 580,120 540,108" marker-end="url(#arrow)"/>
+        <text class="edge-label" x="608" y="155">motivated-by</text>
+
+        <!-- "Pass calculus" → requires → "Integration techniques" -->
+        <path class="edge" d="M 180,220 C 130,280 110,330 130,370" marker-end="url(#arrow-rust)" stroke="#b54a2c"/>
+        <text class="edge-label" x="50" y="320" fill="#b54a2c">requires</text>
+
+        <!-- "Pass calculus" → addresses → "Math anxiety" -->
+        <path class="edge" d="M 230,235 C 300,310 360,360 410,400" marker-end="url(#arrow)"/>
+        <text class="edge-label" x="305" y="345">addresses</text>
+
+        <!-- "Integration techniques" → requires → "Paul's Math Notes" -->
+        <path class="edge" d="M 250,400 C 350,420 500,440 640,440" marker-end="url(#arrow-rust)" stroke="#b54a2c"/>
+        <text class="edge-label" x="430" y="455" fill="#b54a2c">requires</text>
+
+        <!-- self → collaborates-with → "Prof. Stanescu" -->
+        <path class="edge" d="M 530,235 C 620,270 720,300 800,330" marker-end="url(#arrow)"/>
+        <text class="edge-label" x="680" y="270">collaborates-with</text>
+
+        <!-- nodes -->
+        <!-- center: self -->
+        <g transform="translate(500,210)">
+          <circle r="32" fill="rgba(181,74,44,0.18)" stroke="#b54a2c" stroke-width="2"/>
+          <text class="node-text" text-anchor="middle" y="2">Maria</text>
+          <text class="node-sub"  text-anchor="middle" y="16">self</text>
+        </g>
+
+        <!-- top: stance -->
+        <g transform="translate(500,90)">
+          <rect x="-90" y="-25" width="180" height="50" rx="6" fill="rgba(34,99,99,0.13)" stroke="#226363" stroke-width="1.5"/>
+          <text class="node-text" text-anchor="middle" y="-3">Quiet learner</text>
+          <text class="node-sub"  text-anchor="middle" y="14">stance · "I learn deepest alone"</text>
+        </g>
+
+        <!-- top-left: goal short -->
+        <g transform="translate(170,190)">
+          <rect x="-90" y="-25" width="180" height="50" rx="6" fill="rgba(184,136,29,0.13)" stroke="#b8881d" stroke-width="1.5"/>
+          <text class="node-text" text-anchor="middle" y="-3">Pass calculus final</text>
+          <text class="node-sub"  text-anchor="middle" y="14">goal · short · 14 d</text>
+        </g>
+
+        <!-- top-right: goal long -->
+        <g transform="translate(800,180)">
+          <rect x="-90" y="-25" width="180" height="50" rx="6" fill="rgba(184,136,29,0.13)" stroke="#b8881d" stroke-width="1.5"/>
+          <text class="node-text" text-anchor="middle" y="-3">Apply to PhD</text>
+          <text class="node-sub"  text-anchor="middle" y="14">goal · long · 18 mo</text>
+        </g>
+
+        <!-- mid-left: knowledge -->
+        <g transform="translate(130,400)">
+          <rect x="-95" y="-25" width="190" height="50" rx="6" fill="rgba(79,112,68,0.13)" stroke="#4f7044" stroke-width="1.5"/>
+          <text class="node-text" text-anchor="middle" y="-3">Integration techniques</text>
+          <text class="node-sub"  text-anchor="middle" y="14">knowledge · novice → practitioner</text>
+        </g>
+
+        <!-- mid-right: resource -->
+        <g transform="translate(740,440)">
+          <rect x="-95" y="-25" width="190" height="50" rx="6" fill="rgba(79,112,68,0.13)" stroke="#4f7044" stroke-width="1.5"/>
+          <text class="node-text" text-anchor="middle" y="-3">Paul's Math Notes</text>
+          <text class="node-sub"  text-anchor="middle" y="14">resource · tool · free</text>
+        </g>
+
+        <!-- bottom-mid: constraint -->
+        <g transform="translate(440,420)">
+          <rect x="-85" y="-25" width="170" height="50" rx="6" fill="rgba(109,51,88,0.13)" stroke="#6d3358" stroke-width="1.5"/>
+          <text class="node-text" text-anchor="middle" y="-3">Math anxiety</text>
+          <text class="node-sub"  text-anchor="middle" y="14">constraint · cognitive · soft</text>
+        </g>
+
+        <!-- bottom-right: person -->
+        <g transform="translate(870,360)">
+          <rect x="-80" y="-25" width="160" height="50" rx="6" fill="rgba(47,93,122,0.13)" stroke="#2f5d7a" stroke-width="1.5"/>
+          <text class="node-text" text-anchor="middle" y="-3">Prof. Stanescu</text>
+          <text class="node-sub"  text-anchor="middle" y="14">person · advisor · high</text>
+        </g>
+
+      </svg>
+    </div>
+    <div class="cap">Six edges turn seven facts into a queryable structure. Ask the graph: "what does my exam goal depend on?" — and the answer is deterministic, not a guess.</div>
+
+    <h3 style="margin-top:48px;">The eleven relations, in full</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:18%">Relation</th>
+          <th style="width:8%">Acyclic</th>
+          <th style="width:10%">Symmetric</th>
+          <th>Allowed pairs (sample)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>subgoal-of</code></td><td>yes</td><td>—</td><td><code>goal → goal</code></td></tr>
+        <tr><td><code>motivated-by</code></td><td>—</td><td>—</td><td><code>goal · event · state · role → stance · constraint · knowledge</code></td></tr>
+        <tr><td><code>collaborates-with</code></td><td>—</td><td>yes</td><td><code>person ↔ person · person ↔ goal · self ↔ *</code></td></tr>
+        <tr><td><code>subject-of</code></td><td>—</td><td>—</td><td><code>person → event · person → goal</code></td></tr>
+        <tr><td><code>located-at</code></td><td>—</td><td>—</td><td><code>event · role · state → place</code></td></tr>
+        <tr><td><code>caused-by</code></td><td>—</td><td>—</td><td><code>state · event → event · role · place · person</code></td></tr>
+        <tr><td><code>reinforces</code></td><td>—</td><td>—</td><td><code>stance · preference · role → stance · self</code></td></tr>
+        <tr><td><code>competes-with</code></td><td>—</td><td>yes</td><td><code>goal · stance · role ↔ goal · stance · role</code></td></tr>
+        <tr><td><code>addresses</code></td><td>—</td><td>—</td><td><code>goal · role → constraint · knowledge · event</code></td></tr>
+        <tr><td><code>requires</code></td><td>—</td><td>—</td><td><code>goal · role → resource · knowledge · person · place</code></td></tr>
+        <tr><td><code>related-to</code></td><td>—</td><td>—</td><td><code>* ↔ *</code> &nbsp;<span class="pill never">low signal</span> &nbsp;fallback only</td></tr>
+      </tbody>
+    </table>
+    <div class="cap">Acyclic relations (today: only <code>subgoal-of</code>) are enforced with BFS cycle detection on link creation. Pair validation rejects nonsense links before they exist in the graph.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ capture flow ═══════════════════════════════ -->
+<section id="flow">
+  <div class="wrap">
+    <h4>Capture in seconds. Used forever.</h4>
+    <h2>One skill. One pipeline.</h2>
+    <p>
+      You don't open an app. You don't click through forms. You type <code>/ctx-add</code> in Claude
+      Code, in whatever language feels natural, and the skill does the work.
+    </p>
+
+    <div class="split2" style="margin-top:36px;">
+      <div>
+        <h3>The capture pipeline</h3>
+        <ol style="margin-top:14px;">
+          <li><strong>Read before write.</strong> Skill calls <code>get_self_summary</code> and <code>get_relevant_context</code> to catch duplicates and resolve vague references ("the goal", "Razvan", "last week").</li>
+          <li><strong>Classify into one of twelve.</strong> Decision rules tell <code>stance</code> from <code>preference</code>, <code>state</code> from <code>event</code>, <code>goal</code> from <code>role</code>.</li>
+          <li><strong>Propose splits when needed.</strong> "Mihai (son, 18) prepares for UMF Carol Davila, July 2027" becomes a person + event + place + two links.</li>
+          <li><strong>Input fidelity.</strong> Persist only what is literally in your input. Any agent-side inference becomes a <em>separate</em> entity flagged <code>inferred</code> — never quietly merged into a <code>self-declared</code> fact.</li>
+          <li><strong>Confirm before persist.</strong> You see the proposed entities and links and answer <code>[Y / n / edit / split]</code>.</li>
+          <li><strong>Persist + audit.</strong> Every write logs an event row. Nothing is silently mutated; nothing is silently lost.</li>
+        </ol>
+      </div>
+
+      <div>
+        <h3>What you actually type</h3>
+<pre><code><span class="cmt"># single fact — auto-typed</span>
+<span class="kw">/ctx-add</span> <span class="str">I refuse to build dashboards for retail SaaS — too crowded</span>
+
+<span class="cmt"># multi-fact — proposes splits</span>
+<span class="kw">/ctx-add</span> <span class="str">Razvan (cofounder, TS expert) joined PCA this week</span>
+
+<span class="cmt"># a transient state — auto-decays in 7 days</span>
+<span class="kw">/ctx-add</span> <span class="str">Today I'm focused but low energy</span>
+
+<span class="cmt"># Romanian works — skill is language-agnostic</span>
+<span class="kw">/ctx-add</span> <span class="str">Lucrez la spital luni–vineri 8–15, hard constraint</span></code></pre>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="h">The "input fidelity" rule, in plain language.</div>
+      <p>The skill is allowed to <em>interpret</em> what you say, but never to <em>inject</em> facts you didn't say.
+      If the agent thinks "because you said X, you probably also believe Y", then Y goes in the store as a
+      separate entity with <code>authority: inferred</code> — never quietly merged into your self-declared profile.
+      This is what keeps the store from drifting into LLM hallucination of you.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ provenance ═══════════════════════════════ -->
+<section id="provenance">
+  <div class="wrap">
+    <h4>Where did this fact come from?</h4>
+    <h2>Every entity carries its provenance.</h2>
+    <p>
+      A memory store is only as useful as it is trustworthy. PCA tags every entity and every link with
+      an <code>authority</code> field that records <em>how that fact got into the store</em>. Three values,
+      three trust levels.
+    </p>
+
+    <div class="svg-frame" aria-label="The authority spectrum: self-declared, observed, inferred">
+      <!-- SVG: Authority spectrum -->
+      <svg viewBox="0 0 1000 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="authTitle">
+        <title id="authTitle">Authority spectrum: three trust levels for any fact in the store.</title>
+        <defs>
+          <linearGradient id="authGrad" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%"  stop-color="#4f7044"/>
+            <stop offset="50%" stop-color="#b8881d"/>
+            <stop offset="100%" stop-color="#7a7268"/>
+          </linearGradient>
+        </defs>
+
+        <!-- bar -->
+        <rect x="80" y="100" width="840" height="14" rx="7" fill="url(#authGrad)" opacity="0.4"/>
+        <rect x="80" y="100" width="840" height="14" rx="7" fill="none" stroke="#1a1814" stroke-width="1"/>
+
+        <!-- tick: self-declared -->
+        <g transform="translate(180,107)">
+          <circle r="10" fill="#4f7044" stroke="#fbf7ee" stroke-width="3"/>
+        </g>
+        <text x="180" y="50" text-anchor="middle" style="font: 600 14px -apple-system; fill:#4f7044;">self-declared</text>
+        <text x="180" y="68" text-anchor="middle" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#7a7268;">highest trust</text>
+        <text x="180" y="160" text-anchor="middle" style="font: 13px -apple-system; fill:#3f3a32;">"the user literally said this"</text>
+        <text x="180" y="180" text-anchor="middle" style="font: 13px -apple-system; fill:#3f3a32;">verbatim in your input</text>
+        <text x="180" y="210" text-anchor="middle" style="font: 12px Iowan Old Style, Georgia, serif; fill:#7a7268; font-style:italic;">"I work mornings at the hospital"</text>
+        <text x="180" y="226" text-anchor="middle" style="font: 12px Iowan Old Style, Georgia, serif; fill:#7a7268; font-style:italic;">→ self-declared constraint</text>
+
+        <!-- tick: observed -->
+        <g transform="translate(500,107)">
+          <circle r="10" fill="#b8881d" stroke="#fbf7ee" stroke-width="3"/>
+        </g>
+        <text x="500" y="50" text-anchor="middle" style="font: 600 14px -apple-system; fill:#b8881d;">observed</text>
+        <text x="500" y="68" text-anchor="middle" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#7a7268;">medium trust</text>
+        <text x="500" y="160" text-anchor="middle" style="font: 13px -apple-system; fill:#3f3a32;">"the agent noticed this"</text>
+        <text x="500" y="180" text-anchor="middle" style="font: 13px -apple-system; fill:#3f3a32;">from conversation tone or behavior</text>
+        <text x="500" y="210" text-anchor="middle" style="font: 12px Iowan Old Style, Georgia, serif; fill:#7a7268; font-style:italic;">user types short replies, mood seems low</text>
+        <text x="500" y="226" text-anchor="middle" style="font: 12px Iowan Old Style, Georgia, serif; fill:#7a7268; font-style:italic;">→ observed state</text>
+
+        <!-- tick: inferred -->
+        <g transform="translate(820,107)">
+          <circle r="10" fill="#7a7268" stroke="#fbf7ee" stroke-width="3"/>
+        </g>
+        <text x="820" y="50" text-anchor="middle" style="font: 600 14px -apple-system; fill:#7a7268;">inferred</text>
+        <text x="820" y="68" text-anchor="middle" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#7a7268;">lowest trust</text>
+        <text x="820" y="160" text-anchor="middle" style="font: 13px -apple-system; fill:#3f3a32;">"the agent reasoned to this"</text>
+        <text x="820" y="180" text-anchor="middle" style="font: 13px -apple-system; fill:#3f3a32;">from side-context, not your input</text>
+        <text x="820" y="210" text-anchor="middle" style="font: 12px Iowan Old Style, Georgia, serif; fill:#7a7268; font-style:italic;">CLAUDE.md says "Pitești"; user didn't</text>
+        <text x="820" y="226" text-anchor="middle" style="font: 12px Iowan Old Style, Georgia, serif; fill:#7a7268; font-style:italic;">→ inferred place (separate entity)</text>
+      </svg>
+    </div>
+
+    <p>
+      Agents read this field. A well-built skill follows your <code>self-declared</code> constraints strictly
+      but treats <code>inferred</code> ones as hypotheses to be checked. When the agent gets something wrong,
+      you can audit the events log and see exactly where the wrong fact came from — and how trusted it was.
+    </p>
+
+    <p style="margin-top:18px;">
+      No generic memory tool does this. Mem, Reflect, Notion, Obsidian — they treat every note as equally
+      true. PCA treats provenance as a first-class column, because <em>agents need to know how much to
+      trust their own memory of you</em>.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ decay loop ═══════════════════════════════ -->
+<section id="decay">
+  <div class="wrap">
+    <h4>Facts have expiration dates.</h4>
+    <h2>The store stays current by construction.</h2>
+
+    <div class="intro-grid">
+      <div>
+        <p>
+          The reason most personal-knowledge systems become useless after six months is the same:
+          they accumulate without revisiting. Yesterday's truth becomes today's noise.
+        </p>
+        <p>
+          PCA gives every entity a time-to-live that matches its <em>epistemic decay rate</em>.
+          A mood lasts a week; a goal lasts a quarter; a subscription, half a year; a stance, until
+          you change your mind.
+        </p>
+        <p>
+          When something expires it doesn't disappear — it goes <code>stale</code>. Stale entities
+          surface in <code>ctx review</code>. You confirm with one of three outcomes, and the
+          system updates accordingly. If you invalidate the entity, every link that touched it is
+          automatically invalidated too — no orphaned references, no zombie facts.
+        </p>
+      </div>
+
+      <div class="svg-frame">
+        <!-- SVG: decay/confirm loop -->
+        <svg viewBox="0 0 540 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="loopTitle">
+          <title id="loopTitle">The decay-and-confirm loop.</title>
+          <defs>
+            <marker id="loop-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#b54a2c"/>
+            </marker>
+          </defs>
+
+          <!-- Captured -->
+          <g transform="translate(270,70)">
+            <circle r="50" fill="rgba(79,112,68,0.13)" stroke="#4f7044" stroke-width="2"/>
+            <text text-anchor="middle" y="-2" style="font: 600 14px -apple-system; fill:#4f7044;">Captured</text>
+            <text text-anchor="middle" y="16" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#7a7268;">active</text>
+          </g>
+
+          <!-- Live (TTL counting) -->
+          <g transform="translate(440,210)">
+            <circle r="50" fill="rgba(184,136,29,0.13)" stroke="#b8881d" stroke-width="2"/>
+            <text text-anchor="middle" y="-2" style="font: 600 14px -apple-system; fill:#b8881d;">Live</text>
+            <text text-anchor="middle" y="16" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#7a7268;">TTL ticking</text>
+          </g>
+
+          <!-- Stale -->
+          <g transform="translate(270,350)">
+            <circle r="50" fill="rgba(200,113,35,0.13)" stroke="#c87123" stroke-width="2"/>
+            <text text-anchor="middle" y="-2" style="font: 600 14px -apple-system; fill:#c87123;">Stale</text>
+            <text text-anchor="middle" y="16" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#7a7268;">surface for review</text>
+          </g>
+
+          <!-- Invalidated (drift exit) -->
+          <g transform="translate(80,350)">
+            <circle r="44" fill="rgba(109,51,88,0.13)" stroke="#6d3358" stroke-width="2"/>
+            <text text-anchor="middle" y="-2" style="font: 600 13px -apple-system; fill:#6d3358;">Invalidated</text>
+            <text text-anchor="middle" y="14" style="font: 10.5px JetBrains Mono, SF Mono, monospace; fill:#7a7268;">links cascade</text>
+          </g>
+
+          <!-- arcs -->
+          <!-- captured → live -->
+          <path d="M 320,90 C 390,110 420,160 430,180" fill="none" stroke="#b54a2c" stroke-width="1.6" marker-end="url(#loop-arrow)"/>
+          <!-- live → stale -->
+          <path d="M 440,260 C 410,310 360,340 320,348" fill="none" stroke="#b54a2c" stroke-width="1.6" marker-end="url(#loop-arrow)"/>
+          <!-- stale → live (still-true) -->
+          <path d="M 295,310 C 340,280 390,260 420,230" fill="none" stroke="#4f7044" stroke-width="1.6" stroke-dasharray="4 3"/>
+          <text x="395" y="295" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#4f7044;">still-true</text>
+          <!-- stale → invalidated (no-longer-true) -->
+          <path d="M 222,350 L 132,350" fill="none" stroke="#6d3358" stroke-width="1.6" marker-end="url(#loop-arrow)"/>
+          <text x="145" y="338" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#6d3358;">no-longer-true</text>
+          <!-- stale → captured (modify) -->
+          <path d="M 240,310 C 200,250 200,160 235,110" fill="none" stroke="#b8881d" stroke-width="1.6" stroke-dasharray="4 3"/>
+          <text x="155" y="220" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#b8881d;">modify</text>
+
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ for whom ═══════════════════════════════ -->
+<section id="fit">
+  <div class="wrap">
+    <h4>Whoever you are, your context fits.</h4>
+    <h2>The twelve layers are categories of personhood — not domain objects.</h2>
+    <p>
+      The schema isn't shaped around developers, founders, or any specific job. It's shaped around
+      <em>how a human relates to the world</em> — what you want, what blocks you, who matters, how
+      you think. That's why it generalizes. Pick a persona and see.
+    </p>
+
+    <div class="persona-tabs" role="tablist">
+      <button role="tab" data-tab="student" class="active">Student preparing for an exam</button>
+      <button role="tab" data-tab="owner">Business owner</button>
+      <button role="tab" data-tab="teacher">Teacher</button>
+      <button role="tab" data-tab="founder">Solopreneur starting a startup</button>
+    </div>
+
+    <!-- STUDENT -->
+    <div class="persona-body" data-tab="student">
+      <h3>Maria · third-year math student · final exam in 14 days</h3>
+      <p class="sub">She captures as she studies. Three weeks in, the store starts paying her back.</p>
+      <div class="persona-grid">
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--rust);">self</div>
+          <div class="label">"Visual learner, depth over breadth"</div>
+          <div class="note">narrative + voice rules</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--gold);">goal · short</div>
+          <div class="label">Pass calculus final, 14 days</div>
+          <div class="note">timeframe: short · success: ≥ 70%</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--gold);">goal · long</div>
+          <div class="label">Apply to PhD programs by 2027</div>
+          <div class="note">timeframe: long</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--sage);">knowledge</div>
+          <div class="label">Integration techniques — novice → practitioner</div>
+          <div class="note">domain: calculus · depth growing</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--blue);">person</div>
+          <div class="label">Prof. Stanescu — advisor</div>
+          <div class="note">importance: high</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--plum);">constraint</div>
+          <div class="label">"Math anxiety" — cognitive, soft</div>
+          <div class="note">surfaces when planning hard sessions</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--plum);">state</div>
+          <div class="label">"Tired after 90 min of intensive work"</div>
+          <div class="note">expires in 7 days · informs session length</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--teal);">stance</div>
+          <div class="label">"I learn deepest alone, not in study groups"</div>
+          <div class="note">reason: tried both for one semester each</div>
+        </div>
+      </div>
+      <div class="persona-link">
+        <strong>Relations Maria's graph captures:</strong>
+        <code>Pass calculus → subgoal-of → Apply to PhD</code> ·
+        <code>Pass calculus → requires → Integration techniques</code> ·
+        <code>Pass calculus → addresses → Math anxiety</code> ·
+        <code>Quiet learner → reinforces → self</code>
+      </div>
+      <div class="persona-payoff">
+        <strong>The payoff:</strong> when Maria opens Claude Code and asks "plan my study week", the agent already
+        knows: 14 days to the final, math anxiety is real, no study groups, 90-min focus blocks, integration
+        techniques are the weak spot. The plan respects all of it without one setup question.
+      </div>
+    </div>
+
+    <!-- BUSINESS OWNER -->
+    <div class="persona-body" data-tab="owner" hidden>
+      <h3>Andrei · owns a small bakery · scaling to a second location</h3>
+      <p class="sub">PCA captures the operator, not the gradebook. A real CRM tracks his 800 customers. PCA tracks <em>him</em>.</p>
+      <div class="persona-grid">
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--rust);">self</div>
+          <div class="label">"Quality-first baker, hands-on owner"</div>
+          <div class="note">pillars: quality, employee retention, community</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--gold);">goal · mid</div>
+          <div class="label">Open second location by Q4 2026</div>
+          <div class="note">success: signed lease + first staff hire</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--gold);">role</div>
+          <div class="label">Owner-operator — at shop 5am–2pm, M–Sat</div>
+          <div class="note">schedule pinned</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--sage);">resource</div>
+          <div class="label">Business credit line (€40k available)</div>
+          <div class="note">kind: budget · refreshed quarterly</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--blue);">person</div>
+          <div class="label">Ioana — head baker · 8 yrs · key to second location</div>
+          <div class="note">importance: high</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--plum);">constraint</div>
+          <div class="label">"Cannot work past 7pm — family"</div>
+          <div class="note">hard time constraint</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--teal);">stance</div>
+          <div class="label">"No franchising — quality dies at scale"</div>
+          <div class="note">reason: watched two competitors collapse this way</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--teal);">preference</div>
+          <div class="label">"Rustic over modern aesthetic"</div>
+          <div class="note">register: aesthetic · strength: strong</div>
+        </div>
+      </div>
+      <div class="persona-link">
+        <strong>Relations the graph captures:</strong>
+        <code>Open second location → requires → Ioana (head baker)</code> ·
+        <code>Open second location → requires → €40k credit</code> ·
+        <code>No franchising → competes-with → Open second location</code> ·
+        <code>Quality-first → reinforces → self</code>
+      </div>
+      <div class="persona-payoff">
+        <strong>The payoff:</strong> Andrei asks Claude for expansion strategies. Claude doesn't suggest franchising
+        (stance), doesn't suggest 80-hour weeks (constraint), centers Ioana in any staffing plan (person + requires),
+        and respects the rustic positioning (preference) in any branding draft. The advice fits <em>his</em> business,
+        not generic SMB advice.
+      </div>
+    </div>
+
+    <!-- TEACHER -->
+    <div class="persona-body" data-tab="teacher" hidden>
+      <h3>Cristina · 8th-grade math teacher · 12 years in</h3>
+      <p class="sub">Her gradebook lives elsewhere. PCA holds her teaching philosophy, her constraints, her own evolution.</p>
+      <div class="persona-grid">
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--rust);">self</div>
+          <div class="label">"Patient, project-driven, evidence-based"</div>
+          <div class="note">pillars: understanding, fairness, joy</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--gold);">goal · mid</div>
+          <div class="label">Redesign curriculum around problem-solving by Sept</div>
+          <div class="note">timeframe: mid</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--gold);">role</div>
+          <div class="label">8th grade math · M–F · curriculum lead</div>
+          <div class="note">domain: education</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--sage);">knowledge</div>
+          <div class="label">Pedagogy of inquiry — practitioner</div>
+          <div class="note">depth: practitioner</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--blue);">person</div>
+          <div class="label">Mr. Popescu — principal · supportive but cautious</div>
+          <div class="note">importance: high · approval gates new curriculum</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--plum);">constraint</div>
+          <div class="label">"Must align with state standards"</div>
+          <div class="note">hard legal/curricular</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--teal);">stance</div>
+          <div class="label">"Tests aren't the goal — understanding is"</div>
+          <div class="note">reason: post-test retention data she ran herself</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--teal);">preference</div>
+          <div class="label">"Project-based over rote"</div>
+          <div class="note">register: taste</div>
+        </div>
+      </div>
+      <div class="persona-link">
+        <strong>Relations the graph captures:</strong>
+        <code>Curriculum redesign → addresses → state standards (constraint)</code> ·
+        <code>Curriculum redesign → requires → Mr. Popescu (approval)</code> ·
+        <code>Understanding-over-tests → reinforces → self</code>
+      </div>
+      <div class="persona-payoff">
+        <strong>The payoff:</strong> Cristina asks Claude to help draft a lesson plan. The plan respects state standards
+        (constraint), uses project-based methods (preference), embodies inquiry pedagogy (knowledge), and includes
+        the language she'll need when presenting to Mr. Popescu (person · gate). Claude doesn't propose a worksheet —
+        because it knows her stance.
+      </div>
+    </div>
+
+    <!-- FOUNDER -->
+    <div class="persona-body" data-tab="founder" hidden>
+      <h3>Narcis · hospital IT admin by day · building Alteramens by night</h3>
+      <p class="sub">The original use case. Two lives, one operator, one context store.</p>
+      <div class="persona-grid">
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--rust);">self</div>
+          <div class="label">"AI-augmented builder, bias for action"</div>
+          <div class="note">pillars: leverage, autonomy, iteration</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--gold);">role</div>
+          <div class="label">Hospital IT admin · M–F · 8–15</div>
+          <div class="note">scope: role:hospital · hard time block</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--gold);">role</div>
+          <div class="label">Alteramens builder · evenings + weekends</div>
+          <div class="note">scope: role:alteramens</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--gold);">goal · mid</div>
+          <div class="label">Ship PCA MVP + validate demo loop</div>
+          <div class="note">timeframe: mid</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--sage);">resource</div>
+          <div class="label">Claude Code Max ($200/mo)</div>
+          <div class="note">kind: subscription</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--blue);">person</div>
+          <div class="label">Razvan — cofounder · TS expert</div>
+          <div class="note">collaborates Tue/Thu evenings</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--teal);">stance</div>
+          <div class="label">"Code & content are permissionless leverage"</div>
+          <div class="note">reason: Naval Foundation · Skill Era thesis</div>
+        </div>
+        <div class="persona-entry">
+          <div class="layer" style="color:var(--teal);">stance</div>
+          <div class="label">"Encode judgment, not just functionality"</div>
+          <div class="note">reason: API-shaped products commoditize fast</div>
+        </div>
+      </div>
+      <div class="persona-link">
+        <strong>Relations the graph captures:</strong>
+        <code>Ship PCA → requires → Claude Code Max</code> ·
+        <code>Ship PCA → collaborates-with → Razvan</code> ·
+        <code>Hospital role → competes-with → Alteramens role</code> (time) ·
+        <code>Encode judgment → reinforces → self</code>
+      </div>
+      <div class="persona-payoff">
+        <strong>The payoff:</strong> When Narcis asks Claude "what should I build next?", the answer respects the
+        hospital block, leverages Razvan's TS strength on Tue/Thu, fits the "encode judgment" thesis, and doesn't
+        suggest dashboards (a refused stance is captured elsewhere). Every future skill in the Alteramens system
+        will read this same store — context that compounds across every tool he uses.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ angles ═══════════════════════════════ -->
+<section id="angles">
+  <div class="wrap">
+    <h4>Why this and not a notes app</h4>
+    <h2>Five things that make PCA different.</h2>
+    <p>
+      Any one of these can be added to a memory tool as a feature. The five <em>together</em>
+      compose a system — each piece reinforces the others, and that's what makes the combination
+      hard to copy.
+    </p>
+
+    <div class="angles">
+      <div class="angle a1">
+        <div class="num">— 01</div>
+        <h3>Agent-native, not user-native.</h3>
+        <p>You don't open the PCA app, because there isn't one. Capture lives inside Claude Code via <code>/ctx-add</code>. The agent reads the store at session start. The whole loop runs <em>inside your flow</em> — zero context switch.</p>
+        <div class="ex">A note in Mem requires you to open Mem. A fact in PCA is captured while you're already talking to the agent that needs it.</div>
+      </div>
+
+      <div class="angle a2">
+        <div class="num">— 02</div>
+        <h3>Structural reasoning over a typed graph.</h3>
+        <p>Twelve typed layers, eleven validated relations. The agent doesn't grep your notes — it traverses a structure. "What goals require a resource I just invalidated?" is a SQL query, not a guess.</p>
+        <div class="ex">At fifty entities you can read everything. At five thousand, only the graph-shape can answer "show me the dependency chain from this goal."</div>
+      </div>
+
+      <div class="angle a3">
+        <div class="num">— 03</div>
+        <h3>Provenance you can audit.</h3>
+        <p>Every entity carries an <code>authority</code>: self-declared, observed, or inferred. Every change writes an event row. When the agent gets you wrong, you can trace exactly which fact misled it.</p>
+        <div class="ex">Most memory tools store all notes as equally true. PCA's events log is forensic-quality — and that's what builds trust.</div>
+      </div>
+
+      <div class="angle a4">
+        <div class="num">— 04</div>
+        <h3>Multi-horizon scopes.</h3>
+        <p>You aren't one person across all contexts. Entities carry a <code>scope</code> field — <code>role:hospital</code>, <code>project:alteramens</code>, <code>persona:family</code>. Agent behavior can shift implicitly with active scope.</p>
+        <div class="ex">Same person, different operating mode. Generic tools force you to manually "set context" every time. PCA bakes it into the data.</div>
+      </div>
+
+      <div class="angle a5">
+        <div class="num">— 05</div>
+        <h3>Continuous alignment by construction.</h3>
+        <p>TTL on every layer matches its decay rate. Stale entities surface in <code>ctx review</code>. Weekly confirmation extends, modifies, or invalidates — and invalidations cascade through the graph.</p>
+        <div class="ex">Set-and-forget memory rots. PCA forces a small weekly reckoning — a ritual that strengthens self-knowledge, not just storage.</div>
+      </div>
+
+      <div class="angle" style="border:1px dashed var(--cream-line); background:transparent;">
+        <div class="num">— and</div>
+        <h3>The compounding property.</h3>
+        <p>Each angle alone is replicable. The combination is a system: typed graph only works because vocab is canonical; canonical vocab only stays clean because of input fidelity; input fidelity only matters because agents read provenance to calibrate trust.</p>
+        <div class="ex">A defensible product isn't one feature — it's how the pieces hold each other up.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ MCP tools ═══════════════════════════════ -->
+<section id="tools">
+  <div class="wrap">
+    <h4>The agent's hands and eyes</h4>
+    <h2>Nine MCP tools, one shaped surface.</h2>
+    <p>
+      Everything an agent does with PCA happens through nine MCP tools. They split cleanly into
+      <strong>read</strong>, <strong>write</strong>, and <strong>link</strong>. Each is zod-validated,
+      audit-logged, and designed to be called blindly by an LLM — descriptions explain not just
+      what they do but <em>when</em> to call them.
+    </p>
+
+    <table>
+      <thead>
+        <tr><th style="width:24%">Tool</th><th style="width:14%">Group</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>get_self_summary</code></td>
+          <td><span class="pill capability">read</span></td>
+          <td>Identity snapshot. Self + active roles · goals · constraints · recent state · top people · stances · preferences · <strong><code>key_links</code></strong>. Cheap (~10 ms), safe at session start, designed as <em>the</em> first call any agent makes.</td>
+        </tr>
+        <tr>
+          <td><code>get_relevant_context</code></td>
+          <td><span class="pill capability">read</span></td>
+          <td>FTS5 full-text search over title + body, optional type filter. Returns ranked entities. For ad-hoc lookups when the agent has a specific query.</td>
+        </tr>
+        <tr>
+          <td><code>list_active</code></td>
+          <td><span class="pill capability">read</span></td>
+          <td>All active and unexpired entities of a given type. Persons ordered by importance; everything else by recency.</td>
+        </tr>
+        <tr>
+          <td><code>get_neighbors</code></td>
+          <td><span class="pill capability">read</span></td>
+          <td>Direct link-graph traversal from a center entity. Returns each neighbor with its link metadata and direction (out/in).</td>
+        </tr>
+        <tr>
+          <td><code>record_observation</code></td>
+          <td><span class="pill identity">write</span></td>
+          <td>Create entity. Auto-types as <code>event</code> if no type given. Applies default TTL unless explicitly null. Returns id + applied TTL.</td>
+        </tr>
+        <tr>
+          <td><code>update_entity</code></td>
+          <td><span class="pill identity">write</span></td>
+          <td>Partial update by id. Returns <code>{previous, current}</code> so the caller can diff.</td>
+        </tr>
+        <tr>
+          <td><code>confirm_entity</code></td>
+          <td><span class="pill identity">write</span></td>
+          <td>Resolve a stale entity: <code>still-true</code> (extends TTL) · <code>no-longer-true</code> (invalidates) · <code>modify</code> (updates + extends).</td>
+        </tr>
+        <tr>
+          <td><code>link_entities</code></td>
+          <td><span class="pill belief">link</span></td>
+          <td>Create typed link between two active entities. Validates vocab + allowed pair + cycles (for acyclic relations).</td>
+        </tr>
+        <tr>
+          <td><code>invalidate_link</code></td>
+          <td><span class="pill belief">link</span></td>
+          <td>Append-only link revocation. The link row is never deleted — just stamped with <code>invalidated_at</code>. Events log records the cause.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="cap">Transport: stdio. Validation: zod on every input. Errors arrive at the client as structured envelopes (<code>HandlerError</code> with a code), never as transport crashes.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ roadmap ═══════════════════════════════ -->
+<section id="roadmap">
+  <div class="wrap">
+    <h4>Where we are. Where we're going.</h4>
+    <h2>Three arcs. Don't skip the first one.</h2>
+    <p>
+      The system is past sketch. Foundation is shipped, tested, and ready. The next move is not more
+      features — it's using what's built and learning what's wrong.
+    </p>
+
+    <div class="svg-frame" aria-label="Three-arc roadmap timeline">
+      <!-- SVG: timeline -->
+      <svg viewBox="0 0 1100 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="rmTitle">
+        <title id="rmTitle">Three arcs: validate, open, hosted.</title>
+        <defs>
+          <linearGradient id="rmGrad" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%"  stop-color="#4f7044"/>
+            <stop offset="50%" stop-color="#b8881d"/>
+            <stop offset="100%" stop-color="#2f5d7a"/>
+          </linearGradient>
+        </defs>
+
+        <!-- spine -->
+        <rect x="60" y="92" width="980" height="6" rx="3" fill="url(#rmGrad)" opacity="0.6"/>
+
+        <!-- markers -->
+        <g transform="translate(180,95)">
+          <circle r="14" fill="#4f7044" stroke="#fbf7ee" stroke-width="3"/>
+          <text x="0" y="40" text-anchor="middle" style="font: 600 14px -apple-system; fill:#4f7044;">Arc 1 · Validate</text>
+          <text x="0" y="56" text-anchor="middle" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#7a7268;">2–4 weeks · now</text>
+          <text x="0" y="-22" text-anchor="middle" style="font: 11px -apple-system; fill:#3f3a32;">10+ captures · real workdays</text>
+          <text x="0" y="-8" text-anchor="middle" style="font: 11px -apple-system; fill:#3f3a32;">fill learnings.md §10</text>
+        </g>
+
+        <g transform="translate(560,95)">
+          <circle r="14" fill="#b8881d" stroke="#fbf7ee" stroke-width="3"/>
+          <text x="0" y="40" text-anchor="middle" style="font: 600 14px -apple-system; fill:#b8881d;">Arc 2 · Open</text>
+          <text x="0" y="56" text-anchor="middle" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#7a7268;">4–8 weeks · next</text>
+          <text x="0" y="-22" text-anchor="middle" style="font: 11px -apple-system; fill:#3f3a32;">npx install · onboarding tutorial</text>
+          <text x="0" y="-8" text-anchor="middle" style="font: 11px -apple-system; fill:#3f3a32;">first non-self user</text>
+        </g>
+
+        <g transform="translate(940,95)">
+          <circle r="14" fill="#2f5d7a" stroke="#fbf7ee" stroke-width="3"/>
+          <text x="0" y="40" text-anchor="middle" style="font: 600 14px -apple-system; fill:#2f5d7a;">Arc 3 · Hosted</text>
+          <text x="0" y="56" text-anchor="middle" style="font: 11px JetBrains Mono, SF Mono, monospace; fill:#7a7268;">3–6 mo · later</text>
+          <text x="0" y="-22" text-anchor="middle" style="font: 11px -apple-system; fill:#3f3a32;">tenancy · auth · sync · billing</text>
+          <text x="0" y="-8" text-anchor="middle" style="font: 11px -apple-system; fill:#3f3a32;">10 paying customers gate</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="arc now">
+      <div class="when">Right now</div>
+      <h3><span class="num">01</span> Validate the loop — with you, the operator.</h3>
+      <ul>
+        <li>Capture 10+ entities across ≥ 6 layers via <code>/ctx-add</code> over the next two weeks — don't curate, capture as life happens.</li>
+        <li>Run a real planning conversation in Claude Code that starts "given what you know about me, ...". Verify the agent calls <code>get_self_summary</code>. Screenshot the answer.</li>
+        <li>Run <code>ctx review --links</code> weekly. Fix anything dangling.</li>
+        <li>Fill <code>learnings.md §10</code> with one moment where context-aware Claude was clearly better than no-context Claude.</li>
+        <li>Small ergonomic fixes: turn <code>link_entities.relation</code> into a zod enum, add <code>body_preview</code> to <code>key_links</code>, patch the doctor lie about <code>ctx review --stale</code>.</li>
+      </ul>
+    </div>
+
+    <div class="arc soon">
+      <div class="when">Next</div>
+      <h3><span class="num">02</span> Open it to a second human.</h3>
+      <ul>
+        <li><code>npx pca init</code> — one-command install with no Bun-from-source friction.</li>
+        <li>Onboarding tutorial baked into the skill — first <code>/ctx-add</code> on an empty store walks the user through five capture prompts.</li>
+        <li>Cookbook of canonical phrasings: 30 examples of "this kind of sentence → this kind of layer".</li>
+        <li>One recipe skill on top of PCA: <code>/ctx-mirror</code> (weekly tension report) or <code>/ctx-plan</code> (graph-walked week plan). Proves PCA is a substrate.</li>
+        <li>Export: <code>ctx export --json | --markdown</code>. Trust requires escape.</li>
+        <li>Gate to arc 3: one non-self human uses PCA continuously for two weeks and reports ≥ 1 unprompted "huh, that helped" moment.</li>
+      </ul>
+    </div>
+
+    <div class="arc future">
+      <div class="when">Later — only if arc 2 gate passes</div>
+      <h3><span class="num">03</span> Hosted, multi-tenant.</h3>
+      <ul>
+        <li><strong>Tenancy in the schema.</strong> <code>tenant_id</code> on every table. Per-tenant FTS index or sharded SQLite files (cleanest).</li>
+        <li><strong>Identity binding to MCP.</strong> Recommended path: local stdio + libSQL embedded replica that syncs to cloud. Operator stays offline-capable; cloud is durable backup + cross-device sync.</li>
+        <li><strong>Sync semantics.</strong> Minimum: LWW on entities, additive on links, invalidation wins. Real: events log is source of truth, derived state replays.</li>
+        <li><strong>Billing primitives.</strong> Per-seat (simple) or per-entity-tier (aligned with value). Meter via the events log.</li>
+        <li><strong>Operational surface.</strong> Per-tenant logs, p95 latency, backups, consent-gated support inspection.</li>
+        <li>Gate: 10 paying customers from arc 2 + 3 betas. Below that bar, do not ship hosted.</li>
+      </ul>
+    </div>
+
+    <div class="callout" style="border-color: var(--green-ok); background: rgba(74,120,72,0.05);">
+      <div class="h">The headline recommendation, in one sentence.</div>
+      <p>The biggest risk to PCA isn't a missing feature — it's shipping the next five features before the validating loop has run once.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ architecture ═══════════════════════════════ -->
+<section id="architecture">
+  <div class="wrap">
+    <h4>How it's built</h4>
+    <h2>Small parts. Sharp boundaries.</h2>
+    <p>
+      A monorepo of four packages. Each has a clear job; each is independently testable. The whole
+      thing runs on Bun + TypeScript + SQLite. No services to manage, no API keys to rotate.
+    </p>
+
+    <div class="split2" style="margin-top:24px;">
+      <div>
+        <div class="stack">
+          <div class="l1"><span class="label">/ctx-add skill</span><span class="what">classifier + capture UX · ~396 lines</span></div>
+          <div class="l2"><span class="label">pca CLI · ctx CLI</span><span class="what">setup, doctor, link hygiene</span></div>
+          <div class="l3"><span class="label">@pca/mcp-server</span><span class="what">9 tools · zod inputs · stdio</span></div>
+          <div class="l4"><span class="label">@pca/core</span><span class="what">store, entity registry, link relations</span></div>
+          <div class="l5"><span class="label">~/.pca/store.db</span><span class="what">SQLite · WAL · 16 tables · FTS5 · 14 active views</span></div>
+        </div>
+      </div>
+
+      <div>
+        <h3>What's in each package</h3>
+        <p style="margin-top:10px;"><code>core</code> — the engine. Schema migrations, the 12 entity registry (zod-validated attrs + TTL), 11 canonical relations (pair validation + cycle detection), the store API (~830 lines).</p>
+        <p><code>mcp-server</code> — wraps core in 9 MCP tools. <code>computeKeyLinks()</code> is the brain behind <code>get_self_summary</code> — ranks high-signal links touching identity anchors.</p>
+        <p><code>cli</code> — two binaries. <code>pca</code> is admin (init, doctor, install). <code>ctx</code> is runtime (link hygiene review).</p>
+        <p><code>skill-ctx-add</code> — the only thing the LLM actually loads. The capture contract. ~396 lines that turn free text into structured entities and links.</p>
+      </div>
+    </div>
+
+    <div class="pull">
+      "Make every part as small as it can be, and the boundaries as clean as you can. Then the next person to touch it — including future you — has a fighting chance."
+      <cite>— the design north star, in one sentence</cite>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ closing ═══════════════════════════════ -->
+<section>
+  <div class="wrap">
+    <h4>One last thing</h4>
+    <h2>PCA isn't a product yet. It's a working bet.</h2>
+    <p>
+      It's a bet that agents become the primary interface to software. That skills become the primary
+      interface to agents. That the operator's <em>own coherence across sessions</em> is the part no
+      tool has solved well — and that the right shape for solving it is twelve layers, eleven relations,
+      provenance per fact, and a forcing function to re-affirm what's still true.
+    </p>
+    <p>
+      Foundation is shipped. The next step isn't more code. It's using the system, on real workdays,
+      until the daylight between context-aware Claude and zero-context Claude becomes impossible to
+      ignore. Then everything else gets easier.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <strong>Personal Context Agent</strong> · an Alteramens experiment<br/>
+      <code>v0.0.1 · local-first · MIT (TBC)</code>
+    </div>
+    <div style="text-align:right;">
+      <a href="prd-mvp.md">PRD</a> · <a href="plan-linking.md">Linking plan</a> · <a href="learnings.md">Learnings log</a> · <a href="STATE.md">State of the union</a><br/>
+      <span style="color:var(--faint);">Generated 2026-05-19</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* tiny tab switcher */
+(function () {
+  const tabs = document.querySelectorAll('.persona-tabs button');
+  const panels = document.querySelectorAll('.persona-body');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      tabs.forEach(b => b.classList.toggle('active', b === btn));
+      panels.forEach(p => { p.hidden = (p.getAttribute('data-tab') !== target); });
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
