@@ -36,7 +36,7 @@ capture?" and stop.
 If the input ends with `?` and contains no declarative claim, treat it as a
 query, not a capture, and ask the user to rephrase as a statement.
 
-## Step 0.5 — Read before write
+## Step 0.5a — Read before write
 
 After preflight passes, *always*:
 
@@ -67,6 +67,27 @@ After preflight passes, *always*:
 6. Resolve all relative date expressions ("azi", "săptămâna trecută",
    "iulie 2027") to absolute ISO dates. Show the resolved date in the
    proposal block.
+
+## Step 0.5b — Input fidelity rule (BEFORE classifying)
+
+Persist only claims that are **literally in the user's input text**. Side
+context — `CLAUDE.md`, prior memory (`MEMORY.md` and linked files), the working
+directory, `get_self_summary` output — may help you *interpret* the input or
+detect duplicates (per Step 0.5a), but it must NEVER inject facts the user
+didn't state into the entities you save.
+
+If side context suggests a useful enrichment, propose it as a **separate
+entity** in the Step 2 split, marked:
+  - `authority: inferred`
+  - `confidence: medium` (or lower)
+  - Explicit flag in the proposal: "_not in your input — accept?_"
+
+Never merge inferred content into a `self-declared` entity, including the
+`self` singleton's `narrative` / `pillars` / `voice_rules`.
+
+Concrete check before each `record_observation` call: diff every claim in
+`text` / `title` / `attrs` against the literal user input. Anything not
+present is either dropped, or extracted as a separate inferred entity.
 
 ## Step 1 — Classify
 
@@ -172,12 +193,15 @@ Per chosen type, fill the strict attrs schema below. Unknown keys are
 - `stance`: `{ reason: string, evidence_sources?: string[] }`
 - `role`: `{ schedule?: string, domain?: "defensive"|"offensive"|"mixed"|"civic"|"care"|"creative"|"family", priority?: number }`
 
-Heuristics for `authority`:
-- User wrote a first-person fact ("eu sunt X", "lucrez la Y") → `self-declared`
-- You inferred from indirect context → `observed`
-- You derived from another entity → `inferred`
+Heuristics for `authority` (read together with Step 0.5b):
+- Claim is **literally** in the user's input → `self-declared`
+- Claim came from side context (CLAUDE.md, memory, working dir) → `inferred`,
+  AND must be a separate entity, never merged into a `self-declared` one
+- Claim is something you noticed about the user during conversation
+  (tone, behavior, patterns) → `observed`
 
-Default `confidence`: `high` if explicit, `medium` if interpretation, `low` if you're guessing.
+Default `confidence`: `high` only when explicit and verbatim; `medium` if you
+reworded or interpreted; `low` if any guessing involved.
 
 ## Step 3.5 — Clarify before proposing
 
