@@ -7,3 +7,6 @@ dist
 *.db-shm
 .bun
 bun.lockb
+.env
+.env.local
+.env.*.local
