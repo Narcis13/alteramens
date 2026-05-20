@@ -188,8 +188,8 @@ describe("pca entry script", () => {
 
     // Inject a stale goal by calling core directly through the test helper.
     const { openStore } = await import("@pca/core");
-    const store = openStore(dbPath);
-    store.createEntity(
+    const store = await openStore({ url: `file:${dbPath}` });
+    await store.createEntity(
       {
         type: "goal",
         title: "stale",

@@ -102,16 +102,16 @@ type OrphanRow = {
 // observations, often standalone, and shouldn't pollute the report.
 const ORPHAN_EXEMPT_TYPES = new Set(["event", "state"]);
 
-export function reviewLinks(opts: {
+export async function reviewLinks(opts: {
   dbPath: string;
   fix?: boolean;
   actor?: string;
-}): ReviewResult {
-  const store = openStore(opts.dbPath);
+}): Promise<ReviewResult> {
+  const store = await openStore({ url: `file:${opts.dbPath}` });
   try {
-    const result = computeReview(store);
+    const result = await computeReview(store);
     if (opts.fix) {
-      result.fixed = applyFix(store, result, opts.actor ?? ACTOR);
+      result.fixed = await applyFix(store, result, opts.actor ?? ACTOR);
     }
     return result;
   } finally {
@@ -119,19 +119,17 @@ export function reviewLinks(opts: {
   }
 }
 
-function computeReview(store: Store): ReviewResult {
-  const dangling = findDangling(store);
-  const redundant = findRedundant(store);
-  const orphans = findOrphans(store);
+async function computeReview(store: Store): Promise<ReviewResult> {
+  const dangling = await findDangling(store);
+  const redundant = await findRedundant(store);
+  const orphans = await findOrphans(store);
   return { dangling, redundant, orphans };
 }
 
-function findDangling(store: Store): DanglingLink[] {
+async function findDangling(store: Store): Promise<DanglingLink[]> {
   // Archived entities are intentionally NOT flagged — plan-linking.md §3 D3:
   // archived = out-of-rotation, links remain valid; only invalidated cascades.
-  const rows = store.db
-    .prepare(
-      `
+  const result = await store.client.execute(`
       SELECT
         l.id AS link_id,
         l.src_id, l.dst_id, l.relation,
@@ -154,9 +152,8 @@ function findDangling(store: Store): DanglingLink[] {
           OR (ed.expires_at IS NOT NULL AND ed.expires_at <= datetime('now'))
         )
       ORDER BY l.created_at ASC
-    `,
-    )
-    .all() as DanglingRow[];
+    `);
+  const rows = result.rows as unknown as DanglingRow[];
 
   const now = nowIso();
   return rows.map((r) => {
@@ -181,10 +178,8 @@ function findDangling(store: Store): DanglingLink[] {
   });
 }
 
-function findRedundant(store: Store): RedundantGroup[] {
-  const rows = store.db
-    .prepare(
-      `
+async function findRedundant(store: Store): Promise<RedundantGroup[]> {
+  const result = await store.client.execute(`
       SELECT
         l.src_id, l.dst_id, l.relation,
         es.title AS src_title,
@@ -199,9 +194,8 @@ function findRedundant(store: Store): RedundantGroup[] {
       GROUP BY l.src_id, l.dst_id, l.relation
       HAVING COUNT(*) > 1
       ORDER BY l.src_id, l.relation
-    `,
-    )
-    .all() as RedundantRow[];
+    `);
+  const rows = result.rows as unknown as RedundantRow[];
 
   return rows.map((r) => ({
     src_id: r.src_id,
@@ -213,12 +207,11 @@ function findRedundant(store: Store): RedundantGroup[] {
   }));
 }
 
-function findOrphans(store: Store): OrphanEntity[] {
+async function findOrphans(store: Store): Promise<OrphanEntity[]> {
   const exempt = [...ORPHAN_EXEMPT_TYPES].map(() => "?").join(",");
   const params = [...ORPHAN_EXEMPT_TYPES];
-  const rows = store.db
-    .prepare(
-      `
+  const result = await store.client.execute({
+    sql: `
       SELECT
         e.id, e.type, e.title, e.created_at,
         CAST((julianday('now') - julianday(e.created_at)) AS INTEGER) AS age_days
@@ -233,41 +226,53 @@ function findOrphans(store: Store): OrphanEntity[] {
         )
       ORDER BY e.created_at ASC
     `,
-    )
-    .all(...params) as OrphanRow[];
+    args: params,
+  });
+  const rows = result.rows as unknown as OrphanRow[];
 
   return rows.map((r) => ({
     id: r.id,
     type: r.type,
     title: r.title,
-    age_days: r.age_days,
+    age_days: Number(r.age_days),
     created_at: r.created_at,
   }));
 }
 
-function applyFix(
+async function applyFix(
   store: Store,
   result: ReviewResult,
   actor: string,
-): FixSummary {
+): Promise<FixSummary> {
   let danglingFixed = 0;
   for (const d of result.dangling) {
-    store.invalidateLink(d.link_id, actor, `dangling: ${d.reasons.join(",")}`);
+    await store.invalidateLink(
+      d.link_id,
+      actor,
+      `dangling: ${d.reasons.join(",")}`,
+    );
     danglingFixed++;
   }
 
   let redundantFixed = 0;
   for (const group of result.redundant) {
-    const links = group.link_ids
-      .map((id) => {
-        const row = store.db
-          .prepare(
-            "SELECT id, weight, created_at FROM links WHERE id = ? AND invalidated_at IS NULL",
-          )
-          .get(id) as { id: string; weight: number; created_at: string } | null;
-        return row;
-      })
-      .filter((r): r is { id: string; weight: number; created_at: string } => r !== null);
+    const links: Array<{ id: string; weight: number; created_at: string }> = [];
+    for (const id of group.link_ids) {
+      const rs = await store.client.execute({
+        sql: "SELECT id, weight, created_at FROM links WHERE id = ? AND invalidated_at IS NULL",
+        args: [id],
+      });
+      const row = rs.rows[0] as unknown as
+        | { id: string; weight: number; created_at: string }
+        | undefined;
+      if (row) {
+        links.push({
+          id: row.id,
+          weight: Number(row.weight),
+          created_at: row.created_at,
+        });
+      }
+    }
 
     if (links.length < 2) continue;
 
@@ -281,7 +286,7 @@ function applyFix(
     group.kept_link_id = keep.id;
     group.invalidated_link_ids = [];
     for (const dropLink of drop) {
-      store.invalidateLink(
+      await store.invalidateLink(
         dropLink.id,
         actor,
         `redundant: kept ${keep.id}`,

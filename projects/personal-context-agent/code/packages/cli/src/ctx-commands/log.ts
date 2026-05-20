@@ -9,7 +9,7 @@
 // Pure command: opens the store, returns a structured LogResult. Formatting
 // (both human and markdown) lives in ctx.ts.
 
-import { openStore, type Capture, type CaptureStatus } from "@pca/core";
+import { openStore, type Capture, type CaptureStatus, type Store } from "@pca/core";
 
 export type CaptureProvenanceEntity = {
   id: string;
@@ -54,17 +54,17 @@ export type LogResult = {
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 500;
 
-export function runLog(opts: LogOptions): LogResult {
-  const store = openStore(opts.dbPath);
+export async function runLog(opts: LogOptions): Promise<LogResult> {
+  const store = await openStore({ url: `file:${opts.dbPath}` });
   try {
     // --capture short-circuits all other filters: it's an explicit lookup, not
     // a list query. Multi-match returns "ambiguous" so the CLI can prompt.
     if (opts.capture && opts.capture.length > 0) {
-      return resolveCapturePrefix(store, opts.capture);
+      return await resolveCapturePrefix(store, opts.capture);
     }
 
     const limit = clampLimit(opts.limit);
-    const captures = store.listCaptures({
+    const captures = await store.listCaptures({
       since: opts.since,
       until: opts.until,
       status: opts.status,
@@ -73,11 +73,14 @@ export function runLog(opts: LogOptions): LogResult {
       limit,
     });
 
-    const items: CaptureWithProvenance[] = captures.map((c) => ({
-      capture: c,
-      entities: fetchEntitiesFor(store, c.id),
-      links: fetchLinksFor(store, c.id),
-    }));
+    const items: CaptureWithProvenance[] = [];
+    for (const c of captures) {
+      items.push({
+        capture: c,
+        entities: await fetchEntitiesFor(store, c.id),
+        links: await fetchLinksFor(store, c.id),
+      });
+    }
     return { mode: "list", items };
   } finally {
     store.close();
@@ -90,69 +93,70 @@ function clampLimit(limit: number | undefined): number {
   return Math.min(limit, MAX_LIMIT);
 }
 
-function resolveCapturePrefix(
-  store: ReturnType<typeof openStore>,
+async function resolveCapturePrefix(
+  store: Store,
   prefix: string,
-): LogResult {
-  const matches = store.db
-    .prepare(
-      "SELECT id FROM captures WHERE id LIKE ? || '%' ORDER BY occurred_at DESC LIMIT 10",
-    )
-    .all(prefix) as Array<{ id: string }>;
+): Promise<LogResult> {
+  const result = await store.client.execute({
+    sql: "SELECT id FROM captures WHERE id LIKE ? || '%' ORDER BY occurred_at DESC LIMIT 10",
+    args: [prefix],
+  });
+  const matches = result.rows as unknown as Array<{ id: string }>;
 
   if (matches.length === 0) {
     return { mode: "list", items: [], prefix };
   }
   if (matches.length > 1) {
-    const items = matches.map((m) => {
-      const cap = store.getCapture(m.id);
-      return {
+    const items: CaptureWithProvenance[] = [];
+    for (const m of matches) {
+      const cap = await store.getCapture(m.id);
+      items.push({
         capture: cap!,
-        entities: [] as CaptureProvenanceEntity[],
-        links: [] as CaptureProvenanceLink[],
-      };
-    });
+        entities: [],
+        links: [],
+      });
+    }
     return { mode: "ambiguous", items, prefix };
   }
 
-  const cap = store.getCapture(matches[0]!.id);
+  const cap = await store.getCapture(matches[0]!.id);
   const item: CaptureWithProvenance = {
     capture: cap!,
-    entities: fetchEntitiesFor(store, cap!.id),
-    links: fetchLinksFor(store, cap!.id),
+    entities: await fetchEntitiesFor(store, cap!.id),
+    links: await fetchLinksFor(store, cap!.id),
   };
   return { mode: "expanded", items: [item] };
 }
 
-function fetchEntitiesFor(
-  store: ReturnType<typeof openStore>,
+async function fetchEntitiesFor(
+  store: Store,
   captureId: string,
-): CaptureProvenanceEntity[] {
-  return store.db
-    .prepare(
-      `SELECT e.id, e.type, e.title
-         FROM capture_entities ce
-         JOIN entities e ON e.id = ce.entity_id
-        WHERE ce.capture_id = ?
-        ORDER BY e.created_at ASC`,
-    )
-    .all(captureId) as CaptureProvenanceEntity[];
+): Promise<CaptureProvenanceEntity[]> {
+  const result = await store.client.execute({
+    sql: `SELECT e.id, e.type, e.title
+            FROM capture_entities ce
+            JOIN entities e ON e.id = ce.entity_id
+           WHERE ce.capture_id = ?
+           ORDER BY e.created_at ASC`,
+    args: [captureId],
+  });
+  return result.rows as unknown as CaptureProvenanceEntity[];
 }
 
-function fetchLinksFor(
-  store: ReturnType<typeof openStore>,
+async function fetchLinksFor(
+  store: Store,
   captureId: string,
-): CaptureProvenanceLink[] {
-  return store.db
-    .prepare(
-      `SELECT l.id, l.src_id, l.dst_id, l.relation,
-              es.title AS src_title, ed.title AS dst_title
-         FROM capture_links cl
-         JOIN links l ON l.id = cl.link_id
-         LEFT JOIN entities es ON es.id = l.src_id
-         LEFT JOIN entities ed ON ed.id = l.dst_id
-        WHERE cl.capture_id = ?
-        ORDER BY l.created_at ASC`,
-    )
-    .all(captureId) as CaptureProvenanceLink[];
+): Promise<CaptureProvenanceLink[]> {
+  const result = await store.client.execute({
+    sql: `SELECT l.id, l.src_id, l.dst_id, l.relation,
+                 es.title AS src_title, ed.title AS dst_title
+            FROM capture_links cl
+            JOIN links l ON l.id = cl.link_id
+            LEFT JOIN entities es ON es.id = l.src_id
+            LEFT JOIN entities ed ON ed.id = l.dst_id
+           WHERE cl.capture_id = ?
+           ORDER BY l.created_at ASC`,
+    args: [captureId],
+  });
+  return result.rows as unknown as CaptureProvenanceLink[];
 }

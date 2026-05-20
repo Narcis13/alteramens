@@ -31,15 +31,14 @@ type SeedRow = {
   source: string;
 };
 
-function seedCaptures(rows: SeedRow[]): void {
-  const store = openStore(dbPath);
+async function seedCaptures(rows: SeedRow[]): Promise<void> {
+  const store = await openStore({ url: `file:${dbPath}` });
   for (const r of rows) {
-    store.db
-      .prepare(
-        `INSERT INTO captures (id, occurred_at, raw_text, source, actor, scope, status)
-         VALUES (?, ?, ?, ?, ?, 'general', ?)`,
-      )
-      .run(r.id, r.iso, r.text, r.source, ACTOR, r.status);
+    await store.client.execute({
+      sql: `INSERT INTO captures (id, occurred_at, raw_text, source, actor, scope, status)
+            VALUES (?, ?, ?, ?, ?, 'general', ?)`,
+      args: [r.id, r.iso, r.text, r.source, ACTOR, r.status],
+    });
   }
   store.close();
 }
@@ -71,15 +70,15 @@ function defaultSeed(): SeedRow[] {
 }
 
 describe("runLog — list mode", () => {
-  test("returns empty list when no captures exist", () => {
-    const r = runLog({ dbPath });
+  test("returns empty list when no captures exist", async () => {
+    const r = await runLog({ dbPath });
     expect(r.mode).toBe("list");
     expect(r.items).toEqual([]);
   });
 
-  test("returns all captures newest-first", () => {
-    seedCaptures(defaultSeed());
-    const r = runLog({ dbPath });
+  test("returns all captures newest-first", async () => {
+    await seedCaptures(defaultSeed());
+    const r = await runLog({ dbPath });
     expect(r.mode).toBe("list");
     expect(r.items.map((it) => it.capture.raw_text)).toEqual([
       "gamma latest mihai",
@@ -88,29 +87,29 @@ describe("runLog — list mode", () => {
     ]);
   });
 
-  test("--limit caps the listing", () => {
-    seedCaptures(defaultSeed());
-    const r = runLog({ dbPath, limit: 2 });
+  test("--limit caps the listing", async () => {
+    await seedCaptures(defaultSeed());
+    const r = await runLog({ dbPath, limit: 2 });
     expect(r.items).toHaveLength(2);
   });
 
-  test("filters by status", () => {
-    seedCaptures(defaultSeed());
-    const r = runLog({ dbPath, status: "aborted" });
+  test("filters by status", async () => {
+    await seedCaptures(defaultSeed());
+    const r = await runLog({ dbPath, status: "aborted" });
     expect(r.items.map((it) => it.capture.status)).toEqual(["aborted"]);
   });
 
-  test("filters by source", () => {
-    seedCaptures(defaultSeed());
-    const r = runLog({ dbPath, source: "claude-code:ctx-mirror" });
+  test("filters by source", async () => {
+    await seedCaptures(defaultSeed());
+    const r = await runLog({ dbPath, source: "claude-code:ctx-mirror" });
     expect(r.items.map((it) => it.capture.raw_text)).toEqual([
       "gamma latest mihai",
     ]);
   });
 
-  test("filters by since/until window", () => {
-    seedCaptures(defaultSeed());
-    const r = runLog({
+  test("filters by since/until window", async () => {
+    await seedCaptures(defaultSeed());
+    const r = await runLog({
       dbPath,
       since: "2026-05-12T00:00:00.000Z",
       until: "2026-05-18T00:00:00.000Z",
@@ -120,9 +119,9 @@ describe("runLog — list mode", () => {
     ]);
   });
 
-  test("--search runs FTS5 over raw_text", () => {
-    seedCaptures(defaultSeed());
-    const r = runLog({ dbPath, fts: "razvan" });
+  test("--search runs FTS5 over raw_text", async () => {
+    await seedCaptures(defaultSeed());
+    const r = await runLog({ dbPath, fts: "razvan" });
     expect(r.items.map((it) => it.capture.raw_text)).toEqual([
       "beta middle Razvan",
     ]);
@@ -130,13 +129,13 @@ describe("runLog — list mode", () => {
 });
 
 describe("runLog — provenance hydration", () => {
-  test("processed capture surfaces its entities and links", () => {
-    const store = openStore(dbPath);
-    const cap = store.recordCapture(
+  test("processed capture surfaces its entities and links", async () => {
+    const store = await openStore({ url: `file:${dbPath}` });
+    const cap = await store.recordCapture(
       { raw_text: "Mihai a luat 9.50 la simulare" },
       ACTOR,
     );
-    const person = store.createEntity(
+    const person = await store.createEntity(
       {
         type: "person",
         title: "Mihai",
@@ -144,24 +143,24 @@ describe("runLog — provenance hydration", () => {
       },
       ACTOR,
     );
-    const event = store.createEntity(
+    const event = await store.createEntity(
       { type: "event", title: "9.50 simulare", attrs: {} },
       ACTOR,
     );
-    const link = store.createLink(
+    const link = await store.createLink(
       { src_id: person.id, dst_id: event.id, relation: "subject-of" },
       ACTOR,
     );
-    store.linkCaptureToEntity(cap.id, person.id);
-    store.linkCaptureToEntity(cap.id, event.id);
-    store.linkCaptureToLink(cap.id, link.id);
-    store.updateCaptureStatus(cap.id, "processed", ACTOR, {
+    await store.linkCaptureToEntity(cap.id, person.id);
+    await store.linkCaptureToEntity(cap.id, event.id);
+    await store.linkCaptureToLink(cap.id, link.id);
+    await store.updateCaptureStatus(cap.id, "processed", ACTOR, {
       entity_count: 2,
       link_count: 1,
     });
     store.close();
 
-    const r = runLog({ dbPath });
+    const r = await runLog({ dbPath });
     expect(r.items).toHaveLength(1);
     const it = r.items[0]!;
     expect(it.entities.map((e) => e.title).sort()).toEqual([
@@ -176,25 +175,25 @@ describe("runLog — provenance hydration", () => {
 });
 
 describe("runLog — capture prefix lookup", () => {
-  test("unique prefix resolves to expanded mode", () => {
-    seedCaptures(defaultSeed());
-    const r = runLog({ dbPath, capture: "01CAPALPHA" });
+  test("unique prefix resolves to expanded mode", async () => {
+    await seedCaptures(defaultSeed());
+    const r = await runLog({ dbPath, capture: "01CAPALPHA" });
     expect(r.mode).toBe("expanded");
     expect(r.items).toHaveLength(1);
     expect(r.items[0]!.capture.raw_text).toBe("alpha first capture");
   });
 
-  test("ambiguous prefix returns candidates", () => {
-    seedCaptures(defaultSeed());
-    const r = runLog({ dbPath, capture: "01CAP" });
+  test("ambiguous prefix returns candidates", async () => {
+    await seedCaptures(defaultSeed());
+    const r = await runLog({ dbPath, capture: "01CAP" });
     expect(r.mode).toBe("ambiguous");
     expect(r.items.length).toBeGreaterThanOrEqual(2);
     expect(r.prefix).toBe("01CAP");
   });
 
-  test("missing prefix returns empty list with prefix echoed", () => {
-    seedCaptures(defaultSeed());
-    const r = runLog({ dbPath, capture: "01ZZZ" });
+  test("missing prefix returns empty list with prefix echoed", async () => {
+    await seedCaptures(defaultSeed());
+    const r = await runLog({ dbPath, capture: "01ZZZ" });
     expect(r.mode).toBe("list");
     expect(r.items).toEqual([]);
     expect(r.prefix).toBe("01ZZZ");
@@ -226,7 +225,7 @@ describe("ctx log entry script", () => {
   });
 
   test("`ctx log` default formats raw_text per capture", async () => {
-    seedCaptures(defaultSeed());
+    await seedCaptures(defaultSeed());
     const r = await run(["log"]);
     expect(r.exitCode).toBe(0);
     expect(r.stdout).toContain("gamma latest mihai");
@@ -235,7 +234,7 @@ describe("ctx log entry script", () => {
   });
 
   test("`ctx log --search` filters via FTS5", async () => {
-    seedCaptures(defaultSeed());
+    await seedCaptures(defaultSeed());
     const r = await run(["log", "--search", "razvan"]);
     expect(r.exitCode).toBe(0);
     expect(r.stdout).toContain("beta middle Razvan");
@@ -243,9 +242,12 @@ describe("ctx log entry script", () => {
   });
 
   test("`ctx log --capture <prefix>` expands with provenance", async () => {
-    const store = openStore(dbPath);
-    const cap = store.recordCapture({ raw_text: "Mihai 9.50 simulare" }, ACTOR);
-    const person = store.createEntity(
+    const store = await openStore({ url: `file:${dbPath}` });
+    const cap = await store.recordCapture(
+      { raw_text: "Mihai 9.50 simulare" },
+      ACTOR,
+    );
+    const person = await store.createEntity(
       {
         type: "person",
         title: "Mihai",
@@ -253,8 +255,8 @@ describe("ctx log entry script", () => {
       },
       ACTOR,
     );
-    store.linkCaptureToEntity(cap.id, person.id);
-    store.updateCaptureStatus(cap.id, "processed", ACTOR, {
+    await store.linkCaptureToEntity(cap.id, person.id);
+    await store.updateCaptureStatus(cap.id, "processed", ACTOR, {
       entity_count: 1,
     });
     store.close();
@@ -269,7 +271,7 @@ describe("ctx log entry script", () => {
   });
 
   test("`ctx log --export markdown` emits a markdown journal", async () => {
-    seedCaptures(defaultSeed());
+    await seedCaptures(defaultSeed());
     const r = await run(["log", "--export", "markdown"]);
     expect(r.exitCode).toBe(0);
     expect(r.stdout).toContain("# Capture journal");
@@ -279,21 +281,24 @@ describe("ctx log entry script", () => {
   });
 
   test("`ctx log --since=7d` accepts relative tokens", async () => {
-    const store = openStore(dbPath);
+    const store = await openStore({ url: `file:${dbPath}` });
     const recent = new Date(Date.now() - 86_400_000).toISOString();
     const old = new Date(Date.now() - 30 * 86_400_000).toISOString();
-    store.db
-      .prepare(
-        `INSERT INTO captures (id, occurred_at, raw_text, source, actor, scope, status)
-         VALUES (?, ?, ?, 'claude-code:ctx-add', ?, 'general', 'pending')`,
-      )
-      .run("01CAPRECENT000000000000000", recent, "fresh thought", ACTOR);
-    store.db
-      .prepare(
-        `INSERT INTO captures (id, occurred_at, raw_text, source, actor, scope, status)
-         VALUES (?, ?, ?, 'claude-code:ctx-add', ?, 'general', 'pending')`,
-      )
-      .run("01CAPOLD0000000000000000000".slice(0, 26), old, "ancient thought", ACTOR);
+    await store.client.execute({
+      sql: `INSERT INTO captures (id, occurred_at, raw_text, source, actor, scope, status)
+            VALUES (?, ?, ?, 'claude-code:ctx-add', ?, 'general', 'pending')`,
+      args: ["01CAPRECENT000000000000000", recent, "fresh thought", ACTOR],
+    });
+    await store.client.execute({
+      sql: `INSERT INTO captures (id, occurred_at, raw_text, source, actor, scope, status)
+            VALUES (?, ?, ?, 'claude-code:ctx-add', ?, 'general', 'pending')`,
+      args: [
+        "01CAPOLD0000000000000000000".slice(0, 26),
+        old,
+        "ancient thought",
+        ACTOR,
+      ],
+    });
     store.close();
 
     const r = await run(["log", "--since", "7d"]);

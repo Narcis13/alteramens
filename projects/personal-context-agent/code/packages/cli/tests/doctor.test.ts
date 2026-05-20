@@ -28,8 +28,8 @@ beforeEach(() => {
 
 afterEach(() => cleanup?.());
 
-function fullyInstalled() {
-  initStore({ dbPath });
+async function fullyInstalled() {
+  await initStore({ dbPath });
   installMcp({
     mcpConfigPath,
     entry: { command: "/bin/true", env: { PCA_DB: dbPath } },
@@ -42,9 +42,9 @@ function get(checks: { name: string; status: string }[], name: string) {
 }
 
 describe("doctor", () => {
-  test("all-ok install reports ok across the board", () => {
-    fullyInstalled();
-    const r = doctor({ dbPath, mcpConfigPath, skillsDir });
+  test("all-ok install reports ok across the board", async () => {
+    await fullyInstalled();
+    const r = await doctor({ dbPath, mcpConfigPath, skillsDir });
     expect(r.allOk).toBe(true);
     expect(get(r.checks, "db")?.status).toBe("ok");
     expect(get(r.checks, "mcp")?.status).toBe("ok");
@@ -52,62 +52,62 @@ describe("doctor", () => {
     expect(get(r.checks, "stale")?.status).toBe("ok");
   });
 
-  test("missing DB → db check fails", () => {
+  test("missing DB → db check fails", async () => {
     // mcp + skill set up, but no init
     mkdirSync(dirname(mcpConfigPath), { recursive: true });
     installMcp({ mcpConfigPath, entry: { command: "x" } });
     installSkill({ name: "ctx-add", sourcePath: sourceSkill, skillsDir });
 
-    const r = doctor({ dbPath, mcpConfigPath, skillsDir });
+    const r = await doctor({ dbPath, mcpConfigPath, skillsDir });
     expect(r.allOk).toBe(false);
     expect(get(r.checks, "db")?.status).toBe("fail");
     // stale check skipped when db check fails
     expect(get(r.checks, "stale")).toBeUndefined();
   });
 
-  test("missing MCP entry → mcp check fails", () => {
-    initStore({ dbPath });
+  test("missing MCP entry → mcp check fails", async () => {
+    await initStore({ dbPath });
     mkdirSync(dirname(mcpConfigPath), { recursive: true });
     writeFileSync(mcpConfigPath, JSON.stringify({ mcpServers: { other: {} } }));
     installSkill({ name: "ctx-add", sourcePath: sourceSkill, skillsDir });
 
-    const r = doctor({ dbPath, mcpConfigPath, skillsDir });
+    const r = await doctor({ dbPath, mcpConfigPath, skillsDir });
     expect(r.allOk).toBe(false);
     expect(get(r.checks, "mcp")?.status).toBe("fail");
   });
 
-  test("missing MCP config file → mcp check fails", () => {
-    initStore({ dbPath });
+  test("missing MCP config file → mcp check fails", async () => {
+    await initStore({ dbPath });
     installSkill({ name: "ctx-add", sourcePath: sourceSkill, skillsDir });
 
-    const r = doctor({ dbPath, mcpConfigPath, skillsDir });
+    const r = await doctor({ dbPath, mcpConfigPath, skillsDir });
     expect(get(r.checks, "mcp")?.status).toBe("fail");
   });
 
-  test("malformed MCP config JSON → mcp check fails (no throw)", () => {
-    initStore({ dbPath });
+  test("malformed MCP config JSON → mcp check fails (no throw)", async () => {
+    await initStore({ dbPath });
     mkdirSync(dirname(mcpConfigPath), { recursive: true });
     writeFileSync(mcpConfigPath, "{not json");
     installSkill({ name: "ctx-add", sourcePath: sourceSkill, skillsDir });
 
-    const r = doctor({ dbPath, mcpConfigPath, skillsDir });
+    const r = await doctor({ dbPath, mcpConfigPath, skillsDir });
     expect(get(r.checks, "mcp")?.status).toBe("fail");
   });
 
-  test("missing skill file → skill check fails", () => {
-    initStore({ dbPath });
+  test("missing skill file → skill check fails", async () => {
+    await initStore({ dbPath });
     installMcp({ mcpConfigPath, entry: { command: "x" } });
 
-    const r = doctor({ dbPath, mcpConfigPath, skillsDir });
+    const r = await doctor({ dbPath, mcpConfigPath, skillsDir });
     expect(get(r.checks, "skill")?.status).toBe("fail");
   });
 
-  test("stale entities → warn (not fail)", () => {
-    fullyInstalled();
+  test("stale entities → warn (not fail)", async () => {
+    await fullyInstalled();
     // Inject a stale entity directly via core.
-    const store = openStore(dbPath);
+    const store = await openStore({ url: `file:${dbPath}` });
     const past = new Date(Date.now() - 86_400_000).toISOString();
-    store.createEntity(
+    await store.createEntity(
       {
         type: "goal",
         title: "expired",
@@ -118,14 +118,14 @@ describe("doctor", () => {
     );
     store.close();
 
-    const r = doctor({ dbPath, mcpConfigPath, skillsDir });
+    const r = await doctor({ dbPath, mcpConfigPath, skillsDir });
     expect(get(r.checks, "stale")?.status).toBe("warn");
     expect(r.allOk).toBe(true); // warn does not fail overall
   });
 
-  test("custom expected schema version higher than actual → db check fails", () => {
-    fullyInstalled();
-    const r = doctor({
+  test("custom expected schema version higher than actual → db check fails", async () => {
+    await fullyInstalled();
+    const r = await doctor({
       dbPath,
       mcpConfigPath,
       skillsDir,
@@ -134,9 +134,9 @@ describe("doctor", () => {
     expect(get(r.checks, "db")?.status).toBe("fail");
   });
 
-  test("custom expectedSkillName flips skill check", () => {
-    fullyInstalled();
-    const r = doctor({
+  test("custom expectedSkillName flips skill check", async () => {
+    await fullyInstalled();
+    const r = await doctor({
       dbPath,
       mcpConfigPath,
       skillsDir,

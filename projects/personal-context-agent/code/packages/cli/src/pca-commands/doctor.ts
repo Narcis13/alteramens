@@ -15,22 +15,22 @@ export type DoctorOptions = {
   expectedSkillName?: string;
 };
 
-export function doctor(opts: DoctorOptions): DoctorResult {
+export async function doctor(opts: DoctorOptions): Promise<DoctorResult> {
   const checks: Check[] = [
-    checkDb(opts),
+    await checkDb(opts),
     checkMcp(opts),
     checkSkill(opts),
   ];
   // Stale-entities check runs only if DB check passed.
   if (checks[0]!.status !== "fail") {
-    checks.push(checkStale(opts));
+    checks.push(await checkStale(opts));
   }
   return { checks, allOk: checks.every((c) => c.status !== "fail") };
 }
 
 // ── individual checks ────────────────────────────────────────────────────────
 
-function checkDb(opts: DoctorOptions): Check {
+async function checkDb(opts: DoctorOptions): Promise<Check> {
   // Bumped to 4 with Phase B (raw-capture stream). DBs older than this lack
   // the `captures` schema and will fail every /ctx-add call that opens a
   // capture in Step 0.4. Re-running `pca init` re-applies migrations safely.
@@ -53,15 +53,12 @@ function checkDb(opts: DoctorOptions): Check {
   }
   let actual: number | null = null;
   try {
-    const store = openStore(opts.dbPath);
-    actual =
-      (
-        store.db
-          .prepare(
-            "SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1",
-          )
-          .get() as { version: number } | null
-      )?.version ?? null;
+    const store = await openStore({ url: `file:${opts.dbPath}` });
+    const result = await store.client.execute(
+      "SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1",
+    );
+    const row = result.rows[0] as unknown as { version: number } | undefined;
+    actual = row?.version ?? null;
     store.close();
   } catch (e) {
     return {
@@ -144,10 +141,10 @@ function checkSkill(opts: DoctorOptions): Check {
   };
 }
 
-function checkStale(opts: DoctorOptions): Check {
+async function checkStale(opts: DoctorOptions): Promise<Check> {
   try {
-    const store = openStore(opts.dbPath);
-    const stale = store.listStale();
+    const store = await openStore({ url: `file:${opts.dbPath}` });
+    const stale = await store.listStale();
     store.close();
     if (stale.length === 0) {
       return { name: "stale", status: "ok", detail: "No stale entities" };

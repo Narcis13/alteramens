@@ -19,39 +19,40 @@ beforeEach(() => {
 afterEach(() => cleanup?.());
 
 describe("init", () => {
-  test("creates the parent dir + DB file when neither exists", () => {
+  test("creates the parent dir + DB file when neither exists", async () => {
     expect(existsSync(dbPath)).toBe(false);
-    const r = initStore({ dbPath });
+    const r = await initStore({ dbPath });
     expect(r.ok).toBe(true);
     expect(r.message).toContain("Initialized store");
     expect(existsSync(dbPath)).toBe(true);
   });
 
-  test("DB is opened with latest schema applied", () => {
-    initStore({ dbPath });
-    const store = openStore(dbPath);
-    const row = store.db
-      .prepare("SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1")
-      .get() as { version: number } | null;
+  test("DB is opened with latest schema applied", async () => {
+    await initStore({ dbPath });
+    const store = await openStore({ url: `file:${dbPath}` });
+    const result = await store.client.execute(
+      "SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1",
+    );
+    const row = result.rows[0] as unknown as { version: number } | undefined;
     store.close();
     expect(row?.version).toBe(4);
   });
 
-  test("idempotent: rerunning on existing DB reports already-exists, leaves DB intact", () => {
-    initStore({ dbPath });
-    const store1 = openStore(dbPath);
-    store1.createEntity(
+  test("idempotent: rerunning on existing DB reports already-exists, leaves DB intact", async () => {
+    await initStore({ dbPath });
+    const store1 = await openStore({ url: `file:${dbPath}` });
+    await store1.createEntity(
       { type: "goal", title: "preserved", attrs: { timeframe: "short" } },
       "test",
     );
     store1.close();
 
-    const r = initStore({ dbPath });
+    const r = await initStore({ dbPath });
     expect(r.ok).toBe(true);
     expect(r.message).toContain("already exists");
 
-    const store2 = openStore(dbPath);
-    const goals = store2.listActive("goal");
+    const store2 = await openStore({ url: `file:${dbPath}` });
+    const goals = await store2.listActive("goal");
     store2.close();
     expect(goals.map((g) => g.title)).toEqual(["preserved"]);
   });

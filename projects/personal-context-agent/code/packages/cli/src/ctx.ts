@@ -66,10 +66,10 @@ async function main(): Promise<void> {
   try {
     switch (cmd) {
       case "review":
-        runReview(rest);
+        await runReview(rest);
         break;
       case "log":
-        runLogCommand(rest);
+        await runLogCommand(rest);
         break;
       default:
         process.stderr.write(`Unknown command: ${cmd}\n\n${USAGE}`);
@@ -83,7 +83,7 @@ async function main(): Promise<void> {
   }
 }
 
-function runReview(args: string[]): void {
+async function runReview(args: string[]): Promise<void> {
   const { values } = parseArgs({
     args,
     options: {
@@ -102,7 +102,7 @@ function runReview(args: string[]): void {
   }
 
   const dbPath = values.db ?? defaultPaths().dbPath;
-  const result = reviewLinks({ dbPath, fix: values.fix ?? false });
+  const result = await reviewLinks({ dbPath, fix: values.fix ?? false });
   process.stdout.write(formatReview(result, values.fix ?? false));
   process.exit(0);
 }
@@ -194,7 +194,7 @@ const VALID_STATUS = new Set<CaptureStatus>([
 ]);
 const VALID_EXPORT = new Set(["markdown"]);
 
-function runLogCommand(args: string[]): void {
+async function runLogCommand(args: string[]): Promise<void> {
   const { values } = parseArgs({
     args,
     options: {
@@ -257,7 +257,7 @@ function runLogCommand(args: string[]): void {
   }
 
   const dbPath = values.db ?? defaultPaths().dbPath;
-  const result = runLog({
+  const result = await runLog({
     dbPath,
     since,
     until,

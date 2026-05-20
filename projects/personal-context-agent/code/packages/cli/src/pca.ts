@@ -57,7 +57,7 @@ async function main(): Promise<void> {
   try {
     switch (cmd) {
       case "init":
-        runInit(rest);
+        await runInit(rest);
         break;
       case "install-mcp":
         runInstallMcp(rest);
@@ -66,7 +66,7 @@ async function main(): Promise<void> {
         runInstallSkill(rest);
         break;
       case "doctor":
-        runDoctor(rest);
+        await runDoctor(rest);
         break;
       default:
         process.stderr.write(`Unknown command: ${cmd}\n\n${USAGE}`);
@@ -82,14 +82,14 @@ async function main(): Promise<void> {
 
 // ── command dispatchers ─────────────────────────────────────────────────────
 
-function runInit(args: string[]): void {
+async function runInit(args: string[]): Promise<void> {
   const { values } = parseArgs({
     args,
     options: { db: { type: "string" } },
     strict: true,
   });
   const dbPath = values.db ?? defaultPaths().dbPath;
-  finishCommand(initStore({ dbPath }));
+  finishCommand(await initStore({ dbPath }));
 }
 
 function runInstallMcp(args: string[]): void {
@@ -161,7 +161,7 @@ function runInstallSkill(args: string[]): void {
   );
 }
 
-function runDoctor(args: string[]): void {
+async function runDoctor(args: string[]): Promise<void> {
   const { values } = parseArgs({
     args,
     options: {
@@ -172,7 +172,7 @@ function runDoctor(args: string[]): void {
     strict: true,
   });
   const paths = defaultPaths();
-  const result = doctor({
+  const result = await doctor({
     dbPath: values.db ?? paths.dbPath,
     mcpConfigPath: values.config ?? paths.mcpConfigPath,
     skillsDir: values["skills-dir"] ?? paths.skillsDir,

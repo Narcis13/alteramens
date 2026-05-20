@@ -31,14 +31,14 @@ export type MigrateLinksResult = CommandResult & {
   missingParents: Array<{ goalId: string; parentId: string; goalTitle: string }>;
 };
 
-export function migrateLinks(opts: {
+export async function migrateLinks(opts: {
   dbPath: string;
   actor?: string;
-}): MigrateLinksResult {
+}): Promise<MigrateLinksResult> {
   const actor = opts.actor ?? ACTOR;
-  const store = openStore(opts.dbPath);
+  const store = await openStore({ url: `file:${opts.dbPath}` });
   try {
-    const goals = store.listActive("goal", { limit: 10_000 });
+    const goals = await store.listActive("goal", { limit: 10_000 });
 
     let created = 0;
     let alreadyLinked = 0;
@@ -48,7 +48,7 @@ export function migrateLinks(opts: {
       const parentId = goal.attrs?.parent_id;
       if (typeof parentId !== "string" || parentId.length === 0) continue;
 
-      const parent = store.getEntity(parentId);
+      const parent = await store.getEntity(parentId);
       if (!parent || parent.status !== "active") {
         missingParents.push({
           goalId: goal.id,
@@ -58,22 +58,21 @@ export function migrateLinks(opts: {
         continue;
       }
 
-      const existing = store
-        .listLinks({
-          entityId: goal.id,
-          relation: "subgoal-of",
-          direction: "out",
-          includeInvalidated: false,
-          limit: 200,
-        })
-        .find((l) => l.dst_id === parentId);
+      const existingLinks = await store.listLinks({
+        entityId: goal.id,
+        relation: "subgoal-of",
+        direction: "out",
+        includeInvalidated: false,
+        limit: 200,
+      });
+      const existing = existingLinks.find((l) => l.dst_id === parentId);
 
       if (existing) {
         alreadyLinked++;
         continue;
       }
 
-      store.createLink(
+      await store.createLink(
         {
           src_id: goal.id,
           dst_id: parentId,
