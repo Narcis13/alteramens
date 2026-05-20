@@ -234,12 +234,12 @@ export function validateLinkPair(
 // walking the same relation outward.
 const CYCLE_MAX_DEPTH = 10;
 
-export function isCyclic(
+export async function isCyclic(
   store: Store,
   srcId: string,
   dstId: string,
   relation: string,
-): boolean {
+): Promise<boolean> {
   const spec = getRelationSpec(relation);
   if (!spec || !spec.acyclic) return false;
   if (srcId === dstId) return true;
@@ -249,7 +249,7 @@ export function isCyclic(
   for (let depth = 0; depth < CYCLE_MAX_DEPTH && frontier.length > 0; depth++) {
     const next: string[] = [];
     for (const node of frontier) {
-      const outs = store.listLinks({
+      const outs = await store.listLinks({
         entityId: node,
         relation,
         direction: "out",

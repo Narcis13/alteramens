@@ -1,4 +1,9 @@
-import { Database } from "bun:sqlite";
+import {
+  createClient,
+  type Client,
+  type InValue,
+  type Row,
+} from "@libsql/client";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { ulid } from "ulidx";
@@ -48,6 +53,18 @@ export class StoreError extends Error {
     this.name = "StoreError";
   }
 }
+
+export type OpenStoreOptions = {
+  /** Local file URL ("file:..."), or remote URL ("libsql:..."). For embedded
+   *  replica mode, this is the local file path and `syncUrl` is the remote. */
+  url: string;
+  /** Remote sync URL for embedded-replica mode. Omit for local-only. */
+  syncUrl?: string;
+  /** Turso auth token (required when syncUrl is set). */
+  authToken?: string;
+  /** Background sync interval in seconds. Defaults to 60 when syncUrl is set. */
+  syncInterval?: number;
+};
 
 type EntityRow = {
   id: string;
@@ -121,18 +138,32 @@ type NeighborRow = {
   e_invalidated_at: string | null;
 };
 
-export type Store = ReturnType<typeof openStore>;
+export type Store = Awaited<ReturnType<typeof openStore>>;
 
-export function openStore(dbPath: string) {
-  const db = new Database(dbPath, { create: true });
-  db.exec("PRAGMA journal_mode = WAL");
-  db.exec("PRAGMA foreign_keys = ON");
-  db.exec("PRAGMA synchronous = NORMAL");
-  db.exec("PRAGMA busy_timeout = 5000");
+export async function openStore(opts: OpenStoreOptions) {
+  const isReplica = Boolean(opts.syncUrl);
+  const client: Client = isReplica
+    ? createClient({
+        url: opts.url,
+        syncUrl: opts.syncUrl,
+        authToken: opts.authToken,
+        syncInterval: opts.syncInterval ?? 60,
+      })
+    : createClient({ url: opts.url });
 
-  runMigrations(db);
+  // For embedded replicas, pull remote state before running migrations so we
+  // don't redundantly bootstrap a schema that already lives on the server.
+  if (isReplica) {
+    await client.sync();
+  }
 
-  function logEvent(args: {
+  // libsql ignores PRAGMA journal_mode=WAL (replication-driven). Foreign keys
+  // are on by default in libsql; we re-assert as defense-in-depth.
+  await client.execute("PRAGMA foreign_keys = ON");
+
+  await runMigrations(client);
+
+  async function logEvent(args: {
     actor: string;
     operation: EventRow["operation"];
     entity_id?: string | null;
@@ -140,24 +171,28 @@ export function openStore(dbPath: string) {
     annotation_id?: string | null;
     payload?: unknown;
     source_ref?: string | null;
-  }): void {
-    db.prepare(
-      `INSERT INTO events
+  }): Promise<void> {
+    await client.execute({
+      sql: `INSERT INTO events
          (occurred_at, actor, operation, entity_id, link_id, annotation_id, payload, source_ref)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).run(
-      nowIso(),
-      args.actor,
-      args.operation,
-      args.entity_id ?? null,
-      args.link_id ?? null,
-      args.annotation_id ?? null,
-      args.payload === undefined ? null : JSON.stringify(args.payload),
-      args.source_ref ?? null,
-    );
+      args: [
+        nowIso(),
+        args.actor,
+        args.operation,
+        args.entity_id ?? null,
+        args.link_id ?? null,
+        args.annotation_id ?? null,
+        args.payload === undefined ? null : JSON.stringify(args.payload),
+        args.source_ref ?? null,
+      ],
+    });
   }
 
-  function createEntity(input: CreateEntityInput, actor: string): Entity {
+  async function createEntity(
+    input: CreateEntityInput,
+    actor: string,
+  ): Promise<Entity> {
     const spec = REGISTRY[input.type];
     if (!spec) throw new StoreError(`Unknown entity type: ${input.type}`, "BAD_TYPE");
 
@@ -169,26 +204,27 @@ export function openStore(dbPath: string) {
       input.authority ?? (input.type === "self" ? "self-declared" : "observed");
 
     try {
-      db.prepare(
-        `INSERT INTO entities
+      await client.execute({
+        sql: `INSERT INTO entities
            (id, type, title, body, status, authority, confidence, maturity,
             scope, source_ref, attrs, created_at, updated_at, expires_at)
          VALUES (?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      ).run(
-        id,
-        input.type,
-        input.title,
-        input.body ?? null,
-        authority,
-        input.confidence ?? "medium",
-        input.maturity ?? "provisional",
-        input.scope ?? "general",
-        input.source_ref ?? null,
-        JSON.stringify(parsedAttrs),
-        now,
-        now,
-        expiresAt,
-      );
+        args: [
+          id,
+          input.type,
+          input.title,
+          input.body ?? null,
+          authority,
+          input.confidence ?? "medium",
+          input.maturity ?? "provisional",
+          input.scope ?? "general",
+          input.source_ref ?? null,
+          JSON.stringify(parsedAttrs),
+          now,
+          now,
+          expiresAt,
+        ],
+      });
     } catch (e: unknown) {
       if (
         spec.isSingleton &&
@@ -203,28 +239,30 @@ export function openStore(dbPath: string) {
       throw e;
     }
 
-    logEvent({
+    await logEvent({
       actor,
       operation: "create",
       entity_id: id,
       payload: { type: input.type, authority },
     });
-    return getEntity(id)!;
+    return (await getEntity(id))!;
   }
 
-  function getEntity(id: string): Entity | null {
-    const row = db.prepare("SELECT * FROM entities WHERE id = ?").get(id) as
-      | EntityRow
-      | null;
+  async function getEntity(id: string): Promise<Entity | null> {
+    const result = await client.execute({
+      sql: "SELECT * FROM entities WHERE id = ?",
+      args: [id],
+    });
+    const row = result.rows[0] as unknown as EntityRow | undefined;
     return row ? rowToEntity(row) : null;
   }
 
-  function updateEntity(
+  async function updateEntity(
     id: string,
     changes: UpdateEntityChanges,
     actor: string,
-  ): { previous: Entity; current: Entity } {
-    const previous = getEntity(id);
+  ): Promise<{ previous: Entity; current: Entity }> {
+    const previous = await getEntity(id);
     if (!previous) throw new StoreError(`Entity not found: ${id}`, "NOT_FOUND");
 
     const nextAttrs =
@@ -232,9 +270,9 @@ export function openStore(dbPath: string) {
         ? parseAttrs(REGISTRY[previous.type].attrs, previous.type, changes.attrs)
         : previous.attrs;
 
-    applyEntityUpdate(db, id, previous, changes, nextAttrs);
-    const current = getEntity(id)!;
-    logEvent({
+    await applyEntityUpdate(client, id, previous, changes, nextAttrs);
+    const current = (await getEntity(id))!;
+    await logEvent({
       actor,
       operation: "update",
       entity_id: id,
@@ -243,48 +281,53 @@ export function openStore(dbPath: string) {
     return { previous, current };
   }
 
-  function invalidateEntity(id: string, actor: string, note?: string): Entity {
-    const previous = getEntity(id);
+  async function invalidateEntity(
+    id: string,
+    actor: string,
+    note?: string,
+  ): Promise<Entity> {
+    const previous = await getEntity(id);
     if (!previous) throw new StoreError(`Entity not found: ${id}`, "NOT_FOUND");
     const now = nowIso();
-    db.prepare(
-      `UPDATE entities SET status='invalidated', invalidated_at=?, updated_at=? WHERE id=?`,
-    ).run(now, now, id);
-    logEvent({ actor, operation: "invalidate", entity_id: id, payload: { note } });
+    await client.execute({
+      sql: `UPDATE entities SET status='invalidated', invalidated_at=?, updated_at=? WHERE id=?`,
+      args: [now, now, id],
+    });
+    await logEvent({ actor, operation: "invalidate", entity_id: id, payload: { note } });
 
     // Cascade: any non-invalidated link touching this entity becomes invalid too.
     // Phase 3 Step 3.1: only `invalidated` cascades. An `archived` transition
     // leaves links intact — archive is a soft "out of rotation" state, not a
     // truth-revocation.
-    const affected = db
-      .prepare(
-        `UPDATE links SET invalidated_at = ?
-           WHERE (src_id = ? OR dst_id = ?) AND invalidated_at IS NULL
-         RETURNING id`,
-      )
-      .all(now, id, id) as Array<{ id: string }>;
-    for (const link of affected) {
-      logEvent({
+    const affected = await client.execute({
+      sql: `UPDATE links SET invalidated_at = ?
+              WHERE (src_id = ? OR dst_id = ?) AND invalidated_at IS NULL
+            RETURNING id`,
+      args: [now, id, id],
+    });
+    for (const linkRow of affected.rows) {
+      const link = linkRow as unknown as { id: string };
+      await logEvent({
         actor,
         operation: "link-invalidate",
         link_id: link.id,
         payload: { reason: "cascade", entity_id: id, note },
       });
     }
-    return getEntity(id)!;
+    return (await getEntity(id))!;
   }
 
-  function confirmEntity(
+  async function confirmEntity(
     id: string,
     decision: ConfirmDecision,
     actor: string,
     opts?: { modify?: UpdateEntityChanges; note?: string },
-  ): { outcome: "extended" | "invalidated" | "modified"; entity: Entity } {
-    const previous = getEntity(id);
+  ): Promise<{ outcome: "extended" | "invalidated" | "modified"; entity: Entity }> {
+    const previous = await getEntity(id);
     if (!previous) throw new StoreError(`Entity not found: ${id}`, "NOT_FOUND");
 
     if (decision === "no-longer-true") {
-      const entity = invalidateEntity(id, actor, opts?.note);
+      const entity = await invalidateEntity(id, actor, opts?.note);
       return { outcome: "invalidated", entity };
     }
 
@@ -294,20 +337,20 @@ export function openStore(dbPath: string) {
       spec.defaultTtlDays === null ? null : addDays(now, spec.defaultTtlDays);
 
     if (decision === "still-true") {
-      applyEntityUpdate(
-        db,
+      await applyEntityUpdate(
+        client,
         id,
         previous,
         { expires_at: newExpires },
         previous.attrs,
       );
-      logEvent({
+      await logEvent({
         actor,
         operation: "confirm",
         entity_id: id,
         payload: { note: opts?.note },
       });
-      return { outcome: "extended", entity: getEntity(id)! };
+      return { outcome: "extended", entity: (await getEntity(id))! };
     }
 
     // decision === "modify"
@@ -319,41 +362,42 @@ export function openStore(dbPath: string) {
       changes.attrs !== undefined
         ? parseAttrs(spec.attrs, previous.type, changes.attrs)
         : previous.attrs;
-    applyEntityUpdate(db, id, previous, changes, nextAttrs);
-    logEvent({
+    await applyEntityUpdate(client, id, previous, changes, nextAttrs);
+    await logEvent({
       actor,
       operation: "confirm-modify",
       entity_id: id,
       payload: { note: opts?.note, modify: opts?.modify },
     });
-    return { outcome: "modified", entity: getEntity(id)! };
+    return { outcome: "modified", entity: (await getEntity(id))! };
   }
 
-  function listActive(
+  async function listActive(
     type: EntityType,
     opts?: { scope?: string; limit?: number },
-  ): Entity[] {
+  ): Promise<Entity[]> {
     const view = VIEW_FOR[type];
     const limit = opts?.limit ?? 50;
     const where = opts?.scope ? " WHERE scope = ?" : "";
     const sql = `SELECT * FROM ${view}${where} LIMIT ?`;
-    const params: unknown[] = opts?.scope ? [opts.scope, limit] : [limit];
-    const rows = db.prepare(sql).all(...(params as never[])) as EntityRow[];
+    const args: InValue[] = opts?.scope ? [opts.scope, limit] : [limit];
+    const result = await client.execute({ sql, args });
+    const rows = result.rows as unknown as EntityRow[];
     return rows.map(rowToEntity);
   }
 
-  function searchFts(
+  async function searchFts(
     query: string,
     opts?: { types?: EntityType[]; limit?: number },
-  ): Entity[] {
+  ): Promise<Entity[]> {
     const limit = opts?.limit ?? 10;
-    const params: unknown[] = [query];
+    const args: InValue[] = [query];
     let typeFilter = "";
     if (opts?.types && opts.types.length > 0) {
       typeFilter = ` AND e.type IN (${opts.types.map(() => "?").join(",")})`;
-      params.push(...opts.types);
+      args.push(...opts.types);
     }
-    params.push(limit);
+    args.push(limit);
     const sql = `
       SELECT e.*
       FROM fts_entities f
@@ -364,40 +408,44 @@ export function openStore(dbPath: string) {
         ${typeFilter}
       ORDER BY rank
       LIMIT ?`;
-    const rows = db.prepare(sql).all(...(params as never[])) as EntityRow[];
+    const result = await client.execute({ sql, args });
+    const rows = result.rows as unknown as EntityRow[];
     return rows.map(rowToEntity);
   }
 
-  function getCurrentSelf(): Entity | null {
-    const row = db.prepare("SELECT * FROM v_current_self").get() as EntityRow | null;
+  async function getCurrentSelf(): Promise<Entity | null> {
+    const result = await client.execute("SELECT * FROM v_current_self");
+    const row = result.rows[0] as unknown as EntityRow | undefined;
     return row ? rowToEntity(row) : null;
   }
 
-  function listEvents(opts?: {
+  async function listEvents(opts?: {
     entityId?: string;
     limit?: number;
-  }): EventRow[] {
+  }): Promise<EventRow[]> {
     const limit = opts?.limit ?? 100;
     const where = opts?.entityId ? " WHERE entity_id = ?" : "";
     const sql = `SELECT * FROM events${where} ORDER BY occurred_at ASC, id ASC LIMIT ?`;
-    const params: unknown[] = opts?.entityId ? [opts.entityId, limit] : [limit];
-    const rows = db.prepare(sql).all(...(params as never[])) as RawEventRow[];
+    const args: InValue[] = opts?.entityId ? [opts.entityId, limit] : [limit];
+    const result = await client.execute({ sql, args });
+    const rows = result.rows as unknown as RawEventRow[];
     return rows.map((r) => ({
       ...r,
       payload: r.payload ? JSON.parse(r.payload) : null,
     }));
   }
 
-  function listStale(): Entity[] {
-    const rows = db
-      .prepare("SELECT * FROM v_stale_entities ORDER BY updated_at ASC")
-      .all() as EntityRow[];
+  async function listStale(): Promise<Entity[]> {
+    const result = await client.execute(
+      "SELECT * FROM v_stale_entities ORDER BY updated_at ASC",
+    );
+    const rows = result.rows as unknown as EntityRow[];
     return rows.map(rowToEntity);
   }
 
   // ── Primitives ─────────────────────────────────────────────────────────────
 
-  function createLink(
+  async function createLink(
     args: {
       src_id: string;
       dst_id: string;
@@ -406,23 +454,24 @@ export function openStore(dbPath: string) {
       authority?: Authority;
     },
     actor: string,
-  ): Link {
+  ): Promise<Link> {
     const id = ulid();
     const created_at = nowIso();
     const authority = args.authority ?? "observed";
-    db.prepare(
-      `INSERT INTO links (id, src_id, dst_id, relation, weight, authority, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    ).run(
-      id,
-      args.src_id,
-      args.dst_id,
-      args.relation,
-      args.weight ?? 1.0,
-      authority,
-      created_at,
-    );
-    logEvent({ actor, operation: "link", link_id: id, payload: args });
+    await client.execute({
+      sql: `INSERT INTO links (id, src_id, dst_id, relation, weight, authority, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        id,
+        args.src_id,
+        args.dst_id,
+        args.relation,
+        args.weight ?? 1.0,
+        authority,
+        created_at,
+      ],
+    });
+    await logEvent({ actor, operation: "link", link_id: id, payload: args });
     return {
       id,
       src_id: args.src_id,
@@ -435,29 +484,29 @@ export function openStore(dbPath: string) {
     };
   }
 
-  function listLinks(opts?: {
+  async function listLinks(opts?: {
     entityId?: string;
     relation?: string;
     direction?: "out" | "in" | "both";
     includeInvalidated?: boolean;
     limit?: number;
-  }): Link[] {
+  }): Promise<Link[]> {
     const limit = opts?.limit ?? 50;
     const includeInvalidated = opts?.includeInvalidated ?? false;
     const where: string[] = [];
-    const params: unknown[] = [];
+    const args: InValue[] = [];
 
     if (opts?.entityId) {
       const direction = opts.direction ?? "both";
       if (direction === "out") {
         where.push("src_id = ?");
-        params.push(opts.entityId);
+        args.push(opts.entityId);
       } else if (direction === "in") {
         where.push("dst_id = ?");
-        params.push(opts.entityId);
+        args.push(opts.entityId);
       } else {
         where.push("(src_id = ? OR dst_id = ?)");
-        params.push(opts.entityId, opts.entityId);
+        args.push(opts.entityId, opts.entityId);
       }
     }
     if (!includeInvalidated) {
@@ -465,17 +514,18 @@ export function openStore(dbPath: string) {
     }
     if (opts?.relation) {
       where.push("relation = ?");
-      params.push(opts.relation);
+      args.push(opts.relation);
     }
 
     const whereSql = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
     const sql = `SELECT * FROM links ${whereSql} ORDER BY created_at DESC LIMIT ?`;
-    params.push(limit);
-    const rows = db.prepare(sql).all(...(params as never[])) as LinkRow[];
+    args.push(limit);
+    const result = await client.execute({ sql, args });
+    const rows = result.rows as unknown as LinkRow[];
     return rows.map(rowToLink);
   }
 
-  function getNeighbors(
+  async function getNeighbors(
     id: string,
     opts?: {
       relation?: string;
@@ -483,7 +533,7 @@ export function openStore(dbPath: string) {
       types?: EntityType[];
       limit?: number;
     },
-  ): Array<{ entity: Entity; link: Link; role: "out" | "in" }> {
+  ): Promise<Array<{ entity: Entity; link: Link; role: "out" | "in" }>> {
     const limit = opts?.limit ?? 50;
     const direction = opts?.direction ?? "both";
 
@@ -516,22 +566,22 @@ export function openStore(dbPath: string) {
     ].join(", ");
 
     const where: string[] = ["l.invalidated_at IS NULL"];
-    const params: unknown[] = [];
+    const args: InValue[] = [];
     let neighborExpr: string;
     let directionFilter: string;
 
     if (direction === "out") {
       neighborExpr = "l.dst_id";
       directionFilter = "l.src_id = ?";
-      params.push(id);
+      args.push(id);
     } else if (direction === "in") {
       neighborExpr = "l.src_id";
       directionFilter = "l.dst_id = ?";
-      params.push(id);
+      args.push(id);
     } else {
       neighborExpr = "CASE WHEN l.src_id = ? THEN l.dst_id ELSE l.src_id END";
       directionFilter = "(l.src_id = ? OR l.dst_id = ?)";
-      params.push(id, id, id);
+      args.push(id, id, id);
     }
     where.push(directionFilter);
     where.push("e.status = 'active'");
@@ -539,13 +589,13 @@ export function openStore(dbPath: string) {
 
     if (opts?.relation) {
       where.push("l.relation = ?");
-      params.push(opts.relation);
+      args.push(opts.relation);
     }
     if (opts?.types && opts.types.length > 0) {
       where.push(`e.type IN (${opts.types.map(() => "?").join(",")})`);
-      params.push(...opts.types);
+      args.push(...opts.types);
     }
-    params.push(limit);
+    args.push(limit);
 
     const sql = `
       SELECT ${linkCols}, ${entityCols}
@@ -555,7 +605,8 @@ export function openStore(dbPath: string) {
       ORDER BY l.created_at DESC
       LIMIT ?
     `;
-    const rows = db.prepare(sql).all(...(params as never[])) as NeighborRow[];
+    const result = await client.execute({ sql, args });
+    const rows = result.rows as unknown as NeighborRow[];
     return rows.map((r) => {
       const link = rowToLink({
         id: r.l_id,
@@ -589,16 +640,25 @@ export function openStore(dbPath: string) {
     });
   }
 
-  function invalidateLink(linkId: string, actor: string, note?: string): Link {
-    const existing = db
-      .prepare("SELECT * FROM links WHERE id = ?")
-      .get(linkId) as LinkRow | null;
+  async function invalidateLink(
+    linkId: string,
+    actor: string,
+    note?: string,
+  ): Promise<Link> {
+    const existingResult = await client.execute({
+      sql: "SELECT * FROM links WHERE id = ?",
+      args: [linkId],
+    });
+    const existing = existingResult.rows[0] as unknown as LinkRow | undefined;
     if (!existing) throw new StoreError(`Link not found: ${linkId}`, "NOT_FOUND");
     if (existing.invalidated_at) return rowToLink(existing);
 
     const now = nowIso();
-    db.prepare("UPDATE links SET invalidated_at = ? WHERE id = ?").run(now, linkId);
-    logEvent({
+    await client.execute({
+      sql: "UPDATE links SET invalidated_at = ? WHERE id = ?",
+      args: [now, linkId],
+    });
+    await logEvent({
       actor,
       operation: "link-invalidate",
       link_id: linkId,
@@ -607,17 +667,18 @@ export function openStore(dbPath: string) {
     return rowToLink({ ...existing, invalidated_at: now });
   }
 
-  function createAnnotation(
+  async function createAnnotation(
     args: { entity_id: string; body: string; authority?: Authority },
     actor: string,
-  ): Annotation {
+  ): Promise<Annotation> {
     const id = ulid();
     const created_at = nowIso();
     const authority = args.authority ?? "observed";
-    db.prepare(
-      `INSERT INTO annotations (id, entity_id, body, authority, created_at) VALUES (?, ?, ?, ?, ?)`,
-    ).run(id, args.entity_id, args.body, authority, created_at);
-    logEvent({
+    await client.execute({
+      sql: `INSERT INTO annotations (id, entity_id, body, authority, created_at) VALUES (?, ?, ?, ?, ?)`,
+      args: [id, args.entity_id, args.body, authority, created_at],
+    });
+    await logEvent({
       actor,
       operation: "annotate",
       entity_id: args.entity_id,
@@ -626,27 +687,34 @@ export function openStore(dbPath: string) {
     return { id, entity_id: args.entity_id, body: args.body, authority, created_at };
   }
 
-  function tagEntity(entity_id: string, slug: string, actor: string): void {
-    db.prepare(
-      `INSERT INTO tags (slug, description) VALUES (?, NULL)
-         ON CONFLICT(slug) DO NOTHING`,
-    ).run(slug);
-    db.prepare(
-      `INSERT OR IGNORE INTO entity_tags (entity_id, tag_slug) VALUES (?, ?)`,
-    ).run(entity_id, slug);
-    logEvent({ actor, operation: "tag", entity_id, payload: { slug } });
+  async function tagEntity(
+    entity_id: string,
+    slug: string,
+    actor: string,
+  ): Promise<void> {
+    await client.execute({
+      sql: `INSERT INTO tags (slug, description) VALUES (?, NULL)
+            ON CONFLICT(slug) DO NOTHING`,
+      args: [slug],
+    });
+    await client.execute({
+      sql: `INSERT OR IGNORE INTO entity_tags (entity_id, tag_slug) VALUES (?, ?)`,
+      args: [entity_id, slug],
+    });
+    await logEvent({ actor, operation: "tag", entity_id, payload: { slug } });
   }
 
-  function createSource(args: {
+  async function createSource(args: {
     kind: Source["kind"];
     identifier: string;
     excerpt?: string;
-  }): Source {
+  }): Promise<Source> {
     const id = ulid();
     const created_at = nowIso();
-    db.prepare(
-      `INSERT INTO sources (id, kind, identifier, excerpt, created_at) VALUES (?, ?, ?, ?, ?)`,
-    ).run(id, args.kind, args.identifier, args.excerpt ?? null, created_at);
+    await client.execute({
+      sql: `INSERT INTO sources (id, kind, identifier, excerpt, created_at) VALUES (?, ?, ?, ?, ?)`,
+      args: [id, args.kind, args.identifier, args.excerpt ?? null, created_at],
+    });
     return {
       id,
       kind: args.kind,
@@ -656,11 +724,16 @@ export function openStore(dbPath: string) {
     };
   }
 
-  function attachSource(entity_id: string, source_id: string, actor: string): void {
-    db.prepare(
-      `INSERT OR IGNORE INTO entity_sources (entity_id, source_id) VALUES (?, ?)`,
-    ).run(entity_id, source_id);
-    logEvent({
+  async function attachSource(
+    entity_id: string,
+    source_id: string,
+    actor: string,
+  ): Promise<void> {
+    await client.execute({
+      sql: `INSERT OR IGNORE INTO entity_sources (entity_id, source_id) VALUES (?, ?)`,
+      args: [entity_id, source_id],
+    });
+    await logEvent({
       actor,
       operation: "source",
       entity_id,
@@ -668,19 +741,20 @@ export function openStore(dbPath: string) {
     });
   }
 
-  function upsertProject(args: {
+  async function upsertProject(args: {
     slug: string;
     title: string;
     description?: string;
-  }): Project {
+  }): Promise<Project> {
     const created_at = nowIso();
-    db.prepare(
-      `INSERT INTO projects (slug, title, description, status, created_at)
-         VALUES (?, ?, ?, 'active', ?)
-       ON CONFLICT(slug) DO UPDATE SET
-         title = excluded.title,
-         description = COALESCE(excluded.description, projects.description)`,
-    ).run(args.slug, args.title, args.description ?? null, created_at);
+    await client.execute({
+      sql: `INSERT INTO projects (slug, title, description, status, created_at)
+              VALUES (?, ?, ?, 'active', ?)
+            ON CONFLICT(slug) DO UPDATE SET
+              title = excluded.title,
+              description = COALESCE(excluded.description, projects.description)`,
+      args: [args.slug, args.title, args.description ?? null, created_at],
+    });
     return {
       slug: args.slug,
       title: args.title,
@@ -692,7 +766,10 @@ export function openStore(dbPath: string) {
 
   // ── Captures ───────────────────────────────────────────────────────────────
 
-  function recordCapture(input: RecordCaptureInput, actor: string): Capture {
+  async function recordCapture(
+    input: RecordCaptureInput,
+    actor: string,
+  ): Promise<Capture> {
     if (!input.raw_text || input.raw_text.length === 0) {
       throw new StoreError("raw_text must be non-empty", "BAD_INPUT");
     }
@@ -704,26 +781,27 @@ export function openStore(dbPath: string) {
     const raw_lang = input.raw_lang ?? null;
     const meta = input.meta ?? null;
 
-    db.prepare(
-      `INSERT INTO captures
+    await client.execute({
+      sql: `INSERT INTO captures
          (id, occurred_at, raw_text, source, actor, session_id, scope,
           status, processed_at, classification_summary, raw_lang, meta)
        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NULL, NULL, ?, ?)`,
-    ).run(
-      id,
-      occurred_at,
-      input.raw_text,
-      source,
-      actor,
-      session_id,
-      scope,
-      raw_lang,
-      meta === null ? null : JSON.stringify(meta),
-    );
+      args: [
+        id,
+        occurred_at,
+        input.raw_text,
+        source,
+        actor,
+        session_id,
+        scope,
+        raw_lang,
+        meta === null ? null : JSON.stringify(meta),
+      ],
+    });
 
     // Event payload deliberately omits the full text — captures table is the
     // source of truth. Only the metadata for debugging timeline replays.
-    logEvent({
+    await logEvent({
       actor,
       operation: "capture",
       payload: {
@@ -734,57 +812,60 @@ export function openStore(dbPath: string) {
         scope,
       },
     });
-    return getCapture(id)!;
+    return (await getCapture(id))!;
   }
 
-  function getCapture(id: string): Capture | null {
-    const row = db.prepare("SELECT * FROM captures WHERE id = ?").get(id) as
-      | CaptureRow
-      | null;
+  async function getCapture(id: string): Promise<Capture | null> {
+    const result = await client.execute({
+      sql: "SELECT * FROM captures WHERE id = ?",
+      args: [id],
+    });
+    const row = result.rows[0] as unknown as CaptureRow | undefined;
     return row ? rowToCapture(row) : null;
   }
 
-  function listCaptures(opts?: ListCapturesOptions): Capture[] {
+  async function listCaptures(opts?: ListCapturesOptions): Promise<Capture[]> {
     const limit = Math.min(opts?.limit ?? 50, 500);
     const where: string[] = [];
-    const params: unknown[] = [];
+    const args: InValue[] = [];
 
     // FTS branch: join through fts_captures.
     if (opts?.fts && opts.fts.length > 0) {
       where.push("c.rowid IN (SELECT rowid FROM fts_captures WHERE fts_captures MATCH ?)");
-      params.push(opts.fts);
+      args.push(opts.fts);
     }
     if (opts?.since) {
       where.push("c.occurred_at >= ?");
-      params.push(opts.since);
+      args.push(opts.since);
     }
     if (opts?.until) {
       where.push("c.occurred_at <= ?");
-      params.push(opts.until);
+      args.push(opts.until);
     }
     if (opts?.status) {
       where.push("c.status = ?");
-      params.push(opts.status);
+      args.push(opts.status);
     }
     if (opts?.source) {
       where.push("c.source = ?");
-      params.push(opts.source);
+      args.push(opts.source);
     }
 
     const whereSql = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
     const sql = `SELECT c.* FROM captures c ${whereSql} ORDER BY c.occurred_at DESC LIMIT ?`;
-    params.push(limit);
-    const rows = db.prepare(sql).all(...(params as never[])) as CaptureRow[];
+    args.push(limit);
+    const result = await client.execute({ sql, args });
+    const rows = result.rows as unknown as CaptureRow[];
     return rows.map(rowToCapture);
   }
 
-  function updateCaptureStatus(
+  async function updateCaptureStatus(
     capture_id: string,
     status: "processed" | "aborted",
     actor: string,
     classification_summary?: ClassificationSummary,
-  ): Capture {
-    const existing = getCapture(capture_id);
+  ): Promise<Capture> {
+    const existing = await getCapture(capture_id);
     if (!existing) {
       throw new StoreError(`Capture not found: ${capture_id}`, "NOT_FOUND");
     }
@@ -805,13 +886,14 @@ export function openStore(dbPath: string) {
           : JSON.stringify(existing.classification_summary)
         : JSON.stringify(classification_summary);
 
-    db.prepare(
-      `UPDATE captures
-         SET status = ?, processed_at = ?, classification_summary = ?
-       WHERE id = ?`,
-    ).run(status, processed_at, summaryJson, capture_id);
+    await client.execute({
+      sql: `UPDATE captures
+              SET status = ?, processed_at = ?, classification_summary = ?
+            WHERE id = ?`,
+      args: [status, processed_at, summaryJson, capture_id],
+    });
 
-    logEvent({
+    await logEvent({
       actor,
       operation: "capture-update",
       payload: {
@@ -820,47 +902,69 @@ export function openStore(dbPath: string) {
         classification_summary: classification_summary ?? null,
       },
     });
-    return getCapture(capture_id)!;
+    return (await getCapture(capture_id))!;
   }
 
-  function linkCaptureToEntity(capture_id: string, entity_id: string): void {
+  async function linkCaptureToEntity(
+    capture_id: string,
+    entity_id: string,
+  ): Promise<void> {
     // Validate both ends exist so callers get a clean error rather than a
     // dangling FK failure surface.
-    const cap = db
-      .prepare("SELECT id FROM captures WHERE id = ?")
-      .get(capture_id) as { id: string } | null;
+    const capResult = await client.execute({
+      sql: "SELECT id FROM captures WHERE id = ?",
+      args: [capture_id],
+    });
+    const cap = capResult.rows[0] as unknown as { id: string } | undefined;
     if (!cap) throw new StoreError(`Capture not found: ${capture_id}`, "NOT_FOUND");
-    const ent = db
-      .prepare("SELECT id FROM entities WHERE id = ?")
-      .get(entity_id) as { id: string } | null;
+    const entResult = await client.execute({
+      sql: "SELECT id FROM entities WHERE id = ?",
+      args: [entity_id],
+    });
+    const ent = entResult.rows[0] as unknown as { id: string } | undefined;
     if (!ent) throw new StoreError(`Entity not found: ${entity_id}`, "NOT_FOUND");
 
-    db.prepare(
-      `INSERT OR IGNORE INTO capture_entities (capture_id, entity_id) VALUES (?, ?)`,
-    ).run(capture_id, entity_id);
+    await client.execute({
+      sql: `INSERT OR IGNORE INTO capture_entities (capture_id, entity_id) VALUES (?, ?)`,
+      args: [capture_id, entity_id],
+    });
   }
 
-  function linkCaptureToLink(capture_id: string, link_id: string): void {
-    const cap = db
-      .prepare("SELECT id FROM captures WHERE id = ?")
-      .get(capture_id) as { id: string } | null;
+  async function linkCaptureToLink(
+    capture_id: string,
+    link_id: string,
+  ): Promise<void> {
+    const capResult = await client.execute({
+      sql: "SELECT id FROM captures WHERE id = ?",
+      args: [capture_id],
+    });
+    const cap = capResult.rows[0] as unknown as { id: string } | undefined;
     if (!cap) throw new StoreError(`Capture not found: ${capture_id}`, "NOT_FOUND");
-    const lnk = db
-      .prepare("SELECT id FROM links WHERE id = ?")
-      .get(link_id) as { id: string } | null;
+    const lnkResult = await client.execute({
+      sql: "SELECT id FROM links WHERE id = ?",
+      args: [link_id],
+    });
+    const lnk = lnkResult.rows[0] as unknown as { id: string } | undefined;
     if (!lnk) throw new StoreError(`Link not found: ${link_id}`, "NOT_FOUND");
 
-    db.prepare(
-      `INSERT OR IGNORE INTO capture_links (capture_id, link_id) VALUES (?, ?)`,
-    ).run(capture_id, link_id);
+    await client.execute({
+      sql: `INSERT OR IGNORE INTO capture_links (capture_id, link_id) VALUES (?, ?)`,
+      args: [capture_id, link_id],
+    });
   }
 
   function close(): void {
-    db.close();
+    client.close();
+  }
+
+  /** Force a sync round-trip with the remote (embedded-replica only; no-op
+   *  for local-only stores). */
+  async function sync(): Promise<void> {
+    if (isReplica) await client.sync();
   }
 
   return {
-    db,
+    client,
     createEntity,
     getEntity,
     updateEntity,
@@ -887,6 +991,7 @@ export function openStore(dbPath: string) {
     linkCaptureToEntity,
     linkCaptureToLink,
     close,
+    sync,
   };
 }
 
@@ -954,45 +1059,45 @@ function rowToEntity(r: EntityRow): Entity {
   };
 }
 
-function applyEntityUpdate(
-  db: Database,
+async function applyEntityUpdate(
+  client: Client,
   id: string,
   previous: Entity,
   changes: UpdateEntityChanges,
   nextAttrs: Record<string, unknown>,
-): void {
+): Promise<void> {
   const expiresAt =
     changes.expires_at === undefined ? previous.expires_at : changes.expires_at;
-  db.prepare(
-    `UPDATE entities
-       SET title = ?, body = ?, attrs = ?, status = ?, scope = ?,
-           expires_at = ?, confidence = ?, maturity = ?, updated_at = ?
-     WHERE id = ?`,
-  ).run(
-    changes.title ?? previous.title,
-    changes.body === undefined ? previous.body : changes.body,
-    JSON.stringify(nextAttrs),
-    changes.status ?? previous.status,
-    changes.scope ?? previous.scope,
-    expiresAt,
-    changes.confidence ?? previous.confidence,
-    changes.maturity ?? previous.maturity,
-    nowIso(),
-    id,
-  );
+  await client.execute({
+    sql: `UPDATE entities
+            SET title = ?, body = ?, attrs = ?, status = ?, scope = ?,
+                expires_at = ?, confidence = ?, maturity = ?, updated_at = ?
+          WHERE id = ?`,
+    args: [
+      changes.title ?? previous.title,
+      changes.body === undefined ? previous.body : changes.body,
+      JSON.stringify(nextAttrs),
+      changes.status ?? previous.status,
+      changes.scope ?? previous.scope,
+      expiresAt,
+      changes.confidence ?? previous.confidence,
+      changes.maturity ?? previous.maturity,
+      nowIso(),
+      id,
+    ],
+  });
 }
 
-function runMigrations(db: Database): void {
-  db.exec(`CREATE TABLE IF NOT EXISTS schema_migrations (
+async function runMigrations(client: Client): Promise<void> {
+  await client.execute(`CREATE TABLE IF NOT EXISTS schema_migrations (
     version    INTEGER PRIMARY KEY,
     applied_at TEXT NOT NULL
   )`);
+  const appliedResult = await client.execute(
+    "SELECT version FROM schema_migrations",
+  );
   const applied = new Set<number>(
-    (
-      db.prepare("SELECT version FROM schema_migrations").all() as Array<{
-        version: number;
-      }>
-    ).map((r) => r.version),
+    (appliedResult.rows as Row[]).map((r) => Number(r.version)),
   );
   const files = readdirSync(MIGRATIONS_DIR)
     .filter((f) => f.endsWith(".sql"))
@@ -1004,12 +1109,15 @@ function runMigrations(db: Database): void {
     }
     if (applied.has(version)) continue;
     const sql = readFileSync(join(MIGRATIONS_DIR, file), "utf-8");
-    db.transaction(() => {
-      db.exec(sql);
-      db.prepare(
-        `INSERT OR REPLACE INTO schema_migrations (version, applied_at) VALUES (?, ?)`,
-      ).run(version, nowIso());
-    })();
+    // Wrap each migration + its version-row insert in a single transaction.
+    // executeMultiple doesn't auto-wrap, but it does allow explicit BEGIN/COMMIT.
+    // nowIso() is a generated ISO string and `version` is a number — no
+    // injection surface from external input.
+    const txSql =
+      `BEGIN;\n${sql}\n` +
+      `INSERT OR REPLACE INTO schema_migrations (version, applied_at) ` +
+      `VALUES (${version}, '${nowIso()}');\nCOMMIT;`;
+    await client.executeMultiple(txSql);
   }
 }
 

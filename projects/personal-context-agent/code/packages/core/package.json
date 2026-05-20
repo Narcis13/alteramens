@@ -8,6 +8,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.3",
     "ulidx": "^2.4.1",
     "zod": "^3.23.8"
   }

@@ -1,5 +1,5 @@
 export { openStore, StoreError } from "./store.ts";
-export type { Store } from "./store.ts";
+export type { OpenStoreOptions, Store } from "./store.ts";
 export { REGISTRY } from "./entities/registry.ts";
 export type { EntitySpec } from "./entities/registry.ts";
 export {
