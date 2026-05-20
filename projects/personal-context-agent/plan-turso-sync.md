@@ -187,20 +187,29 @@ Total estimat: ~25 fișiere, 90% modificări mecanice (await/async).
 
 ---
 
-### Phase 1 — Backup + freeze (15 min)
+### Phase 1 — Backup + freeze (15 min) ✅ DONE 2026-05-20 18:47
 
 Înainte de orice modificare de cod.
 
-**Steps:**
-1. `cp ~/.pca/store.db ~/.pca/store.db.bak-pre-turso-$(date +%Y%m%d-%H%M%S)`
-2. `sqlite3 ~/.pca/store.db .schema > /tmp/pca-schema-snapshot.sql` (referință)
-3. `sqlite3 ~/.pca/store.db "SELECT COUNT(*) FROM entities, links, events, captures;" > /tmp/pca-counts.txt`
-4. Stop MCP server dacă rulează (Claude Code restart va fi necesar).
-5. Anunță-te pe celălalt laptop: "nu folosi PCA până nu termin migrarea" — orice scriere acolo se va pierde.
+> **Path correction (2026-05-20):** DB-ul canonic NU e `~/.pca/store.db` (gol — DB-ul pe care MCP-ul Claude Code îl folosește azi prin `PCA_DB=~/.pca/store.db` din `~/.claude.json`). DB-ul cu cele **15 entities + 2 links + 20 events** trăiește la `projects/personal-context-agent/data/store.db`. Backup-ul Phase 1 țintește acest path; orice referință la `~/.pca/store.db` în Phase 4 + Phase 6 trebuie citită ca `projects/.../data/store.db`. La Phase 3b va trebui realiniat `PCA_DB` din MCP config (sau înlocuit cu flow Turso).
 
-**Acceptance:**
-- `.bak` există și are exact aceleași row counts ca originalul
-- Niciun proces nu mai ține fișierul `store.db` deschis (`lsof | grep store.db` gol)
+**Steps (executed):**
+1. `cp projects/personal-context-agent/data/store.db projects/personal-context-agent/data/store.db.bak-pre-turso-20260520-184714` — backup atomic, sha256 identic cu originalul (`07b9544e...`). DB-ul nu era deschis de niciun proces, deci `cp` clasic e safe (nu a fost nevoie de `sqlite3 .backup`).
+2. `sqlite3 …/data/store.db .schema > /tmp/pca-schema-snapshot.sql` — 238 linii.
+3. Counts per tabel (corect — query-ul original `FROM entities, links, events, captures` ar fi produs un cross-join):
+   ```
+   entities: 15   links: 2   events: 20   captures: 0
+   ```
+4. MCP server-ul Claude Code (PID 4640) rulează pe `~/.pca/store.db` (DB-ul gol), **nu** pe DB-ul canonic — deci nu trebuie oprit pentru Phase 1. Va trebui oprit/reconfigurat la cutover (Phase 3b/4).
+5. Anunț celălalt laptop ("nu folosi PCA până nu termin migrarea") — **în sarcina ta**, asincron față de Claude Code.
+
+**Acceptance — met:**
+- ✅ `.bak` byte-identic cu originalul (sha256 + size match)
+- ✅ Row counts identice pe toate tabelele (15/2/20/0 + schema_migrations=4)
+- ✅ `lsof | grep data/store.db` → gol (DB-ul canonic e liber)
+- ⏭️ `lsof | grep ~/.pca/store.db` încă raportează PID 4640 (MCP curent) — irelevant, acel DB nu e cel migrat
+
+**Side note — second backup at `~/.pca/store.db.bak-pre-turso-20260520-183739`:** primul backup făcut greșit pe DB-ul gol (`~/.pca/store.db`). De șters la Phase 6 cleanup.
 
 ---
 
