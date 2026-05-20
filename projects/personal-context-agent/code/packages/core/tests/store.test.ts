@@ -22,7 +22,7 @@ describe("schema migration", () => {
     const row = store.db
       .prepare("SELECT version FROM schema_migrations ORDER BY version")
       .all() as Array<{ version: number }>;
-    expect(row.map((r) => r.version)).toEqual([1, 2]);
+    expect(row.map((r) => r.version)).toEqual([1, 2, 3, 4]);
   });
 
   test("is idempotent (re-opening does not re-apply)", () => {
@@ -36,8 +36,8 @@ describe("schema migration", () => {
     const after = t.store.db
       .prepare("SELECT count(*) as c FROM schema_migrations")
       .get() as { c: number };
-    expect(before.c).toBe(2);
-    expect(after.c).toBe(2);
+    expect(before.c).toBe(4);
+    expect(after.c).toBe(4);
     t.cleanup();
     // Restore module-level store so afterEach can clean up
     const restored = withTempStore();

@@ -8,6 +8,9 @@ import {
   getRelationSpec,
   isCyclic,
   validateLinkPair,
+  type Capture,
+  type CaptureStatus,
+  type ClassificationSummary,
   type Entity,
   type EntityType,
   type Link,
@@ -42,6 +45,7 @@ export type RecordObservationInput = {
   scope?: string;
   expires_at?: string | null;
   authority?: "self-declared" | "observed" | "inferred";
+  capture_id?: string;
 };
 
 export type UpdateEntityInput = {
@@ -79,6 +83,7 @@ export type LinkEntitiesInput = {
   relation: string;
   weight?: number;
   authority?: "self-declared" | "observed" | "inferred";
+  capture_id?: string;
 };
 
 export type GetNeighborsInput = {
@@ -350,6 +355,17 @@ export function recordObservation(
     throw new HandlerError("text is required and must be non-empty", "BAD_INPUT");
   }
 
+  // Validate capture_id up front so we don't create an orphaned entity if the
+  // join would fail. INVALID_CAPTURE is distinct from NOT_FOUND on entity ids
+  // because it lets the skill differentiate "user typo on a capture id" from
+  // "stale entity reference" in its error path.
+  if (input.capture_id !== undefined && !store.getCapture(input.capture_id)) {
+    throw new HandlerError(
+      `capture_id not found: ${input.capture_id}`,
+      "INVALID_CAPTURE",
+    );
+  }
+
   const type: EntityType = input.type ?? "event";
   const { title, body } = splitTitleBody(input.text, input.title);
 
@@ -367,6 +383,9 @@ export function recordObservation(
       },
       actor,
     );
+    if (input.capture_id !== undefined) {
+      store.linkCaptureToEntity(input.capture_id, e.id);
+    }
     return {
       id: e.id,
       type: e.type,
@@ -459,6 +478,13 @@ export function linkEntities(
     );
   }
 
+  if (input.capture_id !== undefined && !store.getCapture(input.capture_id)) {
+    throw new HandlerError(
+      `capture_id not found: ${input.capture_id}`,
+      "INVALID_CAPTURE",
+    );
+  }
+
   const spec = getRelationSpec(input.relation);
   if (!spec) {
     throw new HandlerError(
@@ -496,7 +522,7 @@ export function linkEntities(
   }
 
   try {
-    return store.createLink(
+    const link = store.createLink(
       {
         src_id: input.src_id,
         dst_id: input.dst_id,
@@ -506,6 +532,10 @@ export function linkEntities(
       },
       actor,
     );
+    if (input.capture_id !== undefined) {
+      store.linkCaptureToLink(input.capture_id, link.id);
+    }
+    return link;
   } catch (e) {
     rethrow(e);
   }
@@ -545,6 +575,130 @@ export function invalidateLink(
       id: link.id,
       invalidated_at: link.invalidated_at!,
     };
+  } catch (e) {
+    rethrow(e);
+  }
+}
+
+// ── Captures ──────────────────────────────────────────────────────────────────
+
+export type RecordCaptureInputT = {
+  raw_text: string;
+  source?: string;
+  session_id?: string | null;
+  scope?: string;
+  raw_lang?: string | null;
+  meta?: Record<string, unknown>;
+};
+
+export type RecordCaptureResult = {
+  capture_id: string;
+  occurred_at: string;
+};
+
+export type UpdateCaptureStatusInput = {
+  capture_id: string;
+  status: "processed" | "aborted";
+  classification_summary?: ClassificationSummary;
+};
+
+export type UpdateCaptureStatusResult = {
+  capture_id: string;
+  status: CaptureStatus;
+  processed_at: string;
+};
+
+export type ListCapturesInput = {
+  since?: string;
+  until?: string;
+  status?: CaptureStatus;
+  source?: string;
+  fts?: string;
+  limit?: number;
+};
+
+export type ListCapturesResult = {
+  count: number;
+  items: Capture[];
+};
+
+/**
+ * record_capture — persist the user's verbatim input. See plan-captures.md §4.3.
+ */
+export function recordCapture(
+  store: Store,
+  input: RecordCaptureInputT,
+  actor: string,
+): RecordCaptureResult {
+  if (!input.raw_text || input.raw_text.length === 0) {
+    throw new HandlerError("raw_text is required and must be non-empty", "BAD_INPUT");
+  }
+  try {
+    const cap = store.recordCapture(
+      {
+        raw_text: input.raw_text,
+        source: input.source,
+        session_id: input.session_id ?? null,
+        scope: input.scope,
+        raw_lang: input.raw_lang ?? null,
+        meta: input.meta ?? null,
+      },
+      actor,
+    );
+    return { capture_id: cap.id, occurred_at: cap.occurred_at };
+  } catch (e) {
+    rethrow(e);
+  }
+}
+
+/**
+ * update_capture_status — close a pending capture as processed or aborted.
+ */
+export function updateCaptureStatus(
+  store: Store,
+  input: UpdateCaptureStatusInput,
+  actor: string,
+): UpdateCaptureStatusResult {
+  if (input.status !== "processed" && input.status !== "aborted") {
+    throw new HandlerError(
+      `status must be 'processed' or 'aborted', got '${input.status}'`,
+      "BAD_INPUT",
+    );
+  }
+  try {
+    const cap = store.updateCaptureStatus(
+      input.capture_id,
+      input.status,
+      actor,
+      input.classification_summary,
+    );
+    return {
+      capture_id: cap.id,
+      status: cap.status,
+      processed_at: cap.processed_at!,
+    };
+  } catch (e) {
+    rethrow(e);
+  }
+}
+
+/**
+ * list_captures — chronological journal read. Newest first.
+ */
+export function listCaptures(
+  store: Store,
+  input: ListCapturesInput,
+): ListCapturesResult {
+  try {
+    const items = store.listCaptures({
+      since: input.since,
+      until: input.until,
+      status: input.status,
+      source: input.source,
+      fts: input.fts,
+      limit: input.limit,
+    });
+    return { count: items.length, items };
   } catch (e) {
     rethrow(e);
   }

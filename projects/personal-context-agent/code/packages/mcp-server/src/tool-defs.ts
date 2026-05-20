@@ -60,6 +60,13 @@ export const recordObservationShape = {
     .optional()
     .describe("ISO 8601 timestamp, or null to override default TTL."),
   authority: AUTHORITY.optional(),
+  capture_id: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(
+      "Optional capture_id returned by record_capture. When present, the new entity is joined to that capture in capture_entities so provenance is traceable back to the user's verbatim input.",
+    ),
 };
 
 export const updateEntityShape = {
@@ -112,6 +119,13 @@ export const linkEntitiesShape = {
   authority: AUTHORITY.optional().describe(
     "Provenance. Default 'observed'. Use 'self-declared' only when the user stated the link explicitly; 'inferred' when deduced from side-context.",
   ),
+  capture_id: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(
+      "Optional capture_id returned by record_capture. When present, the new link is joined to that capture in capture_links for provenance.",
+    ),
 };
 
 export const getNeighborsShape = {
@@ -138,6 +152,77 @@ export const invalidateLinkShape = {
     .describe("Optional human-readable reason; stored in the link-invalidate event."),
 };
 
+// ── Captures (raw memory stream) ─────────────────────────────────────────────
+
+const CAPTURE_STATUS = z.enum(["pending", "processed", "aborted", "reprocess"]);
+const CAPTURE_TERMINAL = z.enum(["processed", "aborted"]);
+
+export const recordCaptureShape = {
+  raw_text: z
+    .string()
+    .min(1)
+    .describe(
+      "VERBATIM user input. Pass exactly what the user typed — no rewriting, summarizing, or translation. This is the literal source of truth before classification.",
+    ),
+  source: z
+    .string()
+    .optional()
+    .describe(
+      "Free-form provenance string, e.g. 'claude-code:ctx-add' (default), 'claude-code:ctx-mirror', or 'importer:obsidian'.",
+    ),
+  session_id: z
+    .union([z.string(), z.null()])
+    .optional()
+    .describe("Optional conversation/session id when the surface exposes one."),
+  scope: z.string().optional().describe("Scope (default 'general')."),
+  raw_lang: z
+    .union([z.string(), z.null()])
+    .optional()
+    .describe("Optional language hint: 'ro' | 'en' | 'mixed' | other."),
+  meta: z
+    .record(z.string(), z.unknown())
+    .optional()
+    .describe("Optional freeform metadata JSON (cwd, client version, etc)."),
+};
+
+export const updateCaptureStatusShape = {
+  capture_id: z.string().min(1).describe("Capture id returned by record_capture."),
+  status: CAPTURE_TERMINAL.describe(
+    "'processed' (entities/links saved) or 'aborted' (user declined or pipeline gave up).",
+  ),
+  classification_summary: z
+    .record(z.string(), z.unknown())
+    .optional()
+    .describe(
+      "Optional JSON summary: types_proposed, types_saved, entity_ids, link_ids, entity_count, link_count, aborted_reason, skipped_links.",
+    ),
+};
+
+export const listCapturesShape = {
+  since: z
+    .string()
+    .optional()
+    .describe("Inclusive ISO 8601 lower bound on occurred_at."),
+  until: z
+    .string()
+    .optional()
+    .describe("Inclusive ISO 8601 upper bound on occurred_at."),
+  status: CAPTURE_STATUS.optional().describe(
+    "Filter by status (pending|processed|aborted|reprocess).",
+  ),
+  source: z.string().optional().describe("Filter by source string."),
+  fts: z
+    .string()
+    .optional()
+    .describe("FTS5 query over raw_text (e.g. 'razvan' or 'turso OR sync')."),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe("Max captures to return (default 50, capped at 500)."),
+};
+
 // Prescriptive descriptions: PRD §11.4 mandates these be opinionated so the
 // LLM knows *when* to call each tool, not only *what* it does.
 
@@ -161,4 +246,10 @@ IMPORTANT: Call this at the start of any conversation where you need to give the
   get_neighbors: `Returns entities directly linked to a given entity, with the link metadata. Use when answering "who is involved in X?", "what does goal Y require?", "what reinforces stance Z?". Cheaper than FTS for known-id traversal. Output includes the role ("out" if the center is the src, "in" if it is the dst).`,
 
   invalidate_link: `Marks a link as no-longer-true. Use when a relationship explicitly ended ("Mihai is no longer collaborating on X"). Append-only: the row stays, only invalidated_at is set, and a 'link-invalidate' event is logged.`,
+
+  record_capture: `Persists the user's raw, verbatim input into the capture stream before any classification. Call this at the START of /ctx-add (and any future memory-writing skill) with the user's literal text. The returned capture_id should then be passed to record_observation / link_entities so downstream entities and links are traceable back to the original input. Captures persist even if the user later aborts — abandoned considerations are signal. Cheap, idempotent, and required for input fidelity.`,
+
+  update_capture_status: `Transitions a capture from 'pending' to a terminal status ('processed' if entities/links were saved, 'aborted' if the user declined or the pipeline gave up). Attach an optional classification_summary describing what the capture produced (types_proposed, types_saved, entity_ids, link_ids, etc.). Must be called once per capture at the end of the /ctx-add pipeline; pending captures older than 1h likely indicate a crashed flow.`,
+
+  list_captures: `Returns captures from the raw memory stream, newest first. Filter by since/until (ISO 8601), status, source, or FTS5 query over raw_text. Use when the user asks "what did I capture this week?", "did I save anything about X?", or when you need the user's literal phrasing rather than the post-classification entity text. Pairs with the ctx log CLI surface.`,
 } as const;

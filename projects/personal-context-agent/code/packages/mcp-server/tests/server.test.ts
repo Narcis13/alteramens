@@ -35,7 +35,7 @@ afterEach(async () => {
 });
 
 describe("MCP server (via InMemoryTransport)", () => {
-  test("listTools advertises all 9 PCA tools with descriptions", async () => {
+  test("listTools advertises all 12 PCA tools with descriptions", async () => {
     const result = await client.listTools();
     const names = result.tools.map((t) => t.name).sort();
     expect(names).toEqual(
@@ -47,7 +47,10 @@ describe("MCP server (via InMemoryTransport)", () => {
         "invalidate_link",
         "link_entities",
         "list_active",
+        "list_captures",
+        "record_capture",
         "record_observation",
+        "update_capture_status",
         "update_entity",
       ].sort(),
     );
@@ -142,5 +145,48 @@ describe("MCP server (via InMemoryTransport)", () => {
     expect((inv.structuredContent as { outcome: string }).outcome).toBe(
       "invalidated",
     );
+  });
+
+  test("capture → record_observation(capture_id) → join visible in capture_entities", async () => {
+    const cap = await client.callTool({
+      name: "record_capture",
+      arguments: { raw_text: "Ship PCA MVP" },
+    });
+    expect(cap.isError).toBeFalsy();
+    const capture_id = (cap.structuredContent as { capture_id: string }).capture_id;
+
+    const obs = await client.callTool({
+      name: "record_observation",
+      arguments: {
+        text: "Ship PCA MVP",
+        type: "goal",
+        attrs: { timeframe: "short" },
+        capture_id,
+      },
+    });
+    expect(obs.isError).toBeFalsy();
+    const entity_id = (obs.structuredContent as { id: string }).id;
+
+    const rows = store.db
+      .prepare(
+        "SELECT capture_id, entity_id FROM capture_entities WHERE capture_id = ?",
+      )
+      .all(capture_id) as Array<{ capture_id: string; entity_id: string }>;
+    expect(rows).toEqual([{ capture_id, entity_id }]);
+  });
+
+  test("record_observation rejects bogus capture_id with INVALID_CAPTURE", async () => {
+    const res = await client.callTool({
+      name: "record_observation",
+      arguments: {
+        text: "x",
+        type: "goal",
+        attrs: { timeframe: "short" },
+        capture_id: "01ZZZZZZZZZZZZZZZZZZZZZZZZ",
+      },
+    });
+    expect(res.isError).toBe(true);
+    const content = res.content as Array<{ text: string }>;
+    expect(content[0]!.text).toContain("INVALID_CAPTURE");
   });
 });

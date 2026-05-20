@@ -34,7 +34,7 @@ describe("init", () => {
       .prepare("SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1")
       .get() as { version: number } | null;
     store.close();
-    expect(row?.version).toBe(2);
+    expect(row?.version).toBe(4);
   });
 
   test("idempotent: rerunning on existing DB reports already-exists, leaves DB intact", () => {

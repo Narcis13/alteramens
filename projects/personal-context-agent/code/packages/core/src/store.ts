@@ -7,13 +7,18 @@ import { REGISTRY } from "./entities/registry.ts";
 import type {
   Annotation,
   Authority,
+  Capture,
+  CaptureStatus,
+  ClassificationSummary,
   ConfirmDecision,
   CreateEntityInput,
   Entity,
   EntityType,
   EventRow,
   Link,
+  ListCapturesOptions,
   Project,
+  RecordCaptureInput,
   Source,
   UpdateEntityChanges,
 } from "./types.ts";
@@ -73,6 +78,21 @@ type LinkRow = {
   authority: string;
   created_at: string;
   invalidated_at: string | null;
+};
+
+type CaptureRow = {
+  id: string;
+  occurred_at: string;
+  raw_text: string;
+  source: string;
+  actor: string;
+  session_id: string | null;
+  scope: string;
+  status: string;
+  processed_at: string | null;
+  classification_summary: string | null;
+  raw_lang: string | null;
+  meta: string | null;
 };
 
 type NeighborRow = {
@@ -670,6 +690,171 @@ export function openStore(dbPath: string) {
     };
   }
 
+  // ── Captures ───────────────────────────────────────────────────────────────
+
+  function recordCapture(input: RecordCaptureInput, actor: string): Capture {
+    if (!input.raw_text || input.raw_text.length === 0) {
+      throw new StoreError("raw_text must be non-empty", "BAD_INPUT");
+    }
+    const id = ulid();
+    const occurred_at = nowIso();
+    const source = input.source ?? "claude-code:ctx-add";
+    const scope = input.scope ?? "general";
+    const session_id = input.session_id ?? null;
+    const raw_lang = input.raw_lang ?? null;
+    const meta = input.meta ?? null;
+
+    db.prepare(
+      `INSERT INTO captures
+         (id, occurred_at, raw_text, source, actor, session_id, scope,
+          status, processed_at, classification_summary, raw_lang, meta)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NULL, NULL, ?, ?)`,
+    ).run(
+      id,
+      occurred_at,
+      input.raw_text,
+      source,
+      actor,
+      session_id,
+      scope,
+      raw_lang,
+      meta === null ? null : JSON.stringify(meta),
+    );
+
+    // Event payload deliberately omits the full text — captures table is the
+    // source of truth. Only the metadata for debugging timeline replays.
+    logEvent({
+      actor,
+      operation: "capture",
+      payload: {
+        capture_id: id,
+        raw_text_length: input.raw_text.length,
+        source,
+        session_id,
+        scope,
+      },
+    });
+    return getCapture(id)!;
+  }
+
+  function getCapture(id: string): Capture | null {
+    const row = db.prepare("SELECT * FROM captures WHERE id = ?").get(id) as
+      | CaptureRow
+      | null;
+    return row ? rowToCapture(row) : null;
+  }
+
+  function listCaptures(opts?: ListCapturesOptions): Capture[] {
+    const limit = Math.min(opts?.limit ?? 50, 500);
+    const where: string[] = [];
+    const params: unknown[] = [];
+
+    // FTS branch: join through fts_captures.
+    if (opts?.fts && opts.fts.length > 0) {
+      where.push("c.rowid IN (SELECT rowid FROM fts_captures WHERE fts_captures MATCH ?)");
+      params.push(opts.fts);
+    }
+    if (opts?.since) {
+      where.push("c.occurred_at >= ?");
+      params.push(opts.since);
+    }
+    if (opts?.until) {
+      where.push("c.occurred_at <= ?");
+      params.push(opts.until);
+    }
+    if (opts?.status) {
+      where.push("c.status = ?");
+      params.push(opts.status);
+    }
+    if (opts?.source) {
+      where.push("c.source = ?");
+      params.push(opts.source);
+    }
+
+    const whereSql = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
+    const sql = `SELECT c.* FROM captures c ${whereSql} ORDER BY c.occurred_at DESC LIMIT ?`;
+    params.push(limit);
+    const rows = db.prepare(sql).all(...(params as never[])) as CaptureRow[];
+    return rows.map(rowToCapture);
+  }
+
+  function updateCaptureStatus(
+    capture_id: string,
+    status: "processed" | "aborted",
+    actor: string,
+    classification_summary?: ClassificationSummary,
+  ): Capture {
+    const existing = getCapture(capture_id);
+    if (!existing) {
+      throw new StoreError(`Capture not found: ${capture_id}`, "NOT_FOUND");
+    }
+    // Append-only: once a capture leaves 'pending', its terminal state is
+    // frozen. Reprocess is a separate Phase E flow (plan-captures.md §2).
+    if (existing.status !== "pending") {
+      throw new StoreError(
+        `Capture ${capture_id} is already ${existing.status}; cannot transition to ${status}`,
+        "BAD_TRANSITION",
+      );
+    }
+
+    const processed_at = nowIso();
+    const summaryJson =
+      classification_summary === undefined
+        ? existing.classification_summary === null
+          ? null
+          : JSON.stringify(existing.classification_summary)
+        : JSON.stringify(classification_summary);
+
+    db.prepare(
+      `UPDATE captures
+         SET status = ?, processed_at = ?, classification_summary = ?
+       WHERE id = ?`,
+    ).run(status, processed_at, summaryJson, capture_id);
+
+    logEvent({
+      actor,
+      operation: "capture-update",
+      payload: {
+        capture_id,
+        status,
+        classification_summary: classification_summary ?? null,
+      },
+    });
+    return getCapture(capture_id)!;
+  }
+
+  function linkCaptureToEntity(capture_id: string, entity_id: string): void {
+    // Validate both ends exist so callers get a clean error rather than a
+    // dangling FK failure surface.
+    const cap = db
+      .prepare("SELECT id FROM captures WHERE id = ?")
+      .get(capture_id) as { id: string } | null;
+    if (!cap) throw new StoreError(`Capture not found: ${capture_id}`, "NOT_FOUND");
+    const ent = db
+      .prepare("SELECT id FROM entities WHERE id = ?")
+      .get(entity_id) as { id: string } | null;
+    if (!ent) throw new StoreError(`Entity not found: ${entity_id}`, "NOT_FOUND");
+
+    db.prepare(
+      `INSERT OR IGNORE INTO capture_entities (capture_id, entity_id) VALUES (?, ?)`,
+    ).run(capture_id, entity_id);
+  }
+
+  function linkCaptureToLink(capture_id: string, link_id: string): void {
+    const cap = db
+      .prepare("SELECT id FROM captures WHERE id = ?")
+      .get(capture_id) as { id: string } | null;
+    if (!cap) throw new StoreError(`Capture not found: ${capture_id}`, "NOT_FOUND");
+    const lnk = db
+      .prepare("SELECT id FROM links WHERE id = ?")
+      .get(link_id) as { id: string } | null;
+    if (!lnk) throw new StoreError(`Link not found: ${link_id}`, "NOT_FOUND");
+
+    db.prepare(
+      `INSERT OR IGNORE INTO capture_links (capture_id, link_id) VALUES (?, ?)`,
+    ).run(capture_id, link_id);
+  }
+
   function close(): void {
     db.close();
   }
@@ -695,6 +880,12 @@ export function openStore(dbPath: string) {
     createSource,
     attachSource,
     upsertProject,
+    recordCapture,
+    getCapture,
+    listCaptures,
+    updateCaptureStatus,
+    linkCaptureToEntity,
+    linkCaptureToLink,
     close,
   };
 }
@@ -721,6 +912,25 @@ function rowToLink(r: LinkRow): Link {
     authority: r.authority as Authority,
     created_at: r.created_at,
     invalidated_at: r.invalidated_at,
+  };
+}
+
+function rowToCapture(r: CaptureRow): Capture {
+  return {
+    id: r.id,
+    occurred_at: r.occurred_at,
+    raw_text: r.raw_text,
+    source: r.source,
+    actor: r.actor,
+    session_id: r.session_id,
+    scope: r.scope,
+    status: r.status as CaptureStatus,
+    processed_at: r.processed_at,
+    classification_summary: r.classification_summary
+      ? (JSON.parse(r.classification_summary) as ClassificationSummary)
+      : null,
+    raw_lang: r.raw_lang,
+    meta: r.meta ? (JSON.parse(r.meta) as Record<string, unknown>) : null,
   };
 }
 

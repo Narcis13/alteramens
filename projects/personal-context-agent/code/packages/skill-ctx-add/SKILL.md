@@ -36,6 +36,27 @@ capture?" and stop.
 If the input ends with `?` and contains no declarative claim, treat it as a
 query, not a capture, and ask the user to rephrase as a statement.
 
+## Step 0.4 — Open the capture (raw input memory stream)
+
+Before any classification or read-before-write work, call the MCP tool
+`record_capture` with the user's **verbatim, untouched** input:
+
+```ts
+record_capture({
+  raw_text: <user's literal input — no rewriting, summarizing, translating>,
+  source:   "claude-code:ctx-add",
+})
+```
+
+Keep the returned `capture_id` in local state for the rest of the pipeline.
+Every subsequent `record_observation` and `link_entities` call MUST pass this
+`capture_id` so the resulting entities and links are joined back to the
+original input. If the user later aborts at Step 4, the capture row stays —
+abandoned considerations are signal, not noise.
+
+The capture is non-destructive: opening it commits *nothing* about the
+classification yet. It only persists "the user said this at this moment".
+
 ## Step 0.5a — Read before write
 
 After preflight passes, *always*:
@@ -278,7 +299,19 @@ Proposed:
 Then ask: `Accept? [Y/n/edit/split]`
 
 - `Y` (or empty) → proceed to Step 5.
-- `n` → discard, do nothing, tell the user nothing was saved.
+- `n` → discard entities, but close the capture so the raw input still lives
+  in the journal. Call:
+
+  ```ts
+  update_capture_status({
+    capture_id,
+    status: "aborted",
+    classification_summary: { aborted_reason: "user declined" },
+  })
+  ```
+
+  Then tell the user: "Nothing saved as entities. Capture #<prefix>... is in
+  your journal (`ctx log --capture <prefix>`)." Stop.
 - `edit` → ask which field to change, re-confirm.
 - `split` → invite user to describe the desired split, then loop back to Step 2.
 
@@ -296,6 +329,7 @@ Call the `pca` MCP server tool `record_observation` with:
   authority: <chosen>,
   source: "claude-code:ctx-add",
   expires_at: <ISO 8601 or omit to apply default TTL; pass null to disable TTL>,
+  capture_id: <the capture_id from Step 0.4>,
 }
 ```
 
@@ -307,6 +341,8 @@ On error from the server:
 - `BAD_ATTRS` → attrs schema mismatch; show the message, fix, retry.
 - `SINGLETON_CONFLICT` (only for `type: "self"`) → tell the user a `self` already
   exists, and propose calling `update_entity` instead via a follow-up message.
+- `INVALID_CAPTURE` → the `capture_id` from Step 0.4 is missing or malformed.
+  This is a skill bug; surface the failure and stop.
 - Anything else — surface the raw error and stop. Do NOT proceed to link
   persistence if any entity insert failed: links would dangle.
 
@@ -321,6 +357,7 @@ For every link the user accepted in Step 2, call the `pca` MCP tool
   dst_id:    positionToId[<dst position>],
   relation:  <canonical relation>,
   authority: <"self-declared" | "observed" | "inferred">,
+  capture_id: <the capture_id from Step 0.4>,
   // weight: optional; omit to use server default (1.0)
 }
 ```
@@ -349,12 +386,45 @@ On error from the server:
 - `UNKNOWN_RELATION` / `BAD_PAIR` / `WOULD_CYCLE` → this is a skill bug, not a
   user issue. Drop the link, surface the failing (src, dst, relation) tuple in
   the summary so you can fix the Step 2 proposal next time.
+- `INVALID_CAPTURE` → the `capture_id` from Step 0.4 is missing. Skill bug;
+  surface and stop.
 - Anything else — surface the raw error and stop reporting links, but keep the
   entities that succeeded in 5a.
 
-## Step 6 — Confirmation
+## Step 6 — Close the capture, then confirm
 
-After all calls succeed, print one line per entity, then one line per link:
+### 6a — Close the capture
+
+After all 5a/5b calls have run (whether every link succeeded or some were
+skipped), close the capture:
+
+```ts
+update_capture_status({
+  capture_id,
+  status: "processed",
+  classification_summary: {
+    types_proposed: [...],        // every type from the Step 2 proposal
+    types_saved:    [...],        // types whose record_observation succeeded
+    entity_ids:     [...],        // ids returned by 5a
+    link_ids:       [...],        // ids returned by 5b
+    entity_count:   N,
+    link_count:     M,
+    skipped_links:  [             // empty array if none were skipped
+      { src, dst, relation, reason },
+      ...
+    ],
+  },
+})
+```
+
+Closing the capture is the final commit point of the pipeline. If
+`update_capture_status` itself errors, surface it but do not roll back the
+already-persisted entities/links — the capture row stays `pending` and
+`ctx doctor` will flag it.
+
+### 6b — Tell the user
+
+After 6a succeeds, print one line per entity, then one line per link:
 
 ```
 ✓ Saved <type> #<id-prefix>... "<title>"
@@ -368,6 +438,13 @@ or inactive, append:
 
 ```
 ⚠ Skipped link <relation>: <reason>
+```
+
+Always append a final line referencing the capture so the user knows it is in
+the journal:
+
+```
+📓 Capture #<capture-prefix>... saved — `ctx log --capture <prefix>` to inspect.
 ```
 
 Append a one-line tip if the user has captured **fewer than 3 entities total**

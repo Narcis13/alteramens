@@ -12,7 +12,10 @@ import {
   invalidateLink,
   linkEntities,
   listActive,
+  listCaptures,
+  recordCapture,
   recordObservation,
+  updateCaptureStatus,
   updateEntity,
 } from "./handlers.ts";
 import {
@@ -24,7 +27,10 @@ import {
   invalidateLinkShape,
   linkEntitiesShape,
   listActiveShape,
+  listCapturesShape,
+  recordCaptureShape,
   recordObservationShape,
+  updateCaptureStatusShape,
   updateEntityShape,
 } from "./tool-defs.ts";
 
@@ -119,6 +125,43 @@ export function buildServer({ store, actor }: BuildServerOptions): McpServer {
       inputSchema: invalidateLinkShape,
     },
     (input) => wrap(() => invalidateLink(store, input, writer)),
+  );
+
+  server.registerTool(
+    "record_capture",
+    {
+      description: TOOL_DESCRIPTIONS.record_capture,
+      inputSchema: recordCaptureShape,
+    },
+    (input) => wrap(() => recordCapture(store, input, writer)),
+  );
+
+  server.registerTool(
+    "update_capture_status",
+    {
+      description: TOOL_DESCRIPTIONS.update_capture_status,
+      inputSchema: updateCaptureStatusShape,
+    },
+    (input) =>
+      wrap(() =>
+        updateCaptureStatus(
+          store,
+          input as Parameters<typeof updateCaptureStatus>[1],
+          writer,
+        ),
+      ),
+  );
+
+  server.registerTool(
+    "list_captures",
+    {
+      description: TOOL_DESCRIPTIONS.list_captures,
+      inputSchema: listCapturesShape,
+    },
+    (input) =>
+      wrap(() =>
+        listCaptures(store, input as Parameters<typeof listCaptures>[1]),
+      ),
   );
 
   return server;

@@ -31,7 +31,10 @@ export function doctor(opts: DoctorOptions): DoctorResult {
 // ── individual checks ────────────────────────────────────────────────────────
 
 function checkDb(opts: DoctorOptions): Check {
-  const expected = opts.expectedSchemaVersion ?? 1;
+  // Bumped to 4 with Phase B (raw-capture stream). DBs older than this lack
+  // the `captures` schema and will fail every /ctx-add call that opens a
+  // capture in Step 0.4. Re-running `pca init` re-applies migrations safely.
+  const expected = opts.expectedSchemaVersion ?? 4;
   if (!existsSync(opts.dbPath)) {
     return {
       name: "db",

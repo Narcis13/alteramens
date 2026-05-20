@@ -117,10 +117,68 @@ export type EventRow = {
     | "link-invalidate"
     | "annotate"
     | "tag"
-    | "source";
+    | "source"
+    | "capture"
+    | "capture-update";
   entity_id: string | null;
   link_id: string | null;
   annotation_id: string | null;
   payload: Record<string, unknown> | null;
   source_ref: string | null;
+};
+
+// ── Captures (raw input memory stream) ───────────────────────────────────────
+// See plan-captures.md §4.
+
+export type CaptureStatus = "pending" | "processed" | "aborted" | "reprocess";
+
+export type ClassificationSummary = {
+  types_proposed?: string[];
+  types_saved?: string[];
+  entity_ids?: string[];
+  link_ids?: string[];
+  entity_count?: number;
+  link_count?: number;
+  aborted_reason?: string | null;
+  skipped_links?: Array<{
+    src: string;
+    dst: string;
+    relation: string;
+    reason: string;
+  }>;
+  // Open shape: skills may extend without breaking older readers.
+  [key: string]: unknown;
+};
+
+export type Capture = {
+  id: string;
+  occurred_at: string;
+  raw_text: string;
+  source: string;
+  actor: string;
+  session_id: string | null;
+  scope: string;
+  status: CaptureStatus;
+  processed_at: string | null;
+  classification_summary: ClassificationSummary | null;
+  raw_lang: string | null;
+  meta: Record<string, unknown> | null;
+};
+
+export type RecordCaptureInput = {
+  raw_text: string;
+  source?: string;
+  session_id?: string | null;
+  scope?: string;
+  raw_lang?: string | null;
+  meta?: Record<string, unknown> | null;
+};
+
+export type ListCapturesOptions = {
+  since?: string;
+  until?: string;
+  status?: CaptureStatus;
+  source?: string;
+  fts?: string;
+  limit?: number;
 };
