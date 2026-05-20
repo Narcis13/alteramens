@@ -170,13 +170,13 @@ export function buildServer({ store, actor }: BuildServerOptions): McpServer {
 // Envelope all handler results into MCP's { content, structuredContent, isError? }
 // shape. Errors caught here so the client sees a tool error rather than a
 // transport error.
-function wrap<T>(fn: () => T): {
+async function wrap<T>(fn: () => T | Promise<T>): Promise<{
   content: Array<{ type: "text"; text: string }>;
   structuredContent?: Record<string, unknown>;
   isError?: boolean;
-} {
+}> {
   try {
-    const result = fn();
+    const result = await fn();
     return {
       content: [{ type: "text", text: JSON.stringify(result) }],
       structuredContent: result as unknown as Record<string, unknown>,

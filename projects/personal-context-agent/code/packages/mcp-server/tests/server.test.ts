@@ -13,7 +13,7 @@ let client: Client;
 let disconnect: () => Promise<void>;
 
 beforeEach(async () => {
-  const t = withTempStore();
+  const t = await withTempStore();
   store = t.store;
   cleanup = t.cleanup;
 
@@ -167,12 +167,17 @@ describe("MCP server (via InMemoryTransport)", () => {
     expect(obs.isError).toBeFalsy();
     const entity_id = (obs.structuredContent as { id: string }).id;
 
-    const rows = store.db
-      .prepare(
-        "SELECT capture_id, entity_id FROM capture_entities WHERE capture_id = ?",
-      )
-      .all(capture_id) as Array<{ capture_id: string; entity_id: string }>;
-    expect(rows).toEqual([{ capture_id, entity_id }]);
+    const result = await store.client.execute({
+      sql: "SELECT capture_id, entity_id FROM capture_entities WHERE capture_id = ?",
+      args: [capture_id],
+    });
+    const rows = result.rows as unknown as Array<{
+      capture_id: string;
+      entity_id: string;
+    }>;
+    expect(rows.map((r) => ({ capture_id: r.capture_id, entity_id: r.entity_id }))).toEqual([
+      { capture_id, entity_id },
+    ]);
   });
 
   test("record_observation rejects bogus capture_id with INVALID_CAPTURE", async () => {

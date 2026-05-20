@@ -16,8 +16,8 @@ import {
 let store: Store;
 let cleanup: () => void;
 
-beforeEach(() => {
-  const t = withTempStore();
+beforeEach(async () => {
+  const t = await withTempStore();
   store = t.store;
   cleanup = t.cleanup;
 });
@@ -27,8 +27,8 @@ afterEach(() => cleanup?.());
 const ACTOR = "test";
 
 describe("record_capture handler", () => {
-  test("returns capture_id + occurred_at on success", () => {
-    const r = recordCapture(
+  test("returns capture_id + occurred_at on success", async () => {
+    const r = await recordCapture(
       store,
       { raw_text: "Mihai a luat 9.50" },
       ACTOR,
@@ -37,15 +37,15 @@ describe("record_capture handler", () => {
     expect(Date.parse(r.occurred_at)).not.toBeNaN();
 
     // The capture is persisted with status 'pending'.
-    const cap = store.getCapture(r.capture_id);
+    const cap = await store.getCapture(r.capture_id);
     expect(cap?.status).toBe("pending");
     expect(cap?.raw_text).toBe("Mihai a luat 9.50");
   });
 
-  test("rejects empty raw_text with BAD_INPUT", () => {
+  test("rejects empty raw_text with BAD_INPUT", async () => {
     let err: unknown;
     try {
-      recordCapture(store, { raw_text: "" }, ACTOR);
+      await recordCapture(store, { raw_text: "" }, ACTOR);
     } catch (e) {
       err = e;
     }
@@ -53,8 +53,8 @@ describe("record_capture handler", () => {
     expect((err as HandlerError).code).toBe("BAD_INPUT");
   });
 
-  test("passes through optional source / session_id / meta", () => {
-    const r = recordCapture(
+  test("passes through optional source / session_id / meta", async () => {
+    const r = await recordCapture(
       store,
       {
         raw_text: "x",
@@ -64,7 +64,7 @@ describe("record_capture handler", () => {
       },
       ACTOR,
     );
-    const cap = store.getCapture(r.capture_id)!;
+    const cap = (await store.getCapture(r.capture_id))!;
     expect(cap.source).toBe("claude-code:ctx-mirror");
     expect(cap.session_id).toBe("sess-1");
     expect(cap.meta).toEqual({ cwd: "/tmp" });
@@ -72,9 +72,9 @@ describe("record_capture handler", () => {
 });
 
 describe("update_capture_status handler", () => {
-  test("processed terminal with classification_summary", () => {
-    const { capture_id } = recordCapture(store, { raw_text: "x" }, ACTOR);
-    const r = updateCaptureStatus(
+  test("processed terminal with classification_summary", async () => {
+    const { capture_id } = await recordCapture(store, { raw_text: "x" }, ACTOR);
+    const r = await updateCaptureStatus(
       store,
       {
         capture_id,
@@ -92,9 +92,9 @@ describe("update_capture_status handler", () => {
     expect(Date.parse(r.processed_at)).not.toBeNaN();
   });
 
-  test("aborted terminal preserves the capture", () => {
-    const { capture_id } = recordCapture(store, { raw_text: "y" }, ACTOR);
-    const r = updateCaptureStatus(
+  test("aborted terminal preserves the capture", async () => {
+    const { capture_id } = await recordCapture(store, { raw_text: "y" }, ACTOR);
+    const r = await updateCaptureStatus(
       store,
       {
         capture_id,
@@ -104,15 +104,15 @@ describe("update_capture_status handler", () => {
       ACTOR,
     );
     expect(r.status).toBe("aborted");
-    expect(store.getCapture(capture_id)?.raw_text).toBe("y");
+    expect((await store.getCapture(capture_id))?.raw_text).toBe("y");
   });
 
-  test("rejects invalid transition from terminal to terminal", () => {
-    const { capture_id } = recordCapture(store, { raw_text: "x" }, ACTOR);
-    updateCaptureStatus(store, { capture_id, status: "aborted" }, ACTOR);
+  test("rejects invalid transition from terminal to terminal", async () => {
+    const { capture_id } = await recordCapture(store, { raw_text: "x" }, ACTOR);
+    await updateCaptureStatus(store, { capture_id, status: "aborted" }, ACTOR);
     let err: unknown;
     try {
-      updateCaptureStatus(store, { capture_id, status: "processed" }, ACTOR);
+      await updateCaptureStatus(store, { capture_id, status: "processed" }, ACTOR);
     } catch (e) {
       err = e;
     }
@@ -120,10 +120,10 @@ describe("update_capture_status handler", () => {
     expect((err as HandlerError).code).toBe("BAD_TRANSITION");
   });
 
-  test("unknown capture_id surfaces as NOT_FOUND", () => {
+  test("unknown capture_id surfaces as NOT_FOUND", async () => {
     let err: unknown;
     try {
-      updateCaptureStatus(
+      await updateCaptureStatus(
         store,
         { capture_id: "01ZZZZZZZZZZZZZZZZZZZZZZZZ", status: "processed" },
         ACTOR,
@@ -135,13 +135,13 @@ describe("update_capture_status handler", () => {
     expect((err as HandlerError).code).toBe("NOT_FOUND");
   });
 
-  test("rejects non-terminal target status via BAD_INPUT", () => {
-    const { capture_id } = recordCapture(store, { raw_text: "x" }, ACTOR);
+  test("rejects non-terminal target status via BAD_INPUT", async () => {
+    const { capture_id } = await recordCapture(store, { raw_text: "x" }, ACTOR);
     let err: unknown;
     try {
       // 'pending' is not a valid terminal — the zod shape blocks this at the
       // transport edge, but the handler also defends.
-      updateCaptureStatus(
+      await updateCaptureStatus(
         store,
         // biome-ignore lint/suspicious/noExplicitAny: deliberately bypassing
         // the typed enum to verify the handler's defense-in-depth guard.
@@ -157,38 +157,38 @@ describe("update_capture_status handler", () => {
 });
 
 describe("list_captures handler", () => {
-  test("returns count + items", () => {
-    recordCapture(store, { raw_text: "one" }, ACTOR);
-    recordCapture(store, { raw_text: "two" }, ACTOR);
-    const r = listCaptures(store, {});
+  test("returns count + items", async () => {
+    await recordCapture(store, { raw_text: "one" }, ACTOR);
+    await recordCapture(store, { raw_text: "two" }, ACTOR);
+    const r = await listCaptures(store, {});
     expect(r.count).toBe(2);
     expect(r.items).toHaveLength(2);
   });
 
-  test("respects limit", () => {
+  test("respects limit", async () => {
     for (let i = 0; i < 5; i++) {
-      recordCapture(store, { raw_text: `msg-${i}` }, ACTOR);
+      await recordCapture(store, { raw_text: `msg-${i}` }, ACTOR);
     }
-    const r = listCaptures(store, { limit: 2 });
+    const r = await listCaptures(store, { limit: 2 });
     expect(r.count).toBe(2);
   });
 
-  test("filters by status", () => {
-    const { capture_id } = recordCapture(store, { raw_text: "kept" }, ACTOR);
-    recordCapture(store, { raw_text: "still-pending" }, ACTOR);
-    updateCaptureStatus(store, { capture_id, status: "processed" }, ACTOR);
+  test("filters by status", async () => {
+    const { capture_id } = await recordCapture(store, { raw_text: "kept" }, ACTOR);
+    await recordCapture(store, { raw_text: "still-pending" }, ACTOR);
+    await updateCaptureStatus(store, { capture_id, status: "processed" }, ACTOR);
 
-    const processed = listCaptures(store, { status: "processed" });
+    const processed = await listCaptures(store, { status: "processed" });
     expect(processed.items.map((c) => c.raw_text)).toEqual(["kept"]);
 
-    const pending = listCaptures(store, { status: "pending" });
+    const pending = await listCaptures(store, { status: "pending" });
     expect(pending.items.map((c) => c.raw_text)).toEqual(["still-pending"]);
   });
 
-  test("fts query matches raw_text tokens", () => {
-    recordCapture(store, { raw_text: "Mihai 9.50 simulare mate" }, ACTOR);
-    recordCapture(store, { raw_text: "Notes on Turso sync story" }, ACTOR);
-    const r = listCaptures(store, { fts: "turso" });
+  test("fts query matches raw_text tokens", async () => {
+    await recordCapture(store, { raw_text: "Mihai 9.50 simulare mate" }, ACTOR);
+    await recordCapture(store, { raw_text: "Notes on Turso sync story" }, ACTOR);
+    const r = await listCaptures(store, { fts: "turso" });
     expect(r.items.map((c) => c.raw_text)).toEqual(["Notes on Turso sync story"]);
   });
 });
@@ -196,13 +196,13 @@ describe("list_captures handler", () => {
 // ── Phase B — capture_id wiring ──────────────────────────────────────────────
 
 describe("record_observation — capture_id provenance", () => {
-  test("attaches the new entity to the capture in capture_entities", () => {
-    const { capture_id } = recordCapture(
+  test("attaches the new entity to the capture in capture_entities", async () => {
+    const { capture_id } = await recordCapture(
       store,
       { raw_text: "Mihai a luat 9.50" },
       ACTOR,
     );
-    const r = recordObservation(
+    const r = await recordObservation(
       store,
       {
         text: "Mihai",
@@ -212,16 +212,21 @@ describe("record_observation — capture_id provenance", () => {
       },
       ACTOR,
     );
-    const rows = store.db
-      .prepare(
-        "SELECT capture_id, entity_id FROM capture_entities WHERE capture_id = ?",
-      )
-      .all(capture_id) as Array<{ capture_id: string; entity_id: string }>;
-    expect(rows).toEqual([{ capture_id, entity_id: r.id }]);
+    const result = await store.client.execute({
+      sql: "SELECT capture_id, entity_id FROM capture_entities WHERE capture_id = ?",
+      args: [capture_id],
+    });
+    const rows = result.rows as unknown as Array<{
+      capture_id: string;
+      entity_id: string;
+    }>;
+    expect(rows.map((row) => ({ capture_id: row.capture_id, entity_id: row.entity_id }))).toEqual([
+      { capture_id, entity_id: r.id },
+    ]);
   });
 
-  test("succeeds with no capture_id (backwards compatible)", () => {
-    const r = recordObservation(
+  test("succeeds with no capture_id (backwards compatible)", async () => {
+    const r = await recordObservation(
       store,
       {
         text: "Ship PCA",
@@ -231,16 +236,16 @@ describe("record_observation — capture_id provenance", () => {
       ACTOR,
     );
     expect(r.status).toBe("created");
-    const count = store.db
-      .prepare("SELECT count(*) AS c FROM capture_entities")
-      .get() as { c: number };
-    expect(count.c).toBe(0);
+    const result = await store.client.execute(
+      "SELECT count(*) AS c FROM capture_entities",
+    );
+    expect(Number((result.rows[0] as unknown as { c: number }).c)).toBe(0);
   });
 
-  test("INVALID_CAPTURE when capture_id does not exist; no entity is created", () => {
+  test("INVALID_CAPTURE when capture_id does not exist; no entity is created", async () => {
     let err: unknown;
     try {
-      recordObservation(
+      await recordObservation(
         store,
         {
           text: "Mihai",
@@ -256,31 +261,31 @@ describe("record_observation — capture_id provenance", () => {
     expect(err).toBeInstanceOf(HandlerError);
     expect((err as HandlerError).code).toBe("INVALID_CAPTURE");
     // Guarantee no orphan entity was created behind the failed link.
-    const count = store.db
-      .prepare("SELECT count(*) AS c FROM entities")
-      .get() as { c: number };
-    expect(count.c).toBe(0);
+    const result = await store.client.execute(
+      "SELECT count(*) AS c FROM entities",
+    );
+    expect(Number((result.rows[0] as unknown as { c: number }).c)).toBe(0);
   });
 });
 
 describe("link_entities — capture_id provenance", () => {
-  test("attaches the new link to the capture in capture_links", () => {
-    const { capture_id } = recordCapture(
+  test("attaches the new link to the capture in capture_links", async () => {
+    const { capture_id } = await recordCapture(
       store,
       { raw_text: "A subgoal-of B" },
       ACTOR,
     );
-    const a = recordObservation(
+    const a = await recordObservation(
       store,
       { text: "A", type: "goal", attrs: { timeframe: "short" } },
       ACTOR,
     );
-    const b = recordObservation(
+    const b = await recordObservation(
       store,
       { text: "B", type: "goal", attrs: { timeframe: "mid" } },
       ACTOR,
     );
-    const link = linkEntities(
+    const link = await linkEntities(
       store,
       {
         src_id: a.id,
@@ -290,26 +295,32 @@ describe("link_entities — capture_id provenance", () => {
       },
       ACTOR,
     );
-    const rows = store.db
-      .prepare("SELECT capture_id, link_id FROM capture_links")
-      .all() as Array<{ capture_id: string; link_id: string }>;
-    expect(rows).toEqual([{ capture_id, link_id: link.id }]);
+    const result = await store.client.execute(
+      "SELECT capture_id, link_id FROM capture_links",
+    );
+    const rows = result.rows as unknown as Array<{
+      capture_id: string;
+      link_id: string;
+    }>;
+    expect(rows.map((row) => ({ capture_id: row.capture_id, link_id: row.link_id }))).toEqual([
+      { capture_id, link_id: link.id },
+    ]);
   });
 
-  test("INVALID_CAPTURE when capture_id does not exist; no link is created", () => {
-    const a = recordObservation(
+  test("INVALID_CAPTURE when capture_id does not exist; no link is created", async () => {
+    const a = await recordObservation(
       store,
       { text: "A", type: "goal", attrs: { timeframe: "short" } },
       ACTOR,
     );
-    const b = recordObservation(
+    const b = await recordObservation(
       store,
       { text: "B", type: "goal", attrs: { timeframe: "mid" } },
       ACTOR,
     );
     let err: unknown;
     try {
-      linkEntities(
+      await linkEntities(
         store,
         {
           src_id: a.id,
@@ -324,21 +335,21 @@ describe("link_entities — capture_id provenance", () => {
     }
     expect(err).toBeInstanceOf(HandlerError);
     expect((err as HandlerError).code).toBe("INVALID_CAPTURE");
-    const count = store.db
-      .prepare("SELECT count(*) AS c FROM links")
-      .get() as { c: number };
-    expect(count.c).toBe(0);
+    const result = await store.client.execute(
+      "SELECT count(*) AS c FROM links",
+    );
+    expect(Number((result.rows[0] as unknown as { c: number }).c)).toBe(0);
   });
 
-  test("full /ctx-add flow: 1 capture → 2 entities + 1 link, all joined", () => {
+  test("full /ctx-add flow: 1 capture → 2 entities + 1 link, all joined", async () => {
     // Simulates the skill: record_capture → record_observation (×2) →
     // link_entities → update_capture_status('processed').
-    const { capture_id } = recordCapture(
+    const { capture_id } = await recordCapture(
       store,
       { raw_text: "Mihai (fiul meu) pregătește admiterea la UMF" },
       ACTOR,
     );
-    const mihai = recordObservation(
+    const mihai = await recordObservation(
       store,
       {
         text: "Mihai",
@@ -348,7 +359,7 @@ describe("link_entities — capture_id provenance", () => {
       },
       ACTOR,
     );
-    const ev = recordObservation(
+    const ev = await recordObservation(
       store,
       {
         text: "Pregătește admitere UMF",
@@ -357,7 +368,7 @@ describe("link_entities — capture_id provenance", () => {
       },
       ACTOR,
     );
-    const link = linkEntities(
+    const link = await linkEntities(
       store,
       {
         src_id: mihai.id,
@@ -367,7 +378,7 @@ describe("link_entities — capture_id provenance", () => {
       },
       ACTOR,
     );
-    updateCaptureStatus(
+    await updateCaptureStatus(
       store,
       {
         capture_id,
@@ -383,18 +394,24 @@ describe("link_entities — capture_id provenance", () => {
       ACTOR,
     );
 
-    const entRows = store.db
-      .prepare("SELECT entity_id FROM capture_entities WHERE capture_id = ?")
-      .all(capture_id) as Array<{ entity_id: string }>;
+    const entRes = await store.client.execute({
+      sql: "SELECT entity_id FROM capture_entities WHERE capture_id = ?",
+      args: [capture_id],
+    });
+    const entRows = entRes.rows as unknown as Array<{ entity_id: string }>;
     expect(entRows.map((r) => r.entity_id).sort()).toEqual(
       [mihai.id, ev.id].sort(),
     );
-    const linkRows = store.db
-      .prepare("SELECT link_id FROM capture_links WHERE capture_id = ?")
-      .all(capture_id) as Array<{ link_id: string }>;
-    expect(linkRows).toEqual([{ link_id: link.id }]);
+    const linkRes = await store.client.execute({
+      sql: "SELECT link_id FROM capture_links WHERE capture_id = ?",
+      args: [capture_id],
+    });
+    const linkRows = linkRes.rows as unknown as Array<{ link_id: string }>;
+    expect(linkRows.map((r) => ({ link_id: r.link_id }))).toEqual([
+      { link_id: link.id },
+    ]);
 
-    const cap = store.getCapture(capture_id)!;
+    const cap = (await store.getCapture(capture_id))!;
     expect(cap.status).toBe("processed");
     expect(cap.classification_summary?.entity_count).toBe(2);
     expect(cap.classification_summary?.link_count).toBe(1);

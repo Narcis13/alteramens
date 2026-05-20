@@ -185,7 +185,7 @@ function rethrow(e: unknown): never {
  * get_self_summary — aggregates identity + active context across types.
  * Cheap, idempotent, designed to be called at start of any conversation.
  */
-export function getSelfSummary(
+export async function getSelfSummary(
   store: Store,
   _input: GetSelfSummaryInput,
   opts?: {
@@ -194,28 +194,41 @@ export function getSelfSummary(
     keyLinksLimit?: number;
     includeKeyLinks?: boolean;
   },
-): SelfSummary {
+): Promise<SelfSummary> {
   const sampleSize = opts?.sampleSize ?? 3;
   const topPeopleLimit = opts?.topPeopleLimit ?? 5;
   const keyLinksLimit = opts?.keyLinksLimit ?? 10;
   const includeKeyLinks = opts?.includeKeyLinks ?? true;
 
-  const self = store.getCurrentSelf();
-  const active_roles = store.listActive("role");
-  const active_goals = store.listActive("goal");
-  const active_constraints = store.listActive("constraint");
-  const states = store.listActive("state", { limit: 1 });
+  const [
+    self,
+    active_roles,
+    active_goals,
+    active_constraints,
+    states,
+    top_people,
+    active_stances,
+    active_preferences,
+    resources,
+    knowledge,
+    places,
+  ] = await Promise.all([
+    store.getCurrentSelf(),
+    store.listActive("role"),
+    store.listActive("goal"),
+    store.listActive("constraint"),
+    store.listActive("state", { limit: 1 }),
+    store.listActive("person", { limit: topPeopleLimit }),
+    store.listActive("stance"),
+    store.listActive("preference"),
+    store.listActive("resource"),
+    store.listActive("knowledge"),
+    store.listActive("place"),
+  ]);
   const recent_state = states[0] ?? null;
-  const top_people = store.listActive("person", { limit: topPeopleLimit });
-  const active_stances = store.listActive("stance");
-  const active_preferences = store.listActive("preference");
-
-  const resources = store.listActive("resource");
-  const knowledge = store.listActive("knowledge");
-  const places = store.listActive("place");
 
   const key_links = includeKeyLinks
-    ? computeKeyLinks(store, {
+    ? await computeKeyLinks(store, {
         self,
         active_goals,
         top_people,
@@ -262,7 +275,7 @@ export function getSelfSummary(
  * ranks by weight DESC then created_at DESC, caps at `limit`, and projects
  * src+dst to {id, type, title} so the payload stays small.
  */
-function computeKeyLinks(
+async function computeKeyLinks(
   store: Store,
   args: {
     self: Entity | null;
@@ -271,7 +284,7 @@ function computeKeyLinks(
     active_constraints: Entity[];
     limit: number;
   },
-): KeyLink[] {
+): Promise<KeyLink[]> {
   const anchorIds: string[] = [];
   if (args.self) anchorIds.push(args.self.id);
   for (const g of args.active_goals) anchorIds.push(g.id);
@@ -279,9 +292,12 @@ function computeKeyLinks(
   for (const c of args.active_constraints) anchorIds.push(c.id);
   if (anchorIds.length === 0) return [];
 
+  const linkBatches = await Promise.all(
+    anchorIds.map((id) => store.listLinks({ entityId: id, limit: 200 })),
+  );
   const seen = new Map<string, Link>();
-  for (const id of anchorIds) {
-    for (const link of store.listLinks({ entityId: id, limit: 200 })) {
+  for (const batch of linkBatches) {
+    for (const link of batch) {
       if (!seen.has(link.id)) seen.set(link.id, link);
     }
   }
@@ -302,15 +318,15 @@ function computeKeyLinks(
   // Hydrate endpoint titles. Cache reads — same entity may appear on both
   // sides of multiple links.
   const entityCache = new Map<string, Entity | null>();
-  const getCached = (id: string): Entity | null => {
-    if (!entityCache.has(id)) entityCache.set(id, store.getEntity(id));
+  const getCached = async (id: string): Promise<Entity | null> => {
+    if (!entityCache.has(id)) entityCache.set(id, await store.getEntity(id));
     return entityCache.get(id) ?? null;
   };
 
   const hydrated: KeyLink[] = [];
   for (const link of top) {
-    const src = getCached(link.src_id);
-    const dst = getCached(link.dst_id);
+    const src = await getCached(link.src_id);
+    const dst = await getCached(link.dst_id);
     if (!src || !dst) continue; // dangling — skip rather than 500
     hydrated.push({
       link,
@@ -324,12 +340,12 @@ function computeKeyLinks(
 /**
  * get_relevant_context — FTS5 search with optional type filter.
  */
-export function getRelevantContext(
+export async function getRelevantContext(
   store: Store,
   input: GetRelevantContextInput,
-): RelevantContextResult {
+): Promise<RelevantContextResult> {
   const max_items = input.max_items ?? 10;
-  const items = store.searchFts(input.query, {
+  const items = await store.searchFts(input.query, {
     types: input.types,
     limit: max_items,
   });
@@ -346,11 +362,11 @@ export function getRelevantContext(
  * Mapping: `text` becomes title (truncated to 200 chars) + body. `type` defaults
  * to "event" when missing (per PRD §7.3).
  */
-export function recordObservation(
+export async function recordObservation(
   store: Store,
   input: RecordObservationInput,
   actor: string,
-): RecordObservationResult {
+): Promise<RecordObservationResult> {
   if (!input.text || input.text.trim().length === 0) {
     throw new HandlerError("text is required and must be non-empty", "BAD_INPUT");
   }
@@ -359,7 +375,7 @@ export function recordObservation(
   // join would fail. INVALID_CAPTURE is distinct from NOT_FOUND on entity ids
   // because it lets the skill differentiate "user typo on a capture id" from
   // "stale entity reference" in its error path.
-  if (input.capture_id !== undefined && !store.getCapture(input.capture_id)) {
+  if (input.capture_id !== undefined && !(await store.getCapture(input.capture_id))) {
     throw new HandlerError(
       `capture_id not found: ${input.capture_id}`,
       "INVALID_CAPTURE",
@@ -370,7 +386,7 @@ export function recordObservation(
   const { title, body } = splitTitleBody(input.text, input.title);
 
   try {
-    const e = store.createEntity(
+    const e = await store.createEntity(
       {
         type,
         title,
@@ -384,7 +400,7 @@ export function recordObservation(
       actor,
     );
     if (input.capture_id !== undefined) {
-      store.linkCaptureToEntity(input.capture_id, e.id);
+      await store.linkCaptureToEntity(input.capture_id, e.id);
     }
     return {
       id: e.id,
@@ -402,13 +418,17 @@ export function recordObservation(
 /**
  * update_entity — partial update + event log.
  */
-export function updateEntity(
+export async function updateEntity(
   store: Store,
   input: UpdateEntityInput,
   actor: string,
-): UpdateEntityResult {
+): Promise<UpdateEntityResult> {
   try {
-    const { previous, current } = store.updateEntity(input.id, input.changes, actor);
+    const { previous, current } = await store.updateEntity(
+      input.id,
+      input.changes,
+      actor,
+    );
     return { id: input.id, previous, current };
   } catch (e) {
     rethrow(e);
@@ -418,13 +438,13 @@ export function updateEntity(
 /**
  * confirm_entity — still-true / no-longer-true / modify.
  */
-export function confirmEntity(
+export async function confirmEntity(
   store: Store,
   input: ConfirmEntityInput,
   actor: string,
-): ConfirmEntityResult {
+): Promise<ConfirmEntityResult> {
   try {
-    const { outcome, entity } = store.confirmEntity(
+    const { outcome, entity } = await store.confirmEntity(
       input.id,
       input.decision,
       actor,
@@ -443,14 +463,14 @@ export function confirmEntity(
 /**
  * list_active — all active+unexpired entities of a given type.
  */
-export function listActive(
+export async function listActive(
   store: Store,
   input: ListActiveInput,
-): ListActiveResult {
+): Promise<ListActiveResult> {
   if (!ENTITY_TYPES.includes(input.type)) {
     throw new HandlerError(`Unknown entity type: ${input.type}`, "BAD_TYPE");
   }
-  const items = store.listActive(input.type, {
+  const items = await store.listActive(input.type, {
     scope: input.scope,
     limit: input.limit,
   });
@@ -466,11 +486,11 @@ export function listActive(
  *   • (src.type, dst.type) allowed by relation spec → BAD_PAIR
  *   • acyclic relations refuse cycles → WOULD_CYCLE
  */
-export function linkEntities(
+export async function linkEntities(
   store: Store,
   input: LinkEntitiesInput,
   actor: string,
-): LinkEntitiesResult {
+): Promise<LinkEntitiesResult> {
   if (input.src_id === input.dst_id) {
     throw new HandlerError(
       "src_id and dst_id must be different",
@@ -478,7 +498,7 @@ export function linkEntities(
     );
   }
 
-  if (input.capture_id !== undefined && !store.getCapture(input.capture_id)) {
+  if (input.capture_id !== undefined && !(await store.getCapture(input.capture_id))) {
     throw new HandlerError(
       `capture_id not found: ${input.capture_id}`,
       "INVALID_CAPTURE",
@@ -493,7 +513,7 @@ export function linkEntities(
     );
   }
 
-  const src = store.getEntity(input.src_id);
+  const src = await store.getEntity(input.src_id);
   if (!src) throw new HandlerError(`Source entity not found: ${input.src_id}`, "NOT_FOUND");
   if (src.status !== "active")
     throw new HandlerError(
@@ -501,7 +521,7 @@ export function linkEntities(
       "INACTIVE_ENTITY",
     );
 
-  const dst = store.getEntity(input.dst_id);
+  const dst = await store.getEntity(input.dst_id);
   if (!dst) throw new HandlerError(`Destination entity not found: ${input.dst_id}`, "NOT_FOUND");
   if (dst.status !== "active")
     throw new HandlerError(
@@ -514,7 +534,10 @@ export function linkEntities(
     throw new HandlerError(pair.reason, "BAD_PAIR");
   }
 
-  if (spec.acyclic && isCyclic(store, input.src_id, input.dst_id, input.relation)) {
+  if (
+    spec.acyclic &&
+    (await isCyclic(store, input.src_id, input.dst_id, input.relation))
+  ) {
     throw new HandlerError(
       `Creating ${input.relation} ${input.src_id} → ${input.dst_id} would introduce a cycle.`,
       "WOULD_CYCLE",
@@ -522,7 +545,7 @@ export function linkEntities(
   }
 
   try {
-    const link = store.createLink(
+    const link = await store.createLink(
       {
         src_id: input.src_id,
         dst_id: input.dst_id,
@@ -533,7 +556,7 @@ export function linkEntities(
       actor,
     );
     if (input.capture_id !== undefined) {
-      store.linkCaptureToLink(input.capture_id, link.id);
+      await store.linkCaptureToLink(input.capture_id, link.id);
     }
     return link;
   } catch (e) {
@@ -544,15 +567,15 @@ export function linkEntities(
 /**
  * get_neighbors — directly-linked entities for a given id, with link metadata.
  */
-export function getNeighbors(
+export async function getNeighbors(
   store: Store,
   input: GetNeighborsInput,
-): GetNeighborsResult {
-  const center = store.getEntity(input.entity_id);
+): Promise<GetNeighborsResult> {
+  const center = await store.getEntity(input.entity_id);
   if (!center)
     throw new HandlerError(`Entity not found: ${input.entity_id}`, "NOT_FOUND");
 
-  const neighbors = store.getNeighbors(input.entity_id, {
+  const neighbors = await store.getNeighbors(input.entity_id, {
     relation: input.relation,
     direction: input.direction,
     types: input.types,
@@ -564,13 +587,13 @@ export function getNeighbors(
 /**
  * invalidate_link — mark a link as no-longer-true (append-only).
  */
-export function invalidateLink(
+export async function invalidateLink(
   store: Store,
   input: InvalidateLinkInput,
   actor: string,
-): InvalidateLinkResult {
+): Promise<InvalidateLinkResult> {
   try {
-    const link = store.invalidateLink(input.link_id, actor, input.note);
+    const link = await store.invalidateLink(input.link_id, actor, input.note);
     return {
       id: link.id,
       invalidated_at: link.invalidated_at!,
@@ -625,16 +648,16 @@ export type ListCapturesResult = {
 /**
  * record_capture — persist the user's verbatim input. See plan-captures.md §4.3.
  */
-export function recordCapture(
+export async function recordCapture(
   store: Store,
   input: RecordCaptureInputT,
   actor: string,
-): RecordCaptureResult {
+): Promise<RecordCaptureResult> {
   if (!input.raw_text || input.raw_text.length === 0) {
     throw new HandlerError("raw_text is required and must be non-empty", "BAD_INPUT");
   }
   try {
-    const cap = store.recordCapture(
+    const cap = await store.recordCapture(
       {
         raw_text: input.raw_text,
         source: input.source,
@@ -654,11 +677,11 @@ export function recordCapture(
 /**
  * update_capture_status — close a pending capture as processed or aborted.
  */
-export function updateCaptureStatus(
+export async function updateCaptureStatus(
   store: Store,
   input: UpdateCaptureStatusInput,
   actor: string,
-): UpdateCaptureStatusResult {
+): Promise<UpdateCaptureStatusResult> {
   if (input.status !== "processed" && input.status !== "aborted") {
     throw new HandlerError(
       `status must be 'processed' or 'aborted', got '${input.status}'`,
@@ -666,7 +689,7 @@ export function updateCaptureStatus(
     );
   }
   try {
-    const cap = store.updateCaptureStatus(
+    const cap = await store.updateCaptureStatus(
       input.capture_id,
       input.status,
       actor,
@@ -685,12 +708,12 @@ export function updateCaptureStatus(
 /**
  * list_captures — chronological journal read. Newest first.
  */
-export function listCaptures(
+export async function listCaptures(
   store: Store,
   input: ListCapturesInput,
-): ListCapturesResult {
+): Promise<ListCapturesResult> {
   try {
-    const items = store.listCaptures({
+    const items = await store.listCaptures({
       since: input.since,
       until: input.until,
       status: input.status,

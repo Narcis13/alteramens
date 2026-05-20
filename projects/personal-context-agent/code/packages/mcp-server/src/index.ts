@@ -2,22 +2,64 @@
 // pca-mcp-server — stdio MCP server exposing the Personal Context Agent core.
 // All logs go to stderr; stdout is reserved for JSON-RPC.
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
-import { openStore } from "@pca/core";
+import { openStore, type OpenStoreOptions } from "@pca/core";
 import { buildServer } from "./server.ts";
 
-function resolveDbPath(): string {
-  if (process.env.PCA_DB && process.env.PCA_DB.length > 0) return process.env.PCA_DB;
-  return join(homedir(), ".pca", "store.db");
+// MCP is launched by Claude Code with arbitrary cwd, so Bun's automatic
+// .env discovery isn't reliable here. Walk up from this file to find
+// `code/.env` (the monorepo root).
+function loadEnv(): string | null {
+  const candidate = join(import.meta.dir, "..", "..", "..", ".env");
+  if (!existsSync(candidate)) return null;
+  // `process.loadEnvFile` is available in Bun and Node ≥20.12.
+  // Existing process.env values take precedence over file values.
+  try {
+    process.loadEnvFile(candidate);
+    return candidate;
+  } catch {
+    return null;
+  }
+}
+
+function resolveStoreOptions(): OpenStoreOptions {
+  const localPath =
+    process.env.PCA_LOCAL_REPLICA && process.env.PCA_LOCAL_REPLICA.length > 0
+      ? process.env.PCA_LOCAL_REPLICA
+      : process.env.PCA_DB && process.env.PCA_DB.length > 0
+        ? process.env.PCA_DB
+        : join(homedir(), ".pca", "local-replica.db");
+  const syncUrl = process.env.TURSO_DB_URL;
+  const authToken = process.env.TURSO_AUTH_TOKEN;
+  const syncInterval = process.env.PCA_SYNC_INTERVAL_SEC
+    ? Number(process.env.PCA_SYNC_INTERVAL_SEC)
+    : undefined;
+  if (!syncUrl || syncUrl.startsWith("<")) {
+    process.stderr.write(
+      "[pca-mcp-server] WARN: TURSO_DB_URL missing or unset, running in local-only mode\n",
+    );
+    return { url: `file:${localPath}` };
+  }
+  return {
+    url: `file:${localPath}`,
+    syncUrl,
+    authToken,
+    syncInterval,
+  };
 }
 
 async function main(): Promise<void> {
-  const dbPath = resolveDbPath();
-  mkdirSync(dirname(dbPath), { recursive: true });
+  const envPath = loadEnv();
+  const opts = resolveStoreOptions();
 
-  const store = openStore(dbPath);
+  // url is always `file:<absolute path>` here; strip the scheme to ensure
+  // the parent directory exists before libsql touches it.
+  const localFile = opts.url.replace(/^file:/, "");
+  mkdirSync(dirname(localFile), { recursive: true });
+
+  const store = await openStore(opts);
   const actor = process.env.PCA_ACTOR ?? "claude-code:mcp";
   const server = buildServer({ store, actor });
 
@@ -27,7 +69,14 @@ async function main(): Promise<void> {
   process.on("SIGTERM", () => shutdown(store, 0));
 
   await server.connect(transport);
-  process.stderr.write(`[pca-mcp-server] connected (db=${dbPath})\n`);
+
+  const syncDesc = opts.syncUrl
+    ? `sync=${opts.syncInterval ?? 60}s, remote=${opts.syncUrl}`
+    : "local-only";
+  const envDesc = envPath ? ` (env=${envPath})` : "";
+  process.stderr.write(
+    `[pca-mcp-server] connected (replica=${localFile}, ${syncDesc})${envDesc}\n`,
+  );
 }
 
 function shutdown(store: { close: () => void }, code: number): never {
