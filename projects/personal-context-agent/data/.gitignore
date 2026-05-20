@@ -1,0 +1,15 @@
+# SQLite sidecar files — never commit; they're machine-local state.
+*.db-shm
+*.db-wal
+*.db-journal
+
+# Pre-Turso backups taken by Phase 1 of plan-turso-sync.md and any future
+# point-in-time snapshots. They contain personal data and aren't reproducible
+# from git anyway.
+*.bak
+*.bak-*
+store.db.bak-pre-turso-*
+
+# Local replica created by @libsql/client embedded mode (post-Phase 3b).
+local-replica.db
+local-replica.db-*
