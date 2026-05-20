@@ -303,7 +303,7 @@ Implementare D11: CLI cheamă `openStore({ url: \`file:\${dbPath}\` })` *fără*
 
 **Commit (3a):** `cli: adapt to async store API (local-only mode)`
 
-#### Phase 3b — MCP server
+
 
 **Steps:**
 
