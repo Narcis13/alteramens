@@ -19,6 +19,7 @@ export type RelationName =
   | "reinforces"
   | "competes-with"
   | "addresses"
+  | "counters"
   | "requires"
   | "related-to";
 
@@ -153,6 +154,17 @@ export const RELATIONS: Record<RelationName, RelationSpec> = {
       ["role", "event"],
     ],
     description: "A tries to resolve / engage with B.",
+  },
+  counters: {
+    name: "counters",
+    acyclic: false,
+    symmetric: false,
+    allowedPairs: [
+      ["stance", "constraint"],
+      ["preference", "constraint"],
+    ],
+    description:
+      "A is a counter-force against B (held opposition, not a problem-solving process — for that use 'addresses').",
   },
   requires: {
     name: "requires",

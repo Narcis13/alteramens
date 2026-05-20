@@ -109,7 +109,7 @@ export const linkEntitiesShape = {
     .string()
     .min(1)
     .describe(
-      "Relation type. Canonical vocab: subgoal-of, motivated-by, collaborates-with, subject-of, located-at, caused-by, reinforces, competes-with, addresses, requires, related-to. Phase 1 logs a warning for unknown relations; Phase 2 will reject them.",
+      "Relation type. Canonical vocab: subgoal-of, motivated-by, collaborates-with, subject-of, located-at, caused-by, reinforces, competes-with, addresses, counters, requires, related-to. Phase 1 logs a warning for unknown relations; Phase 2 will reject them.",
     ),
   weight: z
     .number()

@@ -25,7 +25,7 @@ afterEach(() => cleanup?.());
 const ACTOR = "test";
 
 describe("relations registry", () => {
-  test("contains all 11 canonical relations from plan-linking.md §2 D1", () => {
+  test("contains all 12 canonical relations from plan-linking.md §2 D1", () => {
     const expected: typeof RELATION_NAMES = [
       "subgoal-of",
       "motivated-by",
@@ -36,6 +36,7 @@ describe("relations registry", () => {
       "reinforces",
       "competes-with",
       "addresses",
+      "counters",
       "requires",
       "related-to",
     ];
@@ -108,6 +109,21 @@ describe("validateLinkPair", () => {
     // Test directionality via subject-of which lists (person, event) only.
     expect(validateLinkPair("subject-of", "person", "event").ok).toBe(true);
     expect(validateLinkPair("subject-of", "event", "person").ok).toBe(false);
+  });
+
+  test("`counters` accepts (stance, constraint) and (preference, constraint)", () => {
+    expect(validateLinkPair("counters", "stance", "constraint").ok).toBe(true);
+    expect(validateLinkPair("counters", "preference", "constraint").ok).toBe(true);
+  });
+
+  test("`counters` rejects reversed pair (non-symmetric)", () => {
+    expect(validateLinkPair("counters", "constraint", "stance").ok).toBe(false);
+  });
+
+  test("`counters` rejects non-canonical pairs (e.g. goal → constraint — use `addresses`)", () => {
+    const r = validateLinkPair("counters", "goal", "constraint");
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.reason).toContain("does not allow pair");
   });
 });
 

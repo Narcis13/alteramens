@@ -183,7 +183,7 @@ Show the user the split; let them accept all, pick a subset, or override.
 
 ## Step 2.5 — Canonical link relations
 
-When you propose links in Step 2, the `relation` field MUST be one of the 11
+When you propose links in Step 2, the `relation` field MUST be one of the 12
 names below. The MCP server validates against this registry and rejects anything
 else with `UNKNOWN_RELATION`. **Never invent new names** like `relates-to`,
 `connected-with`, `see-also`, `links-to`, `is-a`, `part-of`, `depends-on`, etc.
@@ -200,7 +200,8 @@ do not bend a closer-sounding relation past its allowed pairs.
 | `caused-by` | A → B | `{state, event} → {event, role, place, person}` | A appeared because of B. |
 | `reinforces` | A → B | `{stance, preference, role} → {stance, self}` | A strengthens B. |
 | `competes-with` | A ↔ B | `{goal, stance, role} × {goal, stance, role}` | Tension between A and B. **Symmetric.** |
-| `addresses` | A → B | `{goal, role} → {constraint, knowledge, event}` | A tries to resolve B. |
+| `addresses` | A → B | `{goal, role} → {constraint, knowledge, event}` | A tries to resolve B (problem-solving process). |
+| `counters` | A → B | `{stance, preference} → constraint` | A is a held counter-force against B (opposition, not process). For goal/role → constraint use `addresses`. |
 | `requires` | A → B | `{goal, role} → {resource, knowledge, person, place}` | A depends on B. |
 | `related-to` | A ↔ B | `* × *` | **Low-information fallback.** Queries deprioritize it. Use sparingly. |
 

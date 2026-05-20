@@ -48,7 +48,7 @@ author: Narcis + Claude
 
 ### D1 — Vocabular canonic de relations
 
-11 relations fixe; orice altceva în skill = **respins** la confirm; fallback
+12 relations fixe; orice altceva în skill = **respins** la confirm; fallback
 explicit `related-to` permis dar marcat "low-information" în queryuri.
 
 | Relation | Direction | Src types permise | Dst types permise | Acyclic | Symmetric | Semantică |
@@ -61,7 +61,8 @@ explicit `related-to` permis dar marcat "low-information" în queryuri.
 | `caused-by` | A → B | `state`, `event` | `event`, `role`, `place`, `person` | nu | nu | A apare din cauza B |
 | `reinforces` | A → B | `stance`, `preference`, `role` | `stance`, `self` | nu | nu | A întărește B |
 | `competes-with` | A ↔ B | `goal`, `stance`, `role` | `goal`, `stance`, `role` | nu | **da** | tensiune între A și B |
-| `addresses` | A → B | `goal`, `role` | `constraint`, `knowledge`, `event` | nu | nu | A încearcă să rezolve B |
+| `addresses` | A → B | `goal`, `role` | `constraint`, `knowledge`, `event` | nu | nu | A încearcă să rezolve B (proces) |
+| `counters` | A → B | `stance`, `preference` | `constraint` | nu | nu | A este forță-contra ținută de user împotriva B (opoziție, nu proces) |
 | `requires` | A → B | `goal`, `role` | `resource`, `knowledge`, `person`, `place` | nu | nu | A depinde de B |
 | `related-to` | A ↔ B | * | * | nu | **da** | fallback — query-uri îl deprioritizează |
 

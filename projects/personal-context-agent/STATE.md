@@ -9,7 +9,7 @@ local_db: ~/.pca/store.db — schema present, 0 rows (fresh start)
 
 # Personal Context Agent — State of the Union (2026-05-19)
 
-> **One-line:** A local-first, agent-native context store for a single human. 12 typed entity layers + 11 canonical relations, persisted to SQLite, queried through 9 MCP tools, captured via a `/ctx-add` Claude Code skill. **Linking phases 1–3 just shipped.** Foundation is solid; the next step is *seeding* (validate the demo loop with real data) before any SaaS conversation.
+> **One-line:** A local-first, agent-native context store for a single human. 12 typed entity layers + 12 canonical relations, persisted to SQLite, queried through 9 MCP tools, captured via a `/ctx-add` Claude Code skill. **Linking phases 1–3 just shipped.** Foundation is solid; the next step is *seeding* (validate the demo loop with real data) before any SaaS conversation.
 
 ---
 
@@ -22,7 +22,7 @@ Three primitives compose the system:
 | Primitive | What it does | Where it lives |
 |---|---|---|
 | **Entities** | 12 typed layers (self, place, goal, knowledge, person, resource, constraint, state, event, preference, stance, role) with TTL, authority, confidence, maturity | `~/.pca/store.db` |
-| **Links** | 11 canonical typed relations between entities (`subgoal-of`, `motivated-by`, `requires`, …), directed, validated, append-only invalidation | same DB |
+| **Links** | 12 canonical typed relations between entities (`subgoal-of`, `motivated-by`, `requires`, `counters`, …), directed, validated, append-only invalidation | same DB |
 | **Events** | Append-only audit log of every create/update/invalidate/confirm/link | same DB |
 
 Three surfaces expose them:
@@ -45,7 +45,7 @@ code/packages/
 │   ├── src/schema/migrations/   0001_initial.sql, 0002_link_invalidate_op.sql
 │   ├── src/types.ts             Entity, Link, EventRow, etc.
 │   ├── src/entities/registry.ts 12 zod-validated attrs schemas + per-type TTL
-│   ├── src/links/relations.ts   11 canonical relations, pair validation, cycle detection
+│   ├── src/links/relations.ts   12 canonical relations, pair validation, cycle detection
 │   └── src/store.ts             ~830 LOC; openStore, CRUD, search, neighbors, invalidation cascade
 ├── mcp-server/       — stdio MCP server wrapping core
 │   ├── src/tool-defs.ts         zod input schemas for 9 tools
@@ -378,7 +378,7 @@ Only after that loop has closed once should the next code change ship. The bigge
 | `code/packages/core/src/schema/migrations/0002_link_invalidate_op.sql` | Adds `'link-invalidate'` to events.operation enum (enables cascade audit) |
 | `code/packages/core/src/types.ts` | All TS types: `Entity`, `Link`, `EventRow`, `EntityType`, `Authority`, etc. |
 | `code/packages/core/src/entities/registry.ts` | 12 per-type zod schemas + TTL + singleton metadata |
-| `code/packages/core/src/links/relations.ts` | 11 canonical relations + pair validation + BFS cycle check (depth 10) |
+| `code/packages/core/src/links/relations.ts` | 12 canonical relations + pair validation + BFS cycle check (depth 10) |
 | `code/packages/core/src/store.ts` | ~830 LOC engine: openStore, CRUD, search, neighbors, cascade invalidation |
 | `code/packages/mcp-server/src/tool-defs.ts` | zod input schemas for 9 MCP tools |
 | `code/packages/mcp-server/src/handlers.ts` | Handler logic + `computeKeyLinks()` for `get_self_summary` |
