@@ -5,8 +5,8 @@ import { ENTITY_TYPES, StoreError, type Store } from "../src/index.ts";
 let store: Store;
 let cleanup: () => void;
 
-beforeEach(() => {
-  const t = withTempStore();
+beforeEach(async () => {
+  const t = await withTempStore();
   store = t.store;
   cleanup = t.cleanup;
 });
@@ -18,39 +18,41 @@ afterEach(() => cleanup?.());
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("schema migration", () => {
-  test("applies all migrations and records them", () => {
-    const row = store.db
-      .prepare("SELECT version FROM schema_migrations ORDER BY version")
-      .all() as Array<{ version: number }>;
-    expect(row.map((r) => r.version)).toEqual([1, 2, 3, 4]);
+  test("applies all migrations and records them", async () => {
+    const result = await store.client.execute(
+      "SELECT version FROM schema_migrations ORDER BY version",
+    );
+    const versions = result.rows.map((r) => Number((r as unknown as { version: number }).version));
+    expect(versions).toEqual([1, 2, 3, 4]);
   });
 
-  test("is idempotent (re-opening does not re-apply)", () => {
-    const before = store.db
-      .prepare("SELECT count(*) as c FROM schema_migrations")
-      .get() as { c: number };
+  test("is idempotent (re-opening does not re-apply)", async () => {
+    const beforeResult = await store.client.execute(
+      "SELECT count(*) as c FROM schema_migrations",
+    );
+    const before = beforeResult.rows[0] as unknown as { c: number };
     store.close();
     // Re-open same DB file (use same cleanup dir via dbPath isn't exposed; we
     // verify idempotency by running migration again on the open db)
-    const t = withTempStore();
-    const after = t.store.db
-      .prepare("SELECT count(*) as c FROM schema_migrations")
-      .get() as { c: number };
-    expect(before.c).toBe(4);
-    expect(after.c).toBe(4);
+    const t = await withTempStore();
+    const afterResult = await t.store.client.execute(
+      "SELECT count(*) as c FROM schema_migrations",
+    );
+    const after = afterResult.rows[0] as unknown as { c: number };
+    expect(Number(before.c)).toBe(4);
+    expect(Number(after.c)).toBe(4);
     t.cleanup();
     // Restore module-level store so afterEach can clean up
-    const restored = withTempStore();
+    const restored = await withTempStore();
     store = restored.store;
     cleanup = restored.cleanup;
   });
 
-  test("creates all 14 expected views", () => {
-    const views = (
-      store.db
-        .prepare("SELECT name FROM sqlite_master WHERE type='view' ORDER BY name")
-        .all() as Array<{ name: string }>
-    ).map((r) => r.name);
+  test("creates all 14 expected views", async () => {
+    const result = await store.client.execute(
+      "SELECT name FROM sqlite_master WHERE type='view' ORDER BY name",
+    );
+    const views = result.rows.map((r) => (r as unknown as { name: string }).name);
     expect(views).toEqual([
       "v_active_constraints",
       "v_active_events",
@@ -98,9 +100,9 @@ const FIXTURES: Record<string, { title: string; attrs: Record<string, unknown> }
 
 describe("create — all 12 entity types", () => {
   for (const type of ENTITY_TYPES) {
-    test(`creates type='${type}'`, () => {
+    test(`creates type='${type}'`, async () => {
       const fx = FIXTURES[type];
-      const e = store.createEntity(
+      const e = await store.createEntity(
         { type, title: fx.title, attrs: fx.attrs },
         "test",
       );
@@ -116,28 +118,28 @@ describe("create — all 12 entity types", () => {
 });
 
 describe("zod validation", () => {
-  test("rejects unknown attrs key", () => {
-    expect(() =>
+  test("rejects unknown attrs key", async () => {
+    await expect(
       store.createEntity(
         { type: "goal", title: "x", attrs: { timeframe: "mid", bogus: 1 } },
         "test",
       ),
-    ).toThrow(StoreError);
+    ).rejects.toThrow(StoreError);
   });
 
-  test("rejects missing required attr", () => {
-    expect(() =>
+  test("rejects missing required attr", async () => {
+    await expect(
       store.createEntity({ type: "goal", title: "x", attrs: {} }, "test"),
-    ).toThrow(StoreError);
+    ).rejects.toThrow(StoreError);
   });
 
-  test("rejects invalid enum", () => {
-    expect(() =>
+  test("rejects invalid enum", async () => {
+    await expect(
       store.createEntity(
         { type: "person", title: "x", attrs: { relation: "friend", importance: "MAX" } },
         "test",
       ),
-    ).toThrow(StoreError);
+    ).rejects.toThrow(StoreError);
   });
 });
 
@@ -146,14 +148,14 @@ describe("zod validation", () => {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("self singleton", () => {
-  test("a second active self throws SINGLETON_CONFLICT", () => {
-    store.createEntity(
+  test("a second active self throws SINGLETON_CONFLICT", async () => {
+    await store.createEntity(
       { type: "self", title: "Narcis", attrs: FIXTURES.self!.attrs },
       "test",
     );
     let err: unknown;
     try {
-      store.createEntity(
+      await store.createEntity(
         { type: "self", title: "Other", attrs: FIXTURES.self!.attrs },
         "test",
       );
@@ -164,26 +166,27 @@ describe("self singleton", () => {
     expect((err as StoreError).code).toBe("SINGLETON_CONFLICT");
   });
 
-  test("after invalidation, a new self can be created", () => {
-    const first = store.createEntity(
+  test("after invalidation, a new self can be created", async () => {
+    const first = await store.createEntity(
       { type: "self", title: "Narcis v1", attrs: FIXTURES.self!.attrs },
       "test",
     );
-    store.invalidateEntity(first.id, "test");
-    const second = store.createEntity(
+    await store.invalidateEntity(first.id, "test");
+    const second = await store.createEntity(
       { type: "self", title: "Narcis v2", attrs: FIXTURES.self!.attrs },
       "test",
     );
     expect(second.id).not.toBe(first.id);
   });
 
-  test("getCurrentSelf returns the active self only", () => {
-    expect(store.getCurrentSelf()).toBeNull();
-    const e = store.createEntity(
+  test("getCurrentSelf returns the active self only", async () => {
+    expect(await store.getCurrentSelf()).toBeNull();
+    const e = await store.createEntity(
       { type: "self", title: "Narcis", attrs: FIXTURES.self!.attrs },
       "test",
     );
-    expect(store.getCurrentSelf()?.id).toBe(e.id);
+    const current = await store.getCurrentSelf();
+    expect(current?.id).toBe(e.id);
   });
 });
 
@@ -192,8 +195,8 @@ describe("self singleton", () => {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("TTL defaults", () => {
-  test("state gets ~7 days expiry", () => {
-    const e = store.createEntity(
+  test("state gets ~7 days expiry", async () => {
+    const e = await store.createEntity(
       { type: "state", title: "tired", attrs: { energy: "low" } },
       "test",
     );
@@ -203,8 +206,8 @@ describe("TTL defaults", () => {
     expect(days).toBeLessThan(7.1);
   });
 
-  test("goal gets ~90 days expiry", () => {
-    const e = store.createEntity(
+  test("goal gets ~90 days expiry", async () => {
+    const e = await store.createEntity(
       { type: "goal", title: "x", attrs: { timeframe: "mid" } },
       "test",
     );
@@ -213,8 +216,8 @@ describe("TTL defaults", () => {
     expect(days).toBeLessThan(90.1);
   });
 
-  test("role gets ~180 days expiry", () => {
-    const e = store.createEntity(
+  test("role gets ~180 days expiry", async () => {
+    const e = await store.createEntity(
       { type: "role", title: "x", attrs: { domain: "offensive" } },
       "test",
     );
@@ -223,7 +226,7 @@ describe("TTL defaults", () => {
     expect(days).toBeLessThan(180.1);
   });
 
-  test("knowledge / preference / stance / self / person / place / event get no expiry by default", () => {
+  test("knowledge / preference / stance / self / person / place / event get no expiry by default", async () => {
     const cases: Array<[Parameters<Store["createEntity"]>[0]["type"], Record<string, unknown>]> = [
       ["knowledge", { domain: "x", depth: "novice" }],
       ["preference", { register: "voice" }],
@@ -233,14 +236,14 @@ describe("TTL defaults", () => {
       ["event", {}],
     ];
     for (const [type, attrs] of cases) {
-      const e = store.createEntity({ type, title: type, attrs }, "test");
+      const e = await store.createEntity({ type, title: type, attrs }, "test");
       expect(e.expires_at).toBeNull();
     }
   });
 
-  test("explicit expires_at override wins", () => {
+  test("explicit expires_at override wins", async () => {
     const iso = "2099-01-01T00:00:00.000Z";
-    const e = store.createEntity(
+    const e = await store.createEntity(
       {
         type: "goal",
         title: "x",
@@ -252,8 +255,8 @@ describe("TTL defaults", () => {
     expect(e.expires_at).toBe(iso);
   });
 
-  test("explicit expires_at=null override removes TTL", () => {
-    const e = store.createEntity(
+  test("explicit expires_at=null override removes TTL", async () => {
+    const e = await store.createEntity(
       {
         type: "goal",
         title: "x",
@@ -271,9 +274,9 @@ describe("TTL defaults", () => {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("views filter active+unexpired", () => {
-  test("expired goal is excluded from v_active_goals", () => {
+  test("expired goal is excluded from v_active_goals", async () => {
     const past = new Date(Date.now() - 86_400_000).toISOString();
-    store.createEntity(
+    await store.createEntity(
       {
         type: "goal",
         title: "old",
@@ -282,7 +285,7 @@ describe("views filter active+unexpired", () => {
       },
       "test",
     );
-    store.createEntity(
+    await store.createEntity(
       {
         type: "goal",
         title: "fresh",
@@ -290,22 +293,22 @@ describe("views filter active+unexpired", () => {
       },
       "test",
     );
-    const active = store.listActive("goal");
+    const active = await store.listActive("goal");
     expect(active.map((e) => e.title)).toEqual(["fresh"]);
   });
 
-  test("invalidated entity is excluded", () => {
-    const e = store.createEntity(
+  test("invalidated entity is excluded", async () => {
+    const e = await store.createEntity(
       { type: "role", title: "x", attrs: { domain: "offensive" } },
       "test",
     );
-    store.invalidateEntity(e.id, "test");
-    expect(store.listActive("role")).toEqual([]);
+    await store.invalidateEntity(e.id, "test");
+    expect(await store.listActive("role")).toEqual([]);
   });
 
-  test("v_stale_entities surfaces expired actives", () => {
+  test("v_stale_entities surfaces expired actives", async () => {
     const past = new Date(Date.now() - 86_400_000).toISOString();
-    store.createEntity(
+    await store.createEntity(
       {
         type: "goal",
         title: "old",
@@ -314,25 +317,25 @@ describe("views filter active+unexpired", () => {
       },
       "test",
     );
-    const stale = store.listStale();
+    const stale = await store.listStale();
     expect(stale).toHaveLength(1);
     expect(stale[0]!.title).toBe("old");
   });
 
-  test("v_active_persons orders by importance high → med → low", () => {
-    store.createEntity(
+  test("v_active_persons orders by importance high → med → low", async () => {
+    await store.createEntity(
       { type: "person", title: "Low", attrs: { relation: "x", importance: "low" } },
       "test",
     );
-    store.createEntity(
+    await store.createEntity(
       { type: "person", title: "High", attrs: { relation: "x", importance: "high" } },
       "test",
     );
-    store.createEntity(
+    await store.createEntity(
       { type: "person", title: "Med", attrs: { relation: "x", importance: "med" } },
       "test",
     );
-    const order = store.listActive("person").map((e) => e.title);
+    const order = (await store.listActive("person")).map((e) => e.title);
     expect(order).toEqual(["High", "Med", "Low"]);
   });
 });
@@ -342,22 +345,22 @@ describe("views filter active+unexpired", () => {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("FTS5 search", () => {
-  test("matches title", () => {
-    store.createEntity(
+  test("matches title", async () => {
+    await store.createEntity(
       { type: "goal", title: "Ship MVP for PCA", attrs: { timeframe: "short" } },
       "test",
     );
-    store.createEntity(
+    await store.createEntity(
       { type: "goal", title: "Read a book", attrs: { timeframe: "short" } },
       "test",
     );
-    const hits = store.searchFts("MVP");
+    const hits = await store.searchFts("MVP");
     expect(hits).toHaveLength(1);
     expect(hits[0]!.title).toContain("MVP");
   });
 
-  test("matches body", () => {
-    store.createEntity(
+  test("matches body", async () => {
+    await store.createEntity(
       {
         type: "knowledge",
         title: "Generic title",
@@ -366,27 +369,27 @@ describe("FTS5 search", () => {
       },
       "test",
     );
-    const hits = store.searchFts("kubernetes");
+    const hits = await store.searchFts("kubernetes");
     expect(hits).toHaveLength(1);
   });
 
-  test("type filter narrows results", () => {
-    store.createEntity(
+  test("type filter narrows results", async () => {
+    await store.createEntity(
       { type: "goal", title: "alpha goal", attrs: { timeframe: "mid" } },
       "test",
     );
-    store.createEntity(
+    await store.createEntity(
       { type: "knowledge", title: "alpha knowledge", attrs: { domain: "x", depth: "novice" } },
       "test",
     );
-    const onlyGoals = store.searchFts("alpha", { types: ["goal"] });
+    const onlyGoals = await store.searchFts("alpha", { types: ["goal"] });
     expect(onlyGoals).toHaveLength(1);
     expect(onlyGoals[0]!.type).toBe("goal");
   });
 
-  test("excludes invalidated and expired", () => {
+  test("excludes invalidated and expired", async () => {
     const past = new Date(Date.now() - 86_400_000).toISOString();
-    store.createEntity(
+    await store.createEntity(
       {
         type: "goal",
         title: "expired needle",
@@ -395,12 +398,12 @@ describe("FTS5 search", () => {
       },
       "test",
     );
-    const a = store.createEntity(
+    const a = await store.createEntity(
       { type: "goal", title: "invalidated needle", attrs: { timeframe: "short" } },
       "test",
     );
-    store.invalidateEntity(a.id, "test");
-    expect(store.searchFts("needle")).toEqual([]);
+    await store.invalidateEntity(a.id, "test");
+    expect(await store.searchFts("needle")).toEqual([]);
   });
 });
 
@@ -410,12 +413,12 @@ describe("FTS5 search", () => {
 
 describe("update / confirm / invalidate", () => {
   test("updateEntity changes title + attrs and bumps updated_at", async () => {
-    const e = store.createEntity(
+    const e = await store.createEntity(
       { type: "goal", title: "old", attrs: { timeframe: "mid" } },
       "test",
     );
     await Bun.sleep(5);
-    const { previous, current } = store.updateEntity(
+    const { previous, current } = await store.updateEntity(
       e.id,
       { title: "new", attrs: { timeframe: "short" } },
       "test",
@@ -428,7 +431,7 @@ describe("update / confirm / invalidate", () => {
 
   test("confirmEntity still-true extends expiry", async () => {
     const past = new Date(Date.now() - 86_400_000).toISOString();
-    const e = store.createEntity(
+    const e = await store.createEntity(
       {
         type: "goal",
         title: "x",
@@ -437,28 +440,28 @@ describe("update / confirm / invalidate", () => {
       },
       "test",
     );
-    const { outcome, entity } = store.confirmEntity(e.id, "still-true", "test");
+    const { outcome, entity } = await store.confirmEntity(e.id, "still-true", "test");
     expect(outcome).toBe("extended");
     expect(Date.parse(entity.expires_at!)).toBeGreaterThan(Date.now());
   });
 
-  test("confirmEntity no-longer-true invalidates", () => {
-    const e = store.createEntity(
+  test("confirmEntity no-longer-true invalidates", async () => {
+    const e = await store.createEntity(
       { type: "goal", title: "x", attrs: { timeframe: "short" } },
       "test",
     );
-    const { outcome, entity } = store.confirmEntity(e.id, "no-longer-true", "test");
+    const { outcome, entity } = await store.confirmEntity(e.id, "no-longer-true", "test");
     expect(outcome).toBe("invalidated");
     expect(entity.status).toBe("invalidated");
     expect(entity.invalidated_at).not.toBeNull();
   });
 
-  test("confirmEntity modify applies changes + extends expiry", () => {
-    const e = store.createEntity(
+  test("confirmEntity modify applies changes + extends expiry", async () => {
+    const e = await store.createEntity(
       { type: "goal", title: "old", attrs: { timeframe: "short" } },
       "test",
     );
-    const { outcome, entity } = store.confirmEntity(e.id, "modify", "test", {
+    const { outcome, entity } = await store.confirmEntity(e.id, "modify", "test", {
       modify: { title: "new", attrs: { timeframe: "mid" } },
     });
     expect(outcome).toBe("modified");
@@ -466,10 +469,10 @@ describe("update / confirm / invalidate", () => {
     expect(entity.attrs.timeframe).toBe("mid");
   });
 
-  test("invalid entity id throws NOT_FOUND", () => {
+  test("invalid entity id throws NOT_FOUND", async () => {
     let err: unknown;
     try {
-      store.updateEntity("nope", { title: "x" }, "test");
+      await store.updateEntity("nope", { title: "x" }, "test");
     } catch (e) {
       err = e;
     }
@@ -482,56 +485,56 @@ describe("update / confirm / invalidate", () => {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("events log", () => {
-  test("create writes a single 'create' event", () => {
-    const e = store.createEntity(
+  test("create writes a single 'create' event", async () => {
+    const e = await store.createEntity(
       { type: "goal", title: "x", attrs: { timeframe: "mid" } },
       "test",
     );
-    const events = store.listEvents({ entityId: e.id });
+    const events = await store.listEvents({ entityId: e.id });
     expect(events).toHaveLength(1);
     expect(events[0]!.operation).toBe("create");
     expect(events[0]!.actor).toBe("test");
   });
 
-  test("update writes one 'update' event", () => {
-    const e = store.createEntity(
+  test("update writes one 'update' event", async () => {
+    const e = await store.createEntity(
       { type: "goal", title: "x", attrs: { timeframe: "mid" } },
       "test",
     );
-    store.updateEntity(e.id, { title: "y" }, "test");
-    const ops = store.listEvents({ entityId: e.id }).map((ev) => ev.operation);
+    await store.updateEntity(e.id, { title: "y" }, "test");
+    const ops = (await store.listEvents({ entityId: e.id })).map((ev) => ev.operation);
     expect(ops).toEqual(["create", "update"]);
   });
 
-  test("confirm still-true writes one 'confirm' event (no extra 'update')", () => {
-    const e = store.createEntity(
+  test("confirm still-true writes one 'confirm' event (no extra 'update')", async () => {
+    const e = await store.createEntity(
       { type: "goal", title: "x", attrs: { timeframe: "mid" } },
       "test",
     );
-    store.confirmEntity(e.id, "still-true", "test");
-    const ops = store.listEvents({ entityId: e.id }).map((ev) => ev.operation);
+    await store.confirmEntity(e.id, "still-true", "test");
+    const ops = (await store.listEvents({ entityId: e.id })).map((ev) => ev.operation);
     expect(ops).toEqual(["create", "confirm"]);
   });
 
-  test("confirm modify writes one 'confirm-modify' event", () => {
-    const e = store.createEntity(
+  test("confirm modify writes one 'confirm-modify' event", async () => {
+    const e = await store.createEntity(
       { type: "goal", title: "x", attrs: { timeframe: "mid" } },
       "test",
     );
-    store.confirmEntity(e.id, "modify", "test", {
+    await store.confirmEntity(e.id, "modify", "test", {
       modify: { title: "y" },
     });
-    const ops = store.listEvents({ entityId: e.id }).map((ev) => ev.operation);
+    const ops = (await store.listEvents({ entityId: e.id })).map((ev) => ev.operation);
     expect(ops).toEqual(["create", "confirm-modify"]);
   });
 
-  test("invalidate writes one 'invalidate' event", () => {
-    const e = store.createEntity(
+  test("invalidate writes one 'invalidate' event", async () => {
+    const e = await store.createEntity(
       { type: "goal", title: "x", attrs: { timeframe: "mid" } },
       "test",
     );
-    store.invalidateEntity(e.id, "test", "outgrown");
-    const events = store.listEvents({ entityId: e.id });
+    await store.invalidateEntity(e.id, "test", "outgrown");
+    const events = await store.listEvents({ entityId: e.id });
     expect(events.map((ev) => ev.operation)).toEqual(["create", "invalidate"]);
     expect(events[1]!.payload).toEqual({ note: "outgrown" });
   });
@@ -542,82 +545,90 @@ describe("events log", () => {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("primitives", () => {
-  test("createLink + event", () => {
-    const a = store.createEntity(
+  test("createLink + event", async () => {
+    const a = await store.createEntity(
       { type: "person", title: "Mihai", attrs: { relation: "son", importance: "high" } },
       "test",
     );
-    const b = store.createEntity(
+    const b = await store.createEntity(
       { type: "event", title: "UMF exam", attrs: {} },
       "test",
     );
-    const link = store.createLink(
+    const link = await store.createLink(
       { src_id: a.id, dst_id: b.id, relation: "subject-of" },
       "test",
     );
     expect(link.id).toBeString();
     expect(link.relation).toBe("subject-of");
-    const events = store.listEvents().filter((e) => e.operation === "link");
+    const events = (await store.listEvents()).filter((e) => e.operation === "link");
     expect(events).toHaveLength(1);
     expect(events[0]!.link_id).toBe(link.id);
   });
 
-  test("createAnnotation", () => {
-    const a = store.createEntity(
+  test("createAnnotation", async () => {
+    const a = await store.createEntity(
       { type: "goal", title: "x", attrs: { timeframe: "mid" } },
       "test",
     );
-    const ann = store.createAnnotation(
+    const ann = await store.createAnnotation(
       { entity_id: a.id, body: "more thinking needed" },
       "test",
     );
     expect(ann.body).toBe("more thinking needed");
-    const events = store.listEvents().filter((e) => e.operation === "annotate");
+    const events = (await store.listEvents()).filter((e) => e.operation === "annotate");
     expect(events).toHaveLength(1);
   });
 
-  test("tagEntity + idempotent", () => {
-    const a = store.createEntity(
+  test("tagEntity + idempotent", async () => {
+    const a = await store.createEntity(
       { type: "goal", title: "x", attrs: { timeframe: "mid" } },
       "test",
     );
-    store.tagEntity(a.id, "high-priority", "test");
-    store.tagEntity(a.id, "high-priority", "test"); // duplicate
-    const rows = store.db
-      .prepare("SELECT count(*) as c FROM entity_tags WHERE entity_id = ?")
-      .get(a.id) as { c: number };
-    expect(rows.c).toBe(1);
-    const tagRow = store.db.prepare("SELECT slug FROM tags").all() as Array<{ slug: string }>;
+    await store.tagEntity(a.id, "high-priority", "test");
+    await store.tagEntity(a.id, "high-priority", "test"); // duplicate
+    const rowsResult = await store.client.execute({
+      sql: "SELECT count(*) as c FROM entity_tags WHERE entity_id = ?",
+      args: [a.id],
+    });
+    const rows = rowsResult.rows[0] as unknown as { c: number };
+    expect(Number(rows.c)).toBe(1);
+    const tagResult = await store.client.execute("SELECT slug FROM tags");
+    const tagRow = tagResult.rows.map((r) => ({
+      slug: (r as unknown as { slug: string }).slug,
+    }));
     expect(tagRow).toEqual([{ slug: "high-priority" }]);
   });
 
-  test("createSource + attachSource", () => {
-    const a = store.createEntity(
+  test("createSource + attachSource", async () => {
+    const a = await store.createEntity(
       { type: "knowledge", title: "x", attrs: { domain: "y", depth: "novice" } },
       "test",
     );
-    const src = store.createSource({
+    const src = await store.createSource({
       kind: "conversation",
       identifier: "conv-123",
       excerpt: "from chat",
     });
-    store.attachSource(a.id, src.id, "test");
-    const joined = store.db
-      .prepare(
-        "SELECT s.identifier FROM entity_sources es JOIN sources s ON s.id = es.source_id WHERE es.entity_id = ?",
-      )
-      .all(a.id) as Array<{ identifier: string }>;
+    await store.attachSource(a.id, src.id, "test");
+    const joinedResult = await store.client.execute({
+      sql: "SELECT s.identifier FROM entity_sources es JOIN sources s ON s.id = es.source_id WHERE es.entity_id = ?",
+      args: [a.id],
+    });
+    const joined = joinedResult.rows.map((r) => ({
+      identifier: (r as unknown as { identifier: string }).identifier,
+    }));
     expect(joined).toEqual([{ identifier: "conv-123" }]);
   });
 
-  test("upsertProject inserts then updates", () => {
-    store.upsertProject({ slug: "pca", title: "Personal Context Agent" });
-    store.upsertProject({
+  test("upsertProject inserts then updates", async () => {
+    await store.upsertProject({ slug: "pca", title: "Personal Context Agent" });
+    await store.upsertProject({
       slug: "pca",
       title: "PCA",
       description: "MVP build",
     });
-    const row = store.db.prepare("SELECT * FROM projects WHERE slug='pca'").get() as {
+    const rowResult = await store.client.execute("SELECT * FROM projects WHERE slug='pca'");
+    const row = rowResult.rows[0] as unknown as {
       title: string;
       description: string;
     };
@@ -631,8 +642,8 @@ describe("primitives", () => {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("link read API", () => {
-  function seedTriangle() {
-    const person = store.createEntity(
+  async function seedTriangle() {
+    const person = await store.createEntity(
       {
         type: "person",
         title: "Mihai",
@@ -640,11 +651,11 @@ describe("link read API", () => {
       },
       "test",
     );
-    const event = store.createEntity(
+    const event = await store.createEntity(
       { type: "event", title: "UMF exam", attrs: {} },
       "test",
     );
-    const goal = store.createEntity(
+    const goal = await store.createEntity(
       {
         type: "goal",
         title: "Support UMF prep",
@@ -652,121 +663,121 @@ describe("link read API", () => {
       },
       "test",
     );
-    const lPersonEvent = store.createLink(
+    const lPersonEvent = await store.createLink(
       { src_id: person.id, dst_id: event.id, relation: "subject-of" },
       "test",
     );
-    const lGoalPerson = store.createLink(
+    const lGoalPerson = await store.createLink(
       { src_id: goal.id, dst_id: person.id, relation: "collaborates-with" },
       "test",
     );
     return { person, event, goal, lPersonEvent, lGoalPerson };
   }
 
-  test("listLinks returns links in both directions for an entity", () => {
-    const { person, lPersonEvent, lGoalPerson } = seedTriangle();
-    const links = store.listLinks({ entityId: person.id });
+  test("listLinks returns links in both directions for an entity", async () => {
+    const { person, lPersonEvent, lGoalPerson } = await seedTriangle();
+    const links = await store.listLinks({ entityId: person.id });
     const ids = links.map((l) => l.id).sort();
     expect(ids).toEqual([lPersonEvent.id, lGoalPerson.id].sort());
   });
 
-  test("listLinks direction='out' returns only outgoing", () => {
-    const { person, lPersonEvent } = seedTriangle();
-    const links = store.listLinks({ entityId: person.id, direction: "out" });
+  test("listLinks direction='out' returns only outgoing", async () => {
+    const { person, lPersonEvent } = await seedTriangle();
+    const links = await store.listLinks({ entityId: person.id, direction: "out" });
     expect(links.map((l) => l.id)).toEqual([lPersonEvent.id]);
   });
 
-  test("listLinks direction='in' returns only incoming", () => {
-    const { person, lGoalPerson } = seedTriangle();
-    const links = store.listLinks({ entityId: person.id, direction: "in" });
+  test("listLinks direction='in' returns only incoming", async () => {
+    const { person, lGoalPerson } = await seedTriangle();
+    const links = await store.listLinks({ entityId: person.id, direction: "in" });
     expect(links.map((l) => l.id)).toEqual([lGoalPerson.id]);
   });
 
-  test("listLinks filters by relation", () => {
-    const { person, lPersonEvent } = seedTriangle();
-    const links = store.listLinks({
+  test("listLinks filters by relation", async () => {
+    const { person, lPersonEvent } = await seedTriangle();
+    const links = await store.listLinks({
       entityId: person.id,
       relation: "subject-of",
     });
     expect(links.map((l) => l.id)).toEqual([lPersonEvent.id]);
   });
 
-  test("listLinks excludes invalidated by default; includeInvalidated returns them", () => {
-    const { person, lPersonEvent } = seedTriangle();
-    store.invalidateLink(lPersonEvent.id, "test");
-    const without = store.listLinks({ entityId: person.id });
+  test("listLinks excludes invalidated by default; includeInvalidated returns them", async () => {
+    const { person, lPersonEvent } = await seedTriangle();
+    await store.invalidateLink(lPersonEvent.id, "test");
+    const without = await store.listLinks({ entityId: person.id });
     expect(without.map((l) => l.id)).not.toContain(lPersonEvent.id);
-    const withInvalid = store.listLinks({
+    const withInvalid = await store.listLinks({
       entityId: person.id,
       includeInvalidated: true,
     });
     expect(withInvalid.map((l) => l.id)).toContain(lPersonEvent.id);
   });
 
-  test("listLinks respects limit", () => {
-    const { person, event } = seedTriangle();
-    store.createLink(
+  test("listLinks respects limit", async () => {
+    const { person, event } = await seedTriangle();
+    await store.createLink(
       { src_id: person.id, dst_id: event.id, relation: "related-to" },
       "test",
     );
-    const links = store.listLinks({ entityId: person.id, limit: 1 });
+    const links = await store.listLinks({ entityId: person.id, limit: 1 });
     expect(links).toHaveLength(1);
   });
 
-  test("getNeighbors returns role 'out' / 'in' correctly for direction='both'", () => {
-    const { person, event, goal } = seedTriangle();
-    const neighbors = store.getNeighbors(person.id);
+  test("getNeighbors returns role 'out' / 'in' correctly for direction='both'", async () => {
+    const { person, event, goal } = await seedTriangle();
+    const neighbors = await store.getNeighbors(person.id);
     const byId = new Map(neighbors.map((n) => [n.entity.id, n]));
     expect(byId.get(event.id)?.role).toBe("out");
     expect(byId.get(goal.id)?.role).toBe("in");
   });
 
-  test("getNeighbors filters by types", () => {
-    const { person, event } = seedTriangle();
-    const neighbors = store.getNeighbors(person.id, { types: ["event"] });
+  test("getNeighbors filters by types", async () => {
+    const { person, event } = await seedTriangle();
+    const neighbors = await store.getNeighbors(person.id, { types: ["event"] });
     expect(neighbors).toHaveLength(1);
     expect(neighbors[0]!.entity.id).toBe(event.id);
   });
 
-  test("getNeighbors excludes invalidated neighbor entities", () => {
-    const { person, event } = seedTriangle();
-    store.invalidateEntity(event.id, "test");
-    const neighbors = store.getNeighbors(person.id);
+  test("getNeighbors excludes invalidated neighbor entities", async () => {
+    const { person, event } = await seedTriangle();
+    await store.invalidateEntity(event.id, "test");
+    const neighbors = await store.getNeighbors(person.id);
     expect(neighbors.map((n) => n.entity.id)).not.toContain(event.id);
   });
 
-  test("getNeighbors excludes invalidated links", () => {
-    const { person, event, lPersonEvent } = seedTriangle();
-    store.invalidateLink(lPersonEvent.id, "test");
-    const neighbors = store.getNeighbors(person.id);
+  test("getNeighbors excludes invalidated links", async () => {
+    const { person, event, lPersonEvent } = await seedTriangle();
+    await store.invalidateLink(lPersonEvent.id, "test");
+    const neighbors = await store.getNeighbors(person.id);
     expect(neighbors.map((n) => n.entity.id)).not.toContain(event.id);
   });
 
-  test("getNeighbors filters by relation", () => {
-    const { person, event } = seedTriangle();
-    const onlySubject = store.getNeighbors(person.id, { relation: "subject-of" });
+  test("getNeighbors filters by relation", async () => {
+    const { person, event } = await seedTriangle();
+    const onlySubject = await store.getNeighbors(person.id, { relation: "subject-of" });
     expect(onlySubject).toHaveLength(1);
     expect(onlySubject[0]!.entity.id).toBe(event.id);
   });
 
-  test("invalidateLink sets timestamp and emits link-invalidate event", () => {
-    const { lPersonEvent } = seedTriangle();
+  test("invalidateLink sets timestamp and emits link-invalidate event", async () => {
+    const { lPersonEvent } = await seedTriangle();
     const before = lPersonEvent.invalidated_at;
-    const updated = store.invalidateLink(lPersonEvent.id, "test", "ended");
+    const updated = await store.invalidateLink(lPersonEvent.id, "test", "ended");
     expect(before).toBeNull();
     expect(updated.invalidated_at).not.toBeNull();
-    const ev = store
-      .listEvents()
-      .filter((e) => e.operation === "link-invalidate");
+    const ev = (await store.listEvents()).filter(
+      (e) => e.operation === "link-invalidate",
+    );
     expect(ev).toHaveLength(1);
     expect(ev[0]!.link_id).toBe(lPersonEvent.id);
     expect(ev[0]!.payload).toEqual({ note: "ended" });
   });
 
-  test("invalidateLink throws NOT_FOUND for missing id", () => {
+  test("invalidateLink throws NOT_FOUND for missing id", async () => {
     let err: unknown;
     try {
-      store.invalidateLink("nope", "test");
+      await store.invalidateLink("nope", "test");
     } catch (e) {
       err = e;
     }
@@ -774,13 +785,13 @@ describe("link read API", () => {
     expect((err as StoreError).code).toBe("NOT_FOUND");
   });
 
-  test("invalidateLink is a no-op when already invalidated (no extra event)", () => {
-    const { lPersonEvent } = seedTriangle();
-    store.invalidateLink(lPersonEvent.id, "test");
-    store.invalidateLink(lPersonEvent.id, "test");
-    const ev = store
-      .listEvents()
-      .filter((e) => e.operation === "link-invalidate");
+  test("invalidateLink is a no-op when already invalidated (no extra event)", async () => {
+    const { lPersonEvent } = await seedTriangle();
+    await store.invalidateLink(lPersonEvent.id, "test");
+    await store.invalidateLink(lPersonEvent.id, "test");
+    const ev = (await store.listEvents()).filter(
+      (e) => e.operation === "link-invalidate",
+    );
     expect(ev).toHaveLength(1);
   });
 });
@@ -790,52 +801,52 @@ describe("link read API", () => {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("invalidateEntity cascade (Phase 3)", () => {
-  test("invalidating an entity cascades to all its links and emits link-invalidate events", () => {
-    const goal = store.createEntity(
+  test("invalidating an entity cascades to all its links and emits link-invalidate events", async () => {
+    const goal = await store.createEntity(
       { type: "goal", title: "Hub", attrs: { timeframe: "mid" } },
       "test",
     );
-    const a = store.createEntity(
+    const a = await store.createEntity(
       { type: "knowledge", title: "k1", attrs: { domain: "x", depth: "novice" } },
       "test",
     );
-    const b = store.createEntity(
+    const b = await store.createEntity(
       { type: "knowledge", title: "k2", attrs: { domain: "x", depth: "novice" } },
       "test",
     );
-    const c = store.createEntity(
+    const c = await store.createEntity(
       { type: "knowledge", title: "k3", attrs: { domain: "x", depth: "novice" } },
       "test",
     );
-    const l1 = store.createLink(
+    const l1 = await store.createLink(
       { src_id: goal.id, dst_id: a.id, relation: "addresses" },
       "test",
     );
-    const l2 = store.createLink(
+    const l2 = await store.createLink(
       { src_id: goal.id, dst_id: b.id, relation: "addresses" },
       "test",
     );
-    const l3 = store.createLink(
+    const l3 = await store.createLink(
       { src_id: goal.id, dst_id: c.id, relation: "addresses" },
       "test",
     );
 
-    store.invalidateEntity(goal.id, "test", "outgrown");
+    await store.invalidateEntity(goal.id, "test", "outgrown");
 
     for (const id of [l1.id, l2.id, l3.id]) {
-      const row = store.db
-        .prepare("SELECT invalidated_at FROM links WHERE id = ?")
-        .get(id) as { invalidated_at: string | null };
+      const result = await store.client.execute({
+        sql: "SELECT invalidated_at FROM links WHERE id = ?",
+        args: [id],
+      });
+      const row = result.rows[0] as unknown as { invalidated_at: string | null };
       expect(row.invalidated_at).not.toBeNull();
     }
 
-    const cascadeEvents = store
-      .listEvents()
-      .filter(
-        (e) =>
-          e.operation === "link-invalidate" &&
-          (e.payload as { reason?: string } | null)?.reason === "cascade",
-      );
+    const cascadeEvents = (await store.listEvents()).filter(
+      (e) =>
+        e.operation === "link-invalidate" &&
+        (e.payload as { reason?: string } | null)?.reason === "cascade",
+    );
     expect(cascadeEvents).toHaveLength(3);
     for (const ev of cascadeEvents) {
       const payload = ev.payload as {
@@ -848,74 +859,78 @@ describe("invalidateEntity cascade (Phase 3)", () => {
     }
   });
 
-  test("cascade respects already-invalidated links (no double-invalidate event)", () => {
-    const a = store.createEntity(
+  test("cascade respects already-invalidated links (no double-invalidate event)", async () => {
+    const a = await store.createEntity(
       { type: "goal", title: "g1", attrs: { timeframe: "mid" } },
       "test",
     );
-    const b = store.createEntity(
+    const b = await store.createEntity(
       { type: "goal", title: "g2", attrs: { timeframe: "mid" } },
       "test",
     );
-    const link = store.createLink(
+    const link = await store.createLink(
       { src_id: a.id, dst_id: b.id, relation: "subgoal-of" },
       "test",
     );
-    store.invalidateLink(link.id, "test", "ended");
+    await store.invalidateLink(link.id, "test", "ended");
 
-    store.invalidateEntity(a.id, "test");
+    await store.invalidateEntity(a.id, "test");
 
-    const linkInvalidateEvents = store
-      .listEvents()
-      .filter((e) => e.operation === "link-invalidate" && e.link_id === link.id);
+    const linkInvalidateEvents = (await store.listEvents()).filter(
+      (e) => e.operation === "link-invalidate" && e.link_id === link.id,
+    );
     expect(linkInvalidateEvents).toHaveLength(1);
     const payload = linkInvalidateEvents[0]!.payload as { note?: string };
     expect(payload.note).toBe("ended");
   });
 
-  test("cascade triggers regardless of role (src or dst)", () => {
-    const target = store.createEntity(
+  test("cascade triggers regardless of role (src or dst)", async () => {
+    const target = await store.createEntity(
       { type: "person", title: "Hub", attrs: { relation: "x", importance: "high" } },
       "test",
     );
-    const outNeighbor = store.createEntity(
+    const outNeighbor = await store.createEntity(
       { type: "goal", title: "g", attrs: { timeframe: "mid" } },
       "test",
     );
-    const inNeighbor = store.createEntity(
+    const inNeighbor = await store.createEntity(
       { type: "event", title: "ev", attrs: {} },
       "test",
     );
-    const outLink = store.createLink(
+    const outLink = await store.createLink(
       { src_id: target.id, dst_id: outNeighbor.id, relation: "collaborates-with" },
       "test",
     );
-    const inLink = store.createLink(
+    const inLink = await store.createLink(
       { src_id: target.id, dst_id: inNeighbor.id, relation: "subject-of" },
       "test",
     );
 
-    store.invalidateEntity(target.id, "test");
+    await store.invalidateEntity(target.id, "test");
 
-    const outRow = store.db
-      .prepare("SELECT invalidated_at FROM links WHERE id = ?")
-      .get(outLink.id) as { invalidated_at: string | null };
-    const inRow = store.db
-      .prepare("SELECT invalidated_at FROM links WHERE id = ?")
-      .get(inLink.id) as { invalidated_at: string | null };
+    const outRowResult = await store.client.execute({
+      sql: "SELECT invalidated_at FROM links WHERE id = ?",
+      args: [outLink.id],
+    });
+    const outRow = outRowResult.rows[0] as unknown as { invalidated_at: string | null };
+    const inRowResult = await store.client.execute({
+      sql: "SELECT invalidated_at FROM links WHERE id = ?",
+      args: [inLink.id],
+    });
+    const inRow = inRowResult.rows[0] as unknown as { invalidated_at: string | null };
     expect(outRow.invalidated_at).not.toBeNull();
     expect(inRow.invalidated_at).not.toBeNull();
   });
 
-  test("cascade is silent when entity has no links", () => {
-    const e = store.createEntity(
+  test("cascade is silent when entity has no links", async () => {
+    const e = await store.createEntity(
       { type: "goal", title: "Lonely", attrs: { timeframe: "short" } },
       "test",
     );
-    store.invalidateEntity(e.id, "test");
-    const cascadeEvents = store
-      .listEvents()
-      .filter((ev) => ev.operation === "link-invalidate");
+    await store.invalidateEntity(e.id, "test");
+    const cascadeEvents = (await store.listEvents()).filter(
+      (ev) => ev.operation === "link-invalidate",
+    );
     expect(cascadeEvents).toHaveLength(0);
   });
 });

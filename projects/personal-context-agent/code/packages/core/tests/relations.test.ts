@@ -14,8 +14,8 @@ import {
 let store: Store;
 let cleanup: () => void;
 
-beforeEach(() => {
-  const t = withTempStore();
+beforeEach(async () => {
+  const t = await withTempStore();
   store = t.store;
   cleanup = t.cleanup;
 });
@@ -112,75 +112,75 @@ describe("validateLinkPair", () => {
 });
 
 describe("isCyclic", () => {
-  test("returns false for non-acyclic relations regardless of graph", () => {
-    const a = store.createEntity(
+  test("returns false for non-acyclic relations regardless of graph", async () => {
+    const a = await store.createEntity(
       { type: "person", title: "A", attrs: { relation: "x", importance: "med" } },
       ACTOR,
     );
-    const b = store.createEntity(
+    const b = await store.createEntity(
       { type: "person", title: "B", attrs: { relation: "x", importance: "med" } },
       ACTOR,
     );
-    store.createLink(
+    await store.createLink(
       { src_id: a.id, dst_id: b.id, relation: "collaborates-with" },
       ACTOR,
     );
     // collaborates-with is symmetric / not acyclic — isCyclic always false.
-    expect(isCyclic(store, b.id, a.id, "collaborates-with")).toBe(false);
+    expect(await isCyclic(store, b.id, a.id, "collaborates-with")).toBe(false);
   });
 
-  test("detects 2-cycle on subgoal-of (A→B then B→A)", () => {
-    const a = store.createEntity(
+  test("detects 2-cycle on subgoal-of (A→B then B→A)", async () => {
+    const a = await store.createEntity(
       { type: "goal", title: "A", attrs: { timeframe: "short" } },
       ACTOR,
     );
-    const b = store.createEntity(
+    const b = await store.createEntity(
       { type: "goal", title: "B", attrs: { timeframe: "short" } },
       ACTOR,
     );
-    store.createLink(
+    await store.createLink(
       { src_id: a.id, dst_id: b.id, relation: "subgoal-of" },
       ACTOR,
     );
     // Adding B → A would cycle.
-    expect(isCyclic(store, b.id, a.id, "subgoal-of")).toBe(true);
+    expect(await isCyclic(store, b.id, a.id, "subgoal-of")).toBe(true);
     // Adding B → (a brand new C) is fine.
-    const c = store.createEntity(
+    const c = await store.createEntity(
       { type: "goal", title: "C", attrs: { timeframe: "short" } },
       ACTOR,
     );
-    expect(isCyclic(store, b.id, c.id, "subgoal-of")).toBe(false);
+    expect(await isCyclic(store, b.id, c.id, "subgoal-of")).toBe(false);
   });
 
-  test("detects 3-cycle (A→B, B→C, then C→A)", () => {
-    const a = store.createEntity(
+  test("detects 3-cycle (A→B, B→C, then C→A)", async () => {
+    const a = await store.createEntity(
       { type: "goal", title: "A", attrs: { timeframe: "short" } },
       ACTOR,
     );
-    const b = store.createEntity(
+    const b = await store.createEntity(
       { type: "goal", title: "B", attrs: { timeframe: "short" } },
       ACTOR,
     );
-    const c = store.createEntity(
+    const c = await store.createEntity(
       { type: "goal", title: "C", attrs: { timeframe: "short" } },
       ACTOR,
     );
-    store.createLink(
+    await store.createLink(
       { src_id: a.id, dst_id: b.id, relation: "subgoal-of" },
       ACTOR,
     );
-    store.createLink(
+    await store.createLink(
       { src_id: b.id, dst_id: c.id, relation: "subgoal-of" },
       ACTOR,
     );
-    expect(isCyclic(store, c.id, a.id, "subgoal-of")).toBe(true);
+    expect(await isCyclic(store, c.id, a.id, "subgoal-of")).toBe(true);
   });
 
-  test("treats src === dst as cyclic for acyclic relations", () => {
-    const a = store.createEntity(
+  test("treats src === dst as cyclic for acyclic relations", async () => {
+    const a = await store.createEntity(
       { type: "goal", title: "A", attrs: { timeframe: "short" } },
       ACTOR,
     );
-    expect(isCyclic(store, a.id, a.id, "subgoal-of")).toBe(true);
+    expect(await isCyclic(store, a.id, a.id, "subgoal-of")).toBe(true);
   });
 });
