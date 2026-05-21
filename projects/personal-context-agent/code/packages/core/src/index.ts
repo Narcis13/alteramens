@@ -1,5 +1,6 @@
 export { openStore, StoreError } from "./store.ts";
 export type { OpenStoreOptions, Store } from "./store.ts";
+export { loadDotenv, resolveStoreOptions } from "./env.ts";
 export { REGISTRY } from "./entities/registry.ts";
 export type { EntitySpec } from "./entities/registry.ts";
 export {

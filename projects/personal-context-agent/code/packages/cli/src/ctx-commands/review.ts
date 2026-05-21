@@ -15,7 +15,7 @@
 //
 // --fix only acts on dangling + redundant. Orphan handling stays manual.
 
-import { openStore, type Store } from "@pca/core";
+import { openStore, type OpenStoreOptions, type Store } from "@pca/core";
 
 const ACTOR = "ctx:review";
 
@@ -103,11 +103,20 @@ type OrphanRow = {
 const ORPHAN_EXEMPT_TYPES = new Set(["event", "state"]);
 
 export async function reviewLinks(opts: {
-  dbPath: string;
+  /** Full store options (preferred — supports the Turso-backed replica). */
+  storeOptions?: OpenStoreOptions;
+  /** Legacy local-file shortcut for tests. Ignored when `storeOptions` is set. */
+  dbPath?: string;
   fix?: boolean;
   actor?: string;
 }): Promise<ReviewResult> {
-  const store = await openStore({ url: `file:${opts.dbPath}` });
+  const storeOptions =
+    opts.storeOptions ??
+    (opts.dbPath ? { url: `file:${opts.dbPath}` } : null);
+  if (!storeOptions) {
+    throw new Error("reviewLinks: storeOptions or dbPath required");
+  }
+  const store = await openStore(storeOptions);
   try {
     const result = await computeReview(store);
     if (opts.fix) {

@@ -9,7 +9,13 @@
 // Pure command: opens the store, returns a structured LogResult. Formatting
 // (both human and markdown) lives in ctx.ts.
 
-import { openStore, type Capture, type CaptureStatus, type Store } from "@pca/core";
+import {
+  openStore,
+  type Capture,
+  type CaptureStatus,
+  type OpenStoreOptions,
+  type Store,
+} from "@pca/core";
 
 export type CaptureProvenanceEntity = {
   id: string;
@@ -35,7 +41,12 @@ export type CaptureWithProvenance = {
 export type LogMode = "list" | "expanded" | "ambiguous";
 
 export type LogOptions = {
-  dbPath: string;
+  /** Full store options (preferred — supports the Turso-backed replica). */
+  storeOptions?: OpenStoreOptions;
+  /** Legacy local-file shortcut, used by tests. Equivalent to
+   *  `storeOptions: { url: "file:${dbPath}" }`. Ignored if `storeOptions`
+   *  is also set. At least one of the two must be provided. */
+  dbPath?: string;
   since?: string;
   until?: string;
   status?: CaptureStatus;
@@ -55,7 +66,13 @@ const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 500;
 
 export async function runLog(opts: LogOptions): Promise<LogResult> {
-  const store = await openStore({ url: `file:${opts.dbPath}` });
+  const storeOptions =
+    opts.storeOptions ??
+    (opts.dbPath ? { url: `file:${opts.dbPath}` } : null);
+  if (!storeOptions) {
+    throw new Error("runLog: storeOptions or dbPath required");
+  }
+  const store = await openStore(storeOptions);
   try {
     // --capture short-circuits all other filters: it's an explicit lookup, not
     // a list query. Multi-match returns "ambiguous" so the CLI can prompt.

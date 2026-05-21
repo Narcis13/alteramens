@@ -9,7 +9,6 @@
 // parsing, formatting, and exit codes only.
 
 import { parseArgs } from "node:util";
-import { defaultPaths } from "./pca-commands/util.ts";
 import {
   reviewLinks,
   type DanglingLink,
@@ -22,8 +21,25 @@ import {
   type CaptureWithProvenance,
   type LogResult,
 } from "./ctx-commands/log.ts";
-import type { CaptureStatus } from "@pca/core";
+import {
+  loadDotenv,
+  resolveStoreOptions,
+  type CaptureStatus,
+  type OpenStoreOptions,
+} from "@pca/core";
 import { parseDateToken, DateParseError } from "./util/dates.ts";
+
+// Load monorepo .env once so subsequent resolveStoreOptions() picks up
+// TURSO_DB_URL / PCA_LOCAL_REPLICA / etc. — same surface as pca-mcp-server.
+loadDotenv({ startDir: import.meta.dir });
+
+/** Build the store options for this CLI invocation. `--db PATH` (when
+ *  provided) wins and forces local-only mode, matching the previous behavior
+ *  of `--db` as an escape hatch. Otherwise, the Turso-backed replica from
+ *  .env is used so `ctx` and the MCP server agree on which DB they read. */
+function storeOptionsFor(dbOverride: string | undefined): OpenStoreOptions {
+  return resolveStoreOptions({ dbOverride });
+}
 
 const VERSION = "0.0.1";
 
@@ -46,7 +62,9 @@ ctx log flags:
   --limit N                      Cap results (default 20, max 500)
 
 Common flags:
-  --db PATH                      Store path (default ~/.pca/store.db)
+  --db PATH                      Force local-only store at PATH (escape hatch).
+                                 Default: Turso-backed embedded replica from
+                                 monorepo .env (same DB as the MCP server).
 `;
 
 async function main(): Promise<void> {
@@ -101,8 +119,10 @@ async function runReview(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  const dbPath = values.db ?? defaultPaths().dbPath;
-  const result = await reviewLinks({ dbPath, fix: values.fix ?? false });
+  const result = await reviewLinks({
+    storeOptions: storeOptionsFor(values.db),
+    fix: values.fix ?? false,
+  });
   process.stdout.write(formatReview(result, values.fix ?? false));
   process.exit(0);
 }
@@ -256,9 +276,8 @@ async function runLogCommand(args: string[]): Promise<void> {
     throw e;
   }
 
-  const dbPath = values.db ?? defaultPaths().dbPath;
   const result = await runLog({
-    dbPath,
+    storeOptions: storeOptionsFor(values.db),
     since,
     until,
     status,
