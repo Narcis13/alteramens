@@ -1,0 +1,1809 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>faber-ingest · Operator Manual</title>
+<meta name="description" content="Guided ingestion of a source into the Faber wiki — five phases, append-only, alignment-aware." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@100..900&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void:        #05080F;
+    --deep:        #0A1020;
+    --panel:       #0F1830;
+    --raised:      #131D38;
+    --edge:        #1F2A48;
+    --hairline:    rgba(140, 175, 230, 0.10);
+    --hairline-strong: rgba(140, 175, 230, 0.22);
+
+    --mist-100:    #DCE5F2;
+    --mist-200:    #A1B2D0;
+    --mist-300:    #6E81A4;
+    --mist-400:    #44557A;
+    --mist-500:    #2A3552;
+
+    --cobalt:      #4A8FE7;
+    --cyan:        #6EE0FF;
+    --azure:       #2D5BD5;
+    --frost:       #B8E5FF;
+
+    --mint:        #7DD3A0;
+    --ember:       #FFB55A;
+    --coral:       #FF7A7A;
+    --gold:        #E8C572;
+
+    --serif: 'Fraunces', 'Times New Roman', serif;
+    --sans:  'Geist', system-ui, sans-serif;
+    --mono:  'JetBrains Mono', ui-monospace, monospace;
+
+    --r-xs: 2px;
+    --r-sm: 4px;
+    --r:    8px;
+    --r-lg: 14px;
+
+    --gutter: clamp(20px, 4vw, 56px);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  html, body {
+    background: var(--void);
+    color: var(--mist-100);
+    font-family: var(--sans);
+    font-weight: 380;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "ss02", "cv11";
+    overflow-x: hidden;
+  }
+  ::selection { background: rgba(110, 224, 255, 0.28); color: var(--frost); }
+  a { color: inherit; text-decoration: none; }
+
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--hairline) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--hairline) 1px, transparent 1px);
+    background-size: 96px 96px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 30%, transparent 80%);
+    opacity: 0.6;
+  }
+  .bg-glow {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(60% 40% at 80% -10%, rgba(74, 143, 231, 0.18), transparent 60%),
+      radial-gradient(50% 35% at -10% 20%, rgba(110, 224, 255, 0.08), transparent 60%),
+      radial-gradient(55% 40% at 50% 110%, rgba(45, 91, 213, 0.12), transparent 65%);
+  }
+  .bg-noise {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: 0.045; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    display: grid; grid-template-columns: auto 1fr auto;
+    gap: 24px; align-items: center;
+    padding: 14px var(--gutter);
+    background: linear-gradient(to bottom, rgba(5,8,15,0.92), rgba(5,8,15,0.72));
+    backdrop-filter: blur(14px) saturate(120%);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .monogram {
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--mist-200); text-transform: uppercase;
+  }
+  .monogram svg { width: 22px; height: 22px; }
+  .monogram .div { color: var(--mist-400); }
+  .monogram b { color: var(--mist-100); font-weight: 500; letter-spacing: 0.22em; }
+  .topbar-meta {
+    display: flex; gap: 22px; align-items: center; justify-content: flex-end;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    color: var(--mist-300); text-transform: uppercase;
+  }
+  .conn { display: inline-flex; align-items: center; gap: 8px; color: var(--mist-100); }
+  .conn .pulse {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--mint);
+    box-shadow: 0 0 0 0 rgba(125, 211, 160, 0.6);
+    animation: pulse 2.2s infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(125, 211, 160, 0.55); }
+    70%  { box-shadow: 0 0 0 9px rgba(125, 211, 160, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(125, 211, 160, 0); }
+  }
+  #utc-clock { color: var(--frost); }
+
+  .rail {
+    position: fixed; top: 50%; left: 18px; transform: translateY(-50%);
+    z-index: 40;
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 14px 10px;
+    background: rgba(10, 16, 32, 0.55);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r);
+  }
+  .rail a {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+    color: var(--mist-400); padding: 6px 10px;
+    display: flex; gap: 10px; align-items: center;
+    border-radius: var(--r-sm);
+    transition: all 220ms ease;
+    text-transform: uppercase;
+  }
+  .rail a:hover { color: var(--mist-100); background: rgba(110, 224, 255, 0.06); }
+  .rail a.is-active { color: var(--cyan); background: rgba(110, 224, 255, 0.08); }
+  .rail a.is-active .dot { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+  .rail .num { color: var(--mist-300); }
+  .rail .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--mist-400); }
+  @media (max-width: 1180px) { .rail { display: none; } }
+
+  main { position: relative; z-index: 1; }
+  section {
+    position: relative;
+    padding: 110px var(--gutter);
+    max-width: 1400px; margin: 0 auto;
+  }
+  section + section { border-top: 1px dashed var(--hairline); }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 14px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em;
+    color: var(--mist-300); text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .eyebrow .num {
+    color: var(--cyan); padding: 3px 9px;
+    border: 1px solid rgba(110, 224, 255, 0.28);
+    border-radius: var(--r-xs); background: rgba(110, 224, 255, 0.06);
+  }
+  .eyebrow .ln { width: 60px; height: 1px; background: var(--hairline-strong); }
+
+  h1, h2, h3 { font-weight: 400; letter-spacing: -0.02em; color: var(--mist-100); }
+  h2 {
+    font-family: var(--serif); font-size: clamp(36px, 5vw, 64px);
+    line-height: 1.02; letter-spacing: -0.03em;
+    margin-bottom: 18px;
+  }
+  h2 em { font-style: italic; color: var(--frost); font-weight: 300; }
+  h3 { font-family: var(--serif); font-size: 22px; line-height: 1.25; color: var(--mist-100); }
+  p.lede {
+    font-family: var(--serif); font-style: italic;
+    font-size: clamp(18px, 1.6vw, 22px); line-height: 1.5;
+    color: var(--mist-200); max-width: 56ch;
+  }
+
+  .bracket { position: relative; }
+  .bracket::before, .bracket::after,
+  .bracket > .br-bl, .bracket > .br-br {
+    content: ""; position: absolute; width: 12px; height: 12px;
+    border: 1px solid var(--hairline-strong);
+  }
+  .bracket::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+  .bracket::after  { top: -1px; right: -1px; border-left: 0; border-bottom: 0; }
+  .bracket > .br-bl { bottom: -1px; left: -1px; border-right: 0; border-top: 0; }
+  .bracket > .br-br { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+
+  .hero {
+    padding-top: 80px;
+    display: grid; grid-template-columns: 1.05fr 0.95fr;
+    gap: 64px; align-items: center;
+  }
+  @media (max-width: 980px) { .hero { grid-template-columns: 1fr; gap: 40px; } }
+  .hero h1 {
+    font-family: var(--serif); font-size: clamp(72px, 11vw, 168px);
+    line-height: 0.88; letter-spacing: -0.05em; font-weight: 300;
+    color: var(--mist-100);
+  }
+  .hero h1 em { font-style: italic; color: var(--frost); font-weight: 300; opacity: 0.92; }
+  .hero h1 .dot { color: var(--cyan); font-style: normal; font-feature-settings: "ss03"; }
+  .hero .lede { margin-top: 28px; }
+  .hero .meta {
+    margin-top: 36px;
+    display: flex; flex-wrap: wrap; gap: 26px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--mist-300); text-transform: uppercase;
+  }
+  .hero .meta span b { color: var(--mist-100); font-weight: 500; }
+  .hero-figure {
+    position: relative; aspect-ratio: 1 / 1.05;
+    background: radial-gradient(60% 50% at 50% 50%, rgba(74,143,231,0.08), transparent 70%);
+    padding: 24px;
+  }
+  .hero-figure svg { width: 100%; height: 100%; display: block; }
+  .hero-figure .stamp {
+    position: absolute; top: 24px; right: 24px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    color: var(--mist-300); text-transform: uppercase;
+    padding: 6px 10px; border: 1px solid var(--hairline-strong);
+    background: rgba(15, 24, 48, 0.65); backdrop-filter: blur(6px);
+  }
+  .hero-figure .stamp b { color: var(--cyan); font-weight: 500; }
+
+  .kpis {
+    margin-top: 72px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px; background: var(--hairline); border: 1px solid var(--hairline);
+  }
+  @media (max-width: 880px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  .kpi { padding: 28px 24px; background: var(--deep); display: flex; flex-direction: column; gap: 8px; }
+  .kpi .label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    color: var(--mist-300); text-transform: uppercase;
+  }
+  .kpi .value {
+    font-family: var(--serif); font-size: 44px; line-height: 1;
+    font-weight: 300; letter-spacing: -0.03em; color: var(--mist-100);
+  }
+  .kpi .value em { color: var(--cyan); font-style: italic; font-weight: 400; }
+  .kpi .value .u {
+    font-family: var(--mono); font-size: 13px; color: var(--mist-300);
+    margin-left: 6px; letter-spacing: 0.1em; font-style: normal;
+  }
+  .kpi .note { font-size: 12px; color: var(--mist-300); margin-top: 6px; }
+
+  .brief-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; align-items: start; }
+  @media (max-width: 980px) { .brief-grid { grid-template-columns: 1fr; } }
+  dl.facts { display: grid; gap: 18px; }
+  dl.facts > div {
+    display: grid; grid-template-columns: 140px 1fr; gap: 18px;
+    padding: 14px 0; border-top: 1px solid var(--hairline);
+  }
+  dl.facts > div:last-child { border-bottom: 1px solid var(--hairline); }
+  dl.facts dt {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--mist-300); text-transform: uppercase; padding-top: 2px;
+  }
+  dl.facts dd { font-size: 14px; color: var(--mist-100); }
+  dl.facts dd code {
+    font-family: var(--mono); font-size: 13px;
+    background: var(--raised); color: var(--cyan);
+    padding: 2px 6px; border-radius: var(--r-xs);
+    border: 1px solid var(--hairline);
+  }
+  dl.facts dd .muted { color: var(--mist-300); }
+
+  .terminal {
+    background: linear-gradient(to bottom, #08101F, #06090F);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--r);
+    overflow: hidden; position: relative;
+  }
+  .terminal .head {
+    padding: 12px 16px;
+    background: rgba(15, 24, 48, 0.65);
+    border-bottom: 1px solid var(--hairline);
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--mist-300); text-transform: uppercase;
+  }
+  .terminal .head .lights { display: inline-flex; gap: 5px; }
+  .terminal .head .lights i { width: 7px; height: 7px; border-radius: 50%; display: block; background: var(--mist-500); }
+  .terminal .head .lights i:nth-child(1) { background: rgba(255, 122, 122, 0.4); }
+  .terminal .head .lights i:nth-child(2) { background: rgba(255, 181, 90, 0.4); }
+  .terminal .head .lights i:nth-child(3) { background: rgba(125, 211, 160, 0.4); }
+  .terminal .head .path { flex: 1; color: var(--mist-200); }
+  .terminal pre {
+    margin: 0; padding: 18px 20px;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
+    color: var(--mist-100); white-space: pre; overflow-x: auto;
+  }
+  .terminal pre .prompt { color: var(--cyan); user-select: none; }
+  .terminal pre .cm { color: var(--mist-400); font-style: italic; }
+  .terminal pre .k { color: var(--cobalt); }
+  .terminal pre .s { color: var(--mint); }
+  .terminal pre .n { color: var(--ember); }
+  .terminal pre .var { color: var(--frost); }
+
+  .preflight { display: grid; gap: 18px; margin-top: 28px; }
+  .preflight .step {
+    display: grid; grid-template-columns: 40px 1fr; gap: 18px;
+    padding: 14px 16px;
+    background: rgba(15, 24, 48, 0.4);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r);
+  }
+  .preflight .step .n {
+    width: 28px; height: 28px;
+    display: grid; place-items: center;
+    font-family: var(--mono); font-size: 12px; color: var(--cyan);
+    border: 1px solid rgba(110, 224, 255, 0.3); border-radius: 50%;
+  }
+  .preflight .step h4 { font-family: var(--sans); font-size: 14px; font-weight: 500; color: var(--mist-100); margin-bottom: 4px; }
+  .preflight .step p { font-size: 13px; color: var(--mist-200); }
+  .preflight .step code {
+    font-family: var(--mono); font-size: 12px;
+    color: var(--cyan); background: var(--raised);
+    padding: 1px 5px; border-radius: var(--r-xs);
+  }
+
+  .surface-intro {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 56px;
+    align-items: end; margin-bottom: 44px;
+  }
+  @media (max-width: 880px) { .surface-intro { grid-template-columns: 1fr; } }
+  .surface-intro p { color: var(--mist-200); max-width: 50ch; }
+  .endpoint-block { display: grid; gap: 36px; }
+  .endpoint-group h4 {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em;
+    color: var(--mist-300); text-transform: uppercase;
+    margin-bottom: 12px; padding-left: 4px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .endpoint-group h4::after { content: ""; flex: 1; height: 1px; background: var(--hairline); }
+  .endpoint-table {
+    border: 1px solid var(--hairline-strong);
+    background: rgba(10, 16, 32, 0.4);
+    border-radius: var(--r); overflow: hidden;
+  }
+  .endpoint-row {
+    display: grid;
+    grid-template-columns: 90px minmax(220px, 1fr) 1.4fr 90px;
+    align-items: center;
+    padding: 14px 18px; gap: 18px;
+    border-top: 1px solid var(--hairline);
+    transition: background 200ms ease;
+  }
+  .endpoint-row:first-child { border-top: 0; }
+  .endpoint-row:hover { background: rgba(74, 143, 231, 0.04); }
+  .endpoint-row:hover .path { color: var(--frost); }
+  .verb {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    font-weight: 500; padding: 4px 8px; border-radius: var(--r-xs);
+    border: 1px solid currentColor; width: max-content;
+  }
+  .verb.get    { color: var(--cyan);   background: rgba(110, 224, 255, 0.07); }
+  .verb.post   { color: var(--mint);   background: rgba(125, 211, 160, 0.08); }
+  .verb.patch  { color: var(--ember);  background: rgba(255, 181, 90, 0.08); }
+  .verb.delete { color: var(--coral);  background: rgba(255, 122, 122, 0.08); }
+  .verb.run    { color: var(--cobalt); background: rgba(74, 143, 231, 0.08); }
+  .path { font-family: var(--mono); font-size: 13px; color: var(--mist-100); transition: color 200ms ease; }
+  .path .seg-id { color: var(--ember); }
+  .path .qs { color: var(--mist-400); }
+  .purpose { font-size: 13px; color: var(--mist-200); }
+  .cost-pip {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.05em;
+    color: var(--mist-300); text-align: right;
+  }
+  .cost-pip.warn { color: var(--ember); }
+  .cost-pip.zero { color: var(--mist-400); }
+
+  .telemetry-frame {
+    margin-top: 44px;
+    background: linear-gradient(to bottom, var(--deep), #07101F);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--r-lg);
+    overflow: hidden; position: relative;
+  }
+  .telemetry-frame .telemetry-head {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 24px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--hairline);
+    background: rgba(15, 24, 48, 0.4);
+  }
+  .telemetry-frame .label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em;
+    color: var(--mist-300); text-transform: uppercase;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .telemetry-frame .label b { color: var(--cyan); font-weight: 500; }
+  .telemetry-frame .label .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--cyan);
+    box-shadow: 0 0 12px var(--cyan); animation: pulse-c 1.6s infinite;
+  }
+  @keyframes pulse-c { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .telemetry-frame .ctrl { display: flex; gap: 8px; align-items: center; }
+  .telemetry-frame button {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    color: var(--mist-200); text-transform: uppercase;
+    padding: 6px 12px; background: transparent;
+    border: 1px solid var(--hairline-strong); border-radius: var(--r-xs);
+    cursor: pointer; transition: all 180ms ease;
+  }
+  .telemetry-frame button:hover { color: var(--cyan); border-color: var(--cobalt); }
+  .telemetry-frame button.is-active { color: var(--cyan); border-color: var(--cyan); background: rgba(110, 224, 255, 0.06); }
+  #sig-canvas { display: block; width: 100%; height: 380px; }
+  .telemetry-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--hairline); border-top: 1px solid var(--hairline);
+  }
+  .telemetry-stats .cell { padding: 20px 24px; background: var(--deep); display: flex; flex-direction: column; gap: 4px; }
+  .telemetry-stats .l { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--mist-300); text-transform: uppercase; }
+  .telemetry-stats .v { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--mist-100); }
+  .telemetry-stats .v.a { color: var(--frost); }
+  .telemetry-stats .v.b { color: var(--mint); }
+  .telemetry-stats .v.c { color: var(--ember); }
+  .telemetry-stats .v.t { color: var(--cyan); }
+  .telemetry-caption { margin-top: 22px; font-size: 13px; color: var(--mist-300); max-width: 78ch; }
+  .telemetry-caption b { color: var(--mist-100); font-weight: 500; }
+  .telemetry-caption .ref { color: var(--coral); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; }
+
+  .hazard-intro { max-width: 60ch; margin-bottom: 56px; }
+  .hazard-intro p { color: var(--mist-200); font-size: 16px; }
+  .hazard-grid {
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr;
+    grid-template-rows: auto auto; gap: 18px;
+  }
+  @media (max-width: 980px) { .hazard-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 700px) { .hazard-grid { grid-template-columns: 1fr; } }
+  .hazard-card {
+    background:
+      linear-gradient(to bottom right, rgba(255, 122, 122, 0.04), transparent 60%),
+      var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: var(--r);
+    padding: 26px;
+    display: grid; gap: 18px; grid-template-rows: auto 1fr auto;
+    position: relative; overflow: hidden;
+  }
+  .hazard-card.featured {
+    grid-column: span 1; grid-row: span 2;
+    background:
+      linear-gradient(to bottom right, rgba(255, 122, 122, 0.08), transparent 50%),
+      var(--panel);
+    border-color: rgba(255, 122, 122, 0.25);
+  }
+  .hazard-card .index {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    color: var(--coral); text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hazard-card .index .tri {
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 8px solid var(--coral);
+  }
+  .hazard-card h3 { font-family: var(--serif); font-size: 22px; line-height: 1.2; color: var(--mist-100); }
+  .hazard-card h3 em { font-style: italic; color: var(--frost); }
+  .hazard-card.featured h3 { font-size: 28px; }
+  .hazard-card .ill { width: 100%; height: 130px; display: grid; place-items: center; margin-top: -4px; }
+  .hazard-card.featured .ill { height: 220px; }
+  .hazard-card .ill svg { max-width: 100%; max-height: 100%; }
+  .hazard-card p { font-size: 13.5px; color: var(--mist-200); line-height: 1.55; }
+  .hazard-card p code {
+    font-family: var(--mono); font-size: 12px;
+    color: var(--ember); background: rgba(255, 181, 90, 0.06);
+    padding: 1px 5px; border-radius: var(--r-xs);
+  }
+  .hazard-card .ref {
+    margin-top: 6px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+    color: var(--mist-400); text-transform: uppercase;
+    border-top: 1px dashed var(--hairline);
+    padding-top: 12px;
+  }
+  .hazard-card .ref b { color: var(--mist-200); font-weight: 500; }
+
+  .workflow {
+    display: grid; grid-template-columns: 1fr 1.3fr;
+    gap: 56px; align-items: start;
+    padding: 64px 0;
+    border-top: 1px dashed var(--hairline);
+  }
+  .workflow:first-of-type { border-top: 0; padding-top: 0; }
+  @media (max-width: 980px) { .workflow { grid-template-columns: 1fr; gap: 32px; } }
+  .workflow .head .tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em;
+    color: var(--mist-300); text-transform: uppercase; margin-bottom: 14px;
+  }
+  .workflow .head .tag b { color: var(--cyan); }
+  .workflow .head h3 {
+    font-family: var(--serif); font-size: 36px; font-weight: 300;
+    letter-spacing: -0.025em; line-height: 1.05;
+    margin-bottom: 18px;
+  }
+  .workflow .head h3 em { font-style: italic; color: var(--frost); }
+  .workflow .head p { font-size: 14px; color: var(--mist-200); }
+  .workflow .head ul { margin-top: 18px; list-style: none; display: grid; gap: 8px; }
+  .workflow .head ul li { font-size: 13px; color: var(--mist-200); padding-left: 22px; position: relative; }
+  .workflow .head ul li::before {
+    content: ""; position: absolute; left: 0; top: 9px;
+    width: 12px; height: 1px; background: var(--cobalt);
+  }
+  .workflow .head ul li code {
+    font-family: var(--mono); font-size: 12px; color: var(--cyan);
+    background: var(--raised); padding: 1px 5px; border-radius: var(--r-xs);
+  }
+
+  .conduct-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 40px; }
+  @media (max-width: 700px) { .conduct-grid { grid-template-columns: 1fr; } }
+  .conduct-card {
+    padding: 24px; border: 1px solid var(--hairline);
+    border-radius: var(--r);
+    background: rgba(10, 16, 32, 0.4);
+    display: grid; gap: 12px;
+  }
+  .conduct-card .n { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--cyan); text-transform: uppercase; }
+  .conduct-card h4 { font-family: var(--serif); font-size: 18px; font-weight: 400; line-height: 1.3; color: var(--mist-100); }
+  .conduct-card h4 em { font-style: italic; color: var(--frost); }
+  .conduct-card p { font-size: 13px; color: var(--mist-200); }
+  .conduct-card code {
+    font-family: var(--mono); font-size: 12px;
+    color: var(--cyan); background: var(--raised);
+    padding: 1px 5px; border-radius: var(--r-xs);
+  }
+
+  footer {
+    max-width: 1400px; margin: 0 auto;
+    padding: 80px var(--gutter) 60px;
+    border-top: 1px dashed var(--hairline);
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 24px; align-items: end;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em;
+    color: var(--mist-400); text-transform: uppercase;
+  }
+  footer h5 {
+    font-family: var(--serif); font-style: italic; font-weight: 300;
+    font-size: 24px; color: var(--mist-200);
+    letter-spacing: -0.02em; text-transform: none; margin-bottom: 8px;
+  }
+  footer .right { text-align: right; }
+  footer .right b { color: var(--cyan); font-weight: 500; }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 800ms cubic-bezier(.2,.7,.2,1), transform 800ms cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 100ms; }
+  .reveal-delay-2 { transition-delay: 200ms; }
+  .reveal-delay-3 { transition-delay: 320ms; }
+  .reveal-delay-4 { transition-delay: 440ms; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .conn .pulse, .telemetry-frame .label .dot { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+<div class="bg-grid"></div>
+<div class="bg-noise"></div>
+
+<header class="topbar">
+  <div class="monogram">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M3 5 L12 5 L12 12 L8 12 L8 19" stroke="#6EE0FF" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <circle cx="12" cy="5"  r="1.5" fill="#6EE0FF"/>
+      <circle cx="12" cy="12" r="1.5" fill="#4A8FE7"/>
+      <circle cx="8"  cy="19" r="1.5" fill="#4A8FE7"/>
+      <circle cx="3"  cy="5"  r="1.2" fill="#4A8FE7" opacity="0.7"/>
+    </svg>
+    <b>FABER-INGEST</b>
+    <span class="div">/</span>
+    <span>OPERATOR&nbsp;MANUAL</span>
+    <span class="div">·</span>
+    <span>v1.0</span>
+  </div>
+  <div></div>
+  <div class="topbar-meta">
+    <span class="conn"><span class="pulse"></span>READY · FABER.DB</span>
+    <span id="utc-clock">— : — : — UTC</span>
+  </div>
+</header>
+
+<aside class="rail">
+  <a href="#s-intro"><span class="num">00</span><span class="dot"></span>INTRO</a>
+  <a href="#s-brief"><span class="num">01</span><span class="dot"></span>BRIEF</a>
+  <a href="#s-surface"><span class="num">02</span><span class="dot"></span>PROBES</a>
+  <a href="#s-telemetry"><span class="num">03</span><span class="dot"></span>TELEMETRY</a>
+  <a href="#s-hazard"><span class="num">04</span><span class="dot"></span>HAZARD</a>
+  <a href="#s-ops"><span class="num">05</span><span class="dot"></span>OPS</a>
+  <a href="#s-conduct"><span class="num">07</span><span class="dot"></span>CONDUCT</a>
+</aside>
+
+<main>
+
+<!-- ═══════════════════ 00 · HERO ═══════════════════ -->
+<section id="s-intro" class="hero">
+  <div class="hero-text reveal">
+    <div class="eyebrow">
+      <span class="num">00</span>
+      <span class="ln"></span>
+      <span>Skill dossier · the wiki librarian</span>
+    </div>
+
+    <h1>faber<em>-ingest</em><em class="dot">.</em></h1>
+
+    <p class="lede">
+      Read the source. Discuss the takeaways. Extract entities and concepts. Mark how the
+      claims sit against active pillars. Write structured pages — append, never overwrite —
+      then rebuild the index. <em>Knowledge compounds, or it doesn't.</em>
+    </p>
+
+    <div class="meta">
+      <span>SCOPE · <b>WIKI MAINTENANCE</b></span>
+      <span>INVOCATION · <b>/faber-ingest</b></span>
+      <span>COMPOSITION · <b>MOLECULE</b></span>
+      <span>CADENCE · <b>ON DEMAND</b></span>
+    </div>
+  </div>
+
+  <figure class="hero-figure bracket reveal reveal-delay-1">
+    <span class="br-bl"></span><span class="br-br"></span>
+    <div class="stamp">FIG · <b>SCHEMATIC</b> · 00.A</div>
+    <svg viewBox="0 0 480 520" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"  stop-color="#6EE0FF" stop-opacity="0.32"/>
+          <stop offset="55%" stop-color="#4A8FE7" stop-opacity="0.10"/>
+          <stop offset="100%" stop-color="#4A8FE7" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"  stop-color="#6EE0FF" stop-opacity="0.55"/>
+          <stop offset="50%" stop-color="#4A8FE7" stop-opacity="0.30"/>
+          <stop offset="100%" stop-color="#2D5BD5" stop-opacity="0.55"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Strata -->
+      <g stroke="#A1B2D0" stroke-opacity="0.15" fill="none" stroke-dasharray="2 4">
+        <circle cx="240" cy="260" r="80"/>
+        <circle cx="240" cy="260" r="110"/>
+        <circle cx="240" cy="260" r="140"/>
+        <circle cx="240" cy="260" r="170"/>
+        <circle cx="240" cy="260" r="200"/>
+        <circle cx="240" cy="260" r="225"/>
+      </g>
+
+      <!-- Outer ring + ticks -->
+      <circle cx="240" cy="260" r="225" stroke="url(#ring)" stroke-width="1" fill="none"/>
+      <g stroke="#6EE0FF" stroke-width="1.4">
+        <line x1="240" y1="35"  x2="240" y2="55"/>
+        <line x1="465" y1="260" x2="445" y2="260"/>
+        <line x1="240" y1="485" x2="240" y2="465"/>
+        <line x1="15"  y1="260" x2="35"  y2="260"/>
+      </g>
+
+      <!-- Phase markers on outer ring (5 phases) -->
+      <g font-family="JetBrains Mono" font-size="8" fill="#6E81A4" letter-spacing="2">
+        <text x="240" y="28"  text-anchor="middle">P1 · READ</text>
+        <text x="455" y="252" text-anchor="end">P2 · EXTRACT</text>
+        <text x="395" y="455" text-anchor="middle" fill="#6EE0FF">P3 · WRITE</text>
+        <text x="85"  y="455" text-anchor="middle">P3b · ALIGN</text>
+        <text x="25"  y="252" text-anchor="start">P4 · SYNC</text>
+      </g>
+
+      <!-- Core glow + octagon + center -->
+      <circle cx="240" cy="260" r="140" fill="url(#coreGlow)"/>
+      <g transform="translate(240 260)" fill="none" stroke="#6EE0FF">
+        <polygon points="-32,-32 32,-32 32,32 -32,32" stroke-opacity="0.5" transform="rotate(45)"/>
+        <polygon points="-22,-22 22,-22 22,22 -22,22" stroke-opacity="0.8" transform="rotate(45)"/>
+        <circle r="10" fill="#6EE0FF"/>
+      </g>
+      <text x="240" y="264" text-anchor="middle"
+            font-family="Fraunces" font-size="13" font-style="italic"
+            fill="#05080F" font-weight="700">F</text>
+
+      <!-- Heartbeat / cadence -->
+      <g transform="translate(176 320)">
+        <path d="M0 8 L14 8 L18 0 L22 16 L26 8 L34 8 L38 4 L42 12 L46 8 L128 8"
+              stroke="#7DD3A0" stroke-width="1.4" fill="none"
+              stroke-linecap="round" opacity="0.85"/>
+        <text x="64" y="28" text-anchor="middle"
+              font-family="JetBrains Mono" font-size="8"
+              fill="#7DD3A0" letter-spacing="2">FIVE PHASES · ONE SYNC</text>
+      </g>
+
+      <!-- Outbound dependency nodes -->
+      <g font-family="JetBrains Mono" font-size="9" letter-spacing="2" fill="#A1B2D0">
+
+        <!-- top-right: wiki/sources -->
+        <line x1="305" y1="180" x2="395" y2="100" stroke="#4A8FE7" stroke-opacity="0.5"/>
+        <rect x="365" y="80" width="100" height="28" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.55"/>
+        <text x="415" y="98" text-anchor="middle" fill="#DCE5F2">wiki/sources</text>
+
+        <!-- right: wiki/entities -->
+        <line x1="350" y1="260" x2="430" y2="260" stroke="#4A8FE7" stroke-opacity="0.5"/>
+        <rect x="395" y="246" width="80" height="28" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.55"/>
+        <text x="435" y="264" text-anchor="middle" fill="#DCE5F2">entities</text>
+
+        <!-- bottom-right: wiki/concepts -->
+        <line x1="305" y1="345" x2="395" y2="420" stroke="#4A8FE7" stroke-opacity="0.5"/>
+        <rect x="370" y="410" width="92" height="28" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.55"/>
+        <text x="416" y="428" text-anchor="middle" fill="#DCE5F2">concepts</text>
+
+        <!-- bottom-left: log.md -->
+        <line x1="175" y1="345" x2="80" y2="420" stroke="#4A8FE7" stroke-opacity="0.5"/>
+        <rect x="22" y="410" width="80" height="28" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.55"/>
+        <text x="62" y="428" text-anchor="middle" fill="#DCE5F2">log.md</text>
+
+        <!-- left: faber.db -->
+        <line x1="130" y1="260" x2="50" y2="260" stroke="#6EE0FF" stroke-opacity="0.65"/>
+        <rect x="5" y="246" width="80" height="28" fill="#0F1830" stroke="#6EE0FF" stroke-opacity="0.7"/>
+        <text x="45" y="264" text-anchor="middle" fill="#6EE0FF">faber.db</text>
+
+        <!-- top-left: FABER.md -->
+        <line x1="175" y1="180" x2="85" y2="100" stroke="#4A8FE7" stroke-opacity="0.5"/>
+        <rect x="22" y="80" width="92" height="28" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.55"/>
+        <text x="68" y="98" text-anchor="middle" fill="#DCE5F2">FABER.md</text>
+      </g>
+
+      <!-- Constellation -->
+      <g fill="#6EE0FF">
+        <circle cx="280" cy="55"  r="1.8" opacity="0.85"/>
+        <circle cx="62"  cy="160" r="1.6" opacity="0.6"/>
+        <circle cx="430" cy="155" r="1.8" opacity="0.7"/>
+        <circle cx="195" cy="50"  r="1.4" opacity="0.5"/>
+        <circle cx="340" cy="40"  r="2"   opacity="0.8"/>
+        <circle cx="60"  cy="380" r="1.6" opacity="0.6"/>
+        <circle cx="445" cy="360" r="1.4" opacity="0.55"/>
+        <circle cx="245" cy="490" r="1.8" opacity="0.7"/>
+        <circle cx="155" cy="495" r="1.4" opacity="0.5"/>
+        <circle cx="330" cy="495" r="1.6" opacity="0.6"/>
+        <circle cx="402" cy="220" r="1.4" opacity="0.55"/>
+        <circle cx="70"  cy="290" r="1.4" opacity="0.5"/>
+      </g>
+    </svg>
+  </figure>
+</section>
+
+<section style="padding-top: 0; max-width: 1400px;" class="reveal reveal-delay-2">
+  <div class="kpis">
+    <div class="kpi">
+      <span class="label">PHASES</span>
+      <span class="value"><em>5</em></span>
+      <span class="note">Read · Extract · Write · Align · Sync</span>
+    </div>
+    <div class="kpi">
+      <span class="label">IMAGE GATES</span>
+      <span class="value"><em>4</em></span>
+      <span class="note">Density · Novelty · Reference · Type</span>
+    </div>
+    <div class="kpi">
+      <span class="label">IMAGES · DEFAULT</span>
+      <span class="value"><em>0</em><span class="u">/ ingest</span></span>
+      <span class="note">Hard cap two; zero is the norm</span>
+    </div>
+    <div class="kpi">
+      <span class="label">FINAL STEP</span>
+      <span class="value"><em>1</em><span class="u">sync</span></span>
+      <span class="note">faber_sync.py · never skipped</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ 01 · BRIEF ═══════════════════ -->
+<section id="s-brief">
+  <div class="eyebrow reveal"><span class="num">01</span><span class="ln"></span><span>Connection brief & preflight</span></div>
+  <h2 class="reveal">Find the wiki, <em>then look before you write.</em></h2>
+  <p class="lede reveal reveal-delay-1" style="margin-top:22px;">
+    The skill discovers its target via walk-up from <code style="font-family:var(--mono);background:var(--raised);color:var(--cyan);padding:2px 6px;border:1px solid var(--hairline);border-radius:2px;">.faber.toml</code>,
+    pulls active self-context before reading, and refuses to begin until the duplicate-detection
+    pass has been honest with itself.
+  </p>
+
+  <div class="brief-grid reveal reveal-delay-2" style="margin-top:52px;">
+    <div>
+      <dl class="facts">
+        <div><dt>Marker</dt><dd><code>wiki/.faber.toml</code> <span class="muted">— declares the library</span></dd></div>
+        <div><dt>Discovery</dt><dd>Walk up from <code>$PWD</code> until <code>.faber.toml</code> is found</dd></div>
+        <div><dt>WIKI_ROOT</dt><dd>The directory containing the marker</dd></div>
+        <div><dt>VAULT_ROOT</dt><dd><span class="muted">parent of</span> <code>WIKI_ROOT</code> — hosts <code>inbox/</code>, <code>workshop/</code>, <code>projects/</code></dd></div>
+        <div><dt>Index</dt><dd><code>$WIKI_ROOT/faber.db</code> <span class="muted">— SQLite, rebuilt each ingest</span></dd></div>
+        <div><dt>Sync script</dt><dd><code>python3 $WIKI_ROOT/faber_sync.py</code></dd></div>
+        <div><dt>Schema</dt><dd><code>$WIKI_ROOT/FABER.md</code> <span class="muted">— always read first</span></dd></div>
+        <div><dt>Input forms</dt><dd>File path · URL · pasted text · or ask</dd></div>
+      </dl>
+    </div>
+    <div>
+      <div class="terminal bracket">
+        <span class="br-bl"></span><span class="br-br"></span>
+        <div class="head">
+          <span class="lights"><i></i><i></i><i></i></span>
+          <span class="path">resolve · walk up from $PWD</span>
+          <span>BASH</span>
+        </div>
+<pre><span class="cm"># Resolve at the start of every bash block.</span>
+<span class="var">WIKI_ROOT</span>=$(d=<span class="s">"$PWD"</span>; <span class="k">while</span> [ <span class="s">"$d"</span> != <span class="s">"/"</span> ]; <span class="k">do</span>
+  [ -f <span class="s">"$d/wiki/.faber.toml"</span> ] && { <span class="k">echo</span> <span class="s">"$d/wiki"</span>; <span class="k">break</span>; }
+  [ -f <span class="s">"$d/.faber.toml"</span> ]      && { <span class="k">echo</span> <span class="s">"$d"</span>;      <span class="k">break</span>; }
+  d=$(<span class="k">dirname</span> <span class="s">"$d"</span>)
+<span class="k">done</span>)
+[ -z <span class="s">"$WIKI_ROOT"</span> ] && { <span class="k">echo</span> <span class="s">"Error: no .faber.toml found"</span> &gt;&amp;<span class="n">2</span>; <span class="k">exit</span> <span class="n">1</span>; }
+<span class="var">VAULT_ROOT</span>=$(<span class="k">dirname</span> <span class="s">"$WIKI_ROOT"</span>)</pre>
+      </div>
+
+      <div class="preflight">
+        <div class="step">
+          <span class="n">1</span>
+          <div>
+            <h4>Read the schema</h4>
+            <p>Open <code>$WIKI_ROOT/FABER.md</code> for conventions, page types, and required frontmatter shape. Always first.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="n">2</span>
+          <div>
+            <h4>Check for duplicates</h4>
+            <p>Query <code>pages</code> for matching <code>source_ref</code> or <code>title</code>; query <code>aliases</code> for entity overlap. If <code>faber.db</code> is missing, run sync first.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="n">3</span>
+          <div>
+            <h4>Load self-context</h4>
+            <p>Pull <code>pillars_json</code> and <code>stances_json</code> from <code>v_self_active_context</code>. The ingest is not neutral — it weighs claims against what Narcis has already declared.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="n">4</span>
+          <div>
+            <h4>Then read the source</h4>
+            <p>File path with <code>Read</code>, URL with <code>WebFetch</code>, text in conversation as-is. No arguments → ask.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ 02 · PROBES ═══════════════════ -->
+<section id="s-surface">
+  <div class="eyebrow reveal"><span class="num">02</span><span class="ln"></span><span>Probes · the queries this skill runs</span></div>
+
+  <div class="surface-intro">
+    <h2 class="reveal">Read the index, <em>before you change it.</em></h2>
+    <p class="reveal reveal-delay-1">
+      The skill is mostly reads. It interrogates <code style="font-family:var(--mono);background:var(--raised);color:var(--cyan);padding:1px 5px;border-radius:2px;font-size:13px;">faber.db</code>
+      to avoid duplication, to find related pages, to surface active self-context, and finally —
+      once — to rebuild the index after writing.
+    </p>
+  </div>
+
+  <div class="endpoint-block reveal reveal-delay-2">
+
+    <div class="endpoint-group">
+      <h4>Duplicate detection · before ingest</h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb get">GET</span>
+          <span class="path">pages WHERE type=<span class="qs">'source'</span> AND source_ref LIKE <span class="seg-id">:kw</span></span>
+          <span class="purpose">Find existing source pages by URL fragment or title keyword.</span>
+          <span class="cost-pip zero">read</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">GET</span>
+          <span class="path">aliases WHERE alias LIKE <span class="seg-id">:name</span></span>
+          <span class="purpose">Catch entity duplicates hiding behind a different spelling.</span>
+          <span class="cost-pip zero">read</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Self-context · before Phase 1</h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb get">GET</span>
+          <span class="path">v_self_active_context</span>
+          <span class="purpose">Pull active <code style="font-family:var(--mono);color:var(--frost);">pillars_json</code> and <code style="font-family:var(--mono);color:var(--frost);">stances_json</code> as alignment yardstick.</span>
+          <span class="cost-pip zero">read</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">GET</span>
+          <span class="path">self_pillars WHERE status=<span class="qs">'active'</span></span>
+          <span class="purpose">Resolve pillar slugs for the <code style="font-family:var(--mono);color:var(--frost);">alignment:</code> frontmatter in Phase 3b.</span>
+          <span class="cost-pip zero">read</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Verify · after writing, before reporting</h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb get">GET</span>
+          <span class="path">v_phantoms</span>
+          <span class="purpose">Quick lint — surface any wikilink targets that don't yet exist as pages.</span>
+          <span class="cost-pip zero">read</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">GET</span>
+          <span class="path">v_narcis_alignment GROUP BY pillar, relation</span>
+          <span class="purpose">Confirm the alignment write took, broken down by pillar and relation.</span>
+          <span class="cost-pip zero">read</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Mutate · only at the end</h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="path">python3 $WIKI_ROOT/faber_sync.py</span>
+          <span class="purpose">Drop and rebuild the index from <code style="font-family:var(--mono);color:var(--frost);">wiki/**/*.md</code>; regenerate <code style="font-family:var(--mono);color:var(--frost);">index.md</code>. Idempotent.</span>
+          <span class="cost-pip warn">write</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════ 03 · TELEMETRY ═══════════════════ -->
+<section id="s-telemetry">
+  <div class="eyebrow reveal"><span class="num">03</span><span class="ln"></span><span>Telemetry · sources through the five phases</span></div>
+  <h2 class="reveal">The pipeline, <em>in motion.</em></h2>
+  <p class="lede reveal reveal-delay-1" style="margin-top:18px;">
+    Sources arrive at the left and move right through five named states. Most cross every node;
+    some are rejected at <span style="font-family:var(--mono);font-size:13px;color:var(--coral);">DISCUSS</span> on a skip directive;
+    Phase 3b branches to record alignment before Sync. One sync at the end — every time.
+  </p>
+
+  <div class="telemetry-frame reveal reveal-delay-2 bracket">
+    <span class="br-bl"></span><span class="br-br"></span>
+
+    <div class="telemetry-head">
+      <span class="label"><span class="dot"></span>SIM · <b>INGEST PIPELINE</b></span>
+      <span></span>
+      <span class="ctrl">
+        <button id="sim-play" class="is-active">PAUSE</button>
+        <button data-speed="1" class="is-active">1×</button>
+        <button data-speed="2">2×</button>
+        <button data-speed="4">4×</button>
+      </span>
+    </div>
+
+    <canvas id="sig-canvas" aria-label="State-machine simulation of sources moving through the five ingest phases"></canvas>
+
+    <div class="telemetry-stats">
+      <div class="cell"><span class="l">SIM TIME</span><span class="v t" id="stat-time">00:00</span></div>
+      <div class="cell"><span class="l">IN-FLIGHT</span><span class="v a" id="stat-a">0</span></div>
+      <div class="cell"><span class="l">SYNCED</span><span class="v b" id="stat-b">0</span></div>
+      <div class="cell"><span class="l">ALIGNMENTS</span><span class="v c" id="stat-c">0</span></div>
+    </div>
+  </div>
+
+  <p class="telemetry-caption reveal reveal-delay-3">
+    A <b>source dot</b> spawns at <b>READ</b>. It moves along cobalt edges through <b>DISCUSS</b>,
+    <b>EXTRACT</b>, <b>WRITE</b>, and <b>SYNC</b>. The <b>ALIGN</b> branch fires on most items — and
+    increments <span class="ref">ALIGNMENTS</span>. A small fraction of items are rejected at the
+    <b>DISCUSS</b> node (Narcis's skip directive); those count nowhere. Only items that reach
+    <b>SYNC</b> get tallied as <b>SYNCED</b>.
+  </p>
+</section>
+
+<!-- ═══════════════════ 04 · HAZARD ═══════════════════ -->
+<section id="s-hazard">
+  <div class="eyebrow reveal" style="color:var(--coral);">
+    <span class="num" style="color:var(--coral);border-color:rgba(255,122,122,0.35);background:rgba(255,122,122,0.06);">04</span>
+    <span class="ln"></span>
+    <span>Five rules · do not negotiate</span>
+  </div>
+  <h2 class="reveal">Hazards, <em>not negotiables.</em></h2>
+  <div class="hazard-intro reveal reveal-delay-1" style="margin-top:20px;">
+    <p>
+      These are the boundaries the skill enforces on itself. They exist because the wiki is
+      append-only knowledge that compounds over years — small lapses become permanent. Read
+      them as constraints on what the skill <em style="color:var(--frost);font-style:italic;">may</em>
+      decide, not suggestions.
+    </p>
+  </div>
+
+  <div class="hazard-grid">
+
+    <article class="hazard-card featured reveal reveal-delay-2 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <div class="index"><span class="tri"></span>HAZARD · 01 · IMAGE POLICY</div>
+      <div>
+        <h3>Default <em>zero images.</em> Hard cap two. Every candidate clears four gates.</h3>
+        <div class="ill">
+          <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Four gate columns -->
+            <g font-family="JetBrains Mono" font-size="9" letter-spacing="2" fill="#A1B2D0">
+              <!-- Gate 1 -->
+              <rect x="20" y="40" width="60" height="100" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.4"/>
+              <text x="50" y="32" text-anchor="middle">GATE 1</text>
+              <text x="50" y="58" text-anchor="middle" fill="#DCE5F2" font-size="8">DENSITY</text>
+              <line x1="30" y1="80" x2="70" y2="80" stroke="#6EE0FF" stroke-width="1.2"/>
+              <line x1="30" y1="92" x2="70" y2="92" stroke="#6EE0FF" stroke-width="1.2" opacity="0.7"/>
+              <line x1="30" y1="104" x2="60" y2="104" stroke="#6EE0FF" stroke-width="1.2" opacity="0.5"/>
+              <text x="50" y="155" text-anchor="middle" font-size="8" fill="#6E81A4">2-SENT?</text>
+              <!-- Gate 2 -->
+              <rect x="100" y="40" width="60" height="100" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.4"/>
+              <text x="130" y="32" text-anchor="middle">GATE 2</text>
+              <text x="130" y="58" text-anchor="middle" fill="#DCE5F2" font-size="8">NOVELTY</text>
+              <circle cx="130" cy="90" r="14" fill="none" stroke="#6EE0FF" stroke-width="1.2"/>
+              <circle cx="130" cy="90" r="6" fill="#6EE0FF" opacity="0.6"/>
+              <text x="130" y="155" text-anchor="middle" font-size="8" fill="#6E81A4">IN TEXT?</text>
+              <!-- Gate 3 -->
+              <rect x="180" y="40" width="60" height="100" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.4"/>
+              <text x="210" y="32" text-anchor="middle">GATE 3</text>
+              <text x="210" y="58" text-anchor="middle" fill="#DCE5F2" font-size="8">REFERENCE</text>
+              <path d="M190 105 L210 80 L230 95 L210 110 Z" fill="none" stroke="#6EE0FF" stroke-width="1.2"/>
+              <text x="210" y="155" text-anchor="middle" font-size="8" fill="#6E81A4">6 MONTHS?</text>
+              <!-- Gate 4 -->
+              <rect x="260" y="40" width="50" height="100" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.4"/>
+              <text x="285" y="32" text-anchor="middle">GATE 4</text>
+              <text x="285" y="58" text-anchor="middle" fill="#DCE5F2" font-size="8">TYPE</text>
+              <rect x="270" y="80" width="30" height="22" fill="none" stroke="#6EE0FF" stroke-width="1.2"/>
+              <line x1="272" y1="85" x2="298" y2="85" stroke="#6EE0FF" stroke-width="0.8"/>
+              <line x1="272" y1="92" x2="295" y2="92" stroke="#6EE0FF" stroke-width="0.8"/>
+              <line x1="272" y1="99" x2="290" y2="99" stroke="#6EE0FF" stroke-width="0.8"/>
+              <text x="285" y="155" text-anchor="middle" font-size="8" fill="#6E81A4">DIAGRAM?</text>
+            </g>
+            <!-- Reject arrow at bottom -->
+            <g>
+              <line x1="50" y1="170" x2="290" y2="170" stroke="#FF7A7A" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.7"/>
+              <text x="170" y="190" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#FF7A7A" letter-spacing="2">FAIL ANY · REJECT</text>
+            </g>
+          </svg>
+        </div>
+        <p>
+          The wiki is text-first. Most images are decorative noise that bloats storage and
+          dilutes search. Only architecture diagrams, flowcharts, data visualizations, or org
+          charts are even considered — and only if a two-sentence description couldn't carry
+          the same information.
+        </p>
+        <p>
+          If a candidate passes all four gates, present it to Narcis with pass/fail reasoning
+          per gate. Wait for explicit approval. Save to <code>wiki/assets/{slug}/</code> with a
+          descriptive kebab-case filename. Hard cap: <code>2</code> per ingest.
+        </p>
+      </div>
+      <div class="ref">REF · <b>SKILL.md Phase 2b · FABER.md "Image Policy"</b></div>
+    </article>
+
+    <article class="hazard-card reveal reveal-delay-2 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <div class="index"><span class="tri"></span>HAZARD · 02 · STANCE AUTONOMY</div>
+      <h3>Never auto-create stances. <em>Surface candidates only.</em></h3>
+      <div class="ill">
+        <svg viewBox="0 0 280 130" xmlns="http://www.w3.org/2000/svg">
+          <!-- Allowed -->
+          <g>
+            <rect x="10" y="20" width="120" height="90" rx="4" fill="none" stroke="#7DD3A0" stroke-width="1.2"/>
+            <text x="70" y="40" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#7DD3A0" letter-spacing="2">SURFACE</text>
+            <text x="70" y="68" text-anchor="middle" font-family="Fraunces" font-size="14" font-style="italic" fill="#DCE5F2">candidate</text>
+            <text x="70" y="86" text-anchor="middle" font-family="Fraunces" font-size="11" font-style="italic" fill="#A1B2D0">→ ask Narcis</text>
+            <path d="M52 96 Q70 102 88 96" stroke="#7DD3A0" stroke-width="1" fill="none" stroke-linecap="round"/>
+          </g>
+          <!-- Blocked -->
+          <g>
+            <rect x="150" y="20" width="120" height="90" rx="4" fill="none" stroke="#FF7A7A" stroke-width="1.2"/>
+            <text x="210" y="40" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#FF7A7A" letter-spacing="2">AUTO-WRITE</text>
+            <g transform="translate(210 75)">
+              <line x1="-14" y1="-10" x2="14" y2="10" stroke="#FF7A7A" stroke-width="2" stroke-linecap="round"/>
+              <line x1="14"  y1="-10" x2="-14" y2="10" stroke="#FF7A7A" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <text x="210" y="100" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#FF7A7A" letter-spacing="1">narcis-stances.md</text>
+          </g>
+        </svg>
+      </div>
+      <p>
+        Stances are Narcis's to declare. The skill watches for claims that crystallize a position
+        he hasn't yet stated, collects them in a list, and presents them in Phase 5 with
+        <code>(y/N/edit)</code>. Either way, log the outcome.
+      </p>
+      <div class="ref">REF · <b>Phase 3b · Stance candidate detection</b></div>
+    </article>
+
+    <article class="hazard-card reveal reveal-delay-3 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <div class="index"><span class="tri"></span>HAZARD · 03 · APPEND, DO NOT OVERWRITE</div>
+      <h3>Existing pages get <em>merged</em>, not replaced.</h3>
+      <div class="ill">
+        <svg viewBox="0 0 280 130" xmlns="http://www.w3.org/2000/svg">
+          <!-- existing page lines -->
+          <rect x="40" y="20" width="200" height="90" rx="4" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.5"/>
+          <g stroke="#A1B2D0" stroke-width="1" opacity="0.55">
+            <line x1="56" y1="38" x2="180" y2="38"/>
+            <line x1="56" y1="50" x2="200" y2="50"/>
+            <line x1="56" y1="62" x2="170" y2="62"/>
+          </g>
+          <!-- new lines in mint -->
+          <g stroke="#7DD3A0" stroke-width="1.2">
+            <line x1="56" y1="78" x2="220" y2="78"/>
+            <line x1="56" y1="90" x2="195" y2="90"/>
+          </g>
+          <text x="140" y="125" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#7DD3A0" letter-spacing="2">+ NEW SOURCE · + LINKS</text>
+        </svg>
+      </div>
+      <p>
+        Read existing pages first. Add the new source, update connections, append new info —
+        never overwrite. The page accumulates evidence over time; that accumulation is the
+        compound.
+      </p>
+      <div class="ref">REF · <b>Phase 3 · entity/concept page updates</b></div>
+    </article>
+
+    <article class="hazard-card reveal reveal-delay-2 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <div class="index"><span class="tri"></span>HAZARD · 04 · ALIGNMENT DISCIPLINE</div>
+      <h3>Only <em>non-neutral</em> relations get written.</h3>
+      <div class="ill">
+        <svg viewBox="0 0 280 130" xmlns="http://www.w3.org/2000/svg">
+          <g font-family="JetBrains Mono" font-size="9" letter-spacing="2">
+            <!-- bars -->
+            <rect x="20" y="36" width="160" height="14" fill="#7DD3A0" opacity="0.8"/>
+            <text x="186" y="47" fill="#7DD3A0">REINFORCES</text>
+            <rect x="20" y="58" width="90" height="14" fill="#FFB55A" opacity="0.85"/>
+            <text x="116" y="69" fill="#FFB55A">WEAKENS</text>
+            <rect x="20" y="80" width="50" height="14" fill="#FF7A7A" opacity="0.85"/>
+            <text x="76" y="91" fill="#FF7A7A">CONTRADICTS</text>
+            <!-- neutral struck -->
+            <rect x="20" y="102" width="120" height="10" fill="none" stroke="#44557A" stroke-dasharray="3 3"/>
+            <line x1="14" y1="107" x2="146" y2="107" stroke="#FF7A7A" stroke-width="1.2" stroke-linecap="round"/>
+            <text x="152" y="111" fill="#6E81A4">NEUTRAL · OMIT</text>
+          </g>
+        </svg>
+      </div>
+      <p>
+        <code>neutral</code> is the default and pollutes the table. Don't emit it. Exception:
+        if a page was previously non-neutral and this ingest flips it to neutral, write the
+        correction. Be explicit about <em style="color:var(--frost);font-style:italic;">which</em>
+        claim moved the needle.
+      </p>
+      <div class="ref">REF · <b>Phase 3b · alignment persistence</b></div>
+    </article>
+
+    <article class="hazard-card reveal reveal-delay-3 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <div class="index"><span class="tri"></span>HAZARD · 05 · SYNC ALWAYS LAST</div>
+      <h3>End with <em>faber-sync.</em> Never skip.</h3>
+      <div class="ill">
+        <svg viewBox="0 0 280 130" xmlns="http://www.w3.org/2000/svg">
+          <!-- pages → db -->
+          <g fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.55">
+            <rect x="20" y="20" width="36" height="46"/>
+            <rect x="20" y="36" width="36" height="46" transform="translate(8 0)"/>
+            <rect x="20" y="52" width="36" height="46" transform="translate(16 0)"/>
+          </g>
+          <!-- arrow -->
+          <g>
+            <line x1="100" y1="68" x2="170" y2="68" stroke="#6EE0FF" stroke-width="1.2"/>
+            <polygon points="170,62 180,68 170,74" fill="#6EE0FF"/>
+            <text x="135" y="56" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#6EE0FF" letter-spacing="2">SYNC</text>
+          </g>
+          <!-- db cylinder -->
+          <g fill="#0F1830" stroke="#6EE0FF" stroke-width="1.2">
+            <ellipse cx="220" cy="40" rx="40" ry="10"/>
+            <path d="M180 40 L180 90 A40 10 0 0 0 260 90 L260 40"/>
+            <ellipse cx="220" cy="65" rx="40" ry="10" fill="none" opacity="0.5"/>
+          </g>
+          <text x="220" y="115" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6EE0FF" letter-spacing="2">faber.db</text>
+        </svg>
+      </div>
+      <p>
+        Idempotent — always drops and recreates. Without it, the index disagrees with the
+        markdown and every future probe lies. Run <code>python3 $WIKI_ROOT/faber_sync.py</code>
+        as the final step.
+      </p>
+      <div class="ref">REF · <b>Phase 4 · update meta · rule list</b></div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════════ 05 · OPS ═══════════════════ -->
+<section id="s-ops">
+  <div class="eyebrow reveal"><span class="num">05</span><span class="ln"></span><span>Operations · the five phases</span></div>
+  <h2 class="reveal">Five phases. <em>Five.</em></h2>
+
+  <div class="workflow">
+    <div class="head reveal">
+      <div class="tag"><b>OP · A</b> · PHASE 1</div>
+      <h3>Read &amp; <em>discuss.</em></h3>
+      <p>
+        Read the source in full. Present 5–8 bullet points of key takeaways. Identify
+        preliminary entities and concepts. Then ask Narcis what to emphasize and what to skip
+        — and wait for direction before proceeding.
+      </p>
+      <ul>
+        <li>Surface <em style="color:var(--frost);font-style:italic;">pillar tensions</em> explicitly during the summary, not silently</li>
+        <li>Preserve Romglish in Narcis's own quotes — the <code>voice_rules</code> govern</li>
+        <li>No extraction yet — read, summarize, ask</li>
+      </ul>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="terminal bracket">
+        <span class="br-bl"></span><span class="br-br"></span>
+        <div class="head"><span class="lights"><i></i><i></i><i></i></span><span class="path">phase 1 · context loading</span><span>BASH</span></div>
+<pre><span class="cm"># Pull active pillars and stances first — the lens.</span>
+<span class="prompt">$</span> <span class="k">sqlite3</span> -json <span class="s">"$WIKI_ROOT/faber.db"</span> \
+    <span class="s">"SELECT pillars_json, stances_json FROM v_self_active_context;"</span>
+
+<span class="cm"># Then read the source — file, URL, or pasted text.</span>
+<span class="prompt">$</span> <span class="k">cat</span> <span class="s">"$1"</span>    <span class="cm"># or WebFetch URL</span>
+
+<span class="cm"># Present 5–8 takeaways, then wait.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="workflow">
+    <div class="head reveal">
+      <div class="tag"><b>OP · B</b> · PHASE 2</div>
+      <h3>Extract <em>entities, concepts, claims.</em></h3>
+      <p>
+        For each entity (people, companies, tools, frameworks): name, category, aliases. For
+        each concept (patterns, models, principles): name, category, related concepts. For each
+        notable claim: assertion plus a confidence read. Query <code>faber.db</code> for related
+        pages first; note contradictions.
+      </p>
+      <ul>
+        <li>Entities get <em style="color:var(--frost);font-style:italic;">no alignment</em> by default — exception: when the entity itself embodies a stance</li>
+        <li>Sources get aggregated alignment — reinforces X <em>and</em> weakens Y both land</li>
+        <li>Phase 2b — image evaluation — runs here. Default zero. <span style="color:var(--coral);font-family:var(--mono);font-size:12px;">HAZARD · 01</span></li>
+      </ul>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="terminal bracket">
+        <span class="br-bl"></span><span class="br-br"></span>
+        <div class="head"><span class="lights"><i></i><i></i><i></i></span><span class="path">phase 2 · check before write</span><span>BASH</span></div>
+<pre><span class="cm"># Has this source landed before?</span>
+<span class="prompt">$</span> <span class="k">sqlite3</span> <span class="s">"$WIKI_ROOT/faber.db"</span> \
+    <span class="s">"SELECT slug, title FROM pages</span>
+<span class="s">     WHERE type='source'</span>
+<span class="s">       AND (source_ref LIKE '%kw%' OR title LIKE '%kw%');"</span>
+
+<span class="cm"># Does this entity hide under another name?</span>
+<span class="prompt">$</span> <span class="k">sqlite3</span> <span class="s">"$WIKI_ROOT/faber.db"</span> \
+    <span class="s">"SELECT entity_slug, alias FROM aliases</span>
+<span class="s">     WHERE alias LIKE '%name%';"</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="workflow">
+    <div class="head reveal">
+      <div class="tag"><b>OP · C</b> · PHASE 3</div>
+      <h3>Write pages. <em>Append, never overwrite.</em></h3>
+      <p>
+        Source page in <code>wiki/sources/{slug}.md</code> with full frontmatter and prose
+        summary. For each entity and concept: if the page exists, add the new source, update
+        connections, append new info. If it doesn't, create it. Cross-references update
+        across all affected pages. A synthesis page only when the source creates a
+        significant new connection.
+      </p>
+      <ul>
+        <li>Kebab-case slugs · all filenames</li>
+        <li>YAML frontmatter must validate against <code>FABER.md</code> schema</li>
+        <li>Cross-link to vault docs via <code>[[vault-path|Display]]</code></li>
+        <li>Conservative confidence at first — <code>seed</code> / <code>medium</code></li>
+      </ul>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="terminal bracket">
+        <span class="br-bl"></span><span class="br-br"></span>
+        <div class="head"><span class="lights"><i></i><i></i><i></i></span><span class="path">phase 3 · page layout</span><span>MD</span></div>
+<pre><span class="cm"># wiki/sources/{slug}.md</span>
+<span class="k">---</span>
+<span class="var">type</span>: <span class="s">source</span>
+<span class="var">title</span>: <span class="s">"…"</span>
+<span class="var">source_ref</span>: <span class="s">"path or URL"</span>
+<span class="var">related_entities</span>: [<span class="s">…</span>]
+<span class="var">related_concepts</span>: [<span class="s">…</span>]
+<span class="var">alignment</span>:                         <span class="cm"># Phase 3b · non-neutral only</span>
+  - <span class="var">pillar</span>: <span class="s">skill-era-craftsmanship</span>
+    <span class="var">relation</span>: <span class="s">reinforces</span>
+    <span class="var">source_event</span>: <span class="s">"YYYY-MM-DD ingest | Title"</span>
+<span class="k">---</span>
+
+<span class="cm"># Prose summary · cross-link to entities &amp; concepts</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="workflow">
+    <div class="head reveal">
+      <div class="tag"><b>OP · D</b> · PHASE 3b</div>
+      <h3>Align, <em>then surface stance candidates.</em></h3>
+      <p>
+        The persisted judgment from the Phase 1 read. Write <code>alignment:</code> frontmatter
+        on the new source page and on each new concept / synthesis (and on any page whose
+        relevance to a pillar just shifted). Compare claims against <code>stances_json</code>;
+        collect candidates that crystallize a new position or sharpen an existing one. Surface
+        — do <em style="color:var(--frost);font-style:italic;">not</em> auto-write.
+      </p>
+      <ul>
+        <li>Emit only non-neutral relations · <span style="color:var(--coral);font-family:var(--mono);font-size:12px;">HAZARD · 04</span></li>
+        <li>Resolve pillar slugs from <code>self_pillars</code> before writing</li>
+        <li>Present stance candidates as <code>(y/N/edit)</code> · <span style="color:var(--coral);font-family:var(--mono);font-size:12px;">HAZARD · 02</span></li>
+      </ul>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="terminal bracket">
+        <span class="br-bl"></span><span class="br-br"></span>
+        <div class="head"><span class="lights"><i></i><i></i><i></i></span><span class="path">phase 3b · candidate prompt</span><span>TEXT</span></div>
+<pre><span class="cm"># What the operator sees, never the editor:</span>
+
+<span class="var">Stance candidates</span> (<span class="k">from</span> <span class="k">this</span> ingest):
+  <span class="n">1</span>. <span class="var">on_topic</span>: distribution-as-being-in-workflow
+     <span class="var">proposed</span>: <span class="s">"distribution = being part of the agent's workflow,</span>
+<span class="s">                  not the user's dashboard"</span>
+     <span class="var">evidence</span>: claim §<span class="n">3</span> · <span class="s">"who owns the patterns wins"</span>
+
+  <span class="n">2</span>. …
+
+Add to narcis-stances.md? (<span class="s">y</span>/<span class="s">N</span>/<span class="s">edit</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="workflow">
+    <div class="head reveal">
+      <div class="tag"><b>OP · E</b> · PHASE 4 &amp; 5</div>
+      <h3>Log, sync, <em>verify, report.</em></h3>
+      <p>
+        Append a structured entry to <code>wiki/log.md</code> — source, entities created /
+        updated, concepts created / updated, synthesis if any, alignment tally, stance
+        candidate count with Narcis's decisions. Then run <code>faber_sync.py</code> to
+        rebuild the index and regenerate <code>index.md</code>. Verify phantoms and the
+        alignment view. Report.
+      </p>
+      <ul>
+        <li>The <code>Alignment</code> and <code>Stance candidates</code> log lines are free-form body — not parsed into <code>log_event_pages</code>, but preserved permanently</li>
+        <li><code>v_phantoms</code> · catch wikilinks pointing at non-existent pages</li>
+        <li><code>v_narcis_alignment</code> · confirm the alignment write took</li>
+      </ul>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="terminal bracket">
+        <span class="br-bl"></span><span class="br-br"></span>
+        <div class="head"><span class="lights"><i></i><i></i><i></i></span><span class="path">phase 4 · log · sync · verify</span><span>BASH</span></div>
+<pre><span class="cm"># Append to wiki/log.md</span>
+## [<span class="n">YYYY-MM-DD</span>] ingest | {Source Title}
+- <span class="var">Source</span>: {path/URL}
+- <span class="var">Entities</span> created: {…} | updated: {…}
+- <span class="var">Concepts</span> created: {…} | updated: {…}
+- <span class="var">Alignment</span>: N entries — {pilon: reinforces ×a, weakens ×b}
+- <span class="var">Stance candidates</span>: {n} — {accepted | skipped | edited}
+
+<span class="cm"># Then — always — rebuild the index.</span>
+<span class="prompt">$</span> python3 <span class="s">"$WIKI_ROOT/faber_sync.py"</span>
+
+<span class="cm"># Verify.</span>
+<span class="prompt">$</span> <span class="k">sqlite3</span> <span class="s">"$WIKI_ROOT/faber.db"</span> <span class="s">"SELECT * FROM v_phantoms;"</span>
+<span class="prompt">$</span> <span class="k">sqlite3</span> <span class="s">"$WIKI_ROOT/faber.db"</span> \
+    <span class="s">"SELECT pillar, relation, COUNT(*) c</span>
+<span class="s">     FROM v_narcis_alignment</span>
+<span class="s">     GROUP BY pillar, relation;"</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ 07 · CONDUCT ═══════════════════ -->
+<section id="s-conduct">
+  <div class="eyebrow reveal"><span class="num">07</span><span class="ln"></span><span>Conduct · how the skill carries itself</span></div>
+  <h2 class="reveal">Speak to the wiki, <em>not at it.</em></h2>
+
+  <div class="conduct-grid">
+    <div class="conduct-card reveal reveal-delay-1 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <span class="n">A</span>
+      <h4>Read <em>FABER.md</em> first. Always.</h4>
+      <p>
+        Conventions, page types, schema — the source of truth lives in <code>wiki/FABER.md</code>.
+        Don't infer from existing pages; they may pre-date the current schema.
+      </p>
+    </div>
+    <div class="conduct-card reveal reveal-delay-2 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <span class="n">B</span>
+      <h4>Respect <em>skip directives.</em></h4>
+      <p>
+        If Narcis says skip, skip. The Phase 1 discussion exists exactly so this can happen
+        before any page is touched. Silent re-inclusion is a trust violation.
+      </p>
+    </div>
+    <div class="conduct-card reveal reveal-delay-1 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <span class="n">C</span>
+      <h4>Start <em>conservative.</em></h4>
+      <p>
+        When in doubt about maturity or confidence, default to <code>seed</code> or
+        <code>medium</code>. Pages mature with evidence, not with optimism.
+      </p>
+    </div>
+    <div class="conduct-card reveal reveal-delay-2 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <span class="n">D</span>
+      <h4>Cross-link <em>both ways.</em></h4>
+      <p>
+        Wiki pages link to vault docs where the entity or concept is relevant —
+        <code>[[vault-path|Display Name]]</code> — and vault docs gain wikilinks back. The
+        graph is what makes the knowledge queryable.
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div>
+    <h5>Sources are ingested once · cross-referenced · synthesized. Knowledge compounds.</h5>
+    <span>FABER-INGEST · OPERATOR MANUAL · last orbit 2026-05-22</span>
+  </div>
+  <div class="right">
+    <span><b>SKILL.md</b> is canonical. This page is a visual companion.</span>
+  </div>
+</footer>
+
+<script>
+  /* ── Live UTC clock ─────────────────────────────────────── */
+  (function clock() {
+    const el = document.getElementById('utc-clock');
+    if (!el) return;
+    function tick() {
+      const d = new Date();
+      const hh = String(d.getUTCHours()).padStart(2, '0');
+      const mm = String(d.getUTCMinutes()).padStart(2, '0');
+      const ss = String(d.getUTCSeconds()).padStart(2, '0');
+      el.textContent = `${hh} : ${mm} : ${ss} UTC`;
+    }
+    tick(); setInterval(tick, 1000);
+  })();
+
+  /* ── Reveal on scroll ───────────────────────────────────── */
+  (function reveal() {
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      }
+    }, { rootMargin: '-8% 0px -10% 0px', threshold: 0.05 });
+    els.forEach(el => io.observe(el));
+  })();
+
+  /* ── Rail active state ──────────────────────────────────── */
+  (function rail() {
+    const links = Array.from(document.querySelectorAll('.rail a'));
+    const sections = links
+      .map(a => document.querySelector(a.getAttribute('href')))
+      .filter(Boolean);
+    if (!sections.length) return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          const id = e.target.id;
+          links.forEach(a => a.classList.toggle('is-active', a.getAttribute('href') === '#' + id));
+        }
+      }
+    }, { rootMargin: '-40% 0px -50% 0px', threshold: 0 });
+    sections.forEach(s => io.observe(s));
+  })();
+
+  /* ─────────────────────────────────────────────────────────
+     SIGNATURE CANVAS · state machine (Pattern B)
+     Sources flow READ → DISCUSS → EXTRACT → WRITE → SYNC
+     with an ALIGN branch off WRITE.
+     ───────────────────────────────────────────────────────── */
+  (function ingestSim() {
+    const canvas = document.getElementById('sig-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const PAL = {
+      void:    '#05080F',
+      panel:   '#0F1830',
+      edge:    '#1F2A48',
+      mist300: '#6E81A4',
+      mist400: '#44557A',
+      mist200: '#A1B2D0',
+      mist100: '#DCE5F2',
+      cobalt:  '#4A8FE7',
+      cyan:    '#6EE0FF',
+      frost:   '#B8E5FF',
+      mint:    '#7DD3A0',
+      ember:   '#FFB55A',
+      coral:   '#FF7A7A',
+    };
+
+    let DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+    let W = 0, H = 0;
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      W = rect.width;
+      H = rect.height;
+      canvas.width = Math.round(W * DPR);
+      canvas.height = Math.round(H * DPR);
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Nodes positioned along an arc; ALIGN sits below WRITE
+    const nodes = [
+      { id: 'read',    x: 0.10, y: 0.50, r: 26, label: 'READ',    pop: 0, pulse: 0 },
+      { id: 'discuss', x: 0.27, y: 0.50, r: 24, label: 'DISCUSS', pop: 0, pulse: 0 },
+      { id: 'extract', x: 0.44, y: 0.50, r: 24, label: 'EXTRACT', pop: 0, pulse: 0 },
+      { id: 'write',   x: 0.61, y: 0.50, r: 26, label: 'WRITE',   pop: 0, pulse: 0 },
+      { id: 'align',   x: 0.61, y: 0.86, r: 20, label: 'ALIGN',   pop: 0, pulse: 0, branch: true },
+      { id: 'sync',    x: 0.86, y: 0.50, r: 30, label: 'SYNC',    pop: 0, pulse: 0, core: true },
+    ];
+    const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
+
+    // Edges (directed) — write also feeds align (records, then continues to sync)
+    const edges = [
+      ['read', 'discuss'],
+      ['discuss', 'extract'],
+      ['extract', 'write'],
+      ['write', 'align'],
+      ['align', 'sync'],
+    ];
+
+    const items = []; // { from, to, t, kind, color }
+    let inFlight = 0, synced = 0, alignments = 0;
+    let simSec = 0;
+    let running = true;
+    let speed = 1;
+    let lastT = performance.now();
+
+    function nodePos(node) { return { x: node.x * W, y: node.y * H }; }
+
+    function pickEdge(fromId) {
+      // From discuss, ~10% of items are rejected (Narcis skip)
+      if (fromId === 'discuss' && Math.random() < 0.10) return null;
+      const e = edges.find(([a]) => a === fromId);
+      return e ? e[1] : null;
+    }
+
+    function spawn() {
+      // Spawn near READ
+      items.push({ from: 'read', to: 'discuss', t: 0, kind: 'src', color: PAL.cyan });
+      byId.read.pop++;
+      inFlight++;
+    }
+
+    let spawnAccum = 0;
+    function tick(dt) {
+      simSec += dt * 0.001 * speed;
+      spawnAccum += dt * 0.001 * speed;
+      const spawnEvery = 0.9; // every 0.9 simulated seconds
+      while (spawnAccum >= spawnEvery) {
+        spawnAccum -= spawnEvery;
+        spawn();
+      }
+
+      for (const it of items) {
+        // travel speed per second of sim time
+        it.t += dt * 0.0012 * speed;
+        if (it.t >= 1) {
+          const src = byId[it.from];
+          const dst = byId[it.to];
+          src.pop = Math.max(0, src.pop - 1);
+          dst.pop++;
+          dst.pulse = 1;
+
+          if (it.to === 'sync') {
+            synced++;
+            inFlight = Math.max(0, inFlight - 1);
+            it.retire = true;
+            setTimeout(() => { dst.pop = Math.max(0, dst.pop - 1); }, 600);
+          } else if (it.to === 'align') {
+            alignments++;
+            // After align, route to sync
+            it.from = 'align';
+            it.to = 'sync';
+            it.t = 0;
+            it.color = PAL.mint;
+          } else {
+            // Pick next edge or get rejected at discuss
+            const next = pickEdge(it.to);
+            if (!next) {
+              // rejected
+              it.retire = true;
+              inFlight = Math.max(0, inFlight - 1);
+              setTimeout(() => { dst.pop = Math.max(0, dst.pop - 1); }, 400);
+            } else {
+              it.from = it.to;
+              it.to = next;
+              it.t = 0;
+            }
+          }
+        }
+      }
+      // cull
+      for (let i = items.length - 1; i >= 0; i--) if (items[i].retire) items.splice(i, 1);
+
+      // decay pulses
+      for (const n of nodes) n.pulse *= 0.92;
+    }
+
+    function drawEdge(a, b, dashed) {
+      const pa = nodePos(a), pb = nodePos(b);
+      ctx.beginPath();
+      if (a.y === b.y) {
+        ctx.moveTo(pa.x + a.r, pa.y);
+        ctx.lineTo(pb.x - b.r, pb.y);
+      } else {
+        // curve down then up
+        const midX = (pa.x + pb.x) / 2;
+        ctx.moveTo(pa.x, pa.y + (b.y > a.y ? a.r : -a.r));
+        ctx.bezierCurveTo(midX, pa.y, midX, pb.y, pb.x, pb.y - (b.y > a.y ? b.r : -b.r));
+      }
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = dashed ? 'rgba(74, 143, 231, 0.25)' : 'rgba(74, 143, 231, 0.45)';
+      if (dashed) ctx.setLineDash([3, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function drawNode(n) {
+      const p = nodePos(n);
+      // glow if pulsing
+      if (n.pulse > 0.02) {
+        ctx.shadowColor = n.core ? PAL.cyan : (n.branch ? PAL.mint : PAL.cobalt);
+        ctx.shadowBlur = 18 * n.pulse;
+      } else {
+        ctx.shadowBlur = 0;
+      }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, n.r, 0, Math.PI * 2);
+      ctx.fillStyle = n.core ? 'rgba(110, 224, 255, 0.10)' : 'rgba(15, 24, 48, 0.92)';
+      ctx.fill();
+      ctx.lineWidth = n.core ? 1.6 : 1.2;
+      ctx.strokeStyle = n.core ? PAL.cyan : (n.branch ? 'rgba(125, 211, 160, 0.7)' : PAL.cobalt);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // inner dot if pop > 0
+      if (n.pop > 0) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = n.core ? PAL.cyan : (n.branch ? PAL.mint : PAL.frost);
+        ctx.fill();
+      }
+
+      // label
+      ctx.font = '500 9px "JetBrains Mono", monospace';
+      ctx.fillStyle = n.core ? PAL.cyan : PAL.mist300;
+      ctx.textAlign = 'center';
+      ctx.fillText(n.label, p.x, p.y + n.r + 16);
+
+      // pop count
+      if (n.pop > 0) {
+        ctx.font = '500 9px "JetBrains Mono", monospace';
+        ctx.fillStyle = PAL.mist200;
+        ctx.fillText('· ' + n.pop + ' ·', p.x, p.y + n.r + 28);
+      }
+    }
+
+    function drawItem(it) {
+      const from = byId[it.from];
+      const to = byId[it.to];
+      const pa = nodePos(from), pb = nodePos(to);
+      let x, y;
+      if (from.y === to.y) {
+        const x0 = pa.x + from.r;
+        const x1 = pb.x - to.r;
+        x = x0 + (x1 - x0) * it.t;
+        y = pa.y;
+      } else {
+        // bezier
+        const midX = (pa.x + pb.x) / 2;
+        const y0 = pa.y + (to.y > from.y ? from.r : -from.r);
+        const y1 = pb.y - (to.y > from.y ? to.r : -to.r);
+        const tt = it.t;
+        const omt = 1 - tt;
+        x = omt*omt*omt*pa.x + 3*omt*omt*tt*midX + 3*omt*tt*tt*midX + tt*tt*tt*pb.x;
+        y = omt*omt*omt*y0 + 3*omt*omt*tt*pa.y + 3*omt*tt*tt*pb.y + tt*tt*tt*y1;
+      }
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = it.color;
+      ctx.shadowColor = it.color;
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    function drawBackplate() {
+      // Faint phase axis line
+      ctx.beginPath();
+      ctx.moveTo(0.05 * W, 0.50 * H);
+      ctx.lineTo(0.95 * W, 0.50 * H);
+      ctx.strokeStyle = 'rgba(140, 175, 230, 0.06)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 6]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // phase number tags above each main node
+      ctx.font = '500 8px "JetBrains Mono", monospace';
+      ctx.fillStyle = PAL.mist400;
+      ctx.textAlign = 'center';
+      const tags = [
+        ['read', 'P1'],
+        ['discuss', 'P1'],
+        ['extract', 'P2'],
+        ['write', 'P3'],
+        ['align', 'P3b'],
+        ['sync', 'P4'],
+      ];
+      for (const [id, tag] of tags) {
+        const n = byId[id];
+        const p = nodePos(n);
+        ctx.fillText(tag, p.x, p.y - n.r - 8);
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, W, H);
+      drawBackplate();
+      // edges
+      for (const [a, b] of edges) {
+        drawEdge(byId[a], byId[b], byId[b].id === 'align');
+      }
+      // items
+      for (const it of items) drawItem(it);
+      // nodes (last, on top)
+      for (const n of nodes) drawNode(n);
+    }
+
+    function formatTime(s) {
+      const mm = String(Math.floor(s / 60)).padStart(2, '0');
+      const ss = String(Math.floor(s % 60)).padStart(2, '0');
+      return `${mm}:${ss}`;
+    }
+
+    function updateStats() {
+      const t = document.getElementById('stat-time');
+      const a = document.getElementById('stat-a');
+      const b = document.getElementById('stat-b');
+      const c = document.getElementById('stat-c');
+      if (t) t.textContent = formatTime(simSec);
+      if (a) a.textContent = inFlight;
+      if (b) b.textContent = synced;
+      if (c) c.textContent = alignments;
+    }
+
+    function loop(now) {
+      const dt = Math.min(80, now - lastT);
+      lastT = now;
+      if (running) {
+        tick(dt);
+        render();
+        updateStats();
+      }
+      requestAnimationFrame(loop);
+    }
+
+    if (reducedMotion) {
+      // static keyframe — populate one of each node, no motion
+      byId.read.pop = 1; byId.discuss.pop = 1; byId.extract.pop = 1;
+      byId.write.pop = 1; byId.align.pop = 1; byId.sync.pop = 1;
+      synced = 12; alignments = 9; inFlight = 6; simSec = 124;
+      render();
+      updateStats();
+    } else {
+      requestAnimationFrame(loop);
+    }
+
+    // controls
+    const playBtn = document.getElementById('sim-play');
+    if (playBtn) {
+      playBtn.addEventListener('click', () => {
+        running = !running;
+        playBtn.textContent = running ? 'PAUSE' : 'PLAY';
+        playBtn.classList.toggle('is-active', running);
+        if (running) lastT = performance.now();
+      });
+    }
+    document.querySelectorAll('[data-speed]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-speed]').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        speed = parseFloat(btn.getAttribute('data-speed')) || 1;
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
