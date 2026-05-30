@@ -1,0 +1,1961 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>marketing-ideas · Operator Manual</title>
+<meta name="description" content="A library of 139 proven marketing ideas, matched to stage, budget, and use case." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@100..900&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void:        #05080F;
+    --deep:        #0A1020;
+    --panel:       #0F1830;
+    --raised:      #131D38;
+    --edge:        #1F2A48;
+    --hairline:    rgba(140, 175, 230, 0.10);
+    --hairline-strong: rgba(140, 175, 230, 0.22);
+
+    --mist-100:    #DCE5F2;
+    --mist-200:    #A1B2D0;
+    --mist-300:    #6E81A4;
+    --mist-400:    #44557A;
+    --mist-500:    #2A3552;
+
+    --cobalt:      #4A8FE7;
+    --cyan:        #6EE0FF;
+    --azure:       #2D5BD5;
+    --frost:       #B8E5FF;
+
+    --mint:        #7DD3A0;
+    --ember:       #FFB55A;
+    --coral:       #FF7A7A;
+    --gold:        #E8C572;
+
+    --serif: 'Fraunces', 'Times New Roman', serif;
+    --sans:  'Geist', system-ui, sans-serif;
+    --mono:  'JetBrains Mono', ui-monospace, monospace;
+
+    --r-xs: 2px;
+    --r-sm: 4px;
+    --r:    8px;
+    --r-lg: 14px;
+
+    --gutter: clamp(20px, 4vw, 56px);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  html, body {
+    background: var(--void);
+    color: var(--mist-100);
+    font-family: var(--sans);
+    font-weight: 380;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "ss02", "cv11";
+    overflow-x: hidden;
+  }
+  ::selection { background: rgba(110, 224, 255, 0.28); color: var(--frost); }
+  a { color: inherit; text-decoration: none; }
+
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--hairline) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--hairline) 1px, transparent 1px);
+    background-size: 96px 96px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 30%, transparent 80%);
+    opacity: 0.6;
+  }
+  .bg-glow {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(60% 40% at 80% -10%, rgba(74, 143, 231, 0.18), transparent 60%),
+      radial-gradient(50% 35% at -10% 20%, rgba(110, 224, 255, 0.08), transparent 60%),
+      radial-gradient(55% 40% at 50% 110%, rgba(45, 91, 213, 0.12), transparent 65%);
+  }
+  .bg-noise {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: 0.045; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    display: grid; grid-template-columns: auto 1fr auto;
+    gap: 24px; align-items: center;
+    padding: 14px var(--gutter);
+    background: linear-gradient(to bottom, rgba(5,8,15,0.92), rgba(5,8,15,0.72));
+    backdrop-filter: blur(14px) saturate(120%);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .monogram {
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--mist-200); text-transform: uppercase;
+  }
+  .monogram svg { width: 22px; height: 22px; }
+  .monogram .div { color: var(--mist-400); }
+  .monogram b { color: var(--mist-100); font-weight: 500; letter-spacing: 0.22em; }
+  .topbar-meta {
+    display: flex; gap: 22px; align-items: center; justify-content: flex-end;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    color: var(--mist-300); text-transform: uppercase;
+  }
+  .conn { display: inline-flex; align-items: center; gap: 8px; color: var(--mist-100); }
+  .conn .pulse {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--mint);
+    box-shadow: 0 0 0 0 rgba(125, 211, 160, 0.6);
+    animation: pulse 2.2s infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(125, 211, 160, 0.55); }
+    70%  { box-shadow: 0 0 0 9px rgba(125, 211, 160, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(125, 211, 160, 0); }
+  }
+  #utc-clock { color: var(--frost); }
+
+  .rail {
+    position: fixed; top: 50%; left: 18px; transform: translateY(-50%);
+    z-index: 40;
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 14px 10px;
+    background: rgba(10, 16, 32, 0.55);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r);
+  }
+  .rail a {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+    color: var(--mist-400); padding: 6px 10px;
+    display: flex; gap: 10px; align-items: center;
+    border-radius: var(--r-sm);
+    transition: all 220ms ease;
+    text-transform: uppercase;
+  }
+  .rail a:hover { color: var(--mist-100); background: rgba(110, 224, 255, 0.06); }
+  .rail a.is-active { color: var(--cyan); background: rgba(110, 224, 255, 0.08); }
+  .rail a.is-active .dot { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+  .rail .num { color: var(--mist-300); }
+  .rail .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--mist-400); }
+  @media (max-width: 1180px) { .rail { display: none; } }
+
+  main { position: relative; z-index: 1; }
+  section {
+    position: relative;
+    padding: 110px var(--gutter);
+    max-width: 1400px; margin: 0 auto;
+  }
+  section + section { border-top: 1px dashed var(--hairline); }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 14px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em;
+    color: var(--mist-300); text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .eyebrow .num {
+    color: var(--cyan); padding: 3px 9px;
+    border: 1px solid rgba(110, 224, 255, 0.28);
+    border-radius: var(--r-xs); background: rgba(110, 224, 255, 0.06);
+  }
+  .eyebrow .ln { width: 60px; height: 1px; background: var(--hairline-strong); }
+
+  h1, h2, h3 { font-weight: 400; letter-spacing: -0.02em; color: var(--mist-100); }
+  h2 {
+    font-family: var(--serif); font-size: clamp(36px, 5vw, 64px);
+    line-height: 1.02; letter-spacing: -0.03em;
+    margin-bottom: 18px;
+  }
+  h2 em { font-style: italic; color: var(--frost); font-weight: 300; }
+  h3 { font-family: var(--serif); font-size: 22px; line-height: 1.25; color: var(--mist-100); }
+  p.lede {
+    font-family: var(--serif); font-style: italic;
+    font-size: clamp(18px, 1.6vw, 22px); line-height: 1.5;
+    color: var(--mist-200); max-width: 56ch;
+  }
+
+  .bracket { position: relative; }
+  .bracket::before, .bracket::after,
+  .bracket > .br-bl, .bracket > .br-br {
+    content: ""; position: absolute; width: 12px; height: 12px;
+    border: 1px solid var(--hairline-strong);
+  }
+  .bracket::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+  .bracket::after  { top: -1px; right: -1px; border-left: 0; border-bottom: 0; }
+  .bracket > .br-bl { bottom: -1px; left: -1px; border-right: 0; border-top: 0; }
+  .bracket > .br-br { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+
+  .hero {
+    padding-top: 80px;
+    display: grid; grid-template-columns: 1.05fr 0.95fr;
+    gap: 64px; align-items: center;
+  }
+  @media (max-width: 980px) { .hero { grid-template-columns: 1fr; gap: 40px; } }
+  .hero h1 {
+    font-family: var(--serif); font-size: clamp(72px, 11vw, 168px);
+    line-height: 0.88; letter-spacing: -0.05em; font-weight: 300;
+    color: var(--mist-100);
+  }
+  .hero h1 em { font-style: italic; color: var(--frost); font-weight: 300; opacity: 0.92; }
+  .hero h1 .dot { color: var(--cyan); font-style: normal; font-feature-settings: "ss03"; }
+  .hero .lede { margin-top: 28px; }
+  .hero .meta {
+    margin-top: 36px;
+    display: flex; flex-wrap: wrap; gap: 26px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--mist-300); text-transform: uppercase;
+  }
+  .hero .meta span b { color: var(--mist-100); font-weight: 500; }
+  .hero-figure {
+    position: relative; aspect-ratio: 1 / 1.05;
+    background: radial-gradient(60% 50% at 50% 50%, rgba(74,143,231,0.08), transparent 70%);
+    padding: 24px;
+  }
+  .hero-figure svg { width: 100%; height: 100%; display: block; }
+  .hero-figure .stamp {
+    position: absolute; top: 24px; right: 24px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    color: var(--mist-300); text-transform: uppercase;
+    padding: 6px 10px; border: 1px solid var(--hairline-strong);
+    background: rgba(15, 24, 48, 0.65); backdrop-filter: blur(6px);
+  }
+  .hero-figure .stamp b { color: var(--cyan); font-weight: 500; }
+
+  .kpis {
+    margin-top: 72px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px; background: var(--hairline); border: 1px solid var(--hairline);
+  }
+  @media (max-width: 880px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  .kpi { padding: 28px 24px; background: var(--deep); display: flex; flex-direction: column; gap: 8px; }
+  .kpi .label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    color: var(--mist-300); text-transform: uppercase;
+  }
+  .kpi .value {
+    font-family: var(--serif); font-size: 44px; line-height: 1;
+    font-weight: 300; letter-spacing: -0.03em; color: var(--mist-100);
+  }
+  .kpi .value em { color: var(--cyan); font-style: italic; font-weight: 400; }
+  .kpi .value .u {
+    font-family: var(--mono); font-size: 13px; color: var(--mist-300);
+    margin-left: 6px; letter-spacing: 0.1em; font-style: normal;
+  }
+  .kpi .note { font-size: 12px; color: var(--mist-300); margin-top: 6px; }
+
+  .terminal {
+    background: linear-gradient(to bottom, #08101F, #06090F);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--r);
+    overflow: hidden; position: relative;
+  }
+  .terminal .head {
+    padding: 12px 16px;
+    background: rgba(15, 24, 48, 0.65);
+    border-bottom: 1px solid var(--hairline);
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--mist-300); text-transform: uppercase;
+  }
+  .terminal .head .lights { display: inline-flex; gap: 5px; }
+  .terminal .head .lights i { width: 7px; height: 7px; border-radius: 50%; display: block; background: var(--mist-500); }
+  .terminal .head .lights i:nth-child(1) { background: rgba(255, 122, 122, 0.4); }
+  .terminal .head .lights i:nth-child(2) { background: rgba(255, 181, 90, 0.4); }
+  .terminal .head .lights i:nth-child(3) { background: rgba(125, 211, 160, 0.4); }
+  .terminal .head .path { flex: 1; color: var(--mist-200); }
+  .terminal pre {
+    margin: 0; padding: 18px 20px;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
+    color: var(--mist-100); white-space: pre; overflow-x: auto;
+  }
+  .terminal pre .prompt { color: var(--cyan); user-select: none; }
+  .terminal pre .cm { color: var(--mist-400); font-style: italic; }
+  .terminal pre .k { color: var(--cobalt); }
+  .terminal pre .s { color: var(--mint); }
+  .terminal pre .n { color: var(--ember); }
+  .terminal pre .var { color: var(--frost); }
+
+  .surface-intro {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 56px;
+    align-items: end; margin-bottom: 44px;
+  }
+  @media (max-width: 880px) { .surface-intro { grid-template-columns: 1fr; } }
+  .surface-intro p { color: var(--mist-200); max-width: 50ch; }
+  .endpoint-block { display: grid; gap: 36px; }
+  .endpoint-group h4 {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em;
+    color: var(--mist-300); text-transform: uppercase;
+    margin-bottom: 12px; padding-left: 4px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .endpoint-group h4::after { content: ""; flex: 1; height: 1px; background: var(--hairline); }
+  .endpoint-group h4 .cnt { color: var(--mist-400); font-size: 10px; }
+  .endpoint-table {
+    border: 1px solid var(--hairline-strong);
+    background: rgba(10, 16, 32, 0.4);
+    border-radius: var(--r); overflow: hidden;
+  }
+  .endpoint-row {
+    display: grid;
+    grid-template-columns: 90px 64px minmax(180px, 1fr) 1.5fr;
+    align-items: center;
+    padding: 14px 18px; gap: 18px;
+    border-top: 1px solid var(--hairline);
+    transition: background 200ms ease;
+  }
+  .endpoint-row:first-child { border-top: 0; }
+  .endpoint-row:hover { background: rgba(74, 143, 231, 0.04); }
+  .endpoint-row:hover .path { color: var(--frost); }
+  .verb {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    font-weight: 500; padding: 4px 8px; border-radius: var(--r-xs);
+    border: 1px solid currentColor; width: max-content;
+  }
+  .verb.get    { color: var(--cyan);   background: rgba(110, 224, 255, 0.07); }
+  .verb.post   { color: var(--mint);   background: rgba(125, 211, 160, 0.08); }
+  .verb.patch  { color: var(--ember);  background: rgba(255, 181, 90, 0.08); }
+  .verb.delete { color: var(--coral);  background: rgba(255, 122, 122, 0.08); }
+  .verb.run    { color: var(--cobalt); background: rgba(74, 143, 231, 0.08); }
+  .idea-num {
+    font-family: var(--mono); font-size: 11px; color: var(--mist-400);
+    letter-spacing: 0.08em; text-align: right;
+  }
+  .path { font-family: var(--mono); font-size: 13px; color: var(--mist-100); transition: color 200ms ease; }
+  .purpose { font-size: 13px; color: var(--mist-200); }
+
+  .taxonomy-totals {
+    margin-top: 56px; padding: 28px 24px;
+    background: rgba(15, 24, 48, 0.4);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 32px;
+  }
+  @media (max-width: 880px) { .taxonomy-totals { grid-template-columns: 1fr; } }
+  .taxonomy-totals .col h5 {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    color: var(--mist-300); text-transform: uppercase;
+    font-weight: 400; margin-bottom: 12px;
+  }
+  .taxonomy-totals .col p {
+    font-family: var(--serif); font-size: 22px; font-weight: 300;
+    line-height: 1.25; color: var(--mist-100); letter-spacing: -0.01em;
+  }
+  .taxonomy-totals .col p em { font-style: italic; color: var(--frost); }
+  .taxonomy-totals .col p .big { font-size: 36px; color: var(--cyan); font-style: italic; }
+
+  .telemetry-frame {
+    margin-top: 44px;
+    background: linear-gradient(to bottom, var(--deep), #07101F);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--r-lg);
+    overflow: hidden; position: relative;
+  }
+  .telemetry-frame .telemetry-head {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 24px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--hairline);
+    background: rgba(15, 24, 48, 0.4);
+  }
+  .telemetry-frame .label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em;
+    color: var(--mist-300); text-transform: uppercase;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .telemetry-frame .label b { color: var(--cyan); font-weight: 500; }
+  .telemetry-frame .label .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--cyan);
+    box-shadow: 0 0 12px var(--cyan); animation: pulse-c 1.6s infinite;
+  }
+  @keyframes pulse-c { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .telemetry-frame .ctrl { display: flex; gap: 8px; align-items: center; }
+  .telemetry-frame button {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    color: var(--mist-200); text-transform: uppercase;
+    padding: 6px 12px; background: transparent;
+    border: 1px solid var(--hairline-strong); border-radius: var(--r-xs);
+    cursor: pointer; transition: all 180ms ease;
+  }
+  .telemetry-frame button:hover { color: var(--cyan); border-color: var(--cobalt); }
+  .telemetry-frame button.is-active { color: var(--cyan); border-color: var(--cyan); background: rgba(110, 224, 255, 0.06); }
+  #sig-canvas { display: block; width: 100%; height: 380px; }
+  .telemetry-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--hairline); border-top: 1px solid var(--hairline);
+  }
+  .telemetry-stats .cell { padding: 20px 24px; background: var(--deep); display: flex; flex-direction: column; gap: 4px; }
+  .telemetry-stats .l { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--mist-300); text-transform: uppercase; }
+  .telemetry-stats .v { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--mist-100); }
+  .telemetry-stats .v.a { color: var(--frost); }
+  .telemetry-stats .v.b { color: var(--mint); }
+  .telemetry-stats .v.c { color: var(--coral); }
+  .telemetry-stats .v.t { color: var(--cyan); }
+  .telemetry-caption { margin-top: 22px; font-size: 13px; color: var(--mist-300); max-width: 78ch; }
+  .telemetry-caption b { color: var(--mist-100); font-weight: 500; }
+  .telemetry-caption .ref { color: var(--cyan); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; }
+
+  .workflow {
+    display: grid; grid-template-columns: 1fr 1.3fr;
+    gap: 56px; align-items: start;
+    padding: 64px 0;
+    border-top: 1px dashed var(--hairline);
+  }
+  .workflow:first-of-type { border-top: 0; padding-top: 0; }
+  @media (max-width: 980px) { .workflow { grid-template-columns: 1fr; gap: 32px; } }
+  .workflow .head .tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em;
+    color: var(--mist-300); text-transform: uppercase; margin-bottom: 14px;
+  }
+  .workflow .head .tag b { color: var(--cyan); }
+  .workflow .head h3 {
+    font-family: var(--serif); font-size: 36px; font-weight: 300;
+    letter-spacing: -0.025em; line-height: 1.05;
+    margin-bottom: 18px;
+  }
+  .workflow .head h3 em { font-style: italic; color: var(--frost); }
+  .workflow .head p { font-size: 14px; color: var(--mist-200); }
+  .workflow .head ul { margin-top: 18px; list-style: none; display: grid; gap: 8px; }
+  .workflow .head ul li { font-size: 13px; color: var(--mist-200); padding-left: 22px; position: relative; }
+  .workflow .head ul li::before {
+    content: ""; position: absolute; left: 0; top: 9px;
+    width: 12px; height: 1px; background: var(--cobalt);
+  }
+  .workflow .head ul li code {
+    font-family: var(--mono); font-size: 12px; color: var(--cyan);
+    background: var(--raised); padding: 1px 5px; border-radius: var(--r-xs);
+  }
+
+  .bands-grid {
+    margin-top: 40px;
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 700px) { .bands-grid { grid-template-columns: 1fr; } }
+  .band-card {
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: var(--r);
+    padding: 26px;
+    display: grid; gap: 14px; position: relative;
+  }
+  .band-card .lvl {
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .band-card .lvl .ln {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    color: var(--mist-300); text-transform: uppercase;
+  }
+  .band-card .lvl .ln b { color: var(--cyan); font-weight: 500; }
+  .band-card h3 {
+    font-family: var(--serif); font-size: 30px; line-height: 1; font-weight: 300;
+    letter-spacing: -0.02em;
+  }
+  .band-card h3 em { font-style: italic; color: var(--frost); }
+  .band-card .meter {
+    height: 4px; background: var(--raised); border-radius: 999px;
+    overflow: hidden; position: relative;
+  }
+  .band-card .meter i {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: linear-gradient(to right, var(--cobalt), var(--cyan));
+    border-radius: 999px;
+  }
+  .band-card .meter.mid    i { background: linear-gradient(to right, var(--cyan), var(--mint)); }
+  .band-card .meter.warm   i { background: linear-gradient(to right, var(--mint), var(--ember)); }
+  .band-card .meter.hot    i { background: linear-gradient(to right, var(--ember), var(--coral)); }
+  .band-card ul {
+    list-style: none; display: grid; gap: 6px;
+    margin-top: 4px;
+  }
+  .band-card ul li {
+    font-size: 13px; color: var(--mist-200);
+    padding-left: 18px; position: relative;
+  }
+  .band-card ul li::before {
+    content: ""; position: absolute; left: 0; top: 9px;
+    width: 8px; height: 1px; background: var(--cobalt);
+  }
+  .band-card ul li code {
+    font-family: var(--mono); font-size: 11px; color: var(--mist-400);
+    margin-left: 6px;
+  }
+
+  .conduct-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 40px; }
+  @media (max-width: 700px) { .conduct-grid { grid-template-columns: 1fr; } }
+  .conduct-card {
+    padding: 24px; border: 1px solid var(--hairline);
+    border-radius: var(--r);
+    background: rgba(10, 16, 32, 0.4);
+    display: grid; gap: 12px;
+  }
+  .conduct-card .n { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--cyan); text-transform: uppercase; }
+  .conduct-card h4 { font-family: var(--serif); font-size: 18px; font-weight: 400; line-height: 1.3; color: var(--mist-100); }
+  .conduct-card p { font-size: 13px; color: var(--mist-200); }
+  .conduct-card code {
+    font-family: var(--mono); font-size: 12px;
+    color: var(--cyan); background: var(--raised);
+    padding: 1px 5px; border-radius: var(--r-xs);
+  }
+
+  .related {
+    margin-top: 80px;
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 32px; align-items: center;
+    padding: 36px 0;
+    border-top: 1px dashed var(--hairline);
+  }
+  @media (max-width: 700px) { .related { grid-template-columns: 1fr; } }
+  .related h5 {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em;
+    color: var(--mist-300); text-transform: uppercase; font-weight: 400;
+  }
+  .related .pills {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .related .pills span {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
+    padding: 6px 11px; border: 1px solid var(--hairline-strong);
+    border-radius: var(--r-xs); color: var(--mist-100);
+    background: rgba(74, 143, 231, 0.06);
+  }
+  .related .pills span b { color: var(--cyan); font-weight: 500; }
+
+  footer {
+    max-width: 1400px; margin: 0 auto;
+    padding: 80px var(--gutter) 60px;
+    border-top: 1px dashed var(--hairline);
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 24px; align-items: end;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em;
+    color: var(--mist-400); text-transform: uppercase;
+  }
+  footer h5 {
+    font-family: var(--serif); font-style: italic; font-weight: 300;
+    font-size: 24px; color: var(--mist-200);
+    letter-spacing: -0.02em; text-transform: none; margin-bottom: 8px;
+  }
+  footer .right { text-align: right; }
+  footer .right b { color: var(--cyan); font-weight: 500; }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 800ms cubic-bezier(.2,.7,.2,1), transform 800ms cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 100ms; }
+  .reveal-delay-2 { transition-delay: 200ms; }
+  .reveal-delay-3 { transition-delay: 320ms; }
+  .reveal-delay-4 { transition-delay: 440ms; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .conn .pulse, .telemetry-frame .label .dot { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+<div class="bg-grid"></div>
+<div class="bg-noise"></div>
+
+<header class="topbar">
+  <div class="monogram">
+    <svg viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="3" stroke="#6EE0FF" stroke-width="1.2"/>
+      <circle cx="12" cy="12" r="7" stroke="#4A8FE7" stroke-width="1" opacity="0.65"/>
+      <circle cx="12" cy="12" r="10.5" stroke="#4A8FE7" stroke-width="0.8" opacity="0.35"/>
+      <circle cx="12" cy="2.5" r="1" fill="#6EE0FF"/>
+      <circle cx="21.5" cy="12" r="1" fill="#6EE0FF"/>
+      <circle cx="12" cy="21.5" r="1" fill="#6EE0FF"/>
+      <circle cx="2.5" cy="12" r="1" fill="#6EE0FF"/>
+    </svg>
+    <b>MARKETING-IDEAS</b>
+    <span class="div">/</span>
+    <span>OPERATOR&nbsp;MANUAL</span>
+    <span class="div">·</span>
+    <span>v1.1.0</span>
+  </div>
+  <div></div>
+  <div class="topbar-meta">
+    <span class="conn"><span class="pulse"></span>LIBRARY · 139 IDEAS</span>
+    <span id="utc-clock">— : — : — UTC</span>
+  </div>
+</header>
+
+<aside class="rail">
+  <a href="#s-intro"><span class="num">00</span><span class="dot"></span>INTRO</a>
+  <a href="#s-surface"><span class="num">02</span><span class="dot"></span>TAXONOMY</a>
+  <a href="#s-telemetry"><span class="num">03</span><span class="dot"></span>MATCH</a>
+  <a href="#s-ops"><span class="num">05</span><span class="dot"></span>STAGE</a>
+  <a href="#s-ledger"><span class="num">06</span><span class="dot"></span>BANDS</a>
+  <a href="#s-conduct"><span class="num">07</span><span class="dot"></span>OUTPUT</a>
+</aside>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════════
+     00 · INTRO
+     ═══════════════════════════════════════════════════════════ -->
+<section id="s-intro" class="hero">
+  <div class="hero-text reveal">
+    <div class="eyebrow">
+      <span class="num">00</span>
+      <span class="ln"></span>
+      <span>Skill dossier · the strategist's library</span>
+    </div>
+
+    <h1>marketing<em>-ideas</em><em class="dot">.</em></h1>
+
+    <p class="lede">
+      A library of one hundred and thirty-nine proven marketing ideas, sorted into seventeen categories
+      and matched against the operator's stage, budget, and use case. The strategist does not invent; she retrieves,
+      filters, and tailors.
+    </p>
+
+    <div class="meta">
+      <span>ROLE · <b>STRATEGIST</b></span>
+      <span>SCOPE · <b>SAAS / SOFTWARE</b></span>
+      <span>SHAPE · <b>ASK · MATCH · TAILOR</b></span>
+      <span>DEFER · <b>CHANNEL SKILLS</b></span>
+    </div>
+  </div>
+
+  <figure class="hero-figure bracket reveal reveal-delay-1">
+    <span class="br-bl"></span><span class="br-br"></span>
+    <div class="stamp">FIG · <b>SCHEMATIC</b> · 00.A</div>
+    <svg viewBox="0 0 480 520" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#6EE0FF" stop-opacity="0.32"/>
+          <stop offset="50%" stop-color="#4A8FE7" stop-opacity="0.14"/>
+          <stop offset="100%" stop-color="#4A8FE7" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="ring" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#6EE0FF" stop-opacity="0.55"/>
+          <stop offset="50%" stop-color="#4A8FE7" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#4A8FE7" stop-opacity="0.55"/>
+        </linearGradient>
+      </defs>
+
+      <!-- 6 dotted strata -->
+      <g stroke="#A1B2D0" stroke-opacity="0.15" fill="none" stroke-dasharray="2 4">
+        <circle cx="240" cy="260" r="80"/>
+        <circle cx="240" cy="260" r="110"/>
+        <circle cx="240" cy="260" r="140"/>
+        <circle cx="240" cy="260" r="170"/>
+        <circle cx="240" cy="260" r="200"/>
+        <circle cx="240" cy="260" r="225"/>
+      </g>
+
+      <!-- Outer ring -->
+      <circle cx="240" cy="260" r="225" stroke="url(#ring)" stroke-width="1" fill="none"/>
+
+      <!-- 17 ticks around the outer ring (one per category) -->
+      <g stroke="#6EE0FF" stroke-width="1.1" fill="none">
+        <g transform="translate(240 260)">
+          <!-- 17 ticks at evenly distributed angles -->
+          <g transform="rotate(0)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(21.17)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(42.35)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(63.52)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(84.70)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(105.88)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(127.05)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(148.23)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(169.41)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(190.58)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(211.76)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(232.94)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(254.11)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(275.29)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(296.47)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(317.64)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+          <g transform="rotate(338.82)"><line x1="0" y1="-225" x2="0" y2="-210"/></g>
+        </g>
+      </g>
+
+      <!-- Cardinal anchor labels -->
+      <g font-family="JetBrains Mono" font-size="8" letter-spacing="2" fill="#6E81A4">
+        <text x="240" y="22" text-anchor="middle">N · CONTENT</text>
+        <text x="468" y="263" text-anchor="end">PARTNERS · E</text>
+        <text x="240" y="498" text-anchor="middle">S · LAUNCHES</text>
+        <text x="12" y="263" text-anchor="start">W · PAID</text>
+      </g>
+
+      <!-- Core glow + octagon + cyan center -->
+      <circle cx="240" cy="260" r="140" fill="url(#coreGlow)"/>
+      <g transform="translate(240 260)" fill="none" stroke="#6EE0FF">
+        <polygon points="-32,-32 32,-32 32,32 -32,32" stroke-opacity="0.5" transform="rotate(45)"/>
+        <polygon points="-22,-22 22,-22 22,22 -22,22" stroke-opacity="0.8" transform="rotate(45)"/>
+        <circle r="10" fill="#6EE0FF"/>
+      </g>
+      <text x="240" y="264" text-anchor="middle"
+            font-family="JetBrains Mono" font-size="10" fill="#05080F"
+            font-weight="700" letter-spacing="1.5">M</text>
+
+      <!-- Cadence pulse -->
+      <g transform="translate(176 322)">
+        <path d="M0 8 L14 8 L18 0 L22 16 L26 8 L34 8 L38 4 L42 12 L46 8 L66 8 L70 2 L74 14 L78 8 L128 8"
+              stroke="#7DD3A0" stroke-width="1.4" fill="none"
+              stroke-linecap="round" opacity="0.85"/>
+        <text x="64" y="28" text-anchor="middle"
+              font-family="JetBrains Mono" font-size="8"
+              fill="#7DD3A0" letter-spacing="2">RETURN · 3 TO 5 IDEAS</text>
+      </g>
+
+      <!-- Outbound nodes — the 5 related skills -->
+      <g font-family="JetBrains Mono" font-size="9" letter-spacing="1.5" fill="#DCE5F2">
+        <line x1="320" y1="170" x2="408" y2="92" stroke="#4A8FE7" stroke-opacity="0.45"/>
+        <rect x="358" y="76" width="110" height="26" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.55"/>
+        <text x="413" y="93" text-anchor="middle">PROGRAMMATIC-SEO</text>
+
+        <line x1="328" y1="280" x2="430" y2="320" stroke="#4A8FE7" stroke-opacity="0.45"/>
+        <rect x="350" y="306" width="118" height="26" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.55"/>
+        <text x="409" y="323" text-anchor="middle">COMPETITOR-ALT</text>
+
+        <line x1="240" y1="370" x2="240" y2="430" stroke="#4A8FE7" stroke-opacity="0.45"/>
+        <rect x="174" y="430" width="132" height="26" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.55"/>
+        <text x="240" y="447" text-anchor="middle">EMAIL-SEQUENCE</text>
+
+        <line x1="152" y1="280" x2="62" y2="324" stroke="#4A8FE7" stroke-opacity="0.45"/>
+        <rect x="6" y="310" width="120" height="26" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.55"/>
+        <text x="66" y="327" text-anchor="middle">FREE-TOOL-STRAT</text>
+
+        <line x1="156" y1="172" x2="60" y2="98" stroke="#4A8FE7" stroke-opacity="0.45"/>
+        <rect x="2" y="82" width="124" height="26" fill="#0F1830" stroke="#4A8FE7" stroke-opacity="0.55"/>
+        <text x="64" y="99" text-anchor="middle">REFERRAL-PROGRAM</text>
+      </g>
+
+      <!-- Constellation dots -->
+      <g fill="#6EE0FF">
+        <circle cx="296" cy="62" r="1.8" opacity="0.85"/>
+        <circle cx="180" cy="46" r="1.5" opacity="0.6"/>
+        <circle cx="412" cy="200" r="1.6" opacity="0.7"/>
+        <circle cx="64" cy="208" r="2.0" opacity="0.85"/>
+        <circle cx="390" cy="392" r="1.7" opacity="0.7"/>
+        <circle cx="98" cy="404" r="1.8" opacity="0.8"/>
+        <circle cx="296" cy="480" r="1.5" opacity="0.55"/>
+        <circle cx="146" cy="486" r="1.6" opacity="0.65"/>
+        <circle cx="446" cy="118" r="1.4" opacity="0.55"/>
+        <circle cx="34" cy="120" r="1.7" opacity="0.7"/>
+        <circle cx="430" cy="448" r="1.8" opacity="0.78"/>
+        <circle cx="40" cy="448" r="1.5" opacity="0.6"/>
+      </g>
+    </svg>
+  </figure>
+</section>
+
+<!-- KPI strip -->
+<section style="padding-top: 0; max-width: 1400px;" class="reveal reveal-delay-2">
+  <div class="kpis">
+    <div class="kpi">
+      <span class="label">LIBRARY</span>
+      <span class="value"><em>139</em><span class="u">ideas</span></span>
+      <span class="note">Numbered, single source of truth.</span>
+    </div>
+    <div class="kpi">
+      <span class="label">CATEGORIES</span>
+      <span class="value"><em>17</em><span class="u">bins</span></span>
+      <span class="note">Content, paid, social, partners, launches, …</span>
+    </div>
+    <div class="kpi">
+      <span class="label">RETURN</span>
+      <span class="value"><em>3–5</em><span class="u">per ask</span></span>
+      <span class="note">Tailored to stage, budget, team.</span>
+    </div>
+    <div class="kpi">
+      <span class="label">CONTEXT FILE</span>
+      <span class="value"><em>1</em><span class="u">read</span></span>
+      <span class="note">.agents/product-marketing-context.md first.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     02 · TAXONOMY (renamed SURFACE)
+     ═══════════════════════════════════════════════════════════ -->
+<section id="s-surface">
+  <div class="eyebrow reveal"><span class="num">02</span><span class="ln"></span><span>The seventeen bins · the callable surface</span></div>
+
+  <div class="surface-intro">
+    <h2 class="reveal">The library, <em>opened on the bench.</em></h2>
+    <p class="reveal reveal-delay-1">Every idea sits in exactly one category and carries a number from 1 to 139. The strategist points; she rarely invents. Below: each category with its range and a handful of canonical entries. The full list lives in <code style="font-family:var(--mono);font-size:12px;color:var(--cyan);background:var(--raised);padding:1px 5px;border-radius:2px;">references/ideas-by-category.md</code>.</p>
+  </div>
+
+  <div class="endpoint-block reveal reveal-delay-2">
+
+    <div class="endpoint-group">
+      <h4>Content &amp; SEO <span class="cnt">· 10 ideas · #1–10</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#01</span>
+          <span class="path">easy-keyword-ranking</span>
+          <span class="purpose">Target low-competition terms competitors overlook.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#03</span>
+          <span class="path">glossary-marketing</span>
+          <span class="purpose">"What is X" pages targeting definitional search.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#04</span>
+          <span class="path">programmatic-seo</span>
+          <span class="purpose">Template-driven pages at scale across a keyword pattern.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#06</span>
+          <span class="path">proprietary-data-content</span>
+          <span class="purpose">Original research from product data competitors can't replicate.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Competitor &amp; Comparison <span class="cnt">· 3 ideas · #11–13</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#11</span>
+          <span class="path">competitor-comparison-pages</span>
+          <span class="purpose">"[You] vs [Competitor]" pages for high-intent searchers.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#12</span>
+          <span class="path">marketing-jiu-jitsu</span>
+          <span class="purpose">Turn a competitor weakness into your campaign.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#13</span>
+          <span class="path">competitive-ad-research</span>
+          <span class="purpose">Mine SpyFu / Facebook Ad Library for messaging that works.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Free Tools &amp; Engineering <span class="cnt">· 9 ideas · #14–22</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb post">BUILD</span>
+          <span class="idea-num">#15</span>
+          <span class="path">engineering-as-marketing</span>
+          <span class="purpose">Free utility solving a real problem; paid product is the next step.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb post">BUILD</span>
+          <span class="idea-num">#16</span>
+          <span class="path">importers-as-marketing</span>
+          <span class="purpose">"Import from [Competitor]" cuts switching friction.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb post">BUILD</span>
+          <span class="idea-num">#18</span>
+          <span class="path">calculator-marketing</span>
+          <span class="purpose">ROI / savings / pricing estimators that attract links.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb post">BUILD</span>
+          <span class="idea-num">#19</span>
+          <span class="path">chrome-extensions</span>
+          <span class="purpose">Chrome Web Store becomes another distribution channel.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Paid Advertising <span class="cnt">· 12 ideas · #23–34</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb patch">PAID</span>
+          <span class="idea-num">#28</span>
+          <span class="path">linkedin-ads</span>
+          <span class="purpose">Target by job title, company size, industry. B2B intent.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb patch">PAID</span>
+          <span class="idea-num">#31</span>
+          <span class="path">google-ads</span>
+          <span class="purpose">Brand / competitor / category terms. High intent.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb patch">PAID</span>
+          <span class="idea-num">#23</span>
+          <span class="path">podcast-advertising</span>
+          <span class="purpose">Host-read ads on relevant shows perform especially well.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb patch">PAID</span>
+          <span class="idea-num">#33</span>
+          <span class="path">cross-platform-retargeting</span>
+          <span class="purpose">Consistent message across platforms, same audience.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Social Media &amp; Community <span class="cnt">· 10 ideas · #35–44</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb get">SOCIAL</span>
+          <span class="idea-num">#35</span>
+          <span class="path">community-marketing</span>
+          <span class="purpose">Slack / Discord / FB group around your product.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">SOCIAL</span>
+          <span class="idea-num">#38</span>
+          <span class="path">reddit-marketing</span>
+          <span class="purpose">Authentic participation in relevant subreddits. Value first.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">SOCIAL</span>
+          <span class="idea-num">#39</span>
+          <span class="path">linkedin-audience</span>
+          <span class="purpose">Personal brand for B2B reach; thought leadership.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">SOCIAL</span>
+          <span class="idea-num">#42</span>
+          <span class="path">short-form-video</span>
+          <span class="purpose">TikTok / Reels / Shorts. Snackable, new-audience reach.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Email Marketing <span class="cnt">· 9 ideas · #45–53</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#47</span>
+          <span class="path">founder-welcome-email</span>
+          <span class="purpose">Personal welcome from a founder creates connection.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#51</span>
+          <span class="path">onboarding-emails</span>
+          <span class="purpose">Targeted sequences guide new users to activation.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#52</span>
+          <span class="path">win-back-emails</span>
+          <span class="purpose">Re-engage churned users with a real reason to return.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#45</span>
+          <span class="path">mistake-email-marketing</span>
+          <span class="purpose">"Oops" emails when something genuinely breaks. Authentic.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Partnerships &amp; Programs <span class="cnt">· 11 ideas · #54–64</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb post">PAIR</span>
+          <span class="idea-num">#58</span>
+          <span class="path">newsletter-swaps</span>
+          <span class="purpose">Exchange promotional mentions with complementary newsletters.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb post">PAIR</span>
+          <span class="idea-num">#62</span>
+          <span class="path">affiliate-program</span>
+          <span class="purpose">Structured commission program for referrers.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb post">PAIR</span>
+          <span class="idea-num">#63</span>
+          <span class="path">integration-marketing</span>
+          <span class="purpose">Joint marketing with integration partners.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb post">PAIR</span>
+          <span class="idea-num">#59</span>
+          <span class="path">article-quotes</span>
+          <span class="purpose">HARO and similar: expert quotes for journalists.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Events &amp; Speaking <span class="cnt">· 8 ideas · #65–72</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb get">HOST</span>
+          <span class="idea-num">#65</span>
+          <span class="path">live-webinars</span>
+          <span class="purpose">Educational webinars demonstrate expertise + generate leads.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">HOST</span>
+          <span class="idea-num">#66</span>
+          <span class="path">virtual-summits</span>
+          <span class="purpose">Multi-speaker online event. Varied perspectives draw the audience.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">HOST</span>
+          <span class="idea-num">#70</span>
+          <span class="path">conference-speaking</span>
+          <span class="purpose">Speak at industry conferences — engaged audiences in one room.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">HOST</span>
+          <span class="idea-num">#71</span>
+          <span class="path">host-conferences</span>
+          <span class="purpose">Run your own. Become the center of your industry.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>PR &amp; Media <span class="cnt">· 4 ideas · #73–76</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#74</span>
+          <span class="path">press-coverage</span>
+          <span class="purpose">Pitch newsworthy stories to relevant publications.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#75</span>
+          <span class="path">fundraising-pr</span>
+          <span class="purpose">Leverage funding announcements for press.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#73</span>
+          <span class="path">media-acquisitions</span>
+          <span class="purpose">Acquire newsletters / podcasts / publications in your space.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#76</span>
+          <span class="path">documentaries</span>
+          <span class="purpose">Long-form film exploring your industry or customers.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Launches &amp; Promotions <span class="cnt">· 10 ideas · #77–86</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#78</span>
+          <span class="path">product-hunt-launch</span>
+          <span class="purpose">Structured launch to reach early adopters.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#79</span>
+          <span class="path">early-access-referrals</span>
+          <span class="purpose">Reward referrers with earlier access during the launch window.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#81</span>
+          <span class="path">early-access-pricing</span>
+          <span class="purpose">Launch with discounted early-access tiers.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#86</span>
+          <span class="path">lifetime-deals</span>
+          <span class="purpose">One-time payment deals generate cash and users.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Product-Led Growth <span class="cnt">· 10 ideas · #87–96</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb post">PLG</span>
+          <span class="idea-num">#87</span>
+          <span class="path">powered-by-marketing</span>
+          <span class="purpose">"Powered by [You]" badges create free impressions.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb post">PLG</span>
+          <span class="idea-num">#93</span>
+          <span class="path">viral-loops</span>
+          <span class="purpose">Product mechanics that naturally encourage sharing.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb post">PLG</span>
+          <span class="idea-num">#91</span>
+          <span class="path">in-app-upsells</span>
+          <span class="purpose">Strategic upgrade prompts within the product experience.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb post">PLG</span>
+          <span class="idea-num">#88</span>
+          <span class="path">free-migrations</span>
+          <span class="purpose">Offer free migration services from competitors.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Content Formats <span class="cnt">· 13 ideas · #97–109</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#103</span>
+          <span class="path">online-courses</span>
+          <span class="purpose">Educational courses establish authority + generate leads.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#107</span>
+          <span class="path">podcasts</span>
+          <span class="purpose">Reach audiences during commutes; build relationships in slow form.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#105</span>
+          <span class="path">annual-reports</span>
+          <span class="purpose">Publish industry data and trends once a year. Citable.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#106</span>
+          <span class="path">end-of-year-wraps</span>
+          <span class="purpose">Personalized year-end summaries users want to share.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Unconventional &amp; Creative <span class="cnt">· 13 ideas · #110–122</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb delete">BOLD</span>
+          <span class="idea-num">#110</span>
+          <span class="path">awards-as-marketing</span>
+          <span class="purpose">Create industry awards; position your brand as tastemaker.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb delete">BOLD</span>
+          <span class="idea-num">#113</span>
+          <span class="path">controversy-as-marketing</span>
+          <span class="purpose">Strategic positioning against industry norms.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb delete">BOLD</span>
+          <span class="idea-num">#120</span>
+          <span class="path">marketing-stunts</span>
+          <span class="purpose">Bold, attention-grabbing moments. Done rarely, done loud.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb delete">BOLD</span>
+          <span class="idea-num">#122</span>
+          <span class="path">humor-marketing</span>
+          <span class="purpose">Use humor to stand out and to be remembered.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Platforms &amp; Marketplaces <span class="cnt">· 8 ideas · #123–130</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb get">LIST</span>
+          <span class="idea-num">#125</span>
+          <span class="path">app-marketplaces</span>
+          <span class="purpose">Salesforce AppExchange, Shopify App Store, similar.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">LIST</span>
+          <span class="idea-num">#128</span>
+          <span class="path">source-platforms</span>
+          <span class="purpose">Submit to G2, Capterra, GetApp, and similar directories.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">LIST</span>
+          <span class="idea-num">#127</span>
+          <span class="path">youtube-channel</span>
+          <span class="purpose">Build presence with tutorials and thought leadership.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb get">LIST</span>
+          <span class="idea-num">#123</span>
+          <span class="path">open-source-as-marketing</span>
+          <span class="purpose">Open-source components build developer goodwill.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>International &amp; Localization <span class="cnt">· 2 ideas · #131–132</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#131</span>
+          <span class="path">international-expansion</span>
+          <span class="purpose">Expand to new geographic markets with localization.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#132</span>
+          <span class="path">price-localization</span>
+          <span class="purpose">Adjust pricing to local purchasing power.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Developer &amp; Technical <span class="cnt">· 4 ideas · #133–136</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#136</span>
+          <span class="path">developer-relations</span>
+          <span class="purpose">Build relationships with developer communities.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#134</span>
+          <span class="path">certifications</span>
+          <span class="purpose">Certification programs validating expertise.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#135</span>
+          <span class="path">support-as-marketing</span>
+          <span class="purpose">Exceptional support creates stories customers share.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#133</span>
+          <span class="path">investor-marketing</span>
+          <span class="purpose">Market to investors for portfolio introductions.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint-group">
+      <h4>Audience-Specific <span class="cnt">· 3 ideas · #137–139</span></h4>
+      <div class="endpoint-table">
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#137</span>
+          <span class="path">two-sided-referrals</span>
+          <span class="purpose">Reward both referrer and referred.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#138</span>
+          <span class="path">podcast-tours</span>
+          <span class="purpose">Guest on multiple podcasts reaching your target audience.</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="verb run">RUN</span>
+          <span class="idea-num">#139</span>
+          <span class="path">customer-language</span>
+          <span class="purpose">Use the exact words your customers use in marketing.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="taxonomy-totals reveal reveal-delay-3">
+    <div class="col">
+      <h5>Bin sizes · counted</h5>
+      <p><span class="big">17</span> categories. Largest: <em>Paid</em> at twelve and <em>Unconventional</em> at thirteen. Smallest: <em>International</em> at two.</p>
+    </div>
+    <div class="col">
+      <h5>Top idea ranges</h5>
+      <p>Content sits at <em>1–10</em>; paid at <em>23–34</em>; product-led at <em>87–96</em>; the long tail of unconventional, format, platform, and audience-specific ideas runs to <em>139</em>.</p>
+    </div>
+    <div class="col">
+      <h5>Where the full list lives</h5>
+      <p>Every numbered idea, with one-line description, in <em>references/ideas-by-category.md</em>. The strategist reads it on every match.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     03 · TELEMETRY · match state machine
+     ═══════════════════════════════════════════════════════════ -->
+<section id="s-telemetry">
+  <div class="eyebrow reveal"><span class="num">03</span><span class="ln"></span><span>The match · how a request moves</span></div>
+  <h2 class="reveal">A request enters, <em>five ideas leave.</em></h2>
+  <p class="lede reveal reveal-delay-1" style="margin-top:18px;">
+    Tickets — each one an operator's question — travel through five stations. Most carry forward; some are kicked back to ASK when context is too thin to filter against. What lands at OUTPUT is three to five tailored ideas, not the whole library.
+  </p>
+
+  <div class="telemetry-frame reveal reveal-delay-2 bracket">
+    <span class="br-bl"></span><span class="br-br"></span>
+
+    <div class="telemetry-head">
+      <span class="label"><span class="dot"></span>SIM · <b>RECOMMENDATION&nbsp;FLOW</b></span>
+      <span></span>
+      <span class="ctrl">
+        <button id="sim-play" class="is-active">PAUSE</button>
+        <button data-speed="1" class="is-active">1×</button>
+        <button data-speed="2">2×</button>
+        <button data-speed="4">4×</button>
+      </span>
+    </div>
+
+    <canvas id="sig-canvas" aria-label="State-machine animation showing marketing requests flowing through ASK, MATCH, FILTER, RANK, and OUTPUT stations."></canvas>
+
+    <div class="telemetry-stats">
+      <div class="cell"><span class="l">SIM TIME</span><span class="v t" id="stat-time">00:00</span></div>
+      <div class="cell"><span class="l">IN-FLIGHT</span><span class="v a" id="stat-a">0</span></div>
+      <div class="cell"><span class="l">RECOMMENDED</span><span class="v b" id="stat-b">0</span></div>
+      <div class="cell"><span class="l">KICKED&nbsp;BACK</span><span class="v c" id="stat-c">0</span></div>
+    </div>
+  </div>
+
+  <p class="telemetry-caption reveal reveal-delay-3">
+    Watch a ticket arrive at <b>ASK</b>, get its context — stage, budget, history — then walk forward through <b>MATCH</b> (which bins fit), <b>FILTER</b> (which ideas survive the resource check), and <b>RANK</b> (top three to five). Some tickets are sent back from FILTER when constraints conflict; the strategist re-asks rather than over-suggests. Stations correspond to the four <span class="ref">TASK · QUESTIONS</span> in <b>SKILL.md</b>.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     05 · OPS · stage workflows
+     ═══════════════════════════════════════════════════════════ -->
+<section id="s-ops">
+  <div class="eyebrow reveal"><span class="num">05</span><span class="ln"></span><span>Workflows by stage · what to invoke when</span></div>
+  <h2 class="reveal">Right idea, <em>right altitude.</em></h2>
+
+  <div class="workflow">
+    <div class="head reveal">
+      <div class="tag"><b>OP · A</b> · PRE-LAUNCH</div>
+      <h3>Build an <em>audience</em> before you have a product.</h3>
+      <p>No traffic yet, no users to interview, no data. The job here is presence and permission — get the right people on a list and give them a reason to care before launch day.</p>
+      <ul>
+        <li>Waitlist referrals — reward early access with <code>#79</code></li>
+        <li>Early-access pricing — discounted tier on <code>#81</code></li>
+        <li>Prep Product Hunt assets per <code>#78</code></li>
+      </ul>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="terminal bracket">
+        <span class="br-bl"></span><span class="br-br"></span>
+        <div class="head"><span class="lights"><i></i><i></i><i></i></span><span class="path">strategist · pre-launch</span><span>SESSION</span></div>
+<pre><span class="cm"># Operator: pre-revenue, no list yet, two weeks to launch.</span>
+<span class="prompt">$</span> match --stage <span class="s">"pre-launch"</span> --budget <span class="s">"none"</span>
+
+  <span class="k">return</span> {
+    <span class="var">"top"</span>: [
+      <span class="n">#79</span>  early-access-referrals,
+      <span class="n">#81</span>  early-access-pricing,
+      <span class="n">#78</span>  product-hunt-launch
+    ],
+    <span class="var">"why"</span>: <span class="s">"no users yet → manufacture scarcity + list"</span>
+  }</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="workflow">
+    <div class="head reveal">
+      <div class="tag"><b>OP · B</b> · EARLY STAGE</div>
+      <h3>Find your first hundred customers <em>by hand.</em></h3>
+      <p>Product exists, a handful of users have paid. The cost of acquiring each one is still measured in conversations, not dollars. Lean into channels where you can be the one talking.</p>
+      <ul>
+        <li>Content &amp; SEO across <code>#1–10</code></li>
+        <li>Community-led growth via <code>#35</code></li>
+        <li>Founder-led sales — <code>#47</code> founder welcome emails</li>
+      </ul>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="terminal bracket">
+        <span class="br-bl"></span><span class="br-br"></span>
+        <div class="head"><span class="lights"><i></i><i></i><i></i></span><span class="path">strategist · early-stage</span><span>SESSION</span></div>
+<pre><span class="cm"># Operator: 12 paying users, founder still doing every onboarding.</span>
+<span class="prompt">$</span> match --stage <span class="s">"early"</span> --team <span class="n">2</span> --budget <span class="s">"low"</span>
+
+  <span class="k">return</span> {
+    <span class="var">"top"</span>: [
+      <span class="n">#1</span>   easy-keyword-ranking,
+      <span class="n">#35</span>  community-marketing,
+      <span class="n">#47</span>  founder-welcome-email
+    ],
+    <span class="var">"defer"</span>: [ <span class="n">#28</span> linkedin-ads, <span class="n">#31</span> google-ads ]
+  }</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="workflow">
+    <div class="head reveal">
+      <div class="tag"><b>OP · C</b> · GROWTH</div>
+      <h3>Buy what you've already <em>learned to sell.</em></h3>
+      <p>Conversion paths are known. Channels are paying back. The job shifts to scaling what works: paid acquisition, partnership leverage, event presence.</p>
+      <ul>
+        <li>Paid acquisition across <code>#23–34</code></li>
+        <li>Partnerships &amp; programs via <code>#54–64</code></li>
+        <li>Events &amp; speaking across <code>#65–72</code></li>
+      </ul>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="terminal bracket">
+        <span class="br-bl"></span><span class="br-br"></span>
+        <div class="head"><span class="lights"><i></i><i></i><i></i></span><span class="path">strategist · growth</span><span>SESSION</span></div>
+<pre><span class="cm"># Operator: payback &lt; 9mo on paid; ready to scale.</span>
+<span class="prompt">$</span> match --stage <span class="s">"growth"</span> --budget <span class="s">"medium"</span>
+
+  <span class="k">return</span> {
+    <span class="var">"top"</span>: [
+      <span class="n">#28</span>  linkedin-ads,
+      <span class="n">#63</span>  integration-marketing,
+      <span class="n">#70</span>  conference-speaking,
+      <span class="n">#33</span>  cross-platform-retargeting
+    ]
+  }</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="workflow">
+    <div class="head reveal">
+      <div class="tag"><b>OP · D</b> · SCALE</div>
+      <h3>Spend on the moats <em>only scale can buy.</em></h3>
+      <p>Channels are mature; growth comes from brand, geographic reach, and acquisitions that compress competitive distance. Long-payback bets that smaller operators can't justify.</p>
+      <ul>
+        <li>Brand campaigns &amp; thought leadership</li>
+        <li>International expansion &amp; price localization <code>#131–132</code></li>
+        <li>Media acquisitions as marketing <code>#73</code></li>
+      </ul>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="terminal bracket">
+        <span class="br-bl"></span><span class="br-br"></span>
+        <div class="head"><span class="lights"><i></i><i></i><i></i></span><span class="path">strategist · scale</span><span>SESSION</span></div>
+<pre><span class="cm"># Operator: $20M+ ARR, three core markets, owns category SEO.</span>
+<span class="prompt">$</span> match --stage <span class="s">"scale"</span> --budget <span class="s">"high"</span>
+
+  <span class="k">return</span> {
+    <span class="var">"top"</span>: [
+      <span class="n">#131</span> international-expansion,
+      <span class="n">#132</span> price-localization,
+      <span class="n">#73</span>  media-acquisitions,
+      <span class="n">#76</span>  documentaries
+    ]
+  }</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     06 · BANDS · budget tiers
+     ═══════════════════════════════════════════════════════════ -->
+<section id="s-ledger">
+  <div class="eyebrow reveal"><span class="num">06</span><span class="ln"></span><span>Budget bands · what fits each wallet</span></div>
+  <h2 class="reveal">The same library, <em>read at four altitudes.</em></h2>
+  <p class="lede reveal reveal-delay-1" style="margin-top:18px;">
+    Most operators don't know what's blocked by money and what's blocked by attention. The bands separate them. Free tactics need time and taste; paid tactics need cash and a working funnel.
+  </p>
+
+  <div class="bands-grid">
+    <div class="band-card bracket reveal reveal-delay-2">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <div class="lvl"><span class="ln">BAND · <b>FREE</b></span></div>
+      <h3>The <em>time-rich</em> band.</h3>
+      <div class="meter"><i style="width:18%;"></i></div>
+      <ul>
+        <li>Content &amp; SEO across the full <code>#1–10</code> bin</li>
+        <li>Community building with <code>#35</code></li>
+        <li>Social media presence via <code>#39 #41 #42</code></li>
+        <li>Comment marketing <code>#44</code></li>
+      </ul>
+    </div>
+
+    <div class="band-card bracket reveal reveal-delay-2">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <div class="lvl"><span class="ln">BAND · <b>LOW</b></span></div>
+      <h3>The <em>targeted</em> band.</h3>
+      <div class="meter mid"><i style="width:38%;"></i></div>
+      <ul>
+        <li>Targeted ads — small, sharp campaigns from <code>#23–34</code></li>
+        <li>Sponsorships of small newsletters / communities <code>#64</code></li>
+        <li>Free tools — engineering as marketing <code>#15</code></li>
+      </ul>
+    </div>
+
+    <div class="band-card bracket reveal reveal-delay-3">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <div class="lvl"><span class="ln">BAND · <b>MEDIUM</b></span></div>
+      <h3>The <em>presence-buying</em> band.</h3>
+      <div class="meter warm"><i style="width:62%;"></i></div>
+      <ul>
+        <li>Events: webinars, summits, meetups <code>#65–72</code></li>
+        <li>Partnerships and integration co-marketing <code>#54–64</code></li>
+        <li>Press &amp; PR <code>#73–76</code></li>
+      </ul>
+    </div>
+
+    <div class="band-card bracket reveal reveal-delay-3">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <div class="lvl"><span class="ln">BAND · <b>HIGH</b></span></div>
+      <h3>The <em>moat-buying</em> band.</h3>
+      <div class="meter hot"><i style="width:96%;"></i></div>
+      <ul>
+        <li>Acquisitions — media, audiences, communities <code>#73</code></li>
+        <li>Hosted conferences <code>#71</code></li>
+        <li>Brand campaigns at scale</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     07 · CONDUCT · output format rules
+     ═══════════════════════════════════════════════════════════ -->
+<section id="s-conduct">
+  <div class="eyebrow reveal"><span class="num">07</span><span class="ln"></span><span>Output etiquette · the shape of an answer</span></div>
+  <h2 class="reveal">Five facets <em>per recommendation.</em></h2>
+  <p class="lede reveal reveal-delay-1" style="margin-top:18px;">
+    The strategist's answer has a shape. Each recommended idea carries five facets — name, fit, first steps, expected outcome, and resources. Nothing less; rarely more.
+  </p>
+
+  <div class="conduct-grid">
+    <div class="conduct-card reveal reveal-delay-1 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <span class="n">A</span>
+      <h4>Idea name · one-line description.</h4>
+      <p>The canonical name and a single sentence the operator can repeat verbatim to a colleague.</p>
+    </div>
+
+    <div class="conduct-card reveal reveal-delay-2 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <span class="n">B</span>
+      <h4>Why it fits · the connection.</h4>
+      <p>Tie it back to the operator's stated stage, audience, or constraint. If you can't, the idea didn't earn the slot.</p>
+    </div>
+
+    <div class="conduct-card reveal reveal-delay-3 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <span class="n">C</span>
+      <h4>How to start · first two-or-three steps.</h4>
+      <p>Concrete. Not "build a strategy" — the literal next action they should do this week.</p>
+    </div>
+
+    <div class="conduct-card reveal reveal-delay-3 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <span class="n">D</span>
+      <h4>Expected outcome · what success looks like.</h4>
+      <p>Name the leading indicator: signups per week, share of voice, qualified inbound. Hand-wavy outcomes get hand-wavy execution.</p>
+    </div>
+
+    <div class="conduct-card reveal reveal-delay-4 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <span class="n">E</span>
+      <h4>Resources needed · time, budget, skills.</h4>
+      <p>Honest count of hours, dollars, and people. The operator decides whether the price is right; the strategist doesn't hide it.</p>
+    </div>
+
+    <div class="conduct-card reveal reveal-delay-4 bracket">
+      <span class="br-bl"></span><span class="br-br"></span>
+      <span class="n">F</span>
+      <h4>Defer to the channel skill.</h4>
+      <p>For execution, hand off: <code>programmatic-seo</code>, <code>competitor-alternatives</code>, <code>email-sequence</code>, <code>free-tool-strategy</code>, <code>referral-program</code>. This skill names the move; the channel skill makes it.</p>
+    </div>
+  </div>
+
+  <div class="related reveal">
+    <h5>HANDOFFS</h5>
+    <div class="pills">
+      <span><b>#4</b> · programmatic-seo</span>
+      <span><b>#11</b> · competitor-alternatives</span>
+      <span><b>#45–53</b> · email-sequence</span>
+      <span><b>#15</b> · free-tool-strategy</span>
+      <span><b>#93</b> · referral-program</span>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div>
+    <h5>One hundred and thirty-nine moves, none of them new — only one of them right.</h5>
+    <span>MARKETING-IDEAS · OPERATOR MANUAL · v1.1.0 · last orbit 2026-05-22</span>
+  </div>
+  <div class="right">
+    <span><b>SKILL.md</b> is canonical. This page is a visual companion.</span>
+  </div>
+</footer>
+
+<script>
+  /* Live UTC clock */
+  (function clock() {
+    const el = document.getElementById('utc-clock');
+    if (!el) return;
+    function tick() {
+      const d = new Date();
+      const hh = String(d.getUTCHours()).padStart(2, '0');
+      const mm = String(d.getUTCMinutes()).padStart(2, '0');
+      const ss = String(d.getUTCSeconds()).padStart(2, '0');
+      el.textContent = `${hh} : ${mm} : ${ss} UTC`;
+    }
+    tick(); setInterval(tick, 1000);
+  })();
+
+  /* Reveal on scroll */
+  (function reveal() {
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      }
+    }, { rootMargin: '-8% 0px -10% 0px', threshold: 0.05 });
+    els.forEach(el => io.observe(el));
+  })();
+
+  /* Rail active state */
+  (function rail() {
+    const links = Array.from(document.querySelectorAll('.rail a'));
+    const sections = links
+      .map(a => document.querySelector(a.getAttribute('href')))
+      .filter(Boolean);
+    if (!sections.length) return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          const id = e.target.id;
+          links.forEach(a => a.classList.toggle('is-active', a.getAttribute('href') === '#' + id));
+        }
+      }
+    }, { rootMargin: '-40% 0px -50% 0px', threshold: 0 });
+    sections.forEach(s => io.observe(s));
+  })();
+
+  /* ─────────────────────────────────────────────────────────
+     SIGNATURE CANVAS · state machine
+     ASK → MATCH → FILTER → RANK → OUTPUT
+     ───────────────────────────────────────────────────────── */
+  (function recommendationSim() {
+    const canvas = document.getElementById('sig-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const PAL = {
+      void:    '#05080F',
+      panel:   '#0F1830',
+      edge:    '#1F2A48',
+      mist300: '#6E81A4',
+      mist400: '#44557A',
+      cobalt:  '#4A8FE7',
+      cyan:    '#6EE0FF',
+      frost:   '#B8E5FF',
+      mint:    '#7DD3A0',
+      ember:   '#FFB55A',
+      coral:   '#FF7A7A',
+    };
+
+    let DPR = Math.max(1, window.devicePixelRatio || 1);
+    let W = 0, H = 0;
+    function resize() {
+      DPR = Math.max(1, window.devicePixelRatio || 1);
+      const rect = canvas.getBoundingClientRect();
+      W = rect.width; H = rect.height;
+      canvas.width = Math.round(W * DPR);
+      canvas.height = Math.round(H * DPR);
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const nodes = [
+      { id: 'ask',    label: 'ASK',    sub: 'context',    x: 0.10, y: 0.50, r: 26, pop: 0, pulse: 0 },
+      { id: 'match',  label: 'MATCH',  sub: 'bins',       x: 0.30, y: 0.50, r: 26, pop: 0, pulse: 0 },
+      { id: 'filter', label: 'FILTER', sub: 'budget',     x: 0.52, y: 0.50, r: 28, pop: 0, pulse: 0 },
+      { id: 'rank',   label: 'RANK',   sub: 'top 3-5',    x: 0.74, y: 0.50, r: 26, pop: 0, pulse: 0 },
+      { id: 'out',    label: 'OUTPUT', sub: 'tailored',   x: 0.92, y: 0.50, r: 28, pop: 0, pulse: 0, core: true },
+    ];
+    const path = ['ask','match','filter','rank','out'];
+
+    const items = []; // { stage, t, kicked, label }
+    let recommended = 0;
+    let kicked = 0;
+    let lastSpawn = 0;
+    let simT0 = performance.now();
+
+    const sampleLabels = [
+      '#1 keyword-ranking',
+      '#15 engineering',
+      '#35 community',
+      '#47 founder-email',
+      '#78 product-hunt',
+      '#93 viral-loops',
+      '#28 linkedin-ads',
+      '#63 integration',
+      '#70 conf-speaking',
+      '#107 podcast',
+      '#11 vs-pages',
+      '#137 two-sided',
+    ];
+
+    function spawn() {
+      items.push({
+        stage: 0, // index in path
+        t: 0,
+        kicked: false,
+        label: sampleLabels[Math.floor(Math.random() * sampleLabels.length)],
+        wobble: Math.random() * Math.PI * 2,
+      });
+    }
+
+    let speed = 1;
+    let paused = false;
+    let lastTs = performance.now();
+
+    function tick(ts) {
+      const dt = ts - lastTs; lastTs = ts;
+      if (paused) return;
+
+      // spawn new tickets ~ every 800ms (sim-time)
+      if (ts - lastSpawn > 900 / speed) {
+        spawn();
+        lastSpawn = ts;
+      }
+
+      // advance items
+      for (const it of items) {
+        it.t += dt * 0.0009 * speed;
+        if (it.t >= 1) {
+          // arrived at next station
+          const dst = nodes[it.stage + 1];
+          if (!dst) { it.retire = true; continue; }
+          dst.pulse = 1;
+          // chance to kick back from FILTER (index 2) to ASK
+          if (it.stage + 1 === 2 && Math.random() < 0.18) {
+            it.kicked = true;
+            it.stage = 0;
+            it.t = 0;
+            kicked++;
+          } else if (it.stage + 1 === path.length - 1) {
+            // reached OUTPUT
+            it.stage = it.stage + 1;
+            it.t = 1;
+            it.atOutput = ts;
+            recommended++;
+          } else {
+            it.stage = it.stage + 1;
+            it.t = 0;
+          }
+        }
+      }
+      // retire items that finished at OUTPUT after a beat
+      for (const it of items) {
+        if (it.atOutput && ts - it.atOutput > 900 / speed) it.retire = true;
+      }
+      for (let i = items.length - 1; i >= 0; i--) if (items[i].retire) items.splice(i, 1);
+
+      // decay pulses
+      for (const n of nodes) n.pulse = Math.max(0, n.pulse - dt * 0.003);
+
+      draw(ts);
+      updateStats(ts);
+      raf = requestAnimationFrame(tick);
+    }
+
+    function draw(ts) {
+      ctx.fillStyle = PAL.void;
+      ctx.fillRect(0, 0, W, H);
+
+      // background grid lanes
+      ctx.strokeStyle = PAL.edge;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 6]);
+      ctx.beginPath();
+      ctx.moveTo(W * 0.05, H * 0.5);
+      ctx.lineTo(W * 0.97, H * 0.5);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // station markers above/below
+      ctx.strokeStyle = PAL.edge;
+      ctx.beginPath();
+      for (const n of nodes) {
+        const nx = n.x * W;
+        ctx.moveTo(nx, H * 0.18);
+        ctx.lineTo(nx, H * 0.82);
+      }
+      ctx.stroke();
+
+      // edges (forward)
+      ctx.strokeStyle = PAL.cobalt;
+      ctx.globalAlpha = 0.5;
+      ctx.lineWidth = 1.2;
+      for (let i = 0; i < nodes.length - 1; i++) {
+        const a = nodes[i], b = nodes[i + 1];
+        ctx.beginPath();
+        ctx.moveTo(a.x * W + a.r, a.y * H);
+        ctx.lineTo(b.x * W - b.r, b.y * H);
+        ctx.stroke();
+      }
+      // kick-back arc from FILTER to ASK
+      const fNode = nodes[2], aNode = nodes[0];
+      ctx.strokeStyle = PAL.coral;
+      ctx.globalAlpha = 0.35;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 4]);
+      ctx.beginPath();
+      const mx = (fNode.x + aNode.x) * 0.5 * W;
+      ctx.moveTo(fNode.x * W, fNode.y * H - fNode.r);
+      ctx.quadraticCurveTo(mx, H * 0.10, aNode.x * W, aNode.y * H - aNode.r);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+
+      // draw items in motion
+      for (const it of items) {
+        const a = nodes[it.stage];
+        const b = nodes[Math.min(it.stage + 1, nodes.length - 1)];
+        const tt = it.t;
+        const ax = a.x * W, ay = a.y * H;
+        const bx = b.x * W, by = b.y * H;
+        let px, py;
+        if (it.kicked && it.stage === 0 && it.t < 0.5) {
+          // animate kick-back arc
+          const k = it.t * 2;
+          const startX = fNode.x * W, startY = fNode.y * H - fNode.r;
+          const endX = aNode.x * W, endY = aNode.y * H - aNode.r;
+          const cx = (fNode.x + aNode.x) * 0.5 * W;
+          // quadratic bezier
+          const u = 1 - k;
+          px = u * u * startX + 2 * u * k * cx + k * k * endX;
+          py = u * u * startY + 2 * u * k * H * 0.10 + k * k * endY;
+        } else {
+          px = ax + (bx - ax) * tt;
+          py = ay + (by - ay) * tt + Math.sin(it.wobble + ts * 0.003) * 2;
+        }
+
+        // glyph: small rounded rect
+        ctx.fillStyle = it.kicked ? PAL.coral : (it.stage >= path.length - 1 ? PAL.mint : PAL.cyan);
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // nodes (drawn on top so glyphs disappear into them)
+      for (const n of nodes) {
+        const nx = n.x * W, ny = n.y * H;
+        // outer pulse halo
+        if (n.pulse > 0) {
+          ctx.fillStyle = `rgba(110, 224, 255, ${0.18 * n.pulse})`;
+          ctx.beginPath();
+          ctx.arc(nx, ny, n.r + 10 * n.pulse, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // panel fill
+        ctx.fillStyle = PAL.panel;
+        ctx.strokeStyle = n.core ? PAL.cyan : PAL.cobalt;
+        ctx.lineWidth = n.core ? 1.6 : 1.2;
+        ctx.beginPath();
+        ctx.arc(nx, ny, n.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        // inner dot
+        ctx.fillStyle = n.core ? PAL.cyan : (n.pulse > 0.2 ? PAL.frost : PAL.mist300);
+        ctx.beginPath();
+        ctx.arc(nx, ny, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // label
+        ctx.font = '500 10px "JetBrains Mono", monospace';
+        ctx.fillStyle = n.core ? PAL.cyan : PAL.frost;
+        ctx.textAlign = 'center';
+        ctx.fillText(n.label, nx, ny - n.r - 10);
+        ctx.font = '400 9px "JetBrains Mono", monospace';
+        ctx.fillStyle = PAL.mist300;
+        ctx.fillText(n.sub, nx, ny + n.r + 18);
+      }
+
+      // captions for kick-back
+      ctx.font = '400 9px "JetBrains Mono", monospace';
+      ctx.fillStyle = PAL.coral;
+      ctx.textAlign = 'center';
+      ctx.fillText('KICK-BACK · re-ask', (fNode.x + aNode.x) * 0.5 * W, H * 0.10 - 6);
+
+      // legend bottom
+      ctx.textAlign = 'left';
+      ctx.font = '400 9px "JetBrains Mono", monospace';
+      ctx.fillStyle = PAL.mist400;
+      ctx.fillText('LEGEND ·', W * 0.05, H * 0.95);
+      ctx.fillStyle = PAL.cyan;
+      ctx.fillText('IN-FLIGHT', W * 0.13, H * 0.95);
+      ctx.fillStyle = PAL.mint;
+      ctx.fillText('RECOMMENDED', W * 0.25, H * 0.95);
+      ctx.fillStyle = PAL.coral;
+      ctx.fillText('KICKED BACK', W * 0.40, H * 0.95);
+    }
+
+    function updateStats(ts) {
+      const elapsed = Math.floor((ts - simT0) / 1000);
+      const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const ss = String(elapsed % 60).padStart(2, '0');
+      const t = document.getElementById('stat-time');
+      if (t) t.textContent = `${mm}:${ss}`;
+      const inFlight = items.filter(i => !i.retire && i.stage < path.length - 1).length;
+      const a = document.getElementById('stat-a'); if (a) a.textContent = inFlight;
+      const b = document.getElementById('stat-b'); if (b) b.textContent = recommended;
+      const c = document.getElementById('stat-c'); if (c) c.textContent = kicked;
+    }
+
+    let raf;
+    if (reduced) {
+      // Draw one static keyframe with a few items mid-path.
+      items.push({ stage: 0, t: 0.6, kicked: false, label: '', wobble: 0 });
+      items.push({ stage: 1, t: 0.4, kicked: false, label: '', wobble: 0 });
+      items.push({ stage: 2, t: 0.7, kicked: false, label: '', wobble: 0 });
+      items.push({ stage: 3, t: 0.5, kicked: false, label: '', wobble: 0 });
+      draw(performance.now());
+      updateStats(performance.now());
+    } else {
+      raf = requestAnimationFrame(tick);
+    }
+
+    // Controls
+    const playBtn = document.getElementById('sim-play');
+    if (playBtn) {
+      playBtn.addEventListener('click', () => {
+        paused = !paused;
+        playBtn.textContent = paused ? 'PLAY' : 'PAUSE';
+        if (!paused) { lastTs = performance.now(); raf = requestAnimationFrame(tick); }
+      });
+    }
+    const speedBtns = document.querySelectorAll('[data-speed]');
+    speedBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        speedBtns.forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        speed = Number(btn.getAttribute('data-speed')) || 1;
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
