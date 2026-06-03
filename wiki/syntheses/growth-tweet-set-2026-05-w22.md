@@ -5,7 +5,7 @@ trigger: query
 question: "28 EN tweets — lived field notes from building in public, optimized for reach and engagement, written to read human (not AI-generated)."
 sources_consulted: [semnal-x-growth-system, reply-guy-growth-engine-framework, growth-tweet-set-2026-05-w21]
 concepts_involved: [skill-era, encoded-judgment, compounding-games, leverage, productize-yourself, specific-knowledge, voice-preservation, human-in-loop-publishing, distribution-over-product, reply-as-distribution, building-in-public, dogfood-as-content, late-founder-edge, anti-slopware, unsexy-tam, vertical-operator-edge, ship-or-die-deadline, marketing-harder-than-code, over-polishing-trap, knowledge-first-development]
-pillars_targeted: [skill-era-craftsmanship, building-as-51yo-from-ro-public-hospital, ai-agents-for-solo-builders, unsexy-smb-vertical]
+pillars_targeted: [skill-era-craftsmanship, building-as-51yo-from-ro-public-hospital, ai-agents-for-solo-builders]
 created: 2026-05-30
 updated: 2026-05-30
 maturity: draft
@@ -14,7 +14,7 @@ alignment:
     relation: reinforces
   - pillar: building-as-51yo-from-ro-public-hospital
     relation: reinforces
-  - pillar: unsexy-smb-vertical
+  - pillar: ai-agents-for-solo-builders
     relation: reinforces
 ---
 
